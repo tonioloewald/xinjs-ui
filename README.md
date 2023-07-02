@@ -8,7 +8,11 @@ Copyright ©2023 Tonio Loewald
 
 In general, `xinjs` strives to work _with_ the browser rather than trying to replace it.
 
-This is not a library of wrappers for things that work perfectly well in HTML!
+This is *not* a library of wrappers for things that work perfectly well in HTML!
+
+Similarly, because web-components are highly interoperable, there's no reason to reinvent
+wheels. In particular, this library won't try to replace existing, excellent libraries
+such as [shoelace.style](https://shoelace.style/).
 
 The goal here is to provide useful components that augment what's built into HTML5.
 
