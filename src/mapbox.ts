@@ -77,7 +77,9 @@ class MapBox extends WebComponent {
   connectedCallback(): void {
     super.connectedCallback()
     if (!this.token) {
-      console.error('mapbox requires an access token which you can provide via the token attribute')
+      console.error(
+        'mapbox requires an access token which you can provide via the token attribute'
+      )
     }
   }
 

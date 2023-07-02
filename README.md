@@ -6,7 +6,7 @@ Copyright ©2023 Tonio Loewald
 
 ## the xinjs component library
 
-In general, `xinjs` strives to work *with* the browser rather than trying to replace it.
+In general, `xinjs` strives to work _with_ the browser rather than trying to replace it.
 
 This is not a library of wrappers for things that work perfectly well in HTML!
 
