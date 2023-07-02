@@ -1,0 +1,72 @@
+{
+  "name": "xinjs-ui",
+  "version": "0.1.0",
+  "description": "simple robust web-components for use with xinjs or anything else",
+  "main": "dist/index.js",
+  "types": "dist/types.d.ts",
+  "scripts": {
+    "start": "rm -rf www && bun parcel demo/index.html --dist-dir www -p 8787",
+    "build": "bun format && bun test && rm -rf docs && bun parcel build --public-url .",
+    "format": "bun prettier --write .",
+    "test": "bun test",
+    "update": "npm install && bun install"
+  },
+  "keywords": [
+    "xinjs",
+    "ui",
+    "ux",
+    "user interface",
+    "gui",
+    "widgets",
+    "web-components",
+    "component library"
+  ],
+  "author": "Tonio Loewald",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/tonioloewald/xinjs-polygons.git"
+  },
+  "devDependencies": {
+    "@parcel/packager-ts": "^2.9.3",
+    "@parcel/transformer-typescript-types": "^2.9.3",
+    "bun-types": "latest",
+    "parcel": "latest",
+    "prettier": "^2.8.8",
+    "typescript": "^5.0.4"
+  },
+  "peerDependencies": {
+    "xinjs": "^0.4.14"
+  },
+  "files": [
+    "/cdn",
+    "/dist",
+    "/LICENSE",
+    "/README.md"
+  ],
+  "type": "module",
+  "targets": {
+    "docs": {
+      "context": "browser",
+      "distDir": "docs",
+      "source": "demo/index.html",
+      "isLibrary": false,
+      "optimize": true
+    },
+    "dist": {
+      "context": "browser",
+      "source": "src/index.ts",
+      "isLibrary": true,
+      "distDir": "dist",
+      "outputFormat": "esmodule"
+    },
+    "cdn": {
+      "context": "browser",
+      "source": "src/index.ts",
+      "distDir": "cdn",
+      "optimize": true,
+      "isLibrary": true,
+      "outputFormat": "esmodule"
+    }
+  }
+}
