@@ -1,61 +1,49 @@
-+# xinjs-polygons
++# xinjs-ui
 
-[demo](https://tonioloewald.github.io/xinjs-polygons/) | [github](https://github.com/tonioloewald/xinjs-polygons#readme) | [npm](https://www.npmjs.com/package/xinjs-polygons) | ![bundlejs](https://deno.bundlejs.com/?q=xinjs-polygons&badge=)
+[demo](https://tonioloewald.github.io/xinjs-ui/) | [github](https://github.com/tonioloewald/xinjs-ui#readme) | [npm](https://www.npmjs.com/package/xinjs-ui) | ![bundlejs](https://deno.bundlejs.com/?q=xinjs-ui&badge=)
 
 Copyright ©2023 Tonio Loewald
 
-## Background
+## the xinjs component library
 
-While working on [xinjs-timezone-picker](https://tonioloewald.github.io/xinjs-timezone-picker/) I needed
-to work on complex SVG files and wrote this code. It's really nice so I thought I'd pull it out so I can
-use it elsewhere and you can too.
+In general, `xinjs` strives to work *with* the browser rather than trying to replace it.
 
-## Usage
+This is not a library of wrappers for things that work perfectly well in HTML!
 
-### Types
+The goal here is to provide useful components that augment what's built into HTML5.
 
-The two key types are
+### `<tab-selector>`
 
-    interface Point {
-      x: number,
-      y: number
-    }
+A tab-selector with nice animations.
 
-    type Polygon = Point[]
+### `<map-box>`
 
-### Functions
+A mapboxgl wrapper.
 
-The key function are:
+### `<bodymovin-player>`
 
-    import { area, simplify } from 'xinjs-polygons'
+A bodymovin, a.k.a. lottie, player.
 
-And you use them like this:
+## utilities
 
-    const polygonArea: number = area(...polygon)
-    const simplifiedPolygon = simplify(polygon, 0.5)
+### scriptTag & styleSheet
 
-The second argument to `simplify` is the `threshold` change in area a given point needs to justify its existence.
-Sinplify simply walks the boundary of the polygon, and for any three successive points `a`, `b`, and `c`, it will
-eliminate `b` if the area of the triangle `abc` is < `theshold`.
+If you need to load an old schoole javascript library via cdn (both mapboxgl and bodymovin are
+fine examples) then use these two functions. They return promises that resolve when the
+module in question has loaded.
 
-> If you want to compute a good threshold to use, you might consider a `small multiple` of the area of the original
-> polygon divided by its number of points - 3. (Any polygon with three points will clearly be reduced to area 0 by
-> eliminating any point.)
+Usage:
 
-### Utilities
+    import { scriptTag } from 'xinjs-ui'
 
-SVG polygon data is stored as a `points` attribute.
+    const bodymovinAvailable = scriptTag('../lottie.min.js')
 
-    import {stringToPolygon, polygonToString} from 'xinjs-polygons'
+    bodymovinAvailable.then(() => {
+      globalThis.bodymovien.loadAnimation(...)
+    })
 
-Assuming `polygon` is an SVG `<polygon>` element
+`<bodymovin-player>` is implemented in such a way that if you've preloaded the module
+(e.g. via a script tag or packaging) it won't load it again, which affords offline
+use.
 
-    const points = stringToPolygon(polygon.getAttribute('points'))
-
-`points` is now a `Polygon` (i.e. a `Point[]`) ripe for use with `simplify` and `area`.
-
-You can convert it back using:
-
-    polygon.setAttribute('points', polygonToString(points))
-
-And that's about it. Play with the demo!
+There's no point for mapbox since it won't work without connectivity anyway.

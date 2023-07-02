@@ -51,7 +51,8 @@ main.append(
     div(
       { name: 'mapbox', style: { padding: vars.spacing } },
       h2('mapbox'),
-      mapBox()
+      // this is my token, please don't abuse it!
+      mapBox({ token: 'pk.eyJ1IjoicG9kcGVyc29uIiwiYSI6ImNqc2JlbWU0bjA1ZmY0YW5ycHZod3VhbWcifQ.arvqfpOqMgFYkKgQ35UScA'})
     ),
     div(
       { name: 'third', style: { padding: vars.spacing } },
