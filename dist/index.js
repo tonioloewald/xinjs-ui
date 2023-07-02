@@ -1560,7 +1560,7 @@ const $2c86e776c99cb064$export$7d6f3ccbb0a81c30 = [
 ];
 const { div: $2c86e776c99cb064$var$div } = (0, $519f1ddd575d759f$export$7a5d735b2ab6389d);
 class $2c86e776c99cb064$var$MapBox extends (0, $519f1ddd575d759f$export$16fa2f45be04daa8) {
-    coords = "38.2641789,-120.5922877,5.8";
+    coords = "65.01715565258993,25.48081004203459,10";
     content = $2c86e776c99cb064$var$div({
         style: {
             width: "100%",
@@ -1569,6 +1569,7 @@ class $2c86e776c99cb064$var$MapBox extends (0, $519f1ddd575d759f$export$16fa2f45
     });
     map;
     style = $2c86e776c99cb064$export$7d6f3ccbb0a81c30[0];
+    token = "";
     styleNode = (0, $519f1ddd575d759f$export$16fa2f45be04daa8).StyleNode({
         ":host": {
             display: "block",
@@ -1579,18 +1580,20 @@ class $2c86e776c99cb064$var$MapBox extends (0, $519f1ddd575d759f$export$16fa2f45
     });
     constructor(){
         super();
-        this.initAttributes("coords");
+        this.initAttributes("coords", "token");
     }
     connectedCallback() {
         super.connectedCallback();
+        if (!this.token) console.error("mapbox requires an access token which you can provide via the token attribute");
     }
     render() {
         super.render();
+        if (!this.token) return;
         const { div: div } = this.refs;
         const [long, lat, zoom] = this.coords.split(",").map((x)=>Number(x));
         $2c86e776c99cb064$var$mapboxAvailable.then(()=>{
             // @ts-expect-error
-            globalThis.mapboxgl.accessToken = "pk.eyJ1IjoicG9kcGVyc29uIiwiYSI6ImNqc2JlbWU0bjA1ZmY0YW5ycHZod3VhbWcifQ.arvqfpOqMgFYkKgQ35UScA";
+            globalThis.mapboxgl.accessToken = this.token;
             this.map = new globalThis.mapboxgl.Map({
                 container: div,
                 style: this.style.url,
