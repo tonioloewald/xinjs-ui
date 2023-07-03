@@ -1480,7 +1480,7 @@ class $6f5c65c3cb8e7707$var$BodymovinPlayer extends (0, $519f1ddd575d759f$export
     }
     constructor(){
         super();
-        this.initAttributes("src", "loading");
+        this.initAttributes("src", "json");
     }
     doneLoading = ()=>{
         this._loading = false;
@@ -1495,6 +1495,10 @@ class $6f5c65c3cb8e7707$var$BodymovinPlayer extends (0, $519f1ddd575d759f$export
             delete this.config.animationData;
             this.config.path = this.src;
         } else console.log("%c<bodymovin-player>%c expected either %cjson%c (animation data) or %csrc% c(url) but found neither.", "color: #44f; background: #fff; padding: 0 5px", "color: default", "color: #44f; background: #fff; padding: 0 5px", "color: default", "color: #44f; background: #fff; padding: 0 5px", "color: default");
+        if (this.animation) {
+            this.animation.destroy();
+            this.shadowRoot.querySelector("svg").remove();
+        }
         // @ts-expect-error
         this.animation = globalThis.bodymovin.loadAnimation(this.config);
         this.animation.addEventListener("DOMLoaded", this.doneLoading);
@@ -1595,6 +1599,7 @@ class $2c86e776c99cb064$var$MapBox extends (0, $519f1ddd575d759f$export$16fa2f45
         $2c86e776c99cb064$var$mapboxAvailable.then(()=>{
             // @ts-expect-error
             globalThis.mapboxgl.accessToken = this.token;
+            // @ts-expect-error
             this.map = new globalThis.mapboxgl.Map({
                 container: div,
                 style: this.style.url,
@@ -1647,12 +1652,12 @@ class $fd71018faf00c7f0$var$TabSelector extends (0, $519f1ddd575d759f$export$16f
             color: (0, $519f1ddd575d759f$export$3cb96c9f6c8d16a4).tabSelectorSelectedColor
         },
         ":host .border": {
-            background: "var(--bar-color, #ccc)"
+            background: "var(--tab-selector-bar-color, #ccc)"
         },
         ":host .border > .selected": {
             content: " ",
             width: 0,
-            height: "var(--bar-height, 2px)",
+            height: "var(--tab-selector-bar-height, 2px)",
             background: (0, $519f1ddd575d759f$export$3cb96c9f6c8d16a4).tabSelectorSelectedColor,
             transition: "ease-out 0.2s"
         }

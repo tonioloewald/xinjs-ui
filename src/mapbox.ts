@@ -98,6 +98,7 @@ class MapBox extends WebComponent {
     mapboxAvailable.then(() => {
       // @ts-expect-error
       globalThis.mapboxgl.accessToken = this.token
+      // @ts-expect-error
       this.map = new globalThis.mapboxgl.Map({
         container: div,
         style: this.style.url,

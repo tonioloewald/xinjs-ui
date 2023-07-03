@@ -35,12 +35,12 @@ class TabSelector extends WebComponent {
       color: vars.tabSelectorSelectedColor,
     },
     ':host .border': {
-      background: 'var(--bar-color, #ccc)',
+      background: 'var(--tab-selector-bar-color, #ccc)',
     },
     ':host .border > .selected': {
       content: ' ',
       width: 0,
-      height: 'var(--bar-height, 2px)',
+      height: 'var(--tab-selector-bar-height, 2px)',
       background: vars.tabSelectorSelectedColor,
       transition: 'ease-out 0.2s',
     },

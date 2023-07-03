@@ -26,7 +26,7 @@ const { app } = xinProxy({
 // @ts-expect-error
 const main = document.querySelector('main')
 
-const { h1, h2, div, a, img, p } = elements
+const { h1, h2, div, a, img, p, label, input } = elements
 
 main.append(
   h1({ bindText: 'app.title' }),
@@ -54,8 +54,28 @@ main.append(
         'Animation by',
         a('chiến lê hồng', {
           href: 'https://lottiefiles.com/dvskjbicfc',
-          style: {
-            marginLeft: vars.spacing,
+        })
+      ),
+      label(
+        'load your own lottie json file',
+        input({
+          type: 'file',
+          accept: '.json,application/json',
+          class: 'clickable',
+          onChange(event: Event) {
+            // @ts-expect-error
+            const { files } = event.target
+            if (files && files.length === 1) {
+              // @ts-expect-error
+              const reader = new FileReader()
+              reader.onload = () => {
+                // @ts-expect-error
+                document.querySelector('bodymovin-player').json = JSON.parse(
+                  reader.result
+                )
+              }
+              reader.readAsText(files[0])
+            }
           },
         })
       )
