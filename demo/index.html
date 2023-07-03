@@ -21,6 +21,7 @@
         --h2-scale: 1.5;
         --h3-scale: 1.25;
         --tab-selector-selected-color: var(--brand-color);
+        --tab-selector-bar-color: var(--brand-text-color);
       }
 
       * {
@@ -80,7 +81,8 @@
       }
 
       a,
-      button {
+      button,
+      .clickable {
         transition: ease-out 0.2s;
         background: var(--brand-text-color);
         color: var(--brand-color);
@@ -90,15 +92,18 @@
         line-height: calc(var(--line-height) + var(--spacing));
         border: none;
         border-radius: calc(var(--spacing) * 0.5);
+        margin: 0 calc(var(--spacing) * 0.5);
       }
 
       a:hover,
-      button:hover {
+      button:hover,
+      .clickable:hover {
         box-shadow: 0 0 0 2px var(--brand-color);
       }
 
       a:active,
-      button:active {
+      button:active,
+      .clickable:active {
         background: var(--brand-color);
         color: var(--brand-text-color);
       }

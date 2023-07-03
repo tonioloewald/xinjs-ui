@@ -49,7 +49,7 @@ class BodymovinPlayer extends WebComponent {
 
   constructor() {
     super()
-    this.initAttributes('src', 'loading')
+    this.initAttributes('src', 'json')
   }
 
   private readonly doneLoading = (): void => {
@@ -78,6 +78,10 @@ class BodymovinPlayer extends WebComponent {
       )
     }
 
+    if (this.animation) {
+      this.animation.destroy()
+      this.shadowRoot.querySelector('svg').remove()
+    }
     // @ts-expect-error
     this.animation = globalThis.bodymovin.loadAnimation(this.config)
     this.animation.addEventListener('DOMLoaded', this.doneLoading)
