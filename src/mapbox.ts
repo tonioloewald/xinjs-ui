@@ -62,10 +62,11 @@ class MapBox extends WebComponent {
 
   styleNode = WebComponent.StyleNode({
     ':host': {
-      display: 'block',
+      display: 'inline-block',
       position: 'relative',
       width: '400px',
       height: '400px',
+      textAlign: 'left',
     },
   })
 

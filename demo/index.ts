@@ -26,7 +26,7 @@ const { app } = xinProxy({
 // @ts-expect-error
 const main = document.querySelector('main')
 
-const { h1, h2, div, a, img } = elements
+const { h1, h2, div, a, img, p } = elements
 
 main.append(
   h1({ bindText: 'app.title' }),
@@ -44,12 +44,24 @@ main.append(
       },
     },
     div(
-      { name: 'bodymovin', style: { padding: vars.spacing } },
+      {
+        name: 'bodymovin',
+        style: { padding: vars.spacing, textAlign: 'center' },
+      },
       h2('bodymovin (a.k.a lottie) animation player'),
-      bodymovinPlayer({ json: rocket })
+      bodymovinPlayer({ json: rocket }),
+      p(
+        'Animation by',
+        a('chiến lê hồng', {
+          href: 'https://lottiefiles.com/dvskjbicfc',
+          style: {
+            marginLeft: vars.spacing,
+          },
+        })
+      )
     ),
     div(
-      { name: 'mapbox', style: { padding: vars.spacing } },
+      { name: 'mapbox', style: { padding: vars.spacing, textAlign: 'center' } },
       h2('mapbox'),
       // this is my token, please don't abuse it!
       mapBox({
