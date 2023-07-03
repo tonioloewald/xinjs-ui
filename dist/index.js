@@ -1471,7 +1471,7 @@ class $6f5c65c3cb8e7707$var$BodymovinPlayer extends (0, $519f1ddd575d759f$export
         ":host": {
             width: 400,
             height: 400,
-            display: "block"
+            display: "inline-block"
         }
     });
     _loading = false;
@@ -1572,10 +1572,11 @@ class $2c86e776c99cb064$var$MapBox extends (0, $519f1ddd575d759f$export$16fa2f45
     token = "";
     styleNode = (0, $519f1ddd575d759f$export$16fa2f45be04daa8).StyleNode({
         ":host": {
-            display: "block",
+            display: "inline-block",
             position: "relative",
             width: "400px",
-            height: "400px"
+            height: "400px",
+            textAlign: "left"
         }
     });
     constructor(){

@@ -37,7 +37,7 @@ class BodymovinPlayer extends WebComponent {
     ':host': {
       width: 400,
       height: 400,
-      display: 'block',
+      display: 'inline-block',
     },
   })
 
