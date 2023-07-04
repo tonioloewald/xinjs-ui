@@ -1,12 +1,12 @@
-import { tabSelector, bodymovinPlayer, mapBox, dataTable } from '../src'
+import { tabSelector, bodymovinPlayer, mapBox, dataTable, scriptTag } from '../src'
 import { elements, xinProxy, vars, xin } from 'xinjs'
 
-// @ts-expect-error
-import favicon from './favicon.png'
+
+const deathsUrl = 'https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_time_series/time_series_covid19_deaths_global.csv'
+
 import rocket from './88140-rocket-livetrade.json'
 
 const PROJECT = 'xinjs-ui'
-
 
 /*
 [demo]() | 
@@ -22,15 +22,35 @@ const { app } = xinProxy({
     npmUrl: `https://www.npmjs.com/package/${PROJECT}`,
     bundleUrl: `https://deno.bundlejs.com/?q=${PROJECT}&badge=`,
     optimizeLottie: false,
+    tableData: [
+      { id: 'NCC-1701', name: 'Enterprise', number: 17, hasKirk: true },
+      { id: 'NCC-74656-A', name: 'Voyager', number: 74, hasKirk: false },
+    ]
   },
 })
+
+;(async () => {
+  await scriptTag('https://api.mapbox.com/mapbox-gl-js/v1.4.1/mapbox-gl.js')
+  await scriptTag('https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.1.0/papaparse.min.js')
+  await scriptTag('https://cdnjs.cloudflare.com/ajax/libs/dygraph/2.1.0/dygraph.min.js')
+
+  const response = await fetch(deathsUrl)
+  const csv = await response.text()
+  // @ts-expect-error
+  const rows = Papa.parse(csv).data.map(row => [...row.slice(0, 4), ...row.slice(-5)])
+  const columns = rows.shift()
+  app.tableData = rows.map((row: string[]) => row.reduce((obj, value, idx) => {
+    obj[columns[idx]] = value
+    return obj
+  }, {} as {[key:string]: any}))
+})()
 
 Object.assign( globalThis, { app, xin })
 
 // @ts-expect-error
 const main = document.querySelector('main')
 
-const { h1, h2, div, a, img, p, label, input } = elements
+const { h1, h2, div, span, a, img, p, label, input } = elements
 
 const table = dataTable({
   style: {
@@ -39,10 +59,7 @@ const table = dataTable({
     overflowY: 'scroll'
   },
   rowHeight: 36,
-  value: [
-    { id: 'NCC-1701', name: 'Enterprise', number: 17, hasKirk: true },
-    { id: 'NCC-74656-A', name: 'Voyager', number: 74, hasKirk: false },
-  ]
+  bindValue: app.tableData
 })
 
 main.append(
@@ -65,7 +82,7 @@ main.append(
     div(
       {
         name: 'bodymovin',
-        style: { padding: vars.spacing, textAlign: 'center' },
+        style: { textAlign: 'center' },
       },
       h2('bodymovin (a.k.a lottie) animation player'),
       bodymovinPlayer({ json: rocket }),
@@ -122,7 +139,7 @@ main.append(
       )
     ),
     div(
-      { name: 'mapbox', style: { padding: vars.spacing, textAlign: 'center' } },
+      { name: 'mapbox', style: { textAlign: 'center' } },
       h2('mapbox'),
       // this is my token, please don't abuse it!
       mapBox({
@@ -134,7 +151,6 @@ main.append(
       { 
         name: 'data table', 
         style: {
-          padding: vars.spacing,
           display: 'flex',
           flexDirection: 'column',
           overflow: 'hidden',
@@ -142,8 +158,11 @@ main.append(
         }
       },
       div(
+        { 
+          class: 'bar'
+        },
         label(
-          'load your own data',
+          'load your own json data',
           input({
             type: 'file',
             accept: '.json,application/json',
@@ -155,13 +174,14 @@ main.append(
                 const reader = new FileReader()
                 reader.onload = () => {
                   table.columns = undefined
-                  table.value = JSON.parse(reader.result)
+                  app.tableData = JSON.parse(reader.result)
                 }
                 reader.readAsText(files[0])
               }
             }
           })
         ),
+        span({ class: 'elastic' }),
       ),
       table
     )

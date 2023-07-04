@@ -78,6 +78,7 @@
         align-items: center;
         padding: var(--spacing);
         flex-wrap: wrap;
+        background: #eee;
       }
 
       a,
@@ -111,6 +112,11 @@
       input[type='number'] {
         width: 6em;
         text-align: right;
+      }
+
+      label {
+        display: flex;
+        gap: calc(var(--spacing) * 0.5);
       }
 
       .elastic {
