@@ -54,11 +54,15 @@ export const MAPSTYLES = [
 const { div } = elements
 
 class MapBox extends WebComponent {
-  coords = '65.01715565258993,25.48081004203459,10'
+  coords = '65.01715565258993,25.48081004203459,12'
   content = div({ style: { width: '100%', height: '100%' } })
-  map: any
-  style = MAPSTYLES[0]
+  get map(): any {
+    return this._map
+  }
+  mapStyle = MAPSTYLES[0]
   token = ''
+
+  private _map: any
 
   styleNode = WebComponent.StyleNode({
     ':host': {
@@ -72,7 +76,7 @@ class MapBox extends WebComponent {
 
   constructor() {
     super()
-    this.initAttributes('coords', 'token')
+    this.initAttributes('coords', 'token', 'mapStyle')
   }
 
   connectedCallback(): void {
@@ -99,14 +103,14 @@ class MapBox extends WebComponent {
       // @ts-expect-error
       globalThis.mapboxgl.accessToken = this.token
       // @ts-expect-error
-      this.map = new globalThis.mapboxgl.Map({
+      this._map = new globalThis.mapboxgl.Map({
         container: div,
-        style: this.style.url,
+        style: this.mapStyle.url,
         zoom,
         center: [lat, long],
       })
 
-      this.map.on('render', () => this.map.resize())
+      this._map.on('render', () => this._map.resize())
     })
   }
 }
