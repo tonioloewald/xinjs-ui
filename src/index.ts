@@ -1,4 +1,5 @@
 export { bodymovinPlayer } from './bodymovin-player'
-export { scriptTag, styleSheet } from './via-tag'
+export { dataTable } from './data-table'
 export { mapBox } from './mapbox'
 export { tabSelector } from './tab-selector'
+export { scriptTag, styleSheet } from './via-tag'

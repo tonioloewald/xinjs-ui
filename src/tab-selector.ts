@@ -19,6 +19,10 @@ class TabSelector extends WebComponent {
       overflow: 'hidden',
       overflowY: 'auto',
     },
+    '::slotted([hidden])': {
+      // @ts-expect-error
+      display: 'none !important',
+    },
     ':host .tab-holder': {
       display: 'flex',
       flexDirection: 'column',
