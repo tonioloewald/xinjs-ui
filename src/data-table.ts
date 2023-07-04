@@ -1,19 +1,19 @@
 import { Component as WebComponent, elements, xin, vars } from 'xinjs'
 
-function defaultWidth(array: any[], prop: string): string | boolean {
+function defaultWidth(array: any[], prop: string, charWidth: number): string | boolean {
   const example = array.find(item => item[prop] !== undefined && item[prop] !== null)
   if (example !== undefined) {
     switch(typeof example[prop]) {
       case 'string':
-        return '12em'
+        return (12 * charWidth) + 'px'
       case 'number':
-        return '6em'
+        return (6 * charWidth) + 'px'
       case 'boolean':
-        return '5em'
+        return (5 * charWidth) + 'px'
       case 'object':
         return false
       default:
-        return '8em'
+        return (8 * charWidth) + 'px'
     }
   }
   return false
@@ -31,6 +31,7 @@ interface ColumnOptions {
 class DataTable extends WebComponent {
   value: any[] = []
   columns: ColumnOptions[] | undefined
+  charWidth = 15
   rowHeight = 30
 
   private data: {
@@ -72,9 +73,9 @@ class DataTable extends WebComponent {
         data.columns = this.columns
       } else {
         data.columns = Object.keys(this.value[0]).map((prop: string) => {
-          const width = defaultWidth(this.value, prop)
+          const width = defaultWidth(this.value, prop, this.charWidth)
           return {
-            name: prop,
+            name: prop.replace(/([a-z])([A-Z])/g, '$1 $2').toLocaleLowerCase(),
             prop,
             visible: width !== false,
             width: width ? width : 0
