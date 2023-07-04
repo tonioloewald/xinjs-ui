@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="theme-color" content="#000000" />
     <link rel="apple-touch-icon" href="./favicon.png" />
-    <title>polygons demo</title>
+    <title>xinjs-ui</title>
     <style>
       @import url(https://fonts.googleapis.com/css2?family=Roboto+Slab:wght@100;200;300;400;500;600;700;800;900&family=Space+Mono:ital,wght@0,400;0,700;1,400;1,700&display=swap);
 
@@ -14,6 +14,7 @@
         --font-family: 'Roboto Slab', sans-serif;
         --font-size: 16px;
         --brand-color: #088358;
+        --bar-color: #dae3df;
         --brand-text-color: #ecf3dd;
         --spacing: 10px;
         --line-height: calc(var(--font-size) * 1.6);
@@ -34,9 +35,18 @@
         line-height: var(--line-height);
       }
 
-      h1 {
+      header {
         background: var(--brand-color);
         color: var(--brand-text-color);
+        display: flex;
+        align-items: center;
+        line-height: calc(var(--line-height) * var(--h1-scale));
+        padding: 0 var(--spacing);
+        line-height: calc(var(--line-height) * var(--h1-scale));
+        height: calc(var(--line-height) * var(--h1-scale) + var(--spacing) * 2);
+      }
+
+      h1 {
         font-size: calc(var(--font-size) * var(--h1-scale));
         line-height: calc(var(--line-height) * var(--h1-scale));
         font-weight: 400;
@@ -78,7 +88,7 @@
         align-items: center;
         padding: var(--spacing);
         flex-wrap: wrap;
-        background: #eee;
+        background: var(--bar-color);
       }
 
       a,
@@ -115,8 +125,9 @@
       }
 
       label {
-        display: flex;
+        display: inline-flex;
         gap: calc(var(--spacing) * 0.5);
+        align-items: center;
       }
 
       .elastic {
@@ -145,7 +156,8 @@
         font-weight: bold;
       }
 
-      .th, .td {
+      .th,
+      .td {
         padding: calc(var(--spacing) * 0.5) var(--spacing);
         text-transform: capitalize;
       }

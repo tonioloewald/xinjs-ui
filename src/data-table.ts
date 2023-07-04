@@ -1,34 +1,42 @@
 import { Component as WebComponent, elements, xin, vars } from 'xinjs'
 
-function defaultWidth(array: any[], prop: string, charWidth: number): number | boolean {
-  const example = array.find(item => item[prop] !== undefined && item[prop] !== null)
+function defaultWidth(
+  array: any[],
+  prop: string,
+  charWidth: number
+): number | boolean {
+  const example = array.find(
+    (item) => item[prop] !== undefined && item[prop] !== null
+  )
   if (example !== undefined) {
     const value = example[prop]
-    switch(typeof value) {
+    switch (typeof value) {
       case 'string':
         if (value.match(/^\d+(\.\d+)?$/)) {
-          return (6 * charWidth)
+          return 6 * charWidth
         } else if (value.includes(' ')) {
-          return (20 * charWidth)
+          return 20 * charWidth
         } else {
-          return (12 * charWidth)
+          return 12 * charWidth
         }
       case 'number':
-        return (6 * charWidth)
+        return 6 * charWidth
       case 'boolean':
-        return (5 * charWidth)
+        return 5 * charWidth
       case 'object':
         return false
       default:
-        return (8 * charWidth)
+        return 8 * charWidth
     }
   }
   return false
 }
 
-const {div, span, template} = elements
+const { div, span, template } = elements
 
-type TrackerCallback = ((event: Event) => boolean | undefined) | ((event: Event) => void)
+type TrackerCallback =
+  | ((event: Event) => boolean | undefined)
+  | ((event: Event) => void)
 
 const trackMouse = (callback: TrackerCallback, cursor: string): void => {
   const tracker = div({
@@ -39,8 +47,8 @@ const trackMouse = (callback: TrackerCallback, cursor: string): void => {
       left: 0,
       right: 0,
       bottom: 0,
-      cursor
-    }
+      cursor,
+    },
   })
   // @ts-expect-error
   document.body.append(tracker)
@@ -53,7 +61,6 @@ const trackMouse = (callback: TrackerCallback, cursor: string): void => {
     callback(event)
     tracker.remove()
   })
-
 }
 
 interface ColumnOptions {
@@ -82,7 +89,7 @@ class DataTable extends WebComponent {
     super()
     this.data = {
       columns: [],
-      array: []
+      array: [],
     }
   }
 
@@ -91,7 +98,7 @@ class DataTable extends WebComponent {
     const x = event.clientX - this.getBoundingClientRect().x
     let boundaryX = 0
     const log: any[] = []
-    const column = this.data.columns.find(options => {
+    const column = this.data.columns.find((options) => {
       if (options.visible !== false) {
         boundaryX += options.width
         log.push(boundaryX)
@@ -127,7 +134,7 @@ class DataTable extends WebComponent {
 
   connectedCallback(): void {
     super.connectedCallback()
-    
+
     // @ts-expect-error
     xin[this.instanceId] = this.data
     // @ts-expect-error
@@ -138,17 +145,20 @@ class DataTable extends WebComponent {
   }
 
   get visibleColumns(): ColumnOptions[] {
-    return this.data.columns.filter(c => c.visible !== false)
+    return this.data.columns.filter((c) => c.visible !== false)
   }
 
   setColumnWidths() {
-    this.style.setProperty('--grid-columns', this.visibleColumns.map(c => c.width + 'px').join(' '))
+    this.style.setProperty(
+      '--grid-columns',
+      this.visibleColumns.map((c) => c.width + 'px').join(' ')
+    )
   }
 
   render() {
     super.render()
 
-    const {data} = this
+    const { data } = this
 
     if (this.value !== data.array) {
       this.textContent = ''
@@ -156,7 +166,7 @@ class DataTable extends WebComponent {
         return
       }
       data.array = this.value
-      if (this.columns !== undefined ) {
+      if (this.columns !== undefined) {
         data.columns = this.columns
       } else {
         data.columns = Object.keys(this.value[0]).map((prop: string) => {
@@ -165,13 +175,13 @@ class DataTable extends WebComponent {
             name: prop.replace(/([a-z])([A-Z])/g, '$1 $2').toLocaleLowerCase(),
             prop,
             visible: width !== false,
-            width: width ? width : 0
+            width: width ? width : 0,
           } as ColumnOptions
         })
       }
       this.style.display = 'flex'
       this.style.flexDirection = 'column'
-      const {visibleColumns} = this
+      const { visibleColumns } = this
       this.setColumnWidths()
       const rowStyle = {
         display: 'grid',
@@ -181,27 +191,31 @@ class DataTable extends WebComponent {
       const cellStyle = {
         overflow: 'hidden',
         textOverflow: 'ellipsis',
-        whiteSpace: 'nowrap'
+        whiteSpace: 'nowrap',
       }
       const sorterStyle = {
         display: 'inline-block',
         minWidth: vars.charWidth,
-        cursor: 'default'
+        cursor: 'default',
       }
       this.append(
         div(
           { class: 'thead' },
           div(
-            { 
+            {
               class: 'tr',
               style: rowStyle,
             },
-            ...visibleColumns.map(c => span(
-              {class: 'th', style: cellStyle},
-              c.name,
-              c.sortable !== false ? span({class: 't-sorter', style: sorterStyle}) : undefined
-            ))
-          ),
+            ...visibleColumns.map((c) =>
+              span(
+                { class: 'th', style: cellStyle },
+                c.name,
+                c.sortable !== false
+                  ? span({ class: 't-sorter', style: sorterStyle })
+                  : undefined
+              )
+            )
+          )
         ),
         div(
           {
@@ -211,26 +225,26 @@ class DataTable extends WebComponent {
               minHeight: '200px',
               flex: '1 1 100px',
               overflow: 'hidden',
-              overflowY: 'scroll'
+              overflowY: 'scroll',
             },
             bindList: {
               value: data.array,
-              virtual: { height: this.rowHeight }
-            }
+              virtual: { height: this.rowHeight },
+            },
           },
           template(
             div(
-              { 
+              {
                 class: 'tr',
-                style: rowStyle
+                style: rowStyle,
               },
-              ...visibleColumns.map((options: ColumnOptions) => span(
-                {
+              ...visibleColumns.map((options: ColumnOptions) =>
+                span({
                   class: 'td',
                   style: cellStyle,
-                  bindText: `^.${options.prop}`
-                }
-              ))
+                  bindText: `^.${options.prop}`,
+                })
+              )
             )
           )
         )
@@ -239,4 +253,4 @@ class DataTable extends WebComponent {
   }
 }
 
-export const dataTable = DataTable.elementCreator({tag: 'data-table'})
+export const dataTable = DataTable.elementCreator({ tag: 'data-table' })
