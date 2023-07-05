@@ -1,4 +1,5 @@
-import { Component as WebComponent, elements, xin, vars } from 'xinjs'
+import { Component as WebComponent, elements, xin, vars, xinValue } from 'xinjs'
+import { trackMouse } from './track-mouse'
 
 function defaultWidth(
   array: any[],
@@ -34,35 +35,6 @@ function defaultWidth(
 
 const { div, span, template } = elements
 
-type TrackerCallback =
-  | ((event: Event) => boolean | undefined)
-  | ((event: Event) => void)
-
-const trackMouse = (callback: TrackerCallback, cursor: string): void => {
-  const tracker = div({
-    style: {
-      content: ' ',
-      position: 'fixed',
-      top: 0,
-      left: 0,
-      right: 0,
-      bottom: 0,
-      cursor,
-    },
-  })
-  // @ts-expect-error
-  document.body.append(tracker)
-  tracker.addEventListener('mousemove', (event: Event) => {
-    if (callback(event) === true) {
-      tracker.remove()
-    }
-  })
-  tracker.addEventListener('mouseup', (event: Event) => {
-    callback(event)
-    tracker.remove()
-  })
-}
-
 interface ColumnOptions {
   name?: string
   prop: string
@@ -71,34 +43,64 @@ interface ColumnOptions {
   sortable?: boolean
 }
 
+interface TableData {
+  columns?: ColumnOptions[]
+  array: any[]
+  filteredArray: any[]
+  filter?: ArrayFilter
+}
+
+type ArrayFilter = (array: any[]) => any[]
+
+const passThru = (array: any[]) => array
+
 class DataTable extends WebComponent {
-  value: any[] = []
-  columns: ColumnOptions[] | undefined
+  value: TableData = {
+    array: [],
+    filteredArray: [],
+  }
   charWidth = 15
   rowHeight = 30
   minColumnWidth = 30
 
-  private data: {
-    columns: ColumnOptions[]
-    array: any[]
+  constructor() {
+    super()
+  }
+
+  get filter(): ArrayFilter {
+    return typeof this.value.filter === 'function'
+      ? this.value.filter
+      : passThru
+  }
+
+  get columns(): ColumnOptions[] {
+    if (!Array.isArray(this.value.columns)) {
+      const { array } = this.value
+      this.value.columns = Object.keys(array[0]).map((prop: string) => {
+        const width = defaultWidth(array, prop, this.charWidth)
+        return {
+          name: prop.replace(/([a-z])([A-Z])/g, '$1 $2').toLocaleLowerCase(),
+          prop,
+          visible: width !== false,
+          width: width ? width : 0,
+        } as ColumnOptions
+      })
+    }
+    return this.value.columns
+  }
+
+  get visibleColumns(): ColumnOptions[] {
+    return this.columns.filter((c) => c.visible !== false)
   }
 
   content = null
-
-  constructor() {
-    super()
-    this.data = {
-      columns: [],
-      array: [],
-    }
-  }
 
   getColumn(event: Event): ColumnOptions | undefined {
     // @ts-expect-error
     const x = event.clientX - this.getBoundingClientRect().x
     let boundaryX = 0
     const log: any[] = []
-    const column = this.data.columns.find((options) => {
+    const column = this.visibleColumns.find((options: ColumnOptions) => {
       if (options.visible !== false) {
         boundaryX += options.width
         log.push(boundaryX)
@@ -135,17 +137,8 @@ class DataTable extends WebComponent {
   connectedCallback(): void {
     super.connectedCallback()
 
-    // @ts-expect-error
-    xin[this.instanceId] = this.data
-    // @ts-expect-error
-    this.data = xin[this.instanceId]
-
     this.addEventListener('mousemove', this.trackMouse)
     this.addEventListener('mousedown', this.resizeColumn)
-  }
-
-  get visibleColumns(): ColumnOptions[] {
-    return this.data.columns.filter((c) => c.visible !== false)
   }
 
   setColumnWidths() {
@@ -158,98 +151,80 @@ class DataTable extends WebComponent {
   render() {
     super.render()
 
-    const { data } = this
+    xin[this.instanceId] = this.filter(xinValue(this.value.array))
 
-    if (this.value !== data.array) {
-      this.textContent = ''
-      if (this.value.length === 0) {
-        return
-      }
-      data.array = this.value
-      if (this.columns !== undefined) {
-        data.columns = this.columns
-      } else {
-        data.columns = Object.keys(this.value[0]).map((prop: string) => {
-          const width = defaultWidth(this.value, prop, this.charWidth)
-          return {
-            name: prop.replace(/([a-z])([A-Z])/g, '$1 $2').toLocaleLowerCase(),
-            prop,
-            visible: width !== false,
-            width: width ? width : 0,
-          } as ColumnOptions
-        })
-      }
-      this.style.display = 'flex'
-      this.style.flexDirection = 'column'
-      const { visibleColumns } = this
-      this.setColumnWidths()
-      const rowStyle = {
-        display: 'grid',
-        gridTemplateColumns: vars.gridColumns,
-        height: this.rowHeight + 'px',
-      }
-      const cellStyle = {
-        overflow: 'hidden',
-        textOverflow: 'ellipsis',
-        whiteSpace: 'nowrap',
-      }
-      const sorterStyle = {
-        display: 'inline-block',
-        minWidth: vars.charWidth,
-        cursor: 'default',
-      }
-      this.append(
+    this.textContent = ''
+
+    this.style.display = 'flex'
+    this.style.flexDirection = 'column'
+    const { visibleColumns } = this
+    this.setColumnWidths()
+    const rowStyle = {
+      display: 'grid',
+      gridTemplateColumns: vars.gridColumns,
+      height: this.rowHeight + 'px',
+    }
+    const cellStyle = {
+      overflow: 'hidden',
+      textOverflow: 'ellipsis',
+      whiteSpace: 'nowrap',
+    }
+    const sorterStyle = {
+      display: 'inline-block',
+      minWidth: vars.charWidth,
+      cursor: 'default',
+    }
+    this.append(
+      div(
+        { class: 'thead' },
         div(
-          { class: 'thead' },
+          {
+            class: 'tr',
+            style: rowStyle,
+          },
+          ...visibleColumns.map((c) =>
+            span(
+              { class: 'th', style: cellStyle },
+              c.name,
+              c.sortable !== false
+                ? span({ class: 't-sorter', style: sorterStyle })
+                : undefined
+            )
+          )
+        )
+      ),
+      div(
+        {
+          class: 'tbody',
+          style: {
+            content: ' ',
+            minHeight: '200px',
+            flex: '1 1 100px',
+            overflow: 'hidden',
+            overflowY: 'scroll',
+          },
+          bindList: {
+            value: this.instanceId,
+            virtual: { height: this.rowHeight },
+          },
+        },
+        template(
           div(
             {
               class: 'tr',
               style: rowStyle,
             },
-            ...visibleColumns.map((c) =>
-              span(
-                { class: 'th', style: cellStyle },
-                c.name,
-                c.sortable !== false
-                  ? span({ class: 't-sorter', style: sorterStyle })
-                  : undefined
-              )
-            )
-          )
-        ),
-        div(
-          {
-            class: 'tbody',
-            style: {
-              content: ' ',
-              minHeight: '200px',
-              flex: '1 1 100px',
-              overflow: 'hidden',
-              overflowY: 'scroll',
-            },
-            bindList: {
-              value: data.array,
-              virtual: { height: this.rowHeight },
-            },
-          },
-          template(
-            div(
-              {
-                class: 'tr',
-                style: rowStyle,
-              },
-              ...visibleColumns.map((options: ColumnOptions) =>
-                span({
-                  class: 'td',
-                  style: cellStyle,
-                  bindText: `^.${options.prop}`,
-                })
-              )
+            ...visibleColumns.map((options: ColumnOptions) =>
+              span({
+                class: 'td',
+                style: cellStyle,
+                bindText: `^.${options.prop}`,
+              })
             )
           )
         )
       )
-    }
+    )
   }
 }
 

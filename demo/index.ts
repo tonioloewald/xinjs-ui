@@ -5,7 +5,8 @@ import {
   dataTable,
   scriptTag,
 } from '../src'
-import { elements, xinProxy, vars, xin } from 'xinjs'
+// import favicon from './favicon.png'
+import { elements, xinProxy, vars, xin, bindings } from 'xinjs'
 
 const deathsUrl =
   'https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_time_series/time_series_covid19_deaths_global.csv'
@@ -19,15 +20,27 @@ const { app } = xinProxy({
     title: PROJECT,
     githubUrl: `https://github.com/tonioloewald/${PROJECT}#readme`,
     npmUrl: `https://www.npmjs.com/package/${PROJECT}`,
+    xinjsUrl: 'https://xinjs.net',
     bundleUrl: `https://deno.bundlejs.com/?q=${PROJECT}&badge=`,
     optimizeLottie: false,
-    tableData: [
-      { id: 'NCC-1701', name: 'Enterprise', number: 17, hasKirk: true },
-      { id: 'NCC-74656-A', name: 'Voyager', number: 74, hasKirk: false },
-    ],
+    tableData: {
+      columns: null,
+      array: [
+        { id: 'NCC-1701', name: 'Enterprise', number: 17, hasKirk: true },
+        { id: 'NCC-74656-A', name: 'Voyager', number: 74, hasKirk: false },
+      ],
+    },
+    lottieFilename: '',
+    lottieData: '',
   },
 })
 
+bindings.columns = {
+  toDOM(elt, columns) {
+    // @ts-expect-error
+    elt.columns = columns
+  },
+}
 ;(async () => {
   await scriptTag('https://api.mapbox.com/mapbox-gl-js/v1.4.1/mapbox-gl.js')
   await scriptTag(
@@ -42,20 +55,24 @@ const { app } = xinProxy({
     ...row.slice(-5),
   ])
   const columns = rows.shift()
-  app.tableData = rows.map((row: string[]) =>
-    row.reduce((obj, value, idx) => {
-      obj[columns[idx]] = value
-      return obj
-    }, {} as { [key: string]: any })
-  )
+
+  app.tableData = {
+    columns: null,
+    array: rows.map((row: string[]) =>
+      row.reduce((obj, value, idx) => {
+        obj[columns[idx]] = value
+        return obj
+      }, {} as { [key: string]: any })
+    ),
+  }
 })()
 
-Object.assign(globalThis, { app, xin })
+Object.assign(globalThis, { app, xin, bindings, elements, vars })
 
 // @ts-expect-error
 const main = document.querySelector('main')
 
-const { h1, h2, div, span, a, img, p, label, input, header } = elements
+const { h1, h2, div, span, a, img, p, label, input, header, button } = elements
 
 const table = dataTable({
   style: {
@@ -69,6 +86,7 @@ const table = dataTable({
 
 main.append(
   header(
+    // img({src: favicon}),
     h1({ bindText: 'app.title' }),
     span({ class: 'elastic' }),
     img({ src: app.bundleUrl }),
@@ -91,9 +109,11 @@ main.append(
       div(
         { class: 'bar' },
         label(
-          'load your own lottie json file',
+          'test lotte.json',
+          { class: 'clickable' },
           input({
             type: 'file',
+            hidden: true,
             accept: '.json,application/json',
             onChange(event: Event) {
               // @ts-expect-error
@@ -103,6 +123,7 @@ main.append(
               if (files && files.length === 1) {
                 // @ts-expect-error
                 const reader = new FileReader()
+
                 reader.onload = () => {
                   let { result } = reader
                   if (app.optimizeLottie) {
@@ -118,7 +139,7 @@ main.append(
                     )
                     const currentSize = result.length
                     about.textContent = `loaded ${origSize} chars, reduced to ${currentSize}`
-                    console.log(result)
+                    app.lottieData = result
                   } else {
                     about.textContent = `size: ${result.length}`
                   }
@@ -127,20 +148,32 @@ main.append(
                     reader.result
                   )
                 }
+                app.lottieFilename = files[0].name
                 reader.readAsText(files[0])
               }
             },
           })
         ),
-        span({ class: 'elastic' }),
         label(
           input({
             title: 'optimize',
             type: 'checkbox',
             bindValue: 'app.optimizeLottie',
           }),
-          'optimize json'
-        )
+          'optimize'
+        ),
+        span({ class: 'elastic' }),
+        button('Save Data', {
+          bindEnabled: 'app.lottieData',
+          onClick() {
+            const link = a({
+              download: app.lottieFilename.replace(/\.json/, '-optimized.json'),
+              href:
+                'data:application/octet-stream;base64,' + btoa(app.lottieData),
+            })
+            link.click()
+          },
+        })
       ),
       bodymovinPlayer({ style: { marginTop: vars.spacing200 }, json: rocket }),
       p(
@@ -199,8 +232,10 @@ main.append(
                 // @ts-expect-error
                 const reader = new FileReader()
                 reader.onload = () => {
-                  table.columns = undefined
-                  app.tableData = JSON.parse(reader.result)
+                  app.tableData = {
+                    columns: null,
+                    array: JSON.parse(reader.result),
+                  }
                 }
                 reader.readAsText(files[0])
               }

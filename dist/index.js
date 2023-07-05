@@ -1516,6 +1516,31 @@ const $6f5c65c3cb8e7707$export$d75ad8f79fe096cb = $6f5c65c3cb8e7707$var$Bodymovi
 
 
 
+
+const $d31023715f476306$export$fb335fe3908368a2 = (callback, cursor)=>{
+    const tracker = (0, $519f1ddd575d759f$export$7a5d735b2ab6389d).div({
+        style: {
+            content: " ",
+            position: "fixed",
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            cursor: cursor
+        }
+    });
+    // @ts-expect-error
+    document.body.append(tracker);
+    tracker.addEventListener("mousemove", (event)=>{
+        if (callback(event) === true) tracker.remove();
+    });
+    tracker.addEventListener("mouseup", (event)=>{
+        callback(event);
+        tracker.remove();
+    });
+};
+
+
 function $9053df33169f6cdf$var$defaultWidth(array, prop, charWidth) {
     const example = array.find((item)=>item[prop] !== undefined && item[prop] !== null);
     if (example !== undefined) {
@@ -1538,49 +1563,46 @@ function $9053df33169f6cdf$var$defaultWidth(array, prop, charWidth) {
     return false;
 }
 const { div: $9053df33169f6cdf$var$div, span: $9053df33169f6cdf$var$span, template: $9053df33169f6cdf$var$template } = (0, $519f1ddd575d759f$export$7a5d735b2ab6389d);
-const $9053df33169f6cdf$var$trackMouse = (callback, cursor)=>{
-    const tracker = $9053df33169f6cdf$var$div({
-        style: {
-            content: " ",
-            position: "fixed",
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            cursor: cursor
-        }
-    });
-    // @ts-expect-error
-    document.body.append(tracker);
-    tracker.addEventListener("mousemove", (event)=>{
-        if (callback(event) === true) tracker.remove();
-    });
-    tracker.addEventListener("mouseup", (event)=>{
-        callback(event);
-        tracker.remove();
-    });
-};
+const $9053df33169f6cdf$var$passThru = (array)=>array;
 class $9053df33169f6cdf$var$DataTable extends (0, $519f1ddd575d759f$export$16fa2f45be04daa8) {
-    value = [];
-    columns;
+    value = {
+        array: [],
+        filteredArray: []
+    };
     charWidth = 15;
     rowHeight = 30;
     minColumnWidth = 30;
-    data;
-    content = null;
     constructor(){
         super();
-        this.data = {
-            columns: [],
-            array: []
-        };
     }
+    get filter() {
+        return typeof this.value.filter === "function" ? this.value.filter : $9053df33169f6cdf$var$passThru;
+    }
+    get columns() {
+        if (!Array.isArray(this.value.columns)) {
+            const { array: array } = this.value;
+            this.value.columns = Object.keys(array[0]).map((prop)=>{
+                const width = $9053df33169f6cdf$var$defaultWidth(array, prop, this.charWidth);
+                return {
+                    name: prop.replace(/([a-z])([A-Z])/g, "$1 $2").toLocaleLowerCase(),
+                    prop: prop,
+                    visible: width !== false,
+                    width: width ? width : 0
+                };
+            });
+        }
+        return this.value.columns;
+    }
+    get visibleColumns() {
+        return this.columns.filter((c)=>c.visible !== false);
+    }
+    content = null;
     getColumn(event) {
         // @ts-expect-error
         const x = event.clientX - this.getBoundingClientRect().x;
         let boundaryX = 0;
         const log = [];
-        const column = this.data.columns.find((options)=>{
+        const column = this.visibleColumns.find((options)=>{
             if (options.visible !== false) {
                 boundaryX += options.width;
                 log.push(boundaryX);
@@ -1600,7 +1622,7 @@ class $9053df33169f6cdf$var$DataTable extends (0, $519f1ddd575d759f$export$16fa2
             const origWidth = column.width;
             // @ts-expect-error
             const origX = event.clientX;
-            $9053df33169f6cdf$var$trackMouse((event)=>{
+            (0, $d31023715f476306$export$fb335fe3908368a2)((event)=>{
                 // @ts-expect-error
                 const width = event.clientX - origX + origWidth;
                 column.width = width > this.minColumnWidth ? width : this.minColumnWidth;
@@ -1610,90 +1632,69 @@ class $9053df33169f6cdf$var$DataTable extends (0, $519f1ddd575d759f$export$16fa2
     };
     connectedCallback() {
         super.connectedCallback();
-        // @ts-expect-error
-        (0, $519f1ddd575d759f$export$966034e6c6823eb0)[this.instanceId] = this.data;
-        // @ts-expect-error
-        this.data = (0, $519f1ddd575d759f$export$966034e6c6823eb0)[this.instanceId];
         this.addEventListener("mousemove", this.trackMouse);
         this.addEventListener("mousedown", this.resizeColumn);
-    }
-    get visibleColumns() {
-        return this.data.columns.filter((c)=>c.visible !== false);
     }
     setColumnWidths() {
         this.style.setProperty("--grid-columns", this.visibleColumns.map((c)=>c.width + "px").join(" "));
     }
     render() {
         super.render();
-        const { data: data } = this;
-        if (this.value !== data.array) {
-            this.textContent = "";
-            if (this.value.length === 0) return;
-            data.array = this.value;
-            if (this.columns !== undefined) data.columns = this.columns;
-            else data.columns = Object.keys(this.value[0]).map((prop)=>{
-                const width = $9053df33169f6cdf$var$defaultWidth(this.value, prop, this.charWidth);
-                return {
-                    name: prop.replace(/([a-z])([A-Z])/g, "$1 $2").toLocaleLowerCase(),
-                    prop: prop,
-                    visible: width !== false,
-                    width: width ? width : 0
-                };
-            });
-            this.style.display = "flex";
-            this.style.flexDirection = "column";
-            const { visibleColumns: visibleColumns } = this;
-            this.setColumnWidths();
-            const rowStyle = {
-                display: "grid",
-                gridTemplateColumns: (0, $519f1ddd575d759f$export$3cb96c9f6c8d16a4).gridColumns,
-                height: this.rowHeight + "px"
-            };
-            const cellStyle = {
+        (0, $519f1ddd575d759f$export$966034e6c6823eb0)[this.instanceId] = this.filter((0, $519f1ddd575d759f$export$5dcba2d45033d435)(this.value.array));
+        this.textContent = "";
+        this.style.display = "flex";
+        this.style.flexDirection = "column";
+        const { visibleColumns: visibleColumns } = this;
+        this.setColumnWidths();
+        const rowStyle = {
+            display: "grid",
+            gridTemplateColumns: (0, $519f1ddd575d759f$export$3cb96c9f6c8d16a4).gridColumns,
+            height: this.rowHeight + "px"
+        };
+        const cellStyle = {
+            overflow: "hidden",
+            textOverflow: "ellipsis",
+            whiteSpace: "nowrap"
+        };
+        const sorterStyle = {
+            display: "inline-block",
+            minWidth: (0, $519f1ddd575d759f$export$3cb96c9f6c8d16a4).charWidth,
+            cursor: "default"
+        };
+        this.append($9053df33169f6cdf$var$div({
+            class: "thead"
+        }, $9053df33169f6cdf$var$div({
+            class: "tr",
+            style: rowStyle
+        }, ...visibleColumns.map((c)=>$9053df33169f6cdf$var$span({
+                class: "th",
+                style: cellStyle
+            }, c.name, c.sortable !== false ? $9053df33169f6cdf$var$span({
+                class: "t-sorter",
+                style: sorterStyle
+            }) : undefined)))), $9053df33169f6cdf$var$div({
+            class: "tbody",
+            style: {
+                content: " ",
+                minHeight: "200px",
+                flex: "1 1 100px",
                 overflow: "hidden",
-                textOverflow: "ellipsis",
-                whiteSpace: "nowrap"
-            };
-            const sorterStyle = {
-                display: "inline-block",
-                minWidth: (0, $519f1ddd575d759f$export$3cb96c9f6c8d16a4).charWidth,
-                cursor: "default"
-            };
-            this.append($9053df33169f6cdf$var$div({
-                class: "thead"
-            }, $9053df33169f6cdf$var$div({
-                class: "tr",
-                style: rowStyle
-            }, ...visibleColumns.map((c)=>$9053df33169f6cdf$var$span({
-                    class: "th",
-                    style: cellStyle
-                }, c.name, c.sortable !== false ? $9053df33169f6cdf$var$span({
-                    class: "t-sorter",
-                    style: sorterStyle
-                }) : undefined)))), $9053df33169f6cdf$var$div({
-                class: "tbody",
-                style: {
-                    content: " ",
-                    minHeight: "200px",
-                    flex: "1 1 100px",
-                    overflow: "hidden",
-                    overflowY: "scroll"
-                },
-                bindList: {
-                    value: data.array,
-                    virtual: {
-                        height: this.rowHeight
-                    }
+                overflowY: "scroll"
+            },
+            bindList: {
+                value: this.instanceId,
+                virtual: {
+                    height: this.rowHeight
                 }
-            }, $9053df33169f6cdf$var$template($9053df33169f6cdf$var$div({
-                class: "tr",
-                style: rowStyle
-            }, ...visibleColumns.map((options)=>$9053df33169f6cdf$var$span({
-                    class: "td",
-                    style: cellStyle,
-                    bindText: `^.${options.prop}`
-                }))))));
-        }
+            }
+        }, $9053df33169f6cdf$var$template($9053df33169f6cdf$var$div({
+            class: "tr",
+            style: rowStyle
+        }, ...visibleColumns.map((options)=>$9053df33169f6cdf$var$span({
+                class: "td",
+                style: cellStyle,
+                bindText: `^.${options.prop}`
+            }))))));
     }
 }
 const $9053df33169f6cdf$export$f71ce0a5ddbe8fa0 = $9053df33169f6cdf$var$DataTable.elementCreator({
@@ -1950,5 +1951,6 @@ const $fd71018faf00c7f0$export$a932f737dcd864a2 = $fd71018faf00c7f0$var$TabSelec
 
 
 
-export {$6f5c65c3cb8e7707$export$d75ad8f79fe096cb as bodymovinPlayer, $9053df33169f6cdf$export$f71ce0a5ddbe8fa0 as dataTable, $2c86e776c99cb064$export$ca243e53be209efb as mapBox, $fd71018faf00c7f0$export$a932f737dcd864a2 as tabSelector, $6317e842c6d02af7$export$c6e082819e9a0330 as scriptTag, $6317e842c6d02af7$export$63257fda812a683f as styleSheet};
+
+export {$6f5c65c3cb8e7707$export$d75ad8f79fe096cb as bodymovinPlayer, $9053df33169f6cdf$export$f71ce0a5ddbe8fa0 as dataTable, $2c86e776c99cb064$export$ca243e53be209efb as mapBox, $fd71018faf00c7f0$export$a932f737dcd864a2 as tabSelector, $d31023715f476306$export$fb335fe3908368a2 as trackMouse, $6317e842c6d02af7$export$c6e082819e9a0330 as scriptTag, $6317e842c6d02af7$export$63257fda812a683f as styleSheet};
 //# sourceMappingURL=index.js.map
