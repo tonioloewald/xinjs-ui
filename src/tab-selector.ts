@@ -64,6 +64,7 @@ class TabSelector extends WebComponent {
     this.initAttributes('anne', 'example')
   }
 
+  // @ts-expect-error
   addTabBody(body: HTMLElement, selectTab = false): void {
     if (!body.hasAttribute('name')) {
       throw new Error('element has no name attribute', body)
@@ -79,16 +80,19 @@ class TabSelector extends WebComponent {
   // @ts-expect-error
   keyTab = (event: KeyboardEvent): void => {
     const { tabs } = this.refs
+    // @ts-expect-error
     const tabIndex = [...tabs.children].indexOf(event.target as HTMLElement)
     switch (event.key) {
       case 'ArrowLeft':
         this.value =
           (tabIndex + Number(tabs.children.length) - 1) % tabs.children.length
+        // @ts-expect-error
         ;(tabs.children[this.value] as HTMLElement).focus()
         event.preventDefault()
         break
       case 'ArrowRight':
         this.value = (tabIndex + 1) % tabs.children.length
+        // @ts-expect-error
         ;(tabs.children[this.value] as HTMLElement).focus()
         event.preventDefault()
         break
@@ -101,6 +105,7 @@ class TabSelector extends WebComponent {
     }
   }
 
+  // @ts-expect-error
   get bodies(): HTMLElement[] {
     return [...this.children].filter((elt) => elt.hasAttribute('name'))
   }
@@ -137,6 +142,7 @@ class TabSelector extends WebComponent {
     const tabBodies = this.bodies
     for (let i = 0; i < tabBodies.length; i++) {
       const tabBody = tabBodies[i]
+      // @ts-expect-error
       const tab = tabs.children[i] as HTMLElement
       if (this.value === Number(i)) {
         tab.classList.add('selected')
