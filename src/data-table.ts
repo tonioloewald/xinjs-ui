@@ -76,7 +76,7 @@ class DataTable extends WebComponent {
   get columns(): ColumnOptions[] {
     if (!Array.isArray(this.value.columns)) {
       const { array } = this.value
-      this.value.columns = Object.keys(array[0]).map((prop: string) => {
+      this.value.columns = Object.keys(array[0] || {}).map((prop: string) => {
         const width = defaultWidth(array, prop, this.charWidth)
         return {
           name: prop.replace(/([a-z])([A-Z])/g, '$1 $2').toLocaleLowerCase(),

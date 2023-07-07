@@ -1,4 +1,4 @@
-+# xinjs-ui
+# xinjs-ui
 
 [demo](https://tonioloewald.github.io/xinjs-ui/) | [github](https://github.com/tonioloewald/xinjs-ui#readme) | [npm](https://www.npmjs.com/package/xinjs-ui) | ![bundlejs](https://deno.bundlejs.com/?q=xinjs-ui&badge=)
 
@@ -27,6 +27,39 @@ A mapboxgl wrapper.
 ### `<bodymovin-player>`
 
 A bodymovin, a.k.a. lottie, player.
+
+### `<data-table>`
+
+A virtual data-table, configurable via a `columns` array (which will automatically be generated if not provided),
+that displays gigantic tables with fixed headers (and live column-resizing) using a minimum of resources and cpu.
+
+### `<markdown-viewer>`
+
+Render markdown anywhere, either using the `src` attribute to load the file asynchronousely, or
+just put the text inside it:
+
+    <markdown-viewer src="/path/to/file.md">
+
+Or (but don't include the indentation!!):
+
+    <markdown-viewer>
+      # hello
+      world
+    </markdown-viewer>
+
+### `<filter-builder>`
+
+Automatically creates `ArrayFilter` functions `(a: any[]) => any[]` based on a text query that accepts the
+following space-delimited criteria — all text matches are performed in `LocaleLowerCase`
+
+- `string` will match any record that has a property that contains `word`
+- `field:string` will match any record that has a property `field` containing `string`
+- `field:>string` / `field:<string` will match any record that has a property `field` > / < `string` (alphabetic for now)
+- `!field` will match any record where `field` is **falsy**
+- `field!` will match any record where `field` is **truthy**
+
+Right now multiple criteria are `AND`ed together. This will be extended to allow `()`, `OR`, `<` and `>` comparisons will
+become smarter (convert both sides to numbers if possible), and extensibility will be added.
 
 ## utilities
 

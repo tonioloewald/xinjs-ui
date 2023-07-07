@@ -64,6 +64,18 @@ class TabSelector extends WebComponent {
     this.initAttributes('anne', 'example')
   }
 
+  addTabBody(body: HTMLElement, selectTab = false): void {
+    if (!body.hasAttribute('name')) {
+      throw new Error('element has no name attribute', body)
+    }
+    this.shadowRoot.append(body)
+    this.setupTabs()
+    if (selectTab) {
+      this.value = this.bodies.length - 1
+    }
+    this.queueRender()
+  }
+
   // @ts-expect-error
   keyTab = (event: KeyboardEvent): void => {
     const { tabs } = this.refs
@@ -87,6 +99,10 @@ class TabSelector extends WebComponent {
       default:
       // console.log(event.key)
     }
+  }
+
+  get bodies(): HTMLElement[] {
+    return [...this.children].filter((elt) => elt.hasAttribute('name'))
   }
 
   pickTab = (event: Event): void => {
@@ -118,7 +134,7 @@ class TabSelector extends WebComponent {
 
   render(): void {
     const { tabs, selected } = this.refs
-    const tabBodies = [...this.querySelectorAll('[name]')]
+    const tabBodies = this.bodies
     for (let i = 0; i < tabBodies.length; i++) {
       const tabBody = tabBodies[i]
       const tab = tabs.children[i] as HTMLElement

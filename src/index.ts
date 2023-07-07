@@ -1,6 +1,8 @@
 export { bodymovinPlayer } from './bodymovin-player'
 export { dataTable } from './data-table'
+export { filterBuilder } from './filter-builder'
 export { mapBox } from './mapbox'
+export { markdownViewer } from './markdown-viewer'
 export { tabSelector } from './tab-selector'
 export { trackMouse } from './track-mouse'
 export { scriptTag, styleSheet } from './via-tag'

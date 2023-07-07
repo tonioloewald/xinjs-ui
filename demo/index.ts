@@ -2,11 +2,28 @@ import {
   tabSelector,
   bodymovinPlayer,
   mapBox,
+  markdownViewer,
   dataTable,
+  filterBuilder,
   scriptTag,
 } from '../src'
+
+import docs from './docs.json'
+const getDocSource = (name: string) => {
+  const doc = docs.find((doc) => doc.filename === name)
+  return doc !== undefined ? doc.text : `document **"${name}"** not found`
+}
+
 // import favicon from './favicon.png'
-import { elements, xinProxy, vars, xin, bindings } from 'xinjs'
+import { elements, xinProxy, vars, xin, bindings, touch } from 'xinjs'
+
+const download = (name: string, data: string): void => {
+  const link = a({
+    download: name,
+    href: `data:text/plain;charset=UTF-8,${encodeURIComponent(data)}`,
+  })
+  link.click()
+}
 
 const deathsUrl =
   'https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_time_series/time_series_covid19_deaths_global.csv'
@@ -37,7 +54,6 @@ const { app } = xinProxy({
 
 bindings.columns = {
   toDOM(elt, columns) {
-    // @ts-expect-error
     elt.columns = columns
   },
 }
@@ -67,12 +83,13 @@ bindings.columns = {
   }
 })()
 
-Object.assign(globalThis, { app, xin, bindings, elements, vars })
+Object.assign(globalThis, { app, xin, bindings, elements, vars, touch })
 
 // @ts-expect-error
 const main = document.querySelector('main')
 
-const { h1, h2, div, span, a, img, p, label, input, header, button } = elements
+const { h1, h2, div, span, a, img, p, label, input, header, button, pre } =
+  elements
 
 const table = dataTable({
   style: {
@@ -82,6 +99,15 @@ const table = dataTable({
   },
   rowHeight: 36,
   bindValue: app.tableData,
+})
+
+const filter = filterBuilder({
+  class: 'elastic',
+  onChange(event: Event) {
+    // @ts-expect-error
+    app.tableData.filter = event.target.filter
+    touch('app.tableData')
+  },
 })
 
 main.append(
@@ -100,6 +126,21 @@ main.append(
         flex: '1 1 auto',
       },
     },
+    div(
+      {
+        name: 'Read Me!',
+      },
+      markdownViewer(
+        {
+          style: {
+            display: 'block',
+            maxWidth: '40em',
+            margin: 'auto',
+          },
+        },
+        getDocSource('README.md')
+      )
+    ),
     div(
       {
         name: 'bodymovin',
@@ -166,12 +207,10 @@ main.append(
         button('Save Data', {
           bindEnabled: 'app.lottieData',
           onClick() {
-            const link = a({
-              download: app.lottieFilename.replace(/\.json/, '-optimized.json'),
-              href:
-                'data:application/octet-stream;base64,' + btoa(app.lottieData),
-            })
-            link.click()
+            download(
+              app.lottieFilename.replace(/\.json/, '-optimized.json'),
+              app.lottieData
+            )
           },
         })
       ),
@@ -207,7 +246,7 @@ main.append(
     ),
     div(
       {
-        name: 'data table',
+        name: 'data table & filter builder',
         style: {
           display: 'flex',
           flexDirection: 'column',
@@ -215,7 +254,7 @@ main.append(
           height: '100%',
         },
       },
-      h2('data-table', { style: { textAlign: 'center' } }),
+      h2('data-table and filter-builder', { style: { textAlign: 'center' } }),
       div(
         {
           class: 'bar',
@@ -242,7 +281,33 @@ main.append(
             },
           })
         ),
-        span({ class: 'elastic' })
+        button('Filter Test Data', {
+          onClick() {
+            const standards = [
+              'calendar',
+              'collation',
+              'currency',
+              'numberingSystem',
+              'timeZone',
+              'unit',
+            ]
+            // @ts-expect-error
+            const things = standards
+              .map((standard: string) => Intl.supportedValuesOf(standard))
+              .flat()
+            app.tableData.array = things.map((name: string, id) => ({
+              id: String(id),
+              name,
+              number: `NCC-${Math.random() * 1e6}`,
+              hasKirk: Math.random() < 0.1,
+            }))
+
+            filter.reset()
+            app.tableData.columns = null
+            touch('app.tableData')
+          },
+        }),
+        filter
       ),
       table
     )
