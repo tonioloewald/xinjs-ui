@@ -4,6 +4,7 @@ import { Component as WebComponent, elements } from 'xinjs'
 import { scriptTag } from './via-tag'
 
 interface LottieConfig {
+  // @ts-expect-error
   container?: HTMLElement
   renderer: 'svg' | 'cancas' | 'html'
   loop: boolean
@@ -45,14 +46,13 @@ class BodymovinPlayer extends WebComponent {
     super()
     this.initAttributes('src', 'json')
     if (BodymovinPlayer.bodymovinAvailable === undefined) {
-      // @ts-expect-error
       BodymovinPlayer.bodymovinAvailable =
+        // @ts-expect-error
         globalThis.bodymovinPlayer === undefined
           ? scriptTag(
               'https://cdnjs.cloudflare.com/ajax/libs/bodymovin/5.12.2/lottie.min.js'
             )
           : Promise.resolve()
-      console.log(BodymovinPlayer.bodymovinAvailable)
     }
   }
 
