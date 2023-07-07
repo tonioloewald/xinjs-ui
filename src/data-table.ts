@@ -40,7 +40,10 @@ interface ColumnOptions {
   prop: string
   width: number
   visible?: boolean
-  sortable?: boolean
+  // @ts-expect-error
+  headerCell?: () => HTMLElement
+  // @ts-expect-error
+  dataCell?: () => HTMLElement
 }
 
 interface TableData {
@@ -65,6 +68,8 @@ class DataTable extends WebComponent {
 
   constructor() {
     super()
+
+    this.initAttributes('rowHeight', 'charWidth', 'minColumnWidth')
   }
 
   get filter(): ArrayFilter {
@@ -148,6 +153,42 @@ class DataTable extends WebComponent {
     )
   }
 
+  get rowStyle() {
+    return {
+      display: 'grid',
+      gridTemplateColumns: vars.gridColumns,
+      height: this.rowHeight + 'px',
+      lineHeight: this.rowHeight + 'px',
+    }
+  }
+
+  get cellStyle() {
+    return {
+      overflow: 'hidden',
+      whiteSpace: 'nowrap',
+      textOverflow: 'ellipsis',
+    }
+  }
+
+  headerCell = (options: ColumnOptions) =>
+    options.headerCell !== undefined
+      ? options.headerCell()
+      : span(
+          { class: 'th' },
+          typeof options.name === 'string' ? options.name : options.prop
+        )
+
+  dataCell = (options: ColumnOptions) => {
+    if (options.dataCell !== undefined) {
+      return options.dataCell()
+    }
+    return span({
+      class: 'td',
+      style: this.cellStyle,
+      bindText: `^.${options.prop}`,
+    })
+  }
+
   render() {
     super.render()
 
@@ -159,38 +200,15 @@ class DataTable extends WebComponent {
     this.style.flexDirection = 'column'
     const { visibleColumns } = this
     this.setColumnWidths()
-    const rowStyle = {
-      display: 'grid',
-      gridTemplateColumns: vars.gridColumns,
-      height: this.rowHeight + 'px',
-    }
-    const cellStyle = {
-      overflow: 'hidden',
-      textOverflow: 'ellipsis',
-      whiteSpace: 'nowrap',
-    }
-    const sorterStyle = {
-      display: 'inline-block',
-      minWidth: vars.charWidth,
-      cursor: 'default',
-    }
     this.append(
       div(
         { class: 'thead' },
         div(
           {
             class: 'tr',
-            style: rowStyle,
+            style: this.rowStyle,
           },
-          ...visibleColumns.map((c) =>
-            span(
-              { class: 'th', style: cellStyle },
-              c.name,
-              c.sortable !== false
-                ? span({ class: 't-sorter', style: sorterStyle })
-                : undefined
-            )
-          )
+          ...visibleColumns.map(this.headerCell)
         )
       ),
       div(
@@ -212,15 +230,9 @@ class DataTable extends WebComponent {
           div(
             {
               class: 'tr',
-              style: rowStyle,
+              style: this.rowStyle,
             },
-            ...visibleColumns.map((options: ColumnOptions) =>
-              span({
-                class: 'td',
-                style: cellStyle,
-                bindText: `^.${options.prop}`,
-              })
-            )
+            ...visibleColumns.map(this.dataCell)
           )
         )
       )

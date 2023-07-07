@@ -58,7 +58,6 @@ bindings.columns = {
   },
 }
 ;(async () => {
-  await scriptTag('https://api.mapbox.com/mapbox-gl-js/v1.4.1/mapbox-gl.js')
   await scriptTag(
     'https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.1.0/papaparse.min.js'
   )
@@ -97,7 +96,7 @@ const table = dataTable({
     overflow: 'hidden',
     overflowY: 'scroll',
   },
-  rowHeight: 36,
+  rowHeight: 34,
   bindValue: app.tableData,
 })
 
@@ -291,19 +290,52 @@ main.append(
               'timeZone',
               'unit',
             ]
-            // @ts-expect-error
             const things = standards
+              // @ts-expect-error
               .map((standard: string) => Intl.supportedValuesOf(standard))
               .flat()
+            // @ts-expect-error
             app.tableData.array = things.map((name: string, id) => ({
               id: String(id),
               name,
-              number: `NCC-${Math.random() * 1e6}`,
-              hasKirk: Math.random() < 0.1,
+              number: `NCC-${(Math.random() * 1e6).toFixed(4)}`,
+              isSpecial: Math.random() < 0.1,
             }))
 
             filter.reset()
-            app.tableData.columns = null
+            // @ts-expect-error
+            app.tableData.columns = [
+              {
+                prop: 'id',
+                width: 60,
+              },
+              {
+                prop: 'name',
+                width: 250,
+              },
+              {
+                prop: 'number',
+                width: 100,
+              },
+              {
+                prop: 'isSpecial',
+                width: 80,
+                dataCell() {
+                  return span(
+                    {
+                      style: {
+                        textAlign: 'center',
+                      },
+                    },
+                    input({
+                      type: 'checkbox',
+                      bindValue: '^.isSpecial',
+                      title: 'special',
+                    })
+                  )
+                },
+              },
+            ]
             touch('app.tableData')
           },
         }),
