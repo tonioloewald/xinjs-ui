@@ -1,12 +1,5 @@
-import { Component as WebComponent, elements, vars } from 'xinjs'
+import { Component as WebComponent, elements } from 'xinjs'
 import { styleSheet, scriptTag } from './via-tag'
-
-const cssAvailable = styleSheet(
-  'https://api.mapbox.com/mapbox-gl-js/v1.4.1/mapbox-gl.css'
-)
-const mapboxAvailable = scriptTag(
-  'https://api.mapbox.com/mapbox-gl-js/v1.4.1/mapbox-gl.js'
-)
 
 export const MAPSTYLES = [
   {
@@ -62,6 +55,9 @@ class MapBox extends WebComponent {
   mapStyle = MAPSTYLES[0]
   token = ''
 
+  static mapboxCSSAvailable: Promise<void>
+  static mapboxAvailable?: Promise<void>
+
   private _map: any
 
   styleNode = WebComponent.StyleNode({
@@ -77,6 +73,19 @@ class MapBox extends WebComponent {
   constructor() {
     super()
     this.initAttributes('coords', 'token', 'mapStyle')
+
+    if (MapBox.mapboxCSSAvailable === undefined) {
+      MapBox.mapboxCSSAvailable = styleSheet(
+        'https://api.mapbox.com/mapbox-gl-js/v1.4.1/mapbox-gl.css'
+      ).catch((e) => {
+        console.error('failed to load mapbox-gl.css', e)
+      })
+      MapBox.mapboxAvailable = scriptTag(
+        'https://api.mapbox.com/mapbox-gl-js/v1.4.1/mapbox-gl.js'
+      ).catch((e) => {
+        console.error('failed to load mapbox-gl.js', e)
+      })
+    }
   }
 
   connectedCallback(): void {
@@ -99,7 +108,7 @@ class MapBox extends WebComponent {
 
     const [long, lat, zoom] = this.coords.split(',').map((x) => Number(x))
 
-    mapboxAvailable.then(() => {
+    MapBox.mapboxAvailable!.then(() => {
       // @ts-expect-error
       globalThis.mapboxgl.accessToken = this.token
       // @ts-expect-error

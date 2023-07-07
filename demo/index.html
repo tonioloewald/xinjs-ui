@@ -16,6 +16,8 @@
         --brand-color: #088358;
         --bar-color: #dae3df;
         --brand-text-color: #ecf3dd;
+        --code-color: #fcffe2;
+        --code-bg: #0a4e36;
         --spacing: 10px;
         --line-height: calc(var(--font-size) * 1.6);
         --h1-scale: 2;
@@ -28,6 +30,7 @@
       * {
         font-family: var(--font-family);
         font-size: var(--font-size);
+        box-sizing: border-box;
       }
 
       body {
@@ -170,6 +173,13 @@
         opacity: 0.5;
         filter: saturate(0);
         pointer-events: none;
+      }
+
+      pre {
+        padding: var(--spacing);
+        background: var(--code-bg);
+        color: var(--code-color);
+        border-radius: calc(var(--spacing) * 0.5);
       }
     </style>
   </head>

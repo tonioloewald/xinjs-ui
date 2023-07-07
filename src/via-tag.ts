@@ -32,10 +32,9 @@ export function styleSheet(href: string): Promise<void> {
     // @ts-expect-error
     document.head.append(linkElement)
 
-    loadedScripts[href] = new Promise((resolve) => {
+    loadedStyleSheets[href] = new Promise((resolve) => {
       linkElement.onload = resolve
     })
   }
-
   return loadedStyleSheets[href]
 }

@@ -3,14 +3,6 @@
 import { Component as WebComponent, elements } from 'xinjs'
 import { scriptTag } from './via-tag'
 
-const bodymovinAvailable =
-  // @ts-expect-error
-  globalThis.bodymovin === undefined
-    ? scriptTag(
-        'https://cdnjs.cloudflare.com/ajax/libs/bodymovin/5.12.2/lottie.min.js'
-      )
-    : Promise.resolve()
-
 interface LottieConfig {
   container?: HTMLElement
   renderer: 'svg' | 'cancas' | 'html'
@@ -31,6 +23,8 @@ class BodymovinPlayer extends WebComponent {
     autoplay: true,
   }
 
+  static bodymovinAvailable?: Promise<void>
+
   animation: any
 
   styleNode = WebComponent.StyleNode({
@@ -50,6 +44,16 @@ class BodymovinPlayer extends WebComponent {
   constructor() {
     super()
     this.initAttributes('src', 'json')
+    if (BodymovinPlayer.bodymovinAvailable === undefined) {
+      // @ts-expect-error
+      BodymovinPlayer.bodymovinAvailable =
+        globalThis.bodymovinPlayer === undefined
+          ? scriptTag(
+              'https://cdnjs.cloudflare.com/ajax/libs/bodymovin/5.12.2/lottie.min.js'
+            )
+          : Promise.resolve()
+      console.log(BodymovinPlayer.bodymovinAvailable)
+    }
   }
 
   private readonly doneLoading = (): void => {
@@ -90,9 +94,11 @@ class BodymovinPlayer extends WebComponent {
   render(): void {
     super.render()
 
-    bodymovinAvailable.then(this.load).catch((e: string): void => {
-      console.error(e)
-    })
+    BodymovinPlayer.bodymovinAvailable!.then(this.load).catch(
+      (e: string): void => {
+        console.error(e)
+      }
+    )
   }
 }
 
