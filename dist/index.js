@@ -1,4 +1,4 @@
-import {Component as $hgUW1$Component, elements as $hgUW1$elements, xin as $hgUW1$xin, xinValue as $hgUW1$xinValue, vars as $hgUW1$vars, debounce as $hgUW1$debounce} from "xinjs";
+import {Component as $hgUW1$Component, elements as $hgUW1$elements, vars as $hgUW1$vars, xin as $hgUW1$xin, xinValue as $hgUW1$xinValue, debounce as $hgUW1$debounce} from "xinjs";
 import {marked as $hgUW1$marked} from "marked";
 
 // https://lottiefiles.github.io/lottie-docs/advanced_interactions/
@@ -61,11 +61,8 @@ class $59f50bee37676c09$var$BodymovinPlayer extends (0, $hgUW1$Component) {
     constructor(){
         super();
         this.initAttributes("src", "json");
-        if ($59f50bee37676c09$var$BodymovinPlayer.bodymovinAvailable === undefined) {
-            // @ts-expect-error
-            $59f50bee37676c09$var$BodymovinPlayer.bodymovinAvailable = globalThis.bodymovinPlayer === undefined ? (0, $5c31145f3e970423$export$c6e082819e9a0330)("https://cdnjs.cloudflare.com/ajax/libs/bodymovin/5.12.2/lottie.min.js") : Promise.resolve();
-            console.log($59f50bee37676c09$var$BodymovinPlayer.bodymovinAvailable);
-        }
+        if ($59f50bee37676c09$var$BodymovinPlayer.bodymovinAvailable === undefined) $59f50bee37676c09$var$BodymovinPlayer.bodymovinAvailable = // @ts-expect-error
+        globalThis.bodymovinPlayer === undefined ? (0, $5c31145f3e970423$export$c6e082819e9a0330)("https://cdnjs.cloudflare.com/ajax/libs/bodymovin/5.12.2/lottie.min.js") : Promise.resolve();
     }
     doneLoading = ()=>{
         this._loading = false;
@@ -159,6 +156,7 @@ class $e6e19030d0c18d6f$var$DataTable extends (0, $hgUW1$Component) {
     minColumnWidth = 30;
     constructor(){
         super();
+        this.initAttributes("rowHeight", "charWidth", "minColumnWidth");
     }
     get filter() {
         return typeof this.value.filter === "function" ? this.value.filter : $e6e19030d0c18d6f$var$passThru;
@@ -223,6 +221,32 @@ class $e6e19030d0c18d6f$var$DataTable extends (0, $hgUW1$Component) {
     setColumnWidths() {
         this.style.setProperty("--grid-columns", this.visibleColumns.map((c)=>c.width + "px").join(" "));
     }
+    get rowStyle() {
+        return {
+            display: "grid",
+            gridTemplateColumns: (0, $hgUW1$vars).gridColumns,
+            height: this.rowHeight + "px",
+            lineHeight: this.rowHeight + "px"
+        };
+    }
+    get cellStyle() {
+        return {
+            overflow: "hidden",
+            whiteSpace: "nowrap",
+            textOverflow: "ellipsis"
+        };
+    }
+    headerCell = (options)=>options.headerCell !== undefined ? options.headerCell() : $e6e19030d0c18d6f$var$span({
+            class: "th"
+        }, typeof options.name === "string" ? options.name : options.prop);
+    dataCell = (options)=>{
+        if (options.dataCell !== undefined) return options.dataCell();
+        return $e6e19030d0c18d6f$var$span({
+            class: "td",
+            style: this.cellStyle,
+            bindText: `^.${options.prop}`
+        });
+    };
     render() {
         super.render();
         (0, $hgUW1$xin)[this.instanceId] = this.filter((0, $hgUW1$xinValue)(this.value.array));
@@ -231,33 +255,12 @@ class $e6e19030d0c18d6f$var$DataTable extends (0, $hgUW1$Component) {
         this.style.flexDirection = "column";
         const { visibleColumns: visibleColumns } = this;
         this.setColumnWidths();
-        const rowStyle = {
-            display: "grid",
-            gridTemplateColumns: (0, $hgUW1$vars).gridColumns,
-            height: this.rowHeight + "px"
-        };
-        const cellStyle = {
-            overflow: "hidden",
-            textOverflow: "ellipsis",
-            whiteSpace: "nowrap"
-        };
-        const sorterStyle = {
-            display: "inline-block",
-            minWidth: (0, $hgUW1$vars).charWidth,
-            cursor: "default"
-        };
         this.append($e6e19030d0c18d6f$var$div({
             class: "thead"
         }, $e6e19030d0c18d6f$var$div({
             class: "tr",
-            style: rowStyle
-        }, ...visibleColumns.map((c)=>$e6e19030d0c18d6f$var$span({
-                class: "th",
-                style: cellStyle
-            }, c.name, c.sortable !== false ? $e6e19030d0c18d6f$var$span({
-                class: "t-sorter",
-                style: sorterStyle
-            }) : undefined)))), $e6e19030d0c18d6f$var$div({
+            style: this.rowStyle
+        }, ...visibleColumns.map(this.headerCell))), $e6e19030d0c18d6f$var$div({
             class: "tbody",
             style: {
                 content: " ",
@@ -274,12 +277,8 @@ class $e6e19030d0c18d6f$var$DataTable extends (0, $hgUW1$Component) {
             }
         }, $e6e19030d0c18d6f$var$template($e6e19030d0c18d6f$var$div({
             class: "tr",
-            style: rowStyle
-        }, ...visibleColumns.map((options)=>$e6e19030d0c18d6f$var$span({
-                class: "td",
-                style: cellStyle,
-                bindText: `^.${options.prop}`
-            }))))));
+            style: this.rowStyle
+        }, ...visibleColumns.map(this.dataCell)))));
     }
 }
 const $e6e19030d0c18d6f$export$f71ce0a5ddbe8fa0 = $e6e19030d0c18d6f$var$DataTable.elementCreator({
@@ -485,6 +484,7 @@ class $6246d5006b5a56c3$var$MapBox extends (0, $hgUW1$Component) {
         const { div: div } = this.refs;
         const [long, lat, zoom] = this.coords.split(",").map((x)=>Number(x));
         $6246d5006b5a56c3$var$MapBox.mapboxAvailable.then(()=>{
+            console.log("%cmapbox may complain about missing css because it is loaded async on demand", "background: orange; color: black; padding: 0 5px;");
             // @ts-expect-error
             globalThis.mapboxgl.accessToken = this.token;
             // @ts-expect-error
@@ -525,7 +525,10 @@ class $1b88c9cb596c3426$var$MarkdownViewer extends (0, $hgUW1$Component) {
     }
     render() {
         super.render();
-        this.innerHTML = (0, $hgUW1$marked)(this.value);
+        this.innerHTML = (0, $hgUW1$marked)(this.value, {
+            mangle: false,
+            headerIds: false
+        });
     }
 }
 const $1b88c9cb596c3426$export$305b975a891d0dfa = $1b88c9cb596c3426$var$MarkdownViewer.elementCreator();
@@ -597,6 +600,7 @@ class $6bbe441346901d5a$var$TabSelector extends (0, $hgUW1$Component) {
         super();
         this.initAttributes("anne", "example");
     }
+    // @ts-expect-error
     addTabBody(body, selectTab = false) {
         if (!body.hasAttribute("name")) throw new Error("element has no name attribute", body);
         this.shadowRoot.append(body);
@@ -607,6 +611,7 @@ class $6bbe441346901d5a$var$TabSelector extends (0, $hgUW1$Component) {
     // @ts-expect-error
     keyTab = (event)=>{
         const { tabs: tabs } = this.refs;
+        // @ts-expect-error
         const tabIndex = [
             ...tabs.children
         ].indexOf(event.target);
@@ -628,6 +633,7 @@ class $6bbe441346901d5a$var$TabSelector extends (0, $hgUW1$Component) {
             default:
         }
     };
+    // @ts-expect-error
     get bodies() {
         return [
             ...this.children
@@ -664,6 +670,7 @@ class $6bbe441346901d5a$var$TabSelector extends (0, $hgUW1$Component) {
         const tabBodies = this.bodies;
         for(let i = 0; i < tabBodies.length; i++){
             const tabBody = tabBodies[i];
+            // @ts-expect-error
             const tab = tabs.children[i];
             if (this.value === Number(i)) {
                 tab.classList.add("selected");
