@@ -691,6 +691,7 @@ const { slot: $0f2017ffca44b547$var$slot } = (0, $hgUW1$elements);
 class $0f2017ffca44b547$var$SizeBreak extends (0, $hgUW1$Component) {
     minWidth = 0;
     minHeight = 0;
+    value = "normal";
     content = [
         $0f2017ffca44b547$var$slot({
             dataRef: "normal"
@@ -702,7 +703,6 @@ class $0f2017ffca44b547$var$SizeBreak extends (0, $hgUW1$Component) {
     ];
     styleNode = (0, $hgUW1$Component).StyleNode({
         ":host": {
-            display: "block",
             position: "relative"
         }
     });
@@ -715,9 +715,11 @@ class $0f2017ffca44b547$var$SizeBreak extends (0, $hgUW1$Component) {
         if (this.offsetParent.offsetWidth < this.minWidth || this.offsetParent.offsetHeight < this.minHeight) {
             normal.hidden = true;
             small.hidden = false;
+            this.value = "small";
         } else {
             normal.hidden = false;
             small.hidden = true;
+            this.value = "normal";
         }
     };
     connectedCallback() {

@@ -5,6 +5,7 @@ const { slot } = elements
 class SizeBreak extends WebComponent {
   minWidth = 0
   minHeight = 0
+  value: 'normal' | 'small' = 'normal'
 
   content = [
     slot({ dataRef: 'normal' }),
@@ -13,7 +14,6 @@ class SizeBreak extends WebComponent {
 
   styleNode = WebComponent.StyleNode({
     ':host': {
-      display: 'block',
       position: 'relative',
     },
   })
@@ -31,9 +31,11 @@ class SizeBreak extends WebComponent {
     ) {
       normal.hidden = true
       small.hidden = false
+      this.value = 'small'
     } else {
       normal.hidden = false
       small.hidden = true
+      this.value = 'normal'
     }
   }
 
