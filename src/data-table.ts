@@ -49,7 +49,6 @@ interface ColumnOptions {
 interface TableData {
   columns?: ColumnOptions[]
   array: any[]
-  filteredArray: any[]
   filter?: ArrayFilter
 }
 
@@ -60,7 +59,6 @@ const passThru = (array: any[]) => array
 class DataTable extends WebComponent {
   value: TableData = {
     array: [],
-    filteredArray: [],
   }
   charWidth = 15
   rowHeight = 30
@@ -96,6 +94,10 @@ class DataTable extends WebComponent {
 
   get visibleColumns(): ColumnOptions[] {
     return this.columns.filter((c) => c.visible !== false)
+  }
+
+  get visibleRecords(): any[] {
+    return xin[this.instanceId] as any[]
   }
 
   content = null
@@ -174,7 +176,7 @@ class DataTable extends WebComponent {
     options.headerCell !== undefined
       ? options.headerCell()
       : span(
-          { class: 'th' },
+          { class: 'th', role: 'columnheader', ariaSort: 'none' },
           typeof options.name === 'string' ? options.name : options.prop
         )
 
@@ -184,6 +186,7 @@ class DataTable extends WebComponent {
     }
     return span({
       class: 'td',
+      role: 'cell',
       style: this.cellStyle,
       bindText: `^.${options.prop}`,
     })
@@ -202,10 +205,11 @@ class DataTable extends WebComponent {
     this.setColumnWidths()
     this.append(
       div(
-        { class: 'thead' },
+        { class: 'thead', role: 'rowgroup' },
         div(
           {
             class: 'tr',
+            role: 'row',
             style: this.rowStyle,
           },
           ...visibleColumns.map(this.headerCell)
@@ -214,6 +218,7 @@ class DataTable extends WebComponent {
       div(
         {
           class: 'tbody',
+          role: 'rowgroup',
           style: {
             content: ' ',
             minHeight: '200px',
@@ -230,6 +235,7 @@ class DataTable extends WebComponent {
           div(
             {
               class: 'tr',
+              role: 'row',
               style: this.rowStyle,
             },
             ...visibleColumns.map(this.dataCell)
