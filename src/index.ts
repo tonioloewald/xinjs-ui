@@ -1,4 +1,5 @@
 export { bodymovinPlayer } from './bodymovin-player'
+export { codeEditor } from './code-editor'
 export { dataTable } from './data-table'
 export { filterBuilder } from './filter-builder'
 export { mapBox } from './mapbox'
