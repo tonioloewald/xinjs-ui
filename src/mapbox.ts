@@ -108,6 +108,10 @@ class MapBox extends WebComponent {
 
     const [long, lat, zoom] = this.coords.split(',').map((x) => Number(x))
 
+    if (this.map) {
+      this.map.remove()
+    }
+
     MapBox.mapboxAvailable!.then(({ mapboxgl }: { mapboxgl: any }) => {
       console.log(
         '%cmapbox may complain about missing css because it is loaded async on demand',
