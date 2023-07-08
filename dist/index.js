@@ -243,6 +243,7 @@ class $e6e19030d0c18d6f$var$DataTable extends (0, $hgUW1$Component) {
                 return {
                     name: prop.replace(/([a-z])([A-Z])/g, "$1 $2").toLocaleLowerCase(),
                     prop: prop,
+                    align: typeof array[0][prop] === "number" || array[0][prop] !== "" && !isNaN(array[0][prop]) ? "right" : "left",
                     visible: width !== false,
                     width: width ? width : 0
                 };
@@ -316,14 +317,21 @@ class $e6e19030d0c18d6f$var$DataTable extends (0, $hgUW1$Component) {
     headerCell = (options)=>options.headerCell !== undefined ? options.headerCell() : $e6e19030d0c18d6f$var$span({
             class: "th",
             role: "columnheader",
-            ariaSort: "none"
+            ariaSort: "none",
+            style: {
+                ...this.cellStyle,
+                textAlign: options.align || "left"
+            }
         }, typeof options.name === "string" ? options.name : options.prop);
     dataCell = (options)=>{
         if (options.dataCell !== undefined) return options.dataCell();
         return $e6e19030d0c18d6f$var$span({
             class: "td",
             role: "cell",
-            style: this.cellStyle,
+            style: {
+                ...this.cellStyle,
+                textAlign: options.align || "left"
+            },
             bindText: `^.${options.prop}`
         });
     };
@@ -628,6 +636,7 @@ class $6246d5006b5a56c3$var$MapBox extends (0, $hgUW1$Component) {
         if (!this.token) return;
         const { div: div } = this.refs;
         const [long, lat, zoom] = this.coords.split(",").map((x)=>Number(x));
+        if (this.map) this.map.remove();
         $6246d5006b5a56c3$var$MapBox.mapboxAvailable.then(({ mapboxgl: mapboxgl })=>{
             console.log("%cmapbox may complain about missing css because it is loaded async on demand", "background: orange; color: black; padding: 0 5px;");
             mapboxgl.accessToken = this.token;

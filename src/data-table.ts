@@ -40,6 +40,7 @@ interface ColumnOptions {
   prop: string
   width: number
   visible?: boolean
+  align?: string
   // @ts-expect-error
   headerCell?: () => HTMLElement
   // @ts-expect-error
@@ -84,6 +85,11 @@ class DataTable extends WebComponent {
         return {
           name: prop.replace(/([a-z])([A-Z])/g, '$1 $2').toLocaleLowerCase(),
           prop,
+          align:
+            typeof array[0][prop] === 'number' ||
+            (array[0][prop] !== '' && !isNaN(array[0][prop]))
+              ? 'right'
+              : 'left',
           visible: width !== false,
           width: width ? width : 0,
         } as ColumnOptions
@@ -176,7 +182,15 @@ class DataTable extends WebComponent {
     options.headerCell !== undefined
       ? options.headerCell()
       : span(
-          { class: 'th', role: 'columnheader', ariaSort: 'none' },
+          {
+            class: 'th',
+            role: 'columnheader',
+            ariaSort: 'none',
+            style: {
+              ...this.cellStyle,
+              textAlign: options.align || 'left',
+            },
+          },
           typeof options.name === 'string' ? options.name : options.prop
         )
 
@@ -187,7 +201,10 @@ class DataTable extends WebComponent {
     return span({
       class: 'td',
       role: 'cell',
-      style: this.cellStyle,
+      style: {
+        ...this.cellStyle,
+        textAlign: options.align || 'left',
+      },
       bindText: `^.${options.prop}`,
     })
   }

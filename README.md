@@ -8,7 +8,11 @@ Copyright ©2023 Tonio Loewald
 
 In general, `xinjs` strives to work _with_ the browser rather than trying to replace it.
 
-This is _not_ a library of wrappers for things that work perfectly well in HTML!
+`xinjs-ui` comprises a collection of [web-components](https://developer.mozilla.org/en-US/docs/Web/API/Web_components)
+with the goal of augmenting what _already_ works well and are as interoperable as
+possible with the stuff you already use. E.g. where appropriate, the `value` of an
+element is its malleable `state`, and when this changes, the element emits a
+`change` event.
 
 Similarly, because web-components are highly interoperable, there's no reason to reinvent
 wheels. In particular, this library won't try to replace existing, excellent libraries
@@ -24,14 +28,22 @@ A tab-selector with nice animations.
 
 A mapboxgl wrapper.
 
+    <map-box coords="21.4389,-158.0001,9" token="your-mapbox-token-goes-here"></map-box>
+
 ### `<bodymovin-player>`
 
 A bodymovin, a.k.a. lottie, player.
+
+    <bodymovin-player src="path/to/lottie.json"></bodymovin-player>
+
+Or you can directly set its `json` property to the content of a `lottie.json` file.
 
 ### `<data-table>`
 
 A virtual data-table, configurable via a `columns` array (which will automatically be generated if not provided),
 that displays gigantic tables with fixed headers (and live column-resizing) using a minimum of resources and cpu.
+
+You can set the `<data-table>`'s `value` to `{ array: any[], columns: ColumnOptions[] | null, filter?: ArrayFilter }`
 
 ### `<markdown-viewer>`
 
@@ -50,7 +62,10 @@ Or (but don't include the indentation!!):
 ### `<filter-builder>`
 
 Automatically creates `ArrayFilter` functions `(a: any[]) => any[]` based on a text query that accepts the
-following space-delimited criteria — all text matches are performed in `LocaleLowerCase`
+following space-delimited criteria — all text matches are performed in `LocaleLowerCase`.
+
+`<filter-builder>` has sets its `filter` property to an `ArrayFilter`, by default it just passes through
+the array untouched. Its `value` is the source `string`.
 
 The filter-builder has a default set of `FilterMaker` objects which it uses to **curry** an filter function.
 
@@ -60,7 +75,7 @@ The filter-builder has a default set of `FilterMaker` objects which it uses to *
       hint: string                                    // describes the grammar
       description: (...matches: string[]) => string   // describes the actual filter
       token: RegExp                                   // matches the token
-      filterMaker(...matches: string) => ObjectTest  // builds an ObjectTest
+      filterMaker(...matches: string) => ObjectTest   // builds an ObjectTest
     }
 
 The `<filter-builder>` will use the `hint` values to write its `placeholder` (you can override this if
@@ -103,7 +118,7 @@ Usage:
       globalThis.bodymovien.loadAnimation(...)
     })
 
-`<bodymovin-player>` is implemented in such a way that if you've preloaded the module
+`<bodymovin-player>` and is implemented in such a way that if you've preloaded the module
 (e.g. via a script tag or packaging) it won't load it again, which affords offline
 use.
 

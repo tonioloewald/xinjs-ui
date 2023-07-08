@@ -321,6 +321,7 @@ main.append(
               {
                 prop: 'id',
                 width: 60,
+                align: 'right',
               },
               {
                 prop: 'standard',
@@ -333,6 +334,7 @@ main.append(
               {
                 prop: 'number',
                 width: 100,
+                align: 'right',
               },
               {
                 prop: 'isLucky',
