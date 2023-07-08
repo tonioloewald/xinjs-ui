@@ -7,6 +7,7 @@ import {
   dataTable,
   filterBuilder,
   scriptTag,
+  sizeBreak,
 } from '../src'
 
 import docs from './docs.json'
@@ -115,7 +116,11 @@ main.append(
     // img({src: favicon}),
     h1({ bindText: 'app.title' }),
     span({ class: 'elastic' }),
-    img({ src: app.bundleUrl }),
+    sizeBreak(
+      { minWidth: 500 },
+      img({ src: app.bundleUrl }),
+      span({ slot: 'small' })
+    ),
     a('github', { href: app.githubUrl }),
     a('npm', { href: app.npmUrl })
   ),
@@ -134,8 +139,9 @@ main.append(
         {
           style: {
             display: 'block',
-            maxWidth: '40em',
+            maxWidth: '44em',
             margin: 'auto',
+            padding: `0 2em`,
           },
         },
         getDocSource('README.md')

@@ -32,6 +32,7 @@ class TabSelector extends WebComponent {
     ':host .tabs': {
       display: 'flex',
       userSelect: 'none',
+      whiteSpace: 'nowrap',
     },
     ':host .tabs > div': {
       padding: `${vars.spacing50} ${vars.spacing}`,

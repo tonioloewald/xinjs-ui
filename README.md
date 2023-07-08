@@ -1,6 +1,6 @@
 # xinjs-ui
 
-[xinjs](https://xinjs.net) | [github](https://github.com/tonioloewald/xinjs-ui#readme) | [npm](https://www.npmjs.com/package/xinjs-ui) | ![bundlejs](https://deno.bundlejs.com/?q=xinjs-ui&badge=)
+[xinjs](https://xinjs.net) [github](https://github.com/tonioloewald/xinjs-ui#readme) [npm](https://www.npmjs.com/package/xinjs-ui) <size-break min-width="500"><img alt="bundlejs" src="https://deno.bundlejs.com/?q=xinjs-ui&badge="></size-break>
 
 Copyright ©2023 Tonio Loewald
 
@@ -99,6 +99,24 @@ become smarter (convert both sides to numbers if possible), and extensibility wi
 ### `<code-editor>`
 
 Sometimes, it's nice to be able to just toss a code-editor in a web-page.
+
+### `<size-break>`
+
+While we wait for enough browsers to implement [container-queries](https://www.w3.org/TR/css-contain-3/),
+and in any event when you simply want to do different things at different sizes (e.g. in the project I'm
+working on right now, a row of buttons turns into a menu at narrow widths) there's `<size-break>`.
+
+Note that the sizes referred to are of the `<size-break>`'s `.offsetParent`, and it watches for
+the window's `resize` events and its own (via `ResizeObserver`).
+
+    <size-break min-width="500">
+      <default-thing>I am big!</default-thing>
+      <small-thing slot="small">I am little</small-thing>
+    </size-break>
+
+`<size-break>` supports both `min-width` and/or `min-height`, and you can of course target only one
+of the slots if you like. The demo site uses them to hide the [bundlejs](https://bundlejs.com/) badge when
+space is tight.
 
 ## utilities
 
