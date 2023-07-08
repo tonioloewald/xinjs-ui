@@ -1,6 +1,6 @@
 # xinjs-ui
 
-[demo](https://tonioloewald.github.io/xinjs-ui/) | [github](https://github.com/tonioloewald/xinjs-ui#readme) | [npm](https://www.npmjs.com/package/xinjs-ui) | ![bundlejs](https://deno.bundlejs.com/?q=xinjs-ui&badge=)
+[xinjs](https://xinjs.net) | [github](https://github.com/tonioloewald/xinjs-ui#readme) | [npm](https://www.npmjs.com/package/xinjs-ui) | ![bundlejs](https://deno.bundlejs.com/?q=xinjs-ui&badge=)
 
 Copyright ©2023 Tonio Loewald
 
@@ -52,14 +52,38 @@ Or (but don't include the indentation!!):
 Automatically creates `ArrayFilter` functions `(a: any[]) => any[]` based on a text query that accepts the
 following space-delimited criteria — all text matches are performed in `LocaleLowerCase`
 
-- `string` will match any record that has a property that contains `word`
-- `field:string` will match any record that has a property `field` containing `string`
-- `field:>string` / `field:<string` will match any record that has a property `field` > / < `string` (alphabetic for now)
-- `!field` will match any record where `field` is **falsy**
-- `field!` will match any record where `field` is **truthy**
+The filter-builder has a default set of `FilterMaker` objects which it uses to **curry** an filter function.
+
+    type ObjectTest (obj: any) => boolean
+
+    interface FilterMaker {
+      hint: string                                    // describes the grammar
+      description: (...matches: string[]) => string   // describes the actual filter
+      token: RegExp                                   // matches the token
+      filterMaker(...matches: string) => ObjectTest  // builds an ObjectTest
+    }
+
+The `<filter-builder>` will use the `hint` values to write its `placeholder` (you can override this if
+you explicitly set the `placeholder`) and it will use the `description` function to create the
+`title` attribute, describing the filter.
+
+The default `filters` provided are (in priority order):
+
+- `[field]=value` if `field` is specified, matches `value`, otherwise looks for `value` anwhere
+- `field!=value` matches if `field` is not `value`
+- `field>value` / `field<value` - matches if `field` is `>`/`<` `value`, if `isNaN(Number(value))` this will
+  be an alphabetical order comparison, otherwise it will be numberic.
+- `field:value` matches if `field` contains `value`
+- `!!field` matches if `field` is **truthy**
+- `!field` matches if `field` is **falsy** (e.g. `''`, `null`, `undefined`, `false`, `0`)
+- `value` matches if any field contains `value`
 
 Right now multiple criteria are `AND`ed together. This will be extended to allow `()`, `OR`, `<` and `>` comparisons will
 become smarter (convert both sides to numbers if possible), and extensibility will be added.
+
+### `<code-editor>`
+
+Sometimes, it's nice to be able to just toss a code-editor in a web-page.
 
 ## utilities
 
