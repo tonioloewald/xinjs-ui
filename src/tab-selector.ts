@@ -5,6 +5,8 @@ const { div, slot } = elements
 class TabSelector extends WebComponent {
   value = 0
 
+  role = 'tabpanel'
+
   styleNode = WebComponent.StyleNode({
     ':host': {
       display: 'flex',
@@ -35,7 +37,7 @@ class TabSelector extends WebComponent {
       padding: `${vars.spacing50} ${vars.spacing}`,
       cursor: 'default',
     },
-    ':host .tabs > .selected': {
+    ':host .tabs > [aria-selected="true"]': {
       color: vars.tabSelectorSelectedColor,
     },
     ':host .border': {
@@ -124,8 +126,12 @@ class TabSelector extends WebComponent {
     const { tabs } = this.refs
     const tabBodies = [...this.querySelectorAll('[name]')]
     tabs.textContent = ''
-    for (const tabBody of tabBodies) {
-      tabs.append(div(tabBody.getAttribute('name') as string, { tabindex: 0 }))
+    for (const index in tabBodies) {
+      const tabBody = tabBodies[index]
+      const name = tabBody.getAttribute('name') as string
+      const bodyId = `${this.instanceId}-${index}`
+      tabBody.id = bodyId
+      tabs.append(div(name, { tabindex: 0, role: 'tab', ariaControls: bodyId }))
     }
   }
 
@@ -145,12 +151,12 @@ class TabSelector extends WebComponent {
       // @ts-expect-error
       const tab = tabs.children[i] as HTMLElement
       if (this.value === Number(i)) {
-        tab.classList.add('selected')
+        tab.setAttribute('aria-selected', true)
         selected.style.marginLeft = `${tab.offsetLeft - tabs.offsetLeft}px`
         selected.style.width = `${tab.offsetWidth}px`
         tabBody.removeAttribute('hidden')
       } else {
-        tab.classList.remove('selected')
+        tab.removeAttribute('aria-selected')
         tabBody.setAttribute('hidden', '')
       }
     }
