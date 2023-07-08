@@ -25,4 +25,4 @@ class MarkdownViewer extends Component {
   }
 }
 
-export const markdownViewer = MarkdownViewer.elementCreator()
+export const markdownViewer = MarkdownViewer.elementCreator({tag: 'markdown-viewer'})
