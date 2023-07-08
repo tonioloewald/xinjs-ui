@@ -4,6 +4,8 @@ interface PromiseMap {
   [key: string]: Promise<any>
 }
 
+// TODO scriptTag provided a property that if present in globalThis is returned
+// so that a user can load the modules themselves if desired.
 const loadedScripts: PromiseMap = {}
 export function scriptTag(src: string): Promise<any> {
   if (loadedScripts[src] === undefined) {
