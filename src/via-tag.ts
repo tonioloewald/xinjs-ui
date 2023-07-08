@@ -1,11 +1,11 @@
 import { elements } from 'xinjs'
 
 interface PromiseMap {
-  [key: string]: Promise<void>
+  [key: string]: Promise<any>
 }
 
 const loadedScripts: PromiseMap = {}
-export function scriptTag(src: string): Promise<void> {
+export function scriptTag(src: string): Promise<any> {
   if (loadedScripts[src] === undefined) {
     const scriptElt = elements.script({ src })
 
@@ -13,7 +13,7 @@ export function scriptTag(src: string): Promise<void> {
     document.head.append(scriptElt)
 
     loadedScripts[src] = new Promise((resolve) => {
-      scriptElt.onload = resolve
+      scriptElt.onload = () => resolve(globalThis)
     })
   }
 
