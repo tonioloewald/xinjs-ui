@@ -25,7 +25,9 @@ class SizeBreak extends WebComponent {
 
   onResize = () => {
     const { normal, small } = this.refs
-    if (
+    if (this.offsetParent === null) {
+      return
+    } else if (
       this.offsetParent.offsetWidth < this.minWidth ||
       this.offsetParent.offsetHeight < this.minHeight
     ) {
@@ -39,6 +41,8 @@ class SizeBreak extends WebComponent {
     }
   }
 
+  // TODO trigger a resize event when an ancestor element
+  // is inerted or moved into the DOM.
   connectedCallback(): void {
     super.connectedCallback()
     globalThis.addEventListener('resize', this.onResize)
