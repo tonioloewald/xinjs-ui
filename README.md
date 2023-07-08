@@ -6,7 +6,7 @@ Copyright ©2023 Tonio Loewald
 
 ## the xinjs component library
 
-In general, `xinjs` strives to work _with_ the browser rather than trying to replace it.
+In general, `xinjs` strives to work _with_ the browser rather than trying to _replace_ it.
 
 `xinjs-ui` comprises a collection of [web-components](https://developer.mozilla.org/en-US/docs/Web/API/Web_components)
 with the goal of augmenting what _already_ works well and are as interoperable as
@@ -18,7 +18,7 @@ Similarly, because web-components are highly interoperable, there's no reason to
 wheels. In particular, this library won't try to replace existing, excellent libraries
 such as [shoelace.style](https://shoelace.style/).
 
-The goal here is to provide useful components that augment what's built into HTML5.
+The goal here is to provide useful components that augment what's built into HTML5 and CSS3.
 
 ### `<tab-selector>`
 
@@ -26,17 +26,21 @@ A tab-selector with nice animations.
 
 ### `<map-box>`
 
-A mapboxgl wrapper.
+A [mapboxgl](https://docs.mapbox.com/mapbox-gl-js/api/) wrapper.
 
     <map-box coords="21.4389,-158.0001,9" token="your-mapbox-token-goes-here"></map-box>
 
+There's no need to learn new apis, just access the element's `map` property.
+
 ### `<bodymovin-player>`
 
-A bodymovin, a.k.a. lottie, player.
+A wrapper for AirBnb's bodymovin, a.k.a. [lottie](https://airbnb.io/lottie/#/web), player.
 
     <bodymovin-player src="path/to/lottie.json"></bodymovin-player>
 
 Or you can directly set its `json` property to the content of a `lottie.json` file.
+
+And of course just access the element's `animation` property to use the usual APIs.
 
 ### `<data-table>`
 
@@ -47,8 +51,8 @@ You can set the `<data-table>`'s `value` to `{ array: any[], columns: ColumnOpti
 
 ### `<markdown-viewer>`
 
-Render markdown anywhere, either using the `src` attribute to load the file asynchronousely, or
-just put the text inside it:
+Render [markdown](https://www.markdownguide.org/) anywhere, either using the `src` attribute to load
+the file asynchronousely, or just put the text inside it. Powered by [marked](https://www.npmjs.com/package/marked).
 
     <markdown-viewer src="/path/to/file.md">
 
@@ -58,6 +62,8 @@ Or (but don't include the indentation!!):
       # hello
       world
     </markdown-viewer>
+
+And just set the element's `value` and it will render it for you.
 
 ### `<filter-builder>`
 
@@ -98,7 +104,8 @@ become smarter (convert both sides to numbers if possible), and extensibility wi
 
 ### `<code-editor>`
 
-Sometimes, it's nice to be able to just toss a code-editor in a web-page.
+Sometimes, it's nice to be able to just toss a code-editor in a web-page. The element's `value` is
+the code.
 
 ### `<size-break>`
 
