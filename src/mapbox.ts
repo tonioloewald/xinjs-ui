@@ -56,7 +56,7 @@ class MapBox extends WebComponent {
   token = ''
 
   static mapboxCSSAvailable: Promise<void>
-  static mapboxAvailable?: Promise<void>
+  static mapboxAvailable?: Promise<any>
 
   private _map: any
 
@@ -108,15 +108,13 @@ class MapBox extends WebComponent {
 
     const [long, lat, zoom] = this.coords.split(',').map((x) => Number(x))
 
-    MapBox.mapboxAvailable!.then(() => {
+    MapBox.mapboxAvailable!.then(({ mapboxgl }: { mapboxgl: any }) => {
       console.log(
         '%cmapbox may complain about missing css because it is loaded async on demand',
         'background: orange; color: black; padding: 0 5px;'
       )
-      // @ts-expect-error
-      globalThis.mapboxgl.accessToken = this.token
-      // @ts-expect-error
-      this._map = new globalThis.mapboxgl.Map({
+      mapboxgl.accessToken = this.token
+      this._map = new mapboxgl.Map({
         container: div,
         style: this.mapStyle.url,
         zoom,
