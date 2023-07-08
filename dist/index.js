@@ -174,27 +174,62 @@ const $8a70bd76f9b7e656$export$d89b6f4d34274146 = $8a70bd76f9b7e656$var$CodeEdit
 
 
 
-const $b92d846b773fd5ef$export$fb335fe3908368a2 = (callback, cursor)=>{
-    const tracker = (0, $hgUW1$elements).div({
-        style: {
-            content: " ",
-            position: "fixed",
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            cursor: cursor
-        }
-    });
-    // @ts-expect-error
-    document.body.append(tracker);
-    tracker.addEventListener("mousemove", (event)=>{
-        if (callback(event) === true) tracker.remove();
-    });
-    tracker.addEventListener("mouseup", (event)=>{
-        callback(event);
-        tracker.remove();
-    });
+const $5265d118b5240170$export$c947e3cd16175f27 = (event, callback, cursor = "default")=>{
+    const isTouchEvent = event.type.startsWith("touch");
+    if (!isTouchEvent) {
+        const origX = event.clientX;
+        const origY = event.clientY;
+        const tracker = (0, $hgUW1$elements).div({
+            style: {
+                content: " ",
+                position: "fixed",
+                top: 0,
+                left: 0,
+                right: 0,
+                bottom: 0,
+                cursor: cursor
+            }
+        });
+        // @ts-expect-error
+        document.body.append(tracker);
+        const wrappedCallback = (event)=>{
+            const dx = event.clientX - origX;
+            const dy = event.clientY - origY;
+            if (callback(dx, dy, event) === true) tracker.remove();
+        };
+        tracker.addEventListener("mousemove", wrappedCallback, {
+            passive: true
+        });
+        tracker.addEventListener("mouseup", wrappedCallback, {
+            passive: true
+        });
+    } else if (event.type.startsWith("touch")) {
+        const origX = event.touches[0].clientX;
+        const origY = event.touches[0].clientY;
+        const target = event.target;
+        let dx = 0;
+        let dy = 0;
+        const wrappedCallback = (event)=>{
+            if (event.touches.length > 0) {
+                dx = event.touches[0].clientX - origX;
+                dy = event.touches[0].clientY - origY;
+            }
+            if (callback(dx, dy, event) === true || event.touches.length === 0) {
+                target.removeEventListener("touchmove", wrappedCallback);
+                target.removeEventListener("touchend", wrappedCallback);
+                target.removeEventListener("touchcancel", wrappedCallback);
+            }
+        };
+        target.addEventListener("touchmove", wrappedCallback, {
+            passive: true
+        });
+        target.addEventListener("touchend", wrappedCallback, {
+            passive: true
+        });
+        target.addEventListener("touchcancel", wrappedCallback, {
+            passive: true
+        });
+    }
 };
 
 
@@ -259,20 +294,20 @@ class $e6e19030d0c18d6f$var$DataTable extends (0, $hgUW1$Component) {
     }
     content = null;
     getColumn(event) {
-        // @ts-expect-error
-        const x = event.clientX - this.getBoundingClientRect().x;
+        const x = (event.touches !== undefined ? event.touches[0].clientX : event.clientX) - this.getBoundingClientRect().x;
+        const epsilon = event.touches !== undefined ? 20 : 5;
         let boundaryX = 0;
         const log = [];
         const column = this.visibleColumns.find((options)=>{
             if (options.visible !== false) {
                 boundaryX += options.width;
                 log.push(boundaryX);
-                return Math.abs(x - boundaryX) < 5;
+                return Math.abs(x - boundaryX) < epsilon;
             }
         });
         return column;
     }
-    trackMouse = (event)=>{
+    setCursor = (event)=>{
         const column = this.getColumn(event);
         if (column !== undefined) this.style.cursor = "col-resize";
         else this.style.cursor = "";
@@ -281,20 +316,25 @@ class $e6e19030d0c18d6f$var$DataTable extends (0, $hgUW1$Component) {
         const column = this.getColumn(event);
         if (column !== undefined) {
             const origWidth = column.width;
-            // @ts-expect-error
-            const origX = event.clientX;
-            (0, $b92d846b773fd5ef$export$fb335fe3908368a2)((event)=>{
-                // @ts-expect-error
-                const width = event.clientX - origX + origWidth;
+            const isTouchEvent = event.touches !== undefined;
+            const touchIdentifier = isTouchEvent ? event.touches[0].identifier : undefined;
+            (0, $5265d118b5240170$export$c947e3cd16175f27)(event, (dx, dy, event)=>{
+                const touch = isTouchEvent ? [
+                    ...event.touches
+                ].find((touch)=>touch.identifier === touchIdentifier) : true;
+                if (touch === undefined) return true;
+                const width = origWidth + dx;
                 column.width = width > this.minColumnWidth ? width : this.minColumnWidth;
                 this.setColumnWidths();
+                if (event.type === "mouseup") return true;
             }, "col-resize");
         }
     };
     connectedCallback() {
         super.connectedCallback();
-        this.addEventListener("mousemove", this.trackMouse);
+        this.addEventListener("mousemove", this.setCursor);
         this.addEventListener("mousedown", this.resizeColumn);
+        this.addEventListener("touchstart", this.resizeColumn);
     }
     setColumnWidths() {
         this.style.setProperty("--grid-columns", this.visibleColumns.map((c)=>c.width + "px").join(" "));
@@ -712,7 +752,8 @@ class $0f2017ffca44b547$var$SizeBreak extends (0, $hgUW1$Component) {
     }
     onResize = ()=>{
         const { normal: normal, small: small } = this.refs;
-        if (this.offsetParent.offsetWidth < this.minWidth || this.offsetParent.offsetHeight < this.minHeight) {
+        if (this.offsetParent === null) return;
+        else if (this.offsetParent.offsetWidth < this.minWidth || this.offsetParent.offsetHeight < this.minHeight) {
             normal.hidden = true;
             small.hidden = false;
             this.value = "small";
@@ -722,6 +763,8 @@ class $0f2017ffca44b547$var$SizeBreak extends (0, $hgUW1$Component) {
             this.value = "normal";
         }
     };
+    // TODO trigger a resize event when an ancestor element
+    // is inerted or moved into the DOM.
     connectedCallback() {
         super.connectedCallback();
         globalThis.addEventListener("resize", this.onResize);
@@ -905,5 +948,5 @@ const $6bbe441346901d5a$export$a932f737dcd864a2 = $6bbe441346901d5a$var$TabSelec
 
 
 
-export {$59f50bee37676c09$export$d75ad8f79fe096cb as bodymovinPlayer, $8a70bd76f9b7e656$export$d89b6f4d34274146 as codeEditor, $e6e19030d0c18d6f$export$f71ce0a5ddbe8fa0 as dataTable, $46dc716dd2cf5925$export$8ca73b4108207c1f as filterBuilder, $6246d5006b5a56c3$export$ca243e53be209efb as mapBox, $1b88c9cb596c3426$export$305b975a891d0dfa as markdownViewer, $0f2017ffca44b547$export$96370210d2ca0fff as sizeBreak, $6bbe441346901d5a$export$a932f737dcd864a2 as tabSelector, $b92d846b773fd5ef$export$fb335fe3908368a2 as trackMouse, $5c31145f3e970423$export$c6e082819e9a0330 as scriptTag, $5c31145f3e970423$export$63257fda812a683f as styleSheet};
+export {$59f50bee37676c09$export$d75ad8f79fe096cb as bodymovinPlayer, $8a70bd76f9b7e656$export$d89b6f4d34274146 as codeEditor, $e6e19030d0c18d6f$export$f71ce0a5ddbe8fa0 as dataTable, $46dc716dd2cf5925$export$8ca73b4108207c1f as filterBuilder, $6246d5006b5a56c3$export$ca243e53be209efb as mapBox, $1b88c9cb596c3426$export$305b975a891d0dfa as markdownViewer, $0f2017ffca44b547$export$96370210d2ca0fff as sizeBreak, $6bbe441346901d5a$export$a932f737dcd864a2 as tabSelector, $5265d118b5240170$export$c947e3cd16175f27 as trackDrag, $5c31145f3e970423$export$c6e082819e9a0330 as scriptTag, $5c31145f3e970423$export$63257fda812a683f as styleSheet};
 //# sourceMappingURL=index.js.map

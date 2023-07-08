@@ -1,5 +1,5 @@
 import { Component as WebComponent, elements, xin, vars, xinValue } from 'xinjs'
-import { trackMouse } from './track-mouse'
+import { trackDrag } from './track-drag'
 
 function defaultWidth(
   array: any[],
@@ -108,22 +108,24 @@ class DataTable extends WebComponent {
 
   content = null
 
-  getColumn(event: Event): ColumnOptions | undefined {
-    // @ts-expect-error
-    const x = event.clientX - this.getBoundingClientRect().x
+  getColumn(event: any): ColumnOptions | undefined {
+    const x =
+      (event.touches !== undefined ? event.touches[0].clientX : event.clientX) -
+      this.getBoundingClientRect().x
+    const epsilon = event.touches !== undefined ? 20 : 5
     let boundaryX = 0
     const log: any[] = []
     const column = this.visibleColumns.find((options: ColumnOptions) => {
       if (options.visible !== false) {
         boundaryX += options.width
         log.push(boundaryX)
-        return Math.abs(x - boundaryX) < 5
+        return Math.abs(x - boundaryX) < epsilon
       }
     })
     return column
   }
 
-  trackMouse = (event: Event) => {
+  setCursor = (event: Event) => {
     const column = this.getColumn(event)
     if (column !== undefined) {
       this.style.cursor = 'col-resize'
@@ -132,26 +134,44 @@ class DataTable extends WebComponent {
     }
   }
 
-  resizeColumn = (event: Event) => {
+  resizeColumn = (event: any) => {
     const column = this.getColumn(event)
     if (column !== undefined) {
       const origWidth = column.width
-      // @ts-expect-error
-      const origX = event.clientX
-      trackMouse((event: Event) => {
-        // @ts-expect-error
-        const width = event.clientX - origX + origWidth
-        column.width = width > this.minColumnWidth ? width : this.minColumnWidth
-        this.setColumnWidths()
-      }, 'col-resize')
+      const isTouchEvent = event.touches !== undefined
+      const touchIdentifier = isTouchEvent
+        ? event.touches[0].identifier
+        : undefined
+      trackDrag(
+        event,
+        (dx, dy, event: any) => {
+          const touch = isTouchEvent
+            ? [...event.touches].find(
+                (touch: any) => touch.identifier === touchIdentifier
+              )
+            : true
+          if (touch === undefined) {
+            return true
+          }
+          const width = origWidth + dx
+          column.width =
+            width > this.minColumnWidth ? width : this.minColumnWidth
+          this.setColumnWidths()
+          if (event.type === 'mouseup') {
+            return true
+          }
+        },
+        'col-resize'
+      )
     }
   }
 
   connectedCallback(): void {
     super.connectedCallback()
 
-    this.addEventListener('mousemove', this.trackMouse)
+    this.addEventListener('mousemove', this.setCursor)
     this.addEventListener('mousedown', this.resizeColumn)
+    this.addEventListener('touchstart', this.resizeColumn)
   }
 
   setColumnWidths() {

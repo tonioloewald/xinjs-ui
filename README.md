@@ -148,3 +148,15 @@ Usage:
 use.
 
 There's no point for mapbox since it won't work without connectivity anyway.
+
+### trackDrag
+
+Sometimes you want to track a mouse-drag or touch-drag operation without messing around.
+This is how the resizeable columns in `<data-table>` work.
+
+Just call `trackDrag(event, (dx, dy, event) => { ... })` and you'll get updates on corresponding events until
+you return `true` from the event-handler (or, in the case of `touch` events, the last `touch` ends).
+For mouse events, a "tracker" element is thrown up in front of everything for the event.
+
+For `touch` events, `dx` and `dy` are based on `event.touches[0]`. If you want to handle
+multi-touch or specific touches, handle the `event` properties yourself.
