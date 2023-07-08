@@ -1,6 +1,7 @@
 import {
   tabSelector,
   bodymovinPlayer,
+  codeEditor,
   mapBox,
   markdownViewer,
   dataTable,
@@ -150,7 +151,7 @@ main.append(
         { class: 'bar' },
         label(
           'test lotte.json',
-          { class: 'clickable' },
+          { class: 'clickable', tabindex: 0 },
           input({
             type: 'file',
             hidden: true,
@@ -259,9 +260,11 @@ main.append(
           class: 'bar',
         },
         label(
-          'load your own json data',
+          { class: 'clickable', tabindex: 0 },
+          'load json data',
           input({
             type: 'file',
+            hidden: true,
             accept: '.json,application/json',
             onChange(event: Event) {
               // @ts-expect-error
@@ -291,16 +294,26 @@ main.append(
               'unit',
             ]
             const things = standards
-              // @ts-expect-error
-              .map((standard: string) => Intl.supportedValuesOf(standard))
+
+              .map((standard: string) => {
+                // @ts-expect-error
+                const values = Intl.supportedValuesOf(standard)
+                return values.map((value) => ({ standard, value }))
+              })
               .flat()
             // @ts-expect-error
-            app.tableData.array = things.map((name: string, id) => ({
-              id: String(id),
-              name,
-              number: `NCC-${(Math.random() * 1e6).toFixed(4)}`,
-              isSpecial: Math.random() < 0.1,
-            }))
+            app.tableData.array = things.map(
+              (
+                { standard, value }: { standard: string; value: string },
+                id
+              ) => ({
+                id: String(id),
+                standard,
+                name: value,
+                number: (Math.random() * 1e2 - 50).toFixed(2),
+                isLucky: Math.random() < 0.1,
+              })
+            )
 
             filter.reset()
             // @ts-expect-error
@@ -308,6 +321,10 @@ main.append(
               {
                 prop: 'id',
                 width: 60,
+              },
+              {
+                prop: 'standard',
+                width: 140,
               },
               {
                 prop: 'name',
@@ -318,7 +335,7 @@ main.append(
                 width: 100,
               },
               {
-                prop: 'isSpecial',
+                prop: 'isLucky',
                 width: 80,
                 dataCell() {
                   return span(
@@ -329,7 +346,7 @@ main.append(
                     },
                     input({
                       type: 'checkbox',
-                      bindValue: '^.isSpecial',
+                      bindValue: '^.isLucky',
                       title: 'special',
                     })
                   )
@@ -342,6 +359,27 @@ main.append(
         filter
       ),
       table
+    ),
+    div(
+      {
+        name: 'code-editor',
+        style: {
+          textAlign: 'center',
+          display: 'flex',
+          flexDirection: 'column',
+          height: '100%',
+        },
+      },
+      h2('code-editor'),
+      codeEditor(
+        {
+          style: {
+            flex: '1 1 auto',
+            width: '100%',
+          },
+        },
+        "console.log('hello, world')"
+      )
     )
   )
 )

@@ -1,9 +1,11 @@
-import {Component as $hgUW1$Component, elements as $hgUW1$elements, vars as $hgUW1$vars, xin as $hgUW1$xin, xinValue as $hgUW1$xinValue, debounce as $hgUW1$debounce} from "xinjs";
+import {Component as $hgUW1$Component, elements as $hgUW1$elements, xin as $hgUW1$xin, vars as $hgUW1$vars, xinValue as $hgUW1$xinValue, debounce as $hgUW1$debounce} from "xinjs";
 import {marked as $hgUW1$marked} from "marked";
 
 // https://lottiefiles.github.io/lottie-docs/advanced_interactions/
 
 
+// TODO scriptTag provided a property that if present in globalThis is returned
+// so that a user can load the modules themselves if desired.
 const $5c31145f3e970423$var$loadedScripts = {};
 function $5c31145f3e970423$export$c6e082819e9a0330(src) {
     if ($5c31145f3e970423$var$loadedScripts[src] === undefined) {
@@ -13,7 +15,7 @@ function $5c31145f3e970423$export$c6e082819e9a0330(src) {
         // @ts-expect-error
         document.head.append(scriptElt);
         $5c31145f3e970423$var$loadedScripts[src] = new Promise((resolve)=>{
-            scriptElt.onload = resolve;
+            scriptElt.onload = ()=>resolve(globalThis);
         });
     }
     return $5c31145f3e970423$var$loadedScripts[src];
@@ -99,6 +101,79 @@ const $59f50bee37676c09$export$d75ad8f79fe096cb = $59f50bee37676c09$var$Bodymovi
 
 
 
+const $8a70bd76f9b7e656$var$ACE_BASE_URL = "https://cdnjs.cloudflare.com/ajax/libs/ace/1.23.2/";
+const $8a70bd76f9b7e656$var$DEFAULT_THEME = "ace/theme/monokai";
+const $8a70bd76f9b7e656$var$makeCodeEditor = async (codeElement, mode = "html", options = {}, theme = $8a70bd76f9b7e656$var$DEFAULT_THEME)=>{
+    const { ace: ace } = await (0, $5c31145f3e970423$export$c6e082819e9a0330)(`${$8a70bd76f9b7e656$var$ACE_BASE_URL}ace.min.js`);
+    ace.config.set("basePath", $8a70bd76f9b7e656$var$ACE_BASE_URL);
+    const editor = ace.edit(codeElement, {
+        mode: `ace/mode/${mode}`,
+        tabSize: 2,
+        useSoftTabs: true,
+        useWorker: false,
+        ...options
+    });
+    editor.setTheme(theme);
+    return editor;
+};
+class $8a70bd76f9b7e656$var$CodeEditor extends (0, $hgUW1$Component) {
+    value = "";
+    mode = "javascript";
+    disabled = false;
+    role = "code editor";
+    get editor() {
+        return this._editor;
+    }
+    _editor;
+    _editorPromise;
+    options = {};
+    theme = $8a70bd76f9b7e656$var$DEFAULT_THEME;
+    styleNode = (0, $hgUW1$Component).StyleNode({
+        ":host": {
+            display: "block",
+            position: "relative"
+        }
+    });
+    constructor(){
+        super();
+        this.initAttributes("mode", "theme", "disabled");
+    }
+    onResize() {
+        if (this.editor !== undefined) this.editor.resize(true);
+    }
+    updateValue = async (event)=>{
+        // changes to the element will be targted on the custom-element
+        // changes by the user will target the textarea created by ace editor
+        // @ts-expect-error
+        if (event.target !== this && this.editor) this.value = this.editor.getValue();
+    };
+    connectedCallback() {
+        super.connectedCallback();
+        if (this.value === "") this.value = this.textContent.trim("\n");
+        if (this._editorPromise === undefined) {
+            this._editorPromise = $8a70bd76f9b7e656$var$makeCodeEditor(this, this.mode, this.options, this.theme);
+            this._editorPromise.then((editor)=>{
+                this._editor = editor;
+                editor.setValue(this.value, 1);
+            });
+        }
+        this.addEventListener("change", this.updateValue);
+    }
+    render() {
+        super.render();
+        if (this.editor !== undefined) {
+            if (this.editor.getValue() !== this.value) this.editor.setValue(this.value);
+        }
+        if (this._editorPromise !== undefined) this._editorPromise.then((editor)=>editor.setReadOnly(this.disabled));
+    }
+}
+const $8a70bd76f9b7e656$export$d89b6f4d34274146 = $8a70bd76f9b7e656$var$CodeEditor.elementCreator({
+    tag: "code-editor"
+});
+
+
+
+
 const $b92d846b773fd5ef$export$fb335fe3908368a2 = (callback, cursor)=>{
     const tracker = (0, $hgUW1$elements).div({
         style: {
@@ -148,8 +223,7 @@ const { div: $e6e19030d0c18d6f$var$div, span: $e6e19030d0c18d6f$var$span, templa
 const $e6e19030d0c18d6f$var$passThru = (array)=>array;
 class $e6e19030d0c18d6f$var$DataTable extends (0, $hgUW1$Component) {
     value = {
-        array: [],
-        filteredArray: []
+        array: []
     };
     charWidth = 15;
     rowHeight = 30;
@@ -178,6 +252,9 @@ class $e6e19030d0c18d6f$var$DataTable extends (0, $hgUW1$Component) {
     }
     get visibleColumns() {
         return this.columns.filter((c)=>c.visible !== false);
+    }
+    get visibleRecords() {
+        return (0, $hgUW1$xin)[this.instanceId];
     }
     content = null;
     getColumn(event) {
@@ -237,12 +314,15 @@ class $e6e19030d0c18d6f$var$DataTable extends (0, $hgUW1$Component) {
         };
     }
     headerCell = (options)=>options.headerCell !== undefined ? options.headerCell() : $e6e19030d0c18d6f$var$span({
-            class: "th"
+            class: "th",
+            role: "columnheader",
+            ariaSort: "none"
         }, typeof options.name === "string" ? options.name : options.prop);
     dataCell = (options)=>{
         if (options.dataCell !== undefined) return options.dataCell();
         return $e6e19030d0c18d6f$var$span({
             class: "td",
+            role: "cell",
             style: this.cellStyle,
             bindText: `^.${options.prop}`
         });
@@ -256,12 +336,15 @@ class $e6e19030d0c18d6f$var$DataTable extends (0, $hgUW1$Component) {
         const { visibleColumns: visibleColumns } = this;
         this.setColumnWidths();
         this.append($e6e19030d0c18d6f$var$div({
-            class: "thead"
+            class: "thead",
+            role: "rowgroup"
         }, $e6e19030d0c18d6f$var$div({
             class: "tr",
+            role: "row",
             style: this.rowStyle
         }, ...visibleColumns.map(this.headerCell))), $e6e19030d0c18d6f$var$div({
             class: "tbody",
+            role: "rowgroup",
             style: {
                 content: " ",
                 minHeight: "200px",
@@ -277,6 +360,7 @@ class $e6e19030d0c18d6f$var$DataTable extends (0, $hgUW1$Component) {
             }
         }, $e6e19030d0c18d6f$var$template($e6e19030d0c18d6f$var$div({
             class: "tr",
+            role: "row",
             style: this.rowStyle
         }, ...visibleColumns.map(this.dataCell)))));
     }
@@ -290,6 +374,96 @@ const $e6e19030d0c18d6f$export$f71ce0a5ddbe8fa0 = $e6e19030d0c18d6f$var$DataTabl
 const { input: $46dc716dd2cf5925$var$input } = (0, $hgUW1$elements);
 const $46dc716dd2cf5925$var$passThru = (array)=>array;
 const $46dc716dd2cf5925$var$NULL_FILTER_DESCRIPTION = "null filter, everything matches";
+const $46dc716dd2cf5925$export$16a138bde9d9de87 = [
+    {
+        hint: "field=value",
+        description: (field, value)=>isNaN(Number(value)) ? field !== "" ? `${field} is "${value}"` : `any field is "${value}"` : field !== "" ? `${field} == ${value}` : `any field == ${value}`,
+        token: /^([\w-_]*)=(.+)$/,
+        makeFilter: (field, value)=>{
+            if (isNaN(Number(value))) {
+                value = String(value).toLocaleLowerCase();
+                if (field !== "") return (obj)=>String(obj[field]).toLocaleLowerCase() == value;
+                return (obj)=>Object.values(obj).find((val)=>String(val).toLocaleLowerCase() == value) !== undefined;
+            }
+            const num = Number(value);
+            if (field !== "") return (obj)=>Number(obj[field]) == num;
+            return (obj)=>Object.values(obj).find((val)=>Number(val) == num);
+        }
+    },
+    {
+        hint: "field!=value",
+        description: (field, value)=>`${field} ≠ ${value}`,
+        token: /^([\w-_]+)!=(.+)$/,
+        makeFilter: (field, value)=>{
+            value = value.toLocaleLowerCase();
+            return (obj)=>String(obj[field]).toLocaleLowerCase() != value;
+        }
+    },
+    {
+        hint: "field>value",
+        description: (field, value)=>isNaN(Number(value)) ? `${field} > ${value} (A-Z)` : `${field} > ${value}`,
+        token: /^([\w-_]+)>(.+)$/,
+        makeFilter: (field, value)=>{
+            if (!isNaN(Number(value))) {
+                const num = Number(value);
+                return (obj)=>Number(obj[field]) > num;
+            }
+            value = value.toLocaleLowerCase();
+            return (obj)=>String(obj[field]).toLocaleLowerCase() > value;
+        }
+    },
+    {
+        hint: "field<value",
+        description: (field, value)=>isNaN(Number(value)) ? `${field} < ${value} (A-Z)` : `${field} < ${value}`,
+        token: /^([\w-_]+)<(.+)$/,
+        makeFilter: (field, value)=>{
+            if (!isNaN(Number(value))) {
+                const num = Number(value);
+                return (obj)=>Number(obj[field]) < num;
+            }
+            value = value.toLocaleLowerCase();
+            return (obj)=>String(obj[field]).toLocaleLowerCase() < value;
+        }
+    },
+    {
+        hint: "field:value",
+        description: (field, value)=>`${field} contains ${value}`,
+        token: /^([\w-_]+):(.+)$/,
+        makeFilter: (field, value)=>{
+            value = value.toLocaleLowerCase();
+            return (obj)=>obj[field].toLocaleLowerCase().includes(value);
+        }
+    },
+    {
+        hint: "!!field",
+        description: (match)=>`${match} is truthy`,
+        token: /^!!([\w-_]+)$/,
+        makeFilter: (match)=>(obj)=>!!obj[match]
+    },
+    {
+        hint: "!field",
+        description: (match)=>`${match} is falsy`,
+        token: /^!([\w-_]+)$/,
+        makeFilter: (match)=>(obj)=>!obj[match]
+    },
+    {
+        hint: "value",
+        description: (match)=>`"${match}" in any property`,
+        token: /^(.+)$/,
+        makeFilter: (match)=>(obj)=>Object.values(obj).find((value)=>String(value).toLocaleLowerCase().includes(match)) !== undefined
+    }
+];
+function $46dc716dd2cf5925$export$61ec8404f465cd36(term, filters = $46dc716dd2cf5925$export$16a138bde9d9de87) {
+    const maker = filters.find((filter)=>filter.token.test(term));
+    if (maker !== undefined) {
+        // we know it will match
+        const [, ...terms] = term.match(maker.token);
+        return {
+            description: maker.description(...terms),
+            test: maker.makeFilter(...terms)
+        };
+    }
+}
 class $46dc716dd2cf5925$var$FilterBuilder extends (0, $hgUW1$Component) {
     value = "";
     filter = $46dc716dd2cf5925$var$passThru;
@@ -297,68 +471,37 @@ class $46dc716dd2cf5925$var$FilterBuilder extends (0, $hgUW1$Component) {
     content = $46dc716dd2cf5925$var$input({
         style: {
             width: "100%",
-            height: "100%"
-        },
-        placeholder: "needle name:foo !isFalse isTrue! lat:>0"
+            height: "auto"
+        }
     });
+    placeholder = "";
+    filters = $46dc716dd2cf5925$export$16a138bde9d9de87;
     constructor(){
         super();
-        this.initAttributes("title");
+        this.initAttributes("title", "placeholder");
     }
     buildFilter = (0, $hgUW1$debounce)((query)=>{
-        const descriptions = [];
-        const filters = query.split(/\s+/).filter((part)=>part !== "").map((part)=>{
-            if (part.startsWith("!")) {
-                const haystack = part.slice(1);
-                descriptions.push(`"${haystack}" is truthy`);
-                return (obj)=>!obj[haystack];
-            } else if (part.endsWith("!")) {
-                const haystack = part.slice(0, part.length - 1);
-                descriptions.push(`"${haystack}" is falsy`);
-                return (obj)=>!!obj[haystack];
-            } else if (part.includes(":")) {
-                let [haystack, needle] = part.split(":");
-                if (needle.startsWith("<")) {
-                    descriptions.push(`"${needle}" < "${haystack}"`);
-                    needle = needle.slice(1);
-                    return (obj)=>obj[haystack] && obj[haystack] < needle;
-                } else if (needle.startsWith(">")) {
-                    needle = needle.slice(1);
-                    descriptions.push(`"${needle}" > "${haystack}"`);
-                    return (obj)=>obj[haystack] && obj[haystack] > needle;
-                } else {
-                    needle = needle.toLocaleLowerCase();
-                    descriptions.push(`"${needle}" in "${haystack}"`);
-                    return (obj)=>{
-                        return obj[haystack] && String(obj[haystack]).toLocaleLowerCase().includes(needle);
-                    };
-                }
-            } else {
-                const needle = part.toLocaleLowerCase();
-                descriptions.push(`"${needle}" anywhere`);
-                return (obj)=>Object.keys(obj).find((key)=>{
-                        return String(obj[key]).toLocaleLowerCase().includes(needle);
-                    });
-            }
-        });
-        let filter;
-        let title;
+        // @ts-expect-error
+        const filters = query.split(/\s+/).filter((part)=>part !== "").map((part)=>$46dc716dd2cf5925$export$61ec8404f465cd36(part, this.filters)).filter((part)=>part !== undefined) // because we remove undefined
+        ;
         if (filters.length === 0) {
-            title = $46dc716dd2cf5925$var$NULL_FILTER_DESCRIPTION;
-            filter = $46dc716dd2cf5925$var$passThru;
+            this.title = $46dc716dd2cf5925$var$NULL_FILTER_DESCRIPTION;
+            if (this.filter !== $46dc716dd2cf5925$var$passThru) {
+                this.filter = $46dc716dd2cf5925$var$passThru;
+                this.dispatchEvent(new Event("change"));
+            }
         } else {
-            title = descriptions.join(", and ");
-            filter = (array)=>array.filter((obj)=>{
-                    if (obj === null || typeof obj !== "object") return false;
-                    else return filters.find((filter)=>!filter(obj)) === undefined;
-                });
-        }
-        if (this.filter !== filter) {
-            this.title = title;
-            this.filter = filter;
+            this.filter = filters.reduce((f, filter)=>{
+                let g;
+                if (f === false) g = (array)=>array.filter(filter.test);
+                else g = (array)=>f(array.filter(filter.test));
+                return g;
+            }, false) // because this array is not empty
+            ;
+            this.title = filters.map((f)=>f.description).join(", and ");
             this.dispatchEvent(new Event("change"));
         }
-    });
+    }, 500);
     reset() {
         if (this.filter !== $46dc716dd2cf5925$var$passThru) {
             this.title = $46dc716dd2cf5925$var$NULL_FILTER_DESCRIPTION;
@@ -375,6 +518,7 @@ class $46dc716dd2cf5925$var$FilterBuilder extends (0, $hgUW1$Component) {
     };
     connectedCallback() {
         super.connectedCallback();
+        this.setAttribute("title", this.title);
         const { input: input } = this.refs;
         input.value = this.value;
         input.addEventListener("input", this.handleInput);
@@ -384,6 +528,7 @@ class $46dc716dd2cf5925$var$FilterBuilder extends (0, $hgUW1$Component) {
     render() {
         super.render();
         const { input: input } = this.refs;
+        input.placeholder = this.placeholder !== "" ? this.placeholder : this.filters.map((filter)=>filter.hint).join(" ");
         input.value = this.value;
     }
 }
@@ -483,12 +628,10 @@ class $6246d5006b5a56c3$var$MapBox extends (0, $hgUW1$Component) {
         if (!this.token) return;
         const { div: div } = this.refs;
         const [long, lat, zoom] = this.coords.split(",").map((x)=>Number(x));
-        $6246d5006b5a56c3$var$MapBox.mapboxAvailable.then(()=>{
+        $6246d5006b5a56c3$var$MapBox.mapboxAvailable.then(({ mapboxgl: mapboxgl })=>{
             console.log("%cmapbox may complain about missing css because it is loaded async on demand", "background: orange; color: black; padding: 0 5px;");
-            // @ts-expect-error
-            globalThis.mapboxgl.accessToken = this.token;
-            // @ts-expect-error
-            this._map = new globalThis.mapboxgl.Map({
+            mapboxgl.accessToken = this.token;
+            this._map = new mapboxgl.Map({
                 container: div,
                 style: this.mapStyle.url,
                 zoom: zoom,
@@ -538,6 +681,7 @@ const $1b88c9cb596c3426$export$305b975a891d0dfa = $1b88c9cb596c3426$var$Markdown
 const { div: $6bbe441346901d5a$var$div, slot: $6bbe441346901d5a$var$slot } = (0, $hgUW1$elements);
 class $6bbe441346901d5a$var$TabSelector extends (0, $hgUW1$Component) {
     value = 0;
+    role = "tabpanel";
     styleNode = (0, $hgUW1$Component).StyleNode({
         ":host": {
             display: "flex",
@@ -568,7 +712,7 @@ class $6bbe441346901d5a$var$TabSelector extends (0, $hgUW1$Component) {
             padding: `${(0, $hgUW1$vars).spacing50} ${(0, $hgUW1$vars).spacing}`,
             cursor: "default"
         },
-        ":host .tabs > .selected": {
+        ':host .tabs > [aria-selected="true"]': {
             color: (0, $hgUW1$vars).tabSelectorSelectedColor
         },
         ":host .border": {
@@ -654,9 +798,17 @@ class $6bbe441346901d5a$var$TabSelector extends (0, $hgUW1$Component) {
             ...this.querySelectorAll("[name]")
         ];
         tabs.textContent = "";
-        for (const tabBody of tabBodies)tabs.append($6bbe441346901d5a$var$div(tabBody.getAttribute("name"), {
-            tabindex: 0
-        }));
+        for(const index in tabBodies){
+            const tabBody = tabBodies[index];
+            const name = tabBody.getAttribute("name");
+            const bodyId = `${this.instanceId}-${index}`;
+            tabBody.id = bodyId;
+            tabs.append($6bbe441346901d5a$var$div(name, {
+                tabindex: 0,
+                role: "tab",
+                ariaControls: bodyId
+            }));
+        }
     };
     connectedCallback() {
         super.connectedCallback();
@@ -673,12 +825,12 @@ class $6bbe441346901d5a$var$TabSelector extends (0, $hgUW1$Component) {
             // @ts-expect-error
             const tab = tabs.children[i];
             if (this.value === Number(i)) {
-                tab.classList.add("selected");
+                tab.setAttribute("aria-selected", true);
                 selected.style.marginLeft = `${tab.offsetLeft - tabs.offsetLeft}px`;
                 selected.style.width = `${tab.offsetWidth}px`;
                 tabBody.removeAttribute("hidden");
             } else {
-                tab.classList.remove("selected");
+                tab.removeAttribute("aria-selected");
                 tabBody.setAttribute("hidden", "");
             }
         }
@@ -693,5 +845,5 @@ const $6bbe441346901d5a$export$a932f737dcd864a2 = $6bbe441346901d5a$var$TabSelec
 
 
 
-export {$59f50bee37676c09$export$d75ad8f79fe096cb as bodymovinPlayer, $e6e19030d0c18d6f$export$f71ce0a5ddbe8fa0 as dataTable, $46dc716dd2cf5925$export$8ca73b4108207c1f as filterBuilder, $6246d5006b5a56c3$export$ca243e53be209efb as mapBox, $1b88c9cb596c3426$export$305b975a891d0dfa as markdownViewer, $6bbe441346901d5a$export$a932f737dcd864a2 as tabSelector, $b92d846b773fd5ef$export$fb335fe3908368a2 as trackMouse, $5c31145f3e970423$export$c6e082819e9a0330 as scriptTag, $5c31145f3e970423$export$63257fda812a683f as styleSheet};
+export {$59f50bee37676c09$export$d75ad8f79fe096cb as bodymovinPlayer, $8a70bd76f9b7e656$export$d89b6f4d34274146 as codeEditor, $e6e19030d0c18d6f$export$f71ce0a5ddbe8fa0 as dataTable, $46dc716dd2cf5925$export$8ca73b4108207c1f as filterBuilder, $6246d5006b5a56c3$export$ca243e53be209efb as mapBox, $1b88c9cb596c3426$export$305b975a891d0dfa as markdownViewer, $6bbe441346901d5a$export$a932f737dcd864a2 as tabSelector, $b92d846b773fd5ef$export$fb335fe3908368a2 as trackMouse, $5c31145f3e970423$export$c6e082819e9a0330 as scriptTag, $5c31145f3e970423$export$63257fda812a683f as styleSheet};
 //# sourceMappingURL=index.js.map
