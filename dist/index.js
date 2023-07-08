@@ -687,6 +687,54 @@ const $1b88c9cb596c3426$export$305b975a891d0dfa = $1b88c9cb596c3426$var$Markdown
 
 
 
+const { slot: $0f2017ffca44b547$var$slot } = (0, $hgUW1$elements);
+class $0f2017ffca44b547$var$SizeBreak extends (0, $hgUW1$Component) {
+    minWidth = 0;
+    minHeight = 0;
+    content = [
+        $0f2017ffca44b547$var$slot({
+            dataRef: "normal"
+        }),
+        $0f2017ffca44b547$var$slot({
+            dataRef: "small",
+            name: "small"
+        })
+    ];
+    styleNode = (0, $hgUW1$Component).StyleNode({
+        ":host": {
+            display: "block",
+            position: "relative"
+        }
+    });
+    constructor(){
+        super();
+        this.initAttributes("minWidth", "minHeight");
+    }
+    onResize = ()=>{
+        const { normal: normal, small: small } = this.refs;
+        if (this.offsetParent.offsetWidth < this.minWidth || this.offsetParent.offsetHeight < this.minHeight) {
+            normal.hidden = true;
+            small.hidden = false;
+        } else {
+            normal.hidden = false;
+            small.hidden = true;
+        }
+    };
+    connectedCallback() {
+        super.connectedCallback();
+        globalThis.addEventListener("resize", this.onResize);
+    }
+    disconnectedCallback() {
+        super.disconnectedCallback();
+        globalThis.removeEventListener("resize", this.onResize);
+    }
+}
+const $0f2017ffca44b547$export$96370210d2ca0fff = $0f2017ffca44b547$var$SizeBreak.elementCreator({
+    tag: "size-break"
+});
+
+
+
 const { div: $6bbe441346901d5a$var$div, slot: $6bbe441346901d5a$var$slot } = (0, $hgUW1$elements);
 class $6bbe441346901d5a$var$TabSelector extends (0, $hgUW1$Component) {
     value = 0;
@@ -715,7 +763,8 @@ class $6bbe441346901d5a$var$TabSelector extends (0, $hgUW1$Component) {
         },
         ":host .tabs": {
             display: "flex",
-            userSelect: "none"
+            userSelect: "none",
+            whiteSpace: "nowrap"
         },
         ":host .tabs > div": {
             padding: `${(0, $hgUW1$vars).spacing50} ${(0, $hgUW1$vars).spacing}`,
@@ -854,5 +903,5 @@ const $6bbe441346901d5a$export$a932f737dcd864a2 = $6bbe441346901d5a$var$TabSelec
 
 
 
-export {$59f50bee37676c09$export$d75ad8f79fe096cb as bodymovinPlayer, $8a70bd76f9b7e656$export$d89b6f4d34274146 as codeEditor, $e6e19030d0c18d6f$export$f71ce0a5ddbe8fa0 as dataTable, $46dc716dd2cf5925$export$8ca73b4108207c1f as filterBuilder, $6246d5006b5a56c3$export$ca243e53be209efb as mapBox, $1b88c9cb596c3426$export$305b975a891d0dfa as markdownViewer, $6bbe441346901d5a$export$a932f737dcd864a2 as tabSelector, $b92d846b773fd5ef$export$fb335fe3908368a2 as trackMouse, $5c31145f3e970423$export$c6e082819e9a0330 as scriptTag, $5c31145f3e970423$export$63257fda812a683f as styleSheet};
+export {$59f50bee37676c09$export$d75ad8f79fe096cb as bodymovinPlayer, $8a70bd76f9b7e656$export$d89b6f4d34274146 as codeEditor, $e6e19030d0c18d6f$export$f71ce0a5ddbe8fa0 as dataTable, $46dc716dd2cf5925$export$8ca73b4108207c1f as filterBuilder, $6246d5006b5a56c3$export$ca243e53be209efb as mapBox, $1b88c9cb596c3426$export$305b975a891d0dfa as markdownViewer, $0f2017ffca44b547$export$96370210d2ca0fff as sizeBreak, $6bbe441346901d5a$export$a932f737dcd864a2 as tabSelector, $b92d846b773fd5ef$export$fb335fe3908368a2 as trackMouse, $5c31145f3e970423$export$c6e082819e9a0330 as scriptTag, $5c31145f3e970423$export$63257fda812a683f as styleSheet};
 //# sourceMappingURL=index.js.map
