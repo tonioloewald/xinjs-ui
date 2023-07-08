@@ -146,7 +146,7 @@ class FilterBuilder extends WebComponent {
   content = input({
     style: {
       width: '100%',
-      height: '100%',
+      height: 'auto',
     },
   })
   placeholder = ''
