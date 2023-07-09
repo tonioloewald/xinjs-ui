@@ -1,9 +1,9 @@
 import { Component } from 'xinjs'
 import { marked } from 'marked'
-
 class MarkdownViewer extends Component {
   src = ''
   value = ''
+  content = null
   constructor() {
     super()
     this.initAttributes('src')
@@ -25,4 +25,6 @@ class MarkdownViewer extends Component {
   }
 }
 
-export const markdownViewer = MarkdownViewer.elementCreator({tag: 'markdown-viewer'})
+export const markdownViewer = MarkdownViewer.elementCreator({
+  tag: 'markdown-viewer',
+})

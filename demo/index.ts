@@ -7,6 +7,7 @@ import {
   dataTable,
   filterBuilder,
   scriptTag,
+  sideNav,
   sizeBreak,
 } from '../src'
 
@@ -131,20 +132,57 @@ main.append(
         flex: '1 1 auto',
       },
     },
-    div(
+    sideNav(
       {
         name: 'Read Me!',
+        navSize: 150,
       },
-      markdownViewer(
+      div(
         {
+          slot: 'nav',
+          style: {
+            display: 'flex',
+            flexDirection: 'column',
+            width: '100%',
+            height: '100%',
+            background: vars.navBg,
+          },
+        },
+        button('read me', {
+          onClick(event: Event) {
+            // @ts-expect-error
+            event.target.closest('side-nav').contentVisible = true
+          },
+        })
+      ),
+      div(
+        {
+          style: {
+            position: 'relative',
+          },
+        },
+        button(
+          {
+            class: 'transparent',
+            style: {
+              position: 'absolute',
+            },
+            onClick(event: Event) {
+              // @ts-expect-error
+              event.target.closest('side-nav').contentVisible = false
+            },
+          },
+          '<'
+        ),
+        markdownViewer({
           style: {
             display: 'block',
             maxWidth: '44em',
             margin: 'auto',
             padding: `0 2em`,
           },
-        },
-        getDocSource('README.md')
+          value: getDocSource('README.md'),
+        })
       )
     ),
     div(

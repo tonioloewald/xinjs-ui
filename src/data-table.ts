@@ -65,6 +65,10 @@ class DataTable extends WebComponent {
   rowHeight = 30
   minColumnWidth = 30
 
+  get virtual(): { height: number } | undefined {
+    return this.rowHeight > 0 ? { height: this.rowHeight } : undefined
+  }
+
   constructor() {
     super()
 
@@ -171,7 +175,7 @@ class DataTable extends WebComponent {
 
     this.addEventListener('mousemove', this.setCursor)
     this.addEventListener('mousedown', this.resizeColumn)
-    this.addEventListener('touchstart', this.resizeColumn)
+    this.addEventListener('touchstart', this.resizeColumn, { passive: true })
   }
 
   setColumnWidths() {
@@ -265,7 +269,7 @@ class DataTable extends WebComponent {
           },
           bindList: {
             value: this.instanceId,
-            virtual: { height: this.rowHeight },
+            virtual: this.virtual,
           },
         },
         template(

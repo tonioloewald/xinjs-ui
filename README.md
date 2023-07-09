@@ -49,6 +49,9 @@ that displays gigantic tables with fixed headers (and live column-resizing) usin
 
 You can set the `<data-table>`'s `value` to `{ array: any[], columns: ColumnOptions[] | null, filter?: ArrayFilter }`
 
+If you set the `<data-table>`'s `rowHeight` to `0` it will render all its elements (i.e. not be virtual). This is
+useful for smaller tables, or tables with variable row-heights.
+
 ### `<markdown-viewer>`
 
 Render [markdown](https://www.markdownguide.org/) anywhere, either using the `src` attribute to load
