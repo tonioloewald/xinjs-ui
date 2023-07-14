@@ -200,7 +200,7 @@ class FilterBuilder extends WebComponent {
   }
 
   handleInput = (event: Event) => {
-    const { input } = this.refs
+    const { input } = this.parts
     this.buildFilter(input.value)
     this.value = input.value
     event.stopPropagation()
@@ -211,7 +211,7 @@ class FilterBuilder extends WebComponent {
     super.connectedCallback()
     this.setAttribute('title', this.title)
 
-    const { input } = this.refs
+    const { input } = this.parts
     input.value = this.value
     input.addEventListener('input', this.handleInput)
     input.addEventListener('change', this.handleInput)
@@ -220,7 +220,7 @@ class FilterBuilder extends WebComponent {
 
   render() {
     super.render()
-    const { input } = this.refs
+    const { input } = this.parts
     input.placeholder =
       this.placeholder !== ''
         ? this.placeholder

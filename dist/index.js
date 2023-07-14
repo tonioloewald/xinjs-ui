@@ -1,14 +1,19 @@
-import {Component as $hgUW1$Component, elements as $hgUW1$elements, xin as $hgUW1$xin, vars as $hgUW1$vars, xinValue as $hgUW1$xinValue, debounce as $hgUW1$debounce} from "xinjs";
+import {Component as $hgUW1$Component, elements as $hgUW1$elements, xinValue as $hgUW1$xinValue, xin as $hgUW1$xin, vars as $hgUW1$vars, debounce as $hgUW1$debounce, varDefault as $hgUW1$varDefault} from "xinjs";
 import {marked as $hgUW1$marked} from "marked";
 
 // https://lottiefiles.github.io/lottie-docs/advanced_interactions/
 
 
-// TODO scriptTag provided a property that if present in globalThis is returned
-// so that a user can load the modules themselves if desired.
 const $5c31145f3e970423$var$loadedScripts = {};
-function $5c31145f3e970423$export$c6e082819e9a0330(src) {
+function $5c31145f3e970423$export$c6e082819e9a0330(src, existingSymbolName) {
     if ($5c31145f3e970423$var$loadedScripts[src] === undefined) {
+        if (existingSymbolName !== undefined) {
+            // @ts-expect-error
+            const existing = globalThis[existingSymbolName];
+            $5c31145f3e970423$var$loadedScripts[src] = Promise.resolve({
+                [existingSymbolName]: existing
+            });
+        }
         const scriptElt = (0, $hgUW1$elements).script({
             src: src
         });
@@ -63,13 +68,12 @@ class $59f50bee37676c09$var$BodymovinPlayer extends (0, $hgUW1$Component) {
     constructor(){
         super();
         this.initAttributes("src", "json");
-        if ($59f50bee37676c09$var$BodymovinPlayer.bodymovinAvailable === undefined) $59f50bee37676c09$var$BodymovinPlayer.bodymovinAvailable = // @ts-expect-error
-        globalThis.bodymovinPlayer === undefined ? (0, $5c31145f3e970423$export$c6e082819e9a0330)("https://cdnjs.cloudflare.com/ajax/libs/bodymovin/5.12.2/lottie.min.js") : Promise.resolve();
+        if ($59f50bee37676c09$var$BodymovinPlayer.bodymovinAvailable === undefined) $59f50bee37676c09$var$BodymovinPlayer.bodymovinAvailable = (0, $5c31145f3e970423$export$c6e082819e9a0330)("https://cdnjs.cloudflare.com/ajax/libs/bodymovin/5.12.2/lottie.min.js", "bodymovin");
     }
     doneLoading = ()=>{
         this._loading = false;
     };
-    load = ()=>{
+    load = ({ bodymovin: bodymovin })=>{
         this._loading = true;
         this.config.container = this.shadowRoot;
         if (this.json !== "") {
@@ -83,8 +87,7 @@ class $59f50bee37676c09$var$BodymovinPlayer extends (0, $hgUW1$Component) {
             this.animation.destroy();
             this.shadowRoot.querySelector("svg").remove();
         }
-        // @ts-expect-error
-        this.animation = globalThis.bodymovin.loadAnimation(this.config);
+        this.animation = bodymovin.loadAnimation(this.config);
         this.animation.addEventListener("DOMLoaded", this.doneLoading);
     };
     render() {
@@ -257,34 +260,70 @@ function $e6e19030d0c18d6f$var$defaultWidth(array, prop, charWidth) {
 const { div: $e6e19030d0c18d6f$var$div, span: $e6e19030d0c18d6f$var$span, template: $e6e19030d0c18d6f$var$template } = (0, $hgUW1$elements);
 const $e6e19030d0c18d6f$var$passThru = (array)=>array;
 class $e6e19030d0c18d6f$var$DataTable extends (0, $hgUW1$Component) {
-    value = {
-        array: []
-    };
+    get value() {
+        return {
+            array: this.array,
+            filter: this.filter,
+            columns: this.columns
+        };
+    }
+    set value(data) {
+        const { array: array, columns: columns, filter: filter } = (0, $hgUW1$xinValue)(data);
+        if (this._array !== array || this._columns !== columns || this._filter !== filter) this.queueRender();
+        this._array = array || [];
+        this._columns = columns || null;
+        this._filter = filter || $e6e19030d0c18d6f$var$passThru;
+    }
+    _array = [];
+    _columns = null;
+    _filter = $e6e19030d0c18d6f$var$passThru;
     charWidth = 15;
     rowHeight = 30;
     minColumnWidth = 30;
+    get virtual() {
+        return this.rowHeight > 0 ? {
+            height: this.rowHeight
+        } : undefined;
+    }
     constructor(){
         super();
         this.initAttributes("rowHeight", "charWidth", "minColumnWidth");
     }
+    get array() {
+        return this._array;
+    }
+    set array(newArray) {
+        this._array = (0, $hgUW1$xinValue)(newArray);
+        this.queueRender();
+    }
     get filter() {
-        return typeof this.value.filter === "function" ? this.value.filter : $e6e19030d0c18d6f$var$passThru;
+        return this._filter;
+    }
+    set filter(filterFunc) {
+        if (this._filter !== filterFunc) {
+            this._filter = filterFunc;
+            this.queueRender();
+        }
     }
     get columns() {
-        if (!Array.isArray(this.value.columns)) {
-            const { array: array } = this.value;
-            this.value.columns = Object.keys(array[0] || {}).map((prop)=>{
-                const width = $e6e19030d0c18d6f$var$defaultWidth(array, prop, this.charWidth);
+        if (!Array.isArray(this._columns)) {
+            const { _array: _array } = this;
+            this._columns = Object.keys(_array[0] || {}).map((prop)=>{
+                const width = $e6e19030d0c18d6f$var$defaultWidth(_array, prop, this.charWidth);
                 return {
                     name: prop.replace(/([a-z])([A-Z])/g, "$1 $2").toLocaleLowerCase(),
                     prop: prop,
-                    align: typeof array[0][prop] === "number" || array[0][prop] !== "" && !isNaN(array[0][prop]) ? "right" : "left",
+                    align: typeof _array[0][prop] === "number" || _array[0][prop] !== "" && !isNaN(_array[0][prop]) ? "right" : "left",
                     visible: width !== false,
                     width: width ? width : 0
                 };
             });
         }
-        return this.value.columns;
+        return this._columns;
+    }
+    set columns(newColumns) {
+        this._columns = newColumns;
+        this.queueRender();
     }
     get visibleColumns() {
         return this.columns.filter((c)=>c.visible !== false);
@@ -334,7 +373,9 @@ class $e6e19030d0c18d6f$var$DataTable extends (0, $hgUW1$Component) {
         super.connectedCallback();
         this.addEventListener("mousemove", this.setCursor);
         this.addEventListener("mousedown", this.resizeColumn);
-        this.addEventListener("touchstart", this.resizeColumn);
+        this.addEventListener("touchstart", this.resizeColumn, {
+            passive: true
+        });
     }
     setColumnWidths() {
         this.style.setProperty("--grid-columns", this.visibleColumns.map((c)=>c.width + "px").join(" "));
@@ -375,9 +416,12 @@ class $e6e19030d0c18d6f$var$DataTable extends (0, $hgUW1$Component) {
             bindText: `^.${options.prop}`
         });
     };
+    get visibleRows() {
+        return (0, $hgUW1$xinValue)((0, $hgUW1$xin)[this.instanceId]);
+    }
     render() {
         super.render();
-        (0, $hgUW1$xin)[this.instanceId] = this.filter((0, $hgUW1$xinValue)(this.value.array));
+        (0, $hgUW1$xin)[this.instanceId] = this.filter(this._array);
         this.textContent = "";
         this.style.display = "flex";
         this.style.flexDirection = "column";
@@ -402,9 +446,7 @@ class $e6e19030d0c18d6f$var$DataTable extends (0, $hgUW1$Component) {
             },
             bindList: {
                 value: this.instanceId,
-                virtual: {
-                    height: this.rowHeight
-                }
+                virtual: this.virtual
             }
         }, $e6e19030d0c18d6f$var$template($e6e19030d0c18d6f$var$div({
             class: "tr",
@@ -558,7 +600,7 @@ class $46dc716dd2cf5925$var$FilterBuilder extends (0, $hgUW1$Component) {
         }
     }
     handleInput = (event)=>{
-        const { input: input } = this.refs;
+        const { input: input } = this.parts;
         this.buildFilter(input.value);
         this.value = input.value;
         event.stopPropagation();
@@ -567,7 +609,7 @@ class $46dc716dd2cf5925$var$FilterBuilder extends (0, $hgUW1$Component) {
     connectedCallback() {
         super.connectedCallback();
         this.setAttribute("title", this.title);
-        const { input: input } = this.refs;
+        const { input: input } = this.parts;
         input.value = this.value;
         input.addEventListener("input", this.handleInput);
         input.addEventListener("change", this.handleInput);
@@ -575,7 +617,7 @@ class $46dc716dd2cf5925$var$FilterBuilder extends (0, $hgUW1$Component) {
     }
     render() {
         super.render();
-        const { input: input } = this.refs;
+        const { input: input } = this.parts;
         input.placeholder = this.placeholder !== "" ? this.placeholder : this.filters.map((filter)=>filter.hint).join(" ");
         input.value = this.value;
     }
@@ -674,7 +716,7 @@ class $6246d5006b5a56c3$var$MapBox extends (0, $hgUW1$Component) {
     render() {
         super.render();
         if (!this.token) return;
-        const { div: div } = this.refs;
+        const { div: div } = this.parts;
         const [long, lat, zoom] = this.coords.split(",").map((x)=>Number(x));
         if (this.map) this.map.remove();
         $6246d5006b5a56c3$var$MapBox.mapboxAvailable.then(({ mapboxgl: mapboxgl })=>{
@@ -703,6 +745,7 @@ const $6246d5006b5a56c3$export$ca243e53be209efb = $6246d5006b5a56c3$var$MapBox.e
 class $1b88c9cb596c3426$var$MarkdownViewer extends (0, $hgUW1$Component) {
     src = "";
     value = "";
+    content = null;
     constructor(){
         super();
         this.initAttributes("src");
@@ -723,7 +766,138 @@ class $1b88c9cb596c3426$var$MarkdownViewer extends (0, $hgUW1$Component) {
         });
     }
 }
-const $1b88c9cb596c3426$export$305b975a891d0dfa = $1b88c9cb596c3426$var$MarkdownViewer.elementCreator();
+const $1b88c9cb596c3426$export$305b975a891d0dfa = $1b88c9cb596c3426$var$MarkdownViewer.elementCreator({
+    tag: "markdown-viewer"
+});
+
+
+
+const { slot: $b9e5aa5581e8f051$var$slot } = (0, $hgUW1$elements);
+const $b9e5aa5581e8f051$var$flexDirections = {
+    left: "row",
+    right: "row-reverse",
+    top: "column",
+    bottom: "column-reverse"
+};
+const $b9e5aa5581e8f051$var$outsetMargins = {
+    left: [
+        "marginLeft",
+        "marginRight"
+    ],
+    right: [
+        "marginRight",
+        "marginLeft"
+    ],
+    top: [
+        "marginTop",
+        "marginBottom"
+    ],
+    bottom: [
+        "marginBottom",
+        "marginTop"
+    ]
+};
+class $b9e5aa5581e8f051$var$SideNav extends (0, $hgUW1$Component) {
+    panelPosition = "left";
+    minSize = 600;
+    navSize = 200;
+    compact = false;
+    content = [
+        $b9e5aa5581e8f051$var$slot({
+            name: "nav"
+        }),
+        $b9e5aa5581e8f051$var$slot({
+            part: "content"
+        })
+    ];
+    _contentVisible = false;
+    get contentVisible() {
+        return this._contentVisible;
+    }
+    set contentVisible(visible) {
+        this._contentVisible = visible;
+        this.queueRender();
+    }
+    styleNode = (0, $hgUW1$Component).StyleNode({
+        ":host": {
+            display: "flex",
+            flexDirection: (0, $hgUW1$vars).flexDirection,
+            transition: (0, $hgUW1$varDefault).sideNavTransition("0.25s ease-out")
+        },
+        ":host slot": {
+            position: "relative"
+        },
+        ":host slot:not([name])": {
+            display: "block",
+            flex: `0 0 ${(0, $hgUW1$vars).contentWidth}`,
+            width: (0, $hgUW1$vars).contentWidth
+        },
+        ':host slot[name="nav"]': {
+            display: "block",
+            flex: `0 0 ${(0, $hgUW1$vars).navWidth}`,
+            width: (0, $hgUW1$vars).navWidth
+        }
+    });
+    onResize = ()=>{
+        const { content: content } = this.parts;
+        if (this.offsetParent === null) return;
+        this.style.marginLeft = 0;
+        this.style.marginRight = 0;
+        this.style.marginTop = 0;
+        this.style.marginBottom = 0;
+        const empty = [
+            ...this.childNodes
+        ].find((node)=>// @ts-expect-error
+            node instanceof Element ? node.getAttribute("slot") !== "nav" : true) === undefined;
+        if (empty) {
+            this.style.setProperty("--nav-width", "100%");
+            this.style.setProperty("--content-width", "0%");
+            return;
+        }
+        const parent = this.offsetParent;
+        const size = this.panelPosition.match(/left|right/) ? parent.offsetWidth : parent.offsetWidth;
+        this.compact = size < this.minSize;
+        if (!this.compact) {
+            content.classList.add("-side-nav-visible");
+            this.style.setProperty("--nav-width", `${this.navSize}px`);
+            this.style.setProperty("--content-width", `calc(100% - ${this.navSize}px)`);
+        } else {
+            content.classList.remove("-side-nav-visible");
+            this.style.setProperty("--nav-width", "50%");
+            this.style.setProperty("--content-width", "50%");
+            const margins = $b9e5aa5581e8f051$var$outsetMargins[this.panelPosition];
+            if (this.contentVisible) this.style[margins[0]] = "-100%";
+            else this.style[margins[1]] = "-100%";
+        }
+    };
+    observer;
+    connectedCallback() {
+        super.connectedCallback();
+        this.contentVisible = this.parts.content.childNodes.length === 0;
+        globalThis.addEventListener("resize", this.onResize);
+        // @ts-expect-error
+        this.observer = new MutationObserver(this.onResize);
+        this.observer.observe(this, {
+            childList: true
+        });
+    }
+    disconnectedCallback() {
+        super.disconnectedCallback();
+        this.observer.disconnect();
+    }
+    constructor(){
+        super();
+        this.initAttributes("panelPosition", "minSize", "navSize", "compact");
+    }
+    render() {
+        super.render();
+        this.style.setProperty("--flex-direction", $b9e5aa5581e8f051$var$flexDirections[this.panelPosition]);
+        this.onResize();
+    }
+}
+const $b9e5aa5581e8f051$export$938418df2b06cb50 = $b9e5aa5581e8f051$var$SideNav.elementCreator({
+    tag: "side-nav"
+});
 
 
 
@@ -734,10 +908,10 @@ class $0f2017ffca44b547$var$SizeBreak extends (0, $hgUW1$Component) {
     value = "normal";
     content = [
         $0f2017ffca44b547$var$slot({
-            dataRef: "normal"
+            part: "normal"
         }),
         $0f2017ffca44b547$var$slot({
-            dataRef: "small",
+            part: "small",
             name: "small"
         })
     ];
@@ -751,7 +925,7 @@ class $0f2017ffca44b547$var$SizeBreak extends (0, $hgUW1$Component) {
         this.initAttributes("minWidth", "minHeight");
     }
     onResize = ()=>{
-        const { normal: normal, small: small } = this.refs;
+        const { normal: normal, small: small } = this.parts;
         if (this.offsetParent === null) return;
         else if (this.offsetParent.offsetWidth < this.minWidth || this.offsetParent.offsetHeight < this.minHeight) {
             normal.hidden = true;
@@ -799,7 +973,6 @@ class $6bbe441346901d5a$var$TabSelector extends (0, $hgUW1$Component) {
             overflowY: "auto"
         },
         "::slotted([hidden])": {
-            // @ts-expect-error
             display: "none !important"
         },
         ":host .tab-holder": {
@@ -834,12 +1007,12 @@ class $6bbe441346901d5a$var$TabSelector extends (0, $hgUW1$Component) {
             class: "tab-holder"
         }, $6bbe441346901d5a$var$div({
             class: "tabs",
-            dataRef: "tabs"
+            part: "tabs"
         }), $6bbe441346901d5a$var$div({
             class: "border"
         }, $6bbe441346901d5a$var$div({
             class: "selected",
-            dataRef: "selected"
+            part: "selected"
         }))),
         $6bbe441346901d5a$var$slot()
     ];
@@ -857,7 +1030,7 @@ class $6bbe441346901d5a$var$TabSelector extends (0, $hgUW1$Component) {
     }
     // @ts-expect-error
     keyTab = (event)=>{
-        const { tabs: tabs } = this.refs;
+        const { tabs: tabs } = this.parts;
         // @ts-expect-error
         const tabIndex = [
             ...tabs.children
@@ -887,7 +1060,7 @@ class $6bbe441346901d5a$var$TabSelector extends (0, $hgUW1$Component) {
         ].filter((elt)=>elt.hasAttribute("name"));
     }
     pickTab = (event)=>{
-        const { tabs: tabs } = this.refs;
+        const { tabs: tabs } = this.parts;
         // @ts-expect-error
         const target = event.target;
         const tabIndex = [
@@ -896,10 +1069,10 @@ class $6bbe441346901d5a$var$TabSelector extends (0, $hgUW1$Component) {
         if (tabIndex > -1) this.value = tabIndex;
     };
     setupTabs = ()=>{
-        const { tabs: tabs } = this.refs;
+        const { tabs: tabs } = this.parts;
         const tabBodies = [
-            ...this.querySelectorAll("[name]")
-        ];
+            ...this.childNodes
+        ].filter((child)=>child.hasAttribute("name"));
         tabs.textContent = "";
         for(const index in tabBodies){
             const tabBody = tabBodies[index];
@@ -915,13 +1088,13 @@ class $6bbe441346901d5a$var$TabSelector extends (0, $hgUW1$Component) {
     };
     connectedCallback() {
         super.connectedCallback();
-        const { tabs: tabs } = this.refs;
+        const { tabs: tabs } = this.parts;
         tabs.addEventListener("click", this.pickTab);
         tabs.addEventListener("keydown", this.keyTab);
         this.setupTabs();
     }
     render() {
-        const { tabs: tabs, selected: selected } = this.refs;
+        const { tabs: tabs, selected: selected } = this.parts;
         const tabBodies = this.bodies;
         for(let i = 0; i < tabBodies.length; i++){
             const tabBody = tabBodies[i];
@@ -948,5 +1121,5 @@ const $6bbe441346901d5a$export$a932f737dcd864a2 = $6bbe441346901d5a$var$TabSelec
 
 
 
-export {$59f50bee37676c09$export$d75ad8f79fe096cb as bodymovinPlayer, $8a70bd76f9b7e656$export$d89b6f4d34274146 as codeEditor, $e6e19030d0c18d6f$export$f71ce0a5ddbe8fa0 as dataTable, $46dc716dd2cf5925$export$8ca73b4108207c1f as filterBuilder, $6246d5006b5a56c3$export$ca243e53be209efb as mapBox, $1b88c9cb596c3426$export$305b975a891d0dfa as markdownViewer, $0f2017ffca44b547$export$96370210d2ca0fff as sizeBreak, $6bbe441346901d5a$export$a932f737dcd864a2 as tabSelector, $5265d118b5240170$export$c947e3cd16175f27 as trackDrag, $5c31145f3e970423$export$c6e082819e9a0330 as scriptTag, $5c31145f3e970423$export$63257fda812a683f as styleSheet};
+export {$59f50bee37676c09$export$d75ad8f79fe096cb as bodymovinPlayer, $8a70bd76f9b7e656$export$d89b6f4d34274146 as codeEditor, $e6e19030d0c18d6f$export$f71ce0a5ddbe8fa0 as dataTable, $46dc716dd2cf5925$export$8ca73b4108207c1f as filterBuilder, $6246d5006b5a56c3$export$ca243e53be209efb as mapBox, $1b88c9cb596c3426$export$305b975a891d0dfa as markdownViewer, $b9e5aa5581e8f051$export$938418df2b06cb50 as sideNav, $0f2017ffca44b547$export$96370210d2ca0fff as sizeBreak, $6bbe441346901d5a$export$a932f737dcd864a2 as tabSelector, $5265d118b5240170$export$c947e3cd16175f27 as trackDrag, $5c31145f3e970423$export$c6e082819e9a0330 as scriptTag, $5c31145f3e970423$export$63257fda812a683f as styleSheet};
 //# sourceMappingURL=index.js.map

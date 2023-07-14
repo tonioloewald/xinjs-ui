@@ -20,8 +20,9 @@ class SideNav extends WebComponent {
   panelPosition: 'left' | 'right' | 'top' | 'bottom' = 'left'
   minSize = 600
   navSize = 200
+  compact = false
 
-  content = [slot({ name: 'nav' }), slot({ dataRef: 'content' })]
+  content = [slot({ name: 'nav' }), slot({ part: 'content' })]
 
   private _contentVisible = false
   get contentVisible(): boolean {
@@ -35,11 +36,8 @@ class SideNav extends WebComponent {
 
   styleNode = WebComponent.StyleNode({
     ':host': {
-      // @ts-expect-error
       display: 'flex',
-      // @ts-expect-error
       flexDirection: vars.flexDirection,
-      // @ts-expect-error
       transition: varDefault.sideNavTransition('0.25s ease-out'),
     },
     ':host slot': {
@@ -58,7 +56,7 @@ class SideNav extends WebComponent {
   })
 
   onResize = () => {
-    const { content } = this.refs
+    const { content } = this.parts
     if (this.offsetParent === null) {
       return
     }
@@ -68,9 +66,9 @@ class SideNav extends WebComponent {
     this.style.marginTop = 0
     this.style.marginBottom = 0
 
-    // @ts-expect-error
     const empty =
       [...this.childNodes].find((node) =>
+        // @ts-expect-error
         node instanceof Element ? node.getAttribute('slot') !== 'nav' : true
       ) === undefined
     if (empty) {
@@ -84,13 +82,16 @@ class SideNav extends WebComponent {
       ? parent.offsetWidth
       : parent.offsetWidth
 
-    if (size >= this.minSize) {
+    this.compact = size < this.minSize
+    if (!this.compact) {
+      content.classList.add('-side-nav-visible')
       this.style.setProperty('--nav-width', `${this.navSize}px`)
       this.style.setProperty(
         '--content-width',
         `calc(100% - ${this.navSize}px)`
       )
     } else {
+      content.classList.remove('-side-nav-visible')
       this.style.setProperty('--nav-width', '50%')
       this.style.setProperty('--content-width', '50%')
 
@@ -106,7 +107,7 @@ class SideNav extends WebComponent {
   private observer: any
   connectedCallback(): void {
     super.connectedCallback()
-    this.contentVisible = this.refs.content.childNodes.length === 0
+    this.contentVisible = this.parts.content.childNodes.length === 0
     globalThis.addEventListener('resize', this.onResize)
 
     // @ts-expect-error
@@ -121,7 +122,7 @@ class SideNav extends WebComponent {
 
   constructor() {
     super()
-    this.initAttributes('panelPosition', 'minSize', 'navSize')
+    this.initAttributes('panelPosition', 'minSize', 'navSize', 'compact')
   }
 
   render(): void {

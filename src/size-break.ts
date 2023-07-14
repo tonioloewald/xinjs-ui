@@ -7,10 +7,7 @@ class SizeBreak extends WebComponent {
   minHeight = 0
   value: 'normal' | 'small' = 'normal'
 
-  content = [
-    slot({ dataRef: 'normal' }),
-    slot({ dataRef: 'small', name: 'small' }),
-  ]
+  content = [slot({ part: 'normal' }), slot({ part: 'small', name: 'small' })]
 
   styleNode = WebComponent.StyleNode({
     ':host': {
@@ -24,7 +21,7 @@ class SizeBreak extends WebComponent {
   }
 
   onResize = () => {
-    const { normal, small } = this.refs
+    const { normal, small } = this.parts
     if (this.offsetParent === null) {
       return
     } else if (

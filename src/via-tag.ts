@@ -4,11 +4,18 @@ interface PromiseMap {
   [key: string]: Promise<any>
 }
 
-// TODO scriptTag provided a property that if present in globalThis is returned
-// so that a user can load the modules themselves if desired.
 const loadedScripts: PromiseMap = {}
-export function scriptTag(src: string): Promise<any> {
+export function scriptTag(
+  src: string,
+  existingSymbolName?: string
+): Promise<any> {
   if (loadedScripts[src] === undefined) {
+    if (existingSymbolName !== undefined) {
+      // @ts-expect-error
+      const existing = globalThis[existingSymbolName]
+      loadedScripts[src] = Promise.resolve({ [existingSymbolName]: existing })
+    }
+
     const scriptElt = elements.script({ src })
 
     // @ts-expect-error
