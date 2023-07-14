@@ -104,7 +104,7 @@ class MapBox extends WebComponent {
       return
     }
 
-    const { div } = this.refs
+    const { div } = this.parts
 
     const [long, lat, zoom] = this.coords.split(',').map((x) => Number(x))
 

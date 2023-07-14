@@ -24,7 +24,7 @@ class BodymovinPlayer extends WebComponent {
     autoplay: true,
   }
 
-  static bodymovinAvailable?: Promise<void>
+  static bodymovinAvailable?: Promise<any>
 
   animation: any
 
@@ -46,13 +46,10 @@ class BodymovinPlayer extends WebComponent {
     super()
     this.initAttributes('src', 'json')
     if (BodymovinPlayer.bodymovinAvailable === undefined) {
-      BodymovinPlayer.bodymovinAvailable =
-        // @ts-expect-error
-        globalThis.bodymovinPlayer === undefined
-          ? scriptTag(
-              'https://cdnjs.cloudflare.com/ajax/libs/bodymovin/5.12.2/lottie.min.js'
-            )
-          : Promise.resolve()
+      BodymovinPlayer.bodymovinAvailable = scriptTag(
+        'https://cdnjs.cloudflare.com/ajax/libs/bodymovin/5.12.2/lottie.min.js',
+        'bodymovin'
+      )
     }
   }
 
@@ -60,7 +57,7 @@ class BodymovinPlayer extends WebComponent {
     this._loading = false
   }
 
-  private readonly load = (): void => {
+  private readonly load = ({ bodymovin }: { bodymovin: any }): void => {
     this._loading = true
 
     this.config.container = this.shadowRoot
@@ -86,8 +83,7 @@ class BodymovinPlayer extends WebComponent {
       this.animation.destroy()
       this.shadowRoot.querySelector('svg').remove()
     }
-    // @ts-expect-error
-    this.animation = globalThis.bodymovin.loadAnimation(this.config)
+    this.animation = bodymovin.loadAnimation(this.config)
     this.animation.addEventListener('DOMLoaded', this.doneLoading)
   }
 

@@ -44,11 +44,11 @@ const { app } = xinProxy({
     bundleUrl: `https://deno.bundlejs.com/?q=${PROJECT}&badge=`,
     optimizeLottie: false,
     tableData: {
-      columns: null,
+      columns: null as null | any[],
       array: [
         { id: 'NCC-1701', name: 'Enterprise', number: 17, hasKirk: true },
         { id: 'NCC-74656-A', name: 'Voyager', number: 74, hasKirk: false },
-      ],
+      ] as any[],
     },
     lottieFilename: '',
     lottieData: '',
@@ -61,14 +61,13 @@ bindings.columns = {
   },
 }
 ;(async () => {
-  await scriptTag(
+  const { Papa } = await scriptTag(
     'https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.1.0/papaparse.min.js'
   )
 
   const response = await fetch(deathsUrl)
   const csv = await response.text()
-  // @ts-expect-error
-  const rows = Papa.parse(csv).data.map((row) => [
+  const rows = Papa.parse(csv).data.map((row: string) => [
     ...row.slice(0, 4),
     ...row.slice(-5),
   ])
@@ -136,6 +135,9 @@ main.append(
       {
         name: 'Read Me!',
         navSize: 150,
+        style: {
+          height: '100%',
+        },
       },
       div(
         {
@@ -159,11 +161,13 @@ main.append(
         {
           style: {
             position: 'relative',
+            overflowY: 'scroll',
+            height: '100%',
           },
         },
         button(
           {
-            class: 'transparent',
+            class: 'transparent close-nav show-within-compact',
             style: {
               position: 'absolute',
             },
@@ -172,7 +176,7 @@ main.append(
               event.target.closest('side-nav').contentVisible = false
             },
           },
-          '<'
+          span({ class: 'feather-chevron-left' })
         ),
         markdownViewer({
           style: {
@@ -345,8 +349,7 @@ main.append(
                 return values.map((value) => ({ standard, value }))
               })
               .flat()
-            // @ts-expect-error
-            app.tableData.array = things.map(
+            const array = things.map(
               (
                 { standard, value }: { standard: string; value: string },
                 id
@@ -360,8 +363,7 @@ main.append(
             )
 
             filter.reset()
-            // @ts-expect-error
-            app.tableData.columns = [
+            const columns = [
               {
                 prop: 'id',
                 width: 60,
@@ -399,7 +401,10 @@ main.append(
                 },
               },
             ]
-            touch('app.tableData')
+            app.tableData = {
+              array,
+              columns,
+            }
           },
         }),
         filter

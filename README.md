@@ -110,6 +110,12 @@ become smarter (convert both sides to numbers if possible), and extensibility wi
 Sometimes, it's nice to be able to just toss a code-editor in a web-page. The element's `value` is
 the code.
 
+### `<side-nav>`
+
+The default layout for iOS / iPadOS apps is to hide the sidebar when displaying content on small
+screens, and display the sidebar when space is available (with the user able to explicitly hide
+the sidebar if so desired). `<side-nav>` provides this functionality.
+
 ### `<size-break>`
 
 While we wait for enough browsers to implement [container-queries](https://www.w3.org/TR/css-contain-3/),

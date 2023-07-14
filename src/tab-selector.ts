@@ -22,7 +22,6 @@ class TabSelector extends WebComponent {
       overflowY: 'auto',
     },
     '::slotted([hidden])': {
-      // @ts-expect-error
       display: 'none !important',
     },
     ':host .tab-holder': {
@@ -56,8 +55,8 @@ class TabSelector extends WebComponent {
   content = [
     div(
       { class: 'tab-holder' },
-      div({ class: 'tabs', dataRef: 'tabs' }),
-      div({ class: 'border' }, div({ class: 'selected', dataRef: 'selected' }))
+      div({ class: 'tabs', part: 'tabs' }),
+      div({ class: 'border' }, div({ class: 'selected', part: 'selected' }))
     ),
     slot(),
   ]
@@ -82,7 +81,7 @@ class TabSelector extends WebComponent {
 
   // @ts-expect-error
   keyTab = (event: KeyboardEvent): void => {
-    const { tabs } = this.refs
+    const { tabs } = this.parts
     // @ts-expect-error
     const tabIndex = [...tabs.children].indexOf(event.target as HTMLElement)
     switch (event.key) {
@@ -114,7 +113,7 @@ class TabSelector extends WebComponent {
   }
 
   pickTab = (event: Event): void => {
-    const { tabs } = this.refs
+    const { tabs } = this.parts
     // @ts-expect-error
     const target = event.target as HTMLElement
     const tabIndex = [...tabs.children].indexOf(target)
@@ -124,8 +123,10 @@ class TabSelector extends WebComponent {
   }
 
   setupTabs = (): void => {
-    const { tabs } = this.refs
-    const tabBodies = [...this.querySelectorAll('[name]')]
+    const { tabs } = this.parts
+    const tabBodies = [...this.childNodes].filter((child) =>
+      child.hasAttribute('name')
+    )
     tabs.textContent = ''
     for (const index in tabBodies) {
       const tabBody = tabBodies[index]
@@ -138,14 +139,14 @@ class TabSelector extends WebComponent {
 
   connectedCallback(): void {
     super.connectedCallback()
-    const { tabs } = this.refs
+    const { tabs } = this.parts
     tabs.addEventListener('click', this.pickTab)
     tabs.addEventListener('keydown', this.keyTab)
     this.setupTabs()
   }
 
   render(): void {
-    const { tabs, selected } = this.refs
+    const { tabs, selected } = this.parts
     const tabBodies = this.bodies
     for (let i = 0; i < tabBodies.length; i++) {
       const tabBody = tabBodies[i]

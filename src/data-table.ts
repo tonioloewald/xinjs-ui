@@ -48,9 +48,9 @@ interface ColumnOptions {
 }
 
 interface TableData {
-  columns?: ColumnOptions[]
+  columns?: ColumnOptions[] | null
   array: any[]
-  filter?: ArrayFilter
+  filter?: ArrayFilter | null
 }
 
 type ArrayFilter = (array: any[]) => any[]
@@ -58,9 +58,31 @@ type ArrayFilter = (array: any[]) => any[]
 const passThru = (array: any[]) => array
 
 class DataTable extends WebComponent {
-  value: TableData = {
-    array: [],
+  get value(): TableData {
+    return {
+      array: this.array,
+      filter: this.filter,
+      columns: this.columns,
+    }
   }
+
+  set value(data: TableData) {
+    const { array, columns, filter } = xinValue(data)
+    if (
+      this._array !== array ||
+      this._columns !== columns ||
+      this._filter !== filter
+    ) {
+      this.queueRender()
+    }
+    this._array = array || []
+    this._columns = columns || null
+    this._filter = filter || passThru
+  }
+
+  private _array: any[] = []
+  private _columns: ColumnOptions[] | null = null
+  private _filter: ArrayFilter = passThru
   charWidth = 15
   rowHeight = 30
   minColumnWidth = 30
@@ -75,23 +97,37 @@ class DataTable extends WebComponent {
     this.initAttributes('rowHeight', 'charWidth', 'minColumnWidth')
   }
 
+  get array(): any[] {
+    return this._array
+  }
+
+  set array(newArray: any[]) {
+    this._array = xinValue(newArray)
+    this.queueRender()
+  }
+
   get filter(): ArrayFilter {
-    return typeof this.value.filter === 'function'
-      ? this.value.filter
-      : passThru
+    return this._filter
+  }
+
+  set filter(filterFunc: ArrayFilter) {
+    if (this._filter !== filterFunc) {
+      this._filter = filterFunc
+      this.queueRender()
+    }
   }
 
   get columns(): ColumnOptions[] {
-    if (!Array.isArray(this.value.columns)) {
-      const { array } = this.value
-      this.value.columns = Object.keys(array[0] || {}).map((prop: string) => {
-        const width = defaultWidth(array, prop, this.charWidth)
+    if (!Array.isArray(this._columns)) {
+      const { _array } = this
+      this._columns = Object.keys(_array[0] || {}).map((prop: string) => {
+        const width = defaultWidth(_array, prop, this.charWidth)
         return {
           name: prop.replace(/([a-z])([A-Z])/g, '$1 $2').toLocaleLowerCase(),
           prop,
           align:
-            typeof array[0][prop] === 'number' ||
-            (array[0][prop] !== '' && !isNaN(array[0][prop]))
+            typeof _array[0][prop] === 'number' ||
+            (_array[0][prop] !== '' && !isNaN(_array[0][prop]))
               ? 'right'
               : 'left',
           visible: width !== false,
@@ -99,7 +135,12 @@ class DataTable extends WebComponent {
         } as ColumnOptions
       })
     }
-    return this.value.columns
+    return this._columns
+  }
+
+  set columns(newColumns: ColumnOptions[]) {
+    this._columns = newColumns
+    this.queueRender()
   }
 
   get visibleColumns(): ColumnOptions[] {
@@ -233,10 +274,14 @@ class DataTable extends WebComponent {
     })
   }
 
+  get visibleRows(): any[] {
+    return xinValue(xin[this.instanceId]) as any[]
+  }
+
   render() {
     super.render()
 
-    xin[this.instanceId] = this.filter(xinValue(this.value.array))
+    xin[this.instanceId] = this.filter(this._array)
 
     this.textContent = ''
 
