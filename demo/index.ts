@@ -17,7 +17,6 @@ const getDocSource = (name: string) => {
   return doc !== undefined ? doc.text : `document **"${name}"** not found`
 }
 
-// import favicon from './favicon.png'
 import { elements, xinProxy, vars, xin, bindings, touch } from 'xinjs'
 
 const download = (name: string, data: string): void => {
