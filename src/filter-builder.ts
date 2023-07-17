@@ -11,6 +11,7 @@ type ObjectTest = (obj: any) => boolean
 
 interface FilterMaker {
   hint: string
+  explanation?: string
   description: (...matches: string[]) => string
   token: RegExp
   makeFilter: (...matches: string[]) => ObjectTest
@@ -19,6 +20,7 @@ interface FilterMaker {
 export const availableFilters: FilterMaker[] = [
   {
     hint: 'field=value',
+    explanation: 'field is value, ignoring case',
     description: (field: string, value: string) =>
       isNaN(Number(value))
         ? field !== ''
@@ -43,11 +45,13 @@ export const availableFilters: FilterMaker[] = [
       if (field !== '') {
         return (obj: any) => Number(obj[field]) == num
       }
-      return (obj: any) => Object.values(obj).find((val) => Number(val) == num)
+      return (obj: any) =>
+        Object.values(obj).find((val) => Number(val) == num) !== undefined
     },
   },
   {
     hint: 'field!=value',
+    explanation: 'field is not value, ignoring case',
     description: (field: string, value: string) => `${field} ≠ ${value}`,
     token: /^([\w-_]+)!=(.+)$/,
     makeFilter: (field: string, value: string) => {
@@ -57,6 +61,7 @@ export const availableFilters: FilterMaker[] = [
   },
   {
     hint: 'field>value',
+    explanation: 'field > value (numeric / A-Z)',
     description: (field: string, value: string) =>
       isNaN(Number(value))
         ? `${field} > ${value} (A-Z)`
@@ -73,6 +78,7 @@ export const availableFilters: FilterMaker[] = [
   },
   {
     hint: 'field<value',
+    explanation: 'field < value (numeric / A-Z)',
     description: (field: string, value: string) =>
       isNaN(Number(value))
         ? `${field} < ${value} (A-Z)`
@@ -89,33 +95,42 @@ export const availableFilters: FilterMaker[] = [
   },
   {
     hint: 'field:value',
-    description: (field: string, value: string) => `${field} contains ${value}`,
+    explanation: 'field contains value, ignoring case',
+    description: (field: string, value: string) =>
+      `${field} contains "${value}"`,
     token: /^([\w-_]+):(.+)$/,
     makeFilter: (field: string, value: string) => {
       value = value.toLocaleLowerCase()
-      return (obj: any) => obj[field].toLocaleLowerCase().includes(value)
+      return (obj: any) =>
+        String(obj[field]).toLocaleLowerCase().includes(value)
     },
   },
   {
     hint: '!!field',
+    explanation: 'field is true, non-empty, non-zero',
     description: (match: string) => `${match} is truthy`,
     token: /^!!([\w-_]+)$/,
     makeFilter: (match: string) => (obj: any) => !!obj[match],
   },
   {
     hint: '!field',
+    explanation: 'field is false, empty, zero',
     description: (match: string) => `${match} is falsy`,
     token: /^!([\w-_]+)$/,
     makeFilter: (match: string) => (obj: any) => !obj[match],
   },
   {
     hint: 'value',
+    explanation: 'any field contains value',
     description: (match: string) => `"${match}" in any property`,
     token: /^(.+)$/,
-    makeFilter: (match: string) => (obj: any) =>
-      Object.values(obj).find((value) =>
-        String(value).toLocaleLowerCase().includes(match)
-      ) !== undefined,
+    makeFilter: (match: string) => {
+      match = match.toLocaleLowerCase()
+      return (obj: any) =>
+        Object.values(obj).find((value) =>
+          String(value).toLocaleLowerCase().includes(match)
+        ) !== undefined
+    },
   },
 ]
 
@@ -144,18 +159,21 @@ class FilterBuilder extends WebComponent {
   filter: ArrayFilter = passThru
   title = NULL_FILTER_DESCRIPTION
   content = input({
+    type: 'search',
+    part: 'input',
     style: {
       width: '100%',
       height: 'auto',
     },
   })
   placeholder = ''
+  help = ''
 
   filters = availableFilters
 
   constructor() {
     super()
-    this.initAttributes('title', 'placeholder')
+    this.initAttributes('title', 'placeholder', 'help')
   }
 
   buildFilter = debounce((query: string): void => {
@@ -210,6 +228,12 @@ class FilterBuilder extends WebComponent {
   connectedCallback(): void {
     super.connectedCallback()
     this.setAttribute('title', this.title)
+
+    this.help = this.filters
+      .map((f) =>
+        f.explanation !== undefined ? `${f.hint}: ${f.explanation}` : f.hint
+      )
+      .join('\n')
 
     const { input } = this.parts
     input.value = this.value

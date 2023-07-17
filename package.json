@@ -1,12 +1,12 @@
 {
   "name": "xinjs-ui",
-  "version": "0.2.11",
+  "version": "0.2.12",
   "description": "simple robust web-components for use with xinjs or anything else",
   "main": "dist/index.js",
   "types": "dist/types.d.ts",
   "scripts": {
-    "start": "rm -rf www && bun docs.js && bun parcel demo/index.html --dist-dir www -p 8787",
-    "build": "bun docs.js && bun format && bun test && rm -rf docs && bun parcel build --public-url . && cp demo/CNAME docs",
+    "start": "rm -rf www && bun docs.js && npx parcel demo/index.html --dist-dir www -p 8787",
+    "build": "bun docs.js && bun format && bun test && rm -rf docs && npx parcel build --public-url . && cp demo/CNAME docs",
     "docs": "bun docs.js",
     "format": "bun prettier --write .",
     "test": "bun test",
@@ -30,7 +30,7 @@
   },
   "devDependencies": {
     "bun-types": "latest",
-    "parcel": "latest",
+    "parcel": "2.8.3",
     "prettier": "^2.8.8",
     "typescript": "^5.0.4"
   },

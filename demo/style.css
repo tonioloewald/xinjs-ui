@@ -228,16 +228,28 @@ filter-builder {
   position: relative;
   overflow: initial !important;
 }
+filter-builder.show-help::after,
 filter-builder[title]:not(:hover):focus-within:after {
-  content: attr(title);
+  font-family: Menlo, Monaco, monospace;
+  background: #000c;
+  color: white;
+  font-size: 14px;
   display: block;
   position: absolute;
-  background: #000a;
-  color: #fff;
-  left: 0;
-  padding: 2px 8px;
-  font-size: 12px;
+  top: calc(100% + 2px);
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 5px 10px;
+  border-radius: 4px;
+  white-space: pre-wrap;
+  width: calc(100% - 20px);
   z-index: 10;
+}
+filter-builder[title]:not(.show-help):not(:hover):focus-within:after {
+  content: attr(title);
+}
+filter-builder.show-help::after {
+  content: attr(help);
 }
 
 .-side-nav-visible .close-content {
@@ -260,4 +272,9 @@ filter-builder[title]:not(:hover):focus-within:after {
 
 side-nav:not([compact]) .show-within-compact {
   display: none;
+}
+
+.on {
+  background: var(--brand-color);
+  color: var(--brand-text-color);
 }
