@@ -104,6 +104,7 @@ const table = dataTable({
 
 const filter = filterBuilder({
   class: 'elastic',
+  placeholder: 'enter query',
   onChange(event: Event) {
     // @ts-expect-error
     app.tableData.filter = event.target.filter
@@ -407,7 +408,22 @@ main.append(
             }
           },
         }),
-        filter
+        filter,
+        button(
+          {
+            style: {
+              marginLeft: vars.spacing_50,
+            },
+            onClick(event: Event) {
+              // @ts-expect-error
+              event.target.closest('button').classList.toggle('on')
+              filter.classList.toggle('show-help')
+            },
+          },
+          span({
+            class: 'feather-help-circle',
+          })
+        )
       ),
       table
     ),
@@ -434,3 +450,7 @@ main.append(
     )
   )
 )
+
+function accessor<T>(obj: T, prop: keyof T): any {
+  console.log(obj[prop])
+}

@@ -52,8 +52,6 @@ class $59f50bee37676c09$var$BodymovinPlayer extends (0, $hgUW1$Component) {
         loop: true,
         autoplay: true
     };
-    static bodymovinAvailable;
-    animation;
     styleNode = (0, $hgUW1$Component).StyleNode({
         ":host": {
             width: 400,
@@ -73,7 +71,7 @@ class $59f50bee37676c09$var$BodymovinPlayer extends (0, $hgUW1$Component) {
     doneLoading = ()=>{
         this._loading = false;
     };
-    load = ({ bodymovin: bodymovin })=>{
+    load = ({ bodymovin: bodymovin  })=>{
         this._loading = true;
         this.config.container = this.shadowRoot;
         if (this.json !== "") {
@@ -107,7 +105,7 @@ const $59f50bee37676c09$export$d75ad8f79fe096cb = $59f50bee37676c09$var$Bodymovi
 const $8a70bd76f9b7e656$var$ACE_BASE_URL = "https://cdnjs.cloudflare.com/ajax/libs/ace/1.23.2/";
 const $8a70bd76f9b7e656$var$DEFAULT_THEME = "ace/theme/monokai";
 const $8a70bd76f9b7e656$var$makeCodeEditor = async (codeElement, mode = "html", options = {}, theme = $8a70bd76f9b7e656$var$DEFAULT_THEME)=>{
-    const { ace: ace } = await (0, $5c31145f3e970423$export$c6e082819e9a0330)(`${$8a70bd76f9b7e656$var$ACE_BASE_URL}ace.min.js`);
+    const { ace: ace  } = await (0, $5c31145f3e970423$export$c6e082819e9a0330)(`${$8a70bd76f9b7e656$var$ACE_BASE_URL}ace.min.js`);
     ace.config.set("basePath", $8a70bd76f9b7e656$var$ACE_BASE_URL);
     const editor = ace.edit(codeElement, {
         mode: `ace/mode/${mode}`,
@@ -127,8 +125,6 @@ class $8a70bd76f9b7e656$var$CodeEditor extends (0, $hgUW1$Component) {
     get editor() {
         return this._editor;
     }
-    _editor;
-    _editorPromise;
     options = {};
     theme = $8a70bd76f9b7e656$var$DEFAULT_THEME;
     styleNode = (0, $hgUW1$Component).StyleNode({
@@ -257,7 +253,7 @@ function $e6e19030d0c18d6f$var$defaultWidth(array, prop, charWidth) {
     }
     return false;
 }
-const { div: $e6e19030d0c18d6f$var$div, span: $e6e19030d0c18d6f$var$span, template: $e6e19030d0c18d6f$var$template } = (0, $hgUW1$elements);
+const { div: $e6e19030d0c18d6f$var$div , span: $e6e19030d0c18d6f$var$span , template: $e6e19030d0c18d6f$var$template  } = (0, $hgUW1$elements);
 const $e6e19030d0c18d6f$var$passThru = (array)=>array;
 class $e6e19030d0c18d6f$var$DataTable extends (0, $hgUW1$Component) {
     get value() {
@@ -268,7 +264,7 @@ class $e6e19030d0c18d6f$var$DataTable extends (0, $hgUW1$Component) {
         };
     }
     set value(data) {
-        const { array: array, columns: columns, filter: filter } = (0, $hgUW1$xinValue)(data);
+        const { array: array , columns: columns , filter: filter  } = (0, $hgUW1$xinValue)(data);
         if (this._array !== array || this._columns !== columns || this._filter !== filter) this.queueRender();
         this._array = array || [];
         this._columns = columns || null;
@@ -307,7 +303,7 @@ class $e6e19030d0c18d6f$var$DataTable extends (0, $hgUW1$Component) {
     }
     get columns() {
         if (!Array.isArray(this._columns)) {
-            const { _array: _array } = this;
+            const { _array: _array  } = this;
             this._columns = Object.keys(_array[0] || {}).map((prop)=>{
                 const width = $e6e19030d0c18d6f$var$defaultWidth(_array, prop, this.charWidth);
                 return {
@@ -425,7 +421,7 @@ class $e6e19030d0c18d6f$var$DataTable extends (0, $hgUW1$Component) {
         this.textContent = "";
         this.style.display = "flex";
         this.style.flexDirection = "column";
-        const { visibleColumns: visibleColumns } = this;
+        const { visibleColumns: visibleColumns  } = this;
         this.setColumnWidths();
         this.append($e6e19030d0c18d6f$var$div({
             class: "thead",
@@ -461,12 +457,13 @@ const $e6e19030d0c18d6f$export$f71ce0a5ddbe8fa0 = $e6e19030d0c18d6f$var$DataTabl
 
 
 
-const { input: $46dc716dd2cf5925$var$input } = (0, $hgUW1$elements);
+const { input: $46dc716dd2cf5925$var$input  } = (0, $hgUW1$elements);
 const $46dc716dd2cf5925$var$passThru = (array)=>array;
 const $46dc716dd2cf5925$var$NULL_FILTER_DESCRIPTION = "null filter, everything matches";
 const $46dc716dd2cf5925$export$16a138bde9d9de87 = [
     {
         hint: "field=value",
+        explanation: "field is value, ignoring case",
         description: (field, value)=>isNaN(Number(value)) ? field !== "" ? `${field} is "${value}"` : `any field is "${value}"` : field !== "" ? `${field} == ${value}` : `any field == ${value}`,
         token: /^([\w-_]*)=(.+)$/,
         makeFilter: (field, value)=>{
@@ -477,11 +474,12 @@ const $46dc716dd2cf5925$export$16a138bde9d9de87 = [
             }
             const num = Number(value);
             if (field !== "") return (obj)=>Number(obj[field]) == num;
-            return (obj)=>Object.values(obj).find((val)=>Number(val) == num);
+            return (obj)=>Object.values(obj).find((val)=>Number(val) == num) !== undefined;
         }
     },
     {
         hint: "field!=value",
+        explanation: "field is not value, ignoring case",
         description: (field, value)=>`${field} ≠ ${value}`,
         token: /^([\w-_]+)!=(.+)$/,
         makeFilter: (field, value)=>{
@@ -491,6 +489,7 @@ const $46dc716dd2cf5925$export$16a138bde9d9de87 = [
     },
     {
         hint: "field>value",
+        explanation: "field > value (numeric / A-Z)",
         description: (field, value)=>isNaN(Number(value)) ? `${field} > ${value} (A-Z)` : `${field} > ${value}`,
         token: /^([\w-_]+)>(.+)$/,
         makeFilter: (field, value)=>{
@@ -504,6 +503,7 @@ const $46dc716dd2cf5925$export$16a138bde9d9de87 = [
     },
     {
         hint: "field<value",
+        explanation: "field < value (numeric / A-Z)",
         description: (field, value)=>isNaN(Number(value)) ? `${field} < ${value} (A-Z)` : `${field} < ${value}`,
         token: /^([\w-_]+)<(.+)$/,
         makeFilter: (field, value)=>{
@@ -517,30 +517,37 @@ const $46dc716dd2cf5925$export$16a138bde9d9de87 = [
     },
     {
         hint: "field:value",
-        description: (field, value)=>`${field} contains ${value}`,
+        explanation: "field contains value, ignoring case",
+        description: (field, value)=>`${field} contains "${value}"`,
         token: /^([\w-_]+):(.+)$/,
         makeFilter: (field, value)=>{
             value = value.toLocaleLowerCase();
-            return (obj)=>obj[field].toLocaleLowerCase().includes(value);
+            return (obj)=>String(obj[field]).toLocaleLowerCase().includes(value);
         }
     },
     {
         hint: "!!field",
+        explanation: "field is true, non-empty, non-zero",
         description: (match)=>`${match} is truthy`,
         token: /^!!([\w-_]+)$/,
         makeFilter: (match)=>(obj)=>!!obj[match]
     },
     {
         hint: "!field",
+        explanation: "field is false, empty, zero",
         description: (match)=>`${match} is falsy`,
         token: /^!([\w-_]+)$/,
         makeFilter: (match)=>(obj)=>!obj[match]
     },
     {
         hint: "value",
+        explanation: "any field contains value",
         description: (match)=>`"${match}" in any property`,
         token: /^(.+)$/,
-        makeFilter: (match)=>(obj)=>Object.values(obj).find((value)=>String(value).toLocaleLowerCase().includes(match)) !== undefined
+        makeFilter: (match)=>{
+            match = match.toLocaleLowerCase();
+            return (obj)=>Object.values(obj).find((value)=>String(value).toLocaleLowerCase().includes(match)) !== undefined;
+        }
     }
 ];
 function $46dc716dd2cf5925$export$61ec8404f465cd36(term, filters = $46dc716dd2cf5925$export$16a138bde9d9de87) {
@@ -559,16 +566,19 @@ class $46dc716dd2cf5925$var$FilterBuilder extends (0, $hgUW1$Component) {
     filter = $46dc716dd2cf5925$var$passThru;
     title = $46dc716dd2cf5925$var$NULL_FILTER_DESCRIPTION;
     content = $46dc716dd2cf5925$var$input({
+        type: "search",
+        part: "input",
         style: {
             width: "100%",
             height: "auto"
         }
     });
     placeholder = "";
+    help = "";
     filters = $46dc716dd2cf5925$export$16a138bde9d9de87;
     constructor(){
         super();
-        this.initAttributes("title", "placeholder");
+        this.initAttributes("title", "placeholder", "help");
     }
     buildFilter = (0, $hgUW1$debounce)((query)=>{
         // @ts-expect-error
@@ -600,7 +610,7 @@ class $46dc716dd2cf5925$var$FilterBuilder extends (0, $hgUW1$Component) {
         }
     }
     handleInput = (event)=>{
-        const { input: input } = this.parts;
+        const { input: input  } = this.parts;
         this.buildFilter(input.value);
         this.value = input.value;
         event.stopPropagation();
@@ -609,7 +619,8 @@ class $46dc716dd2cf5925$var$FilterBuilder extends (0, $hgUW1$Component) {
     connectedCallback() {
         super.connectedCallback();
         this.setAttribute("title", this.title);
-        const { input: input } = this.parts;
+        this.help = this.filters.map((f)=>f.explanation !== undefined ? `${f.hint}: ${f.explanation}` : f.hint).join("\n");
+        const { input: input  } = this.parts;
         input.value = this.value;
         input.addEventListener("input", this.handleInput);
         input.addEventListener("change", this.handleInput);
@@ -617,7 +628,7 @@ class $46dc716dd2cf5925$var$FilterBuilder extends (0, $hgUW1$Component) {
     }
     render() {
         super.render();
-        const { input: input } = this.parts;
+        const { input: input  } = this.parts;
         input.placeholder = this.placeholder !== "" ? this.placeholder : this.filters.map((filter)=>filter.hint).join(" ");
         input.value = this.value;
     }
@@ -671,7 +682,7 @@ const $6246d5006b5a56c3$export$7d6f3ccbb0a81c30 = [
         url: "mapbox://styles/mapbox/navigation-guidance-night-v2"
     }
 ];
-const { div: $6246d5006b5a56c3$var$div } = (0, $hgUW1$elements);
+const { div: $6246d5006b5a56c3$var$div  } = (0, $hgUW1$elements);
 class $6246d5006b5a56c3$var$MapBox extends (0, $hgUW1$Component) {
     coords = "65.01715565258993,25.48081004203459,12";
     content = $6246d5006b5a56c3$var$div({
@@ -685,9 +696,6 @@ class $6246d5006b5a56c3$var$MapBox extends (0, $hgUW1$Component) {
     }
     mapStyle = $6246d5006b5a56c3$export$7d6f3ccbb0a81c30[0];
     token = "";
-    static mapboxCSSAvailable;
-    static mapboxAvailable;
-    _map;
     styleNode = (0, $hgUW1$Component).StyleNode({
         ":host": {
             display: "inline-block",
@@ -716,10 +724,10 @@ class $6246d5006b5a56c3$var$MapBox extends (0, $hgUW1$Component) {
     render() {
         super.render();
         if (!this.token) return;
-        const { div: div } = this.parts;
+        const { div: div  } = this.parts;
         const [long, lat, zoom] = this.coords.split(",").map((x)=>Number(x));
         if (this.map) this.map.remove();
-        $6246d5006b5a56c3$var$MapBox.mapboxAvailable.then(({ mapboxgl: mapboxgl })=>{
+        $6246d5006b5a56c3$var$MapBox.mapboxAvailable.then(({ mapboxgl: mapboxgl  })=>{
             console.log("%cmapbox may complain about missing css because it is loaded async on demand", "background: orange; color: black; padding: 0 5px;");
             mapboxgl.accessToken = this.token;
             this._map = new mapboxgl.Map({
@@ -772,7 +780,7 @@ const $1b88c9cb596c3426$export$305b975a891d0dfa = $1b88c9cb596c3426$var$Markdown
 
 
 
-const { slot: $b9e5aa5581e8f051$var$slot } = (0, $hgUW1$elements);
+const { slot: $b9e5aa5581e8f051$var$slot  } = (0, $hgUW1$elements);
 const $b9e5aa5581e8f051$var$flexDirections = {
     left: "row",
     right: "row-reverse",
@@ -839,7 +847,7 @@ class $b9e5aa5581e8f051$var$SideNav extends (0, $hgUW1$Component) {
         }
     });
     onResize = ()=>{
-        const { content: content } = this.parts;
+        const { content: content  } = this.parts;
         if (this.offsetParent === null) return;
         this.style.marginLeft = 0;
         this.style.marginRight = 0;
@@ -870,7 +878,6 @@ class $b9e5aa5581e8f051$var$SideNav extends (0, $hgUW1$Component) {
             else this.style[margins[1]] = "-100%";
         }
     };
-    observer;
     connectedCallback() {
         super.connectedCallback();
         this.contentVisible = this.parts.content.childNodes.length === 0;
@@ -901,7 +908,7 @@ const $b9e5aa5581e8f051$export$938418df2b06cb50 = $b9e5aa5581e8f051$var$SideNav.
 
 
 
-const { slot: $0f2017ffca44b547$var$slot } = (0, $hgUW1$elements);
+const { slot: $0f2017ffca44b547$var$slot  } = (0, $hgUW1$elements);
 class $0f2017ffca44b547$var$SizeBreak extends (0, $hgUW1$Component) {
     minWidth = 0;
     minHeight = 0;
@@ -925,7 +932,7 @@ class $0f2017ffca44b547$var$SizeBreak extends (0, $hgUW1$Component) {
         this.initAttributes("minWidth", "minHeight");
     }
     onResize = ()=>{
-        const { normal: normal, small: small } = this.parts;
+        const { normal: normal , small: small  } = this.parts;
         if (this.offsetParent === null) return;
         else if (this.offsetParent.offsetWidth < this.minWidth || this.offsetParent.offsetHeight < this.minHeight) {
             normal.hidden = true;
@@ -954,7 +961,7 @@ const $0f2017ffca44b547$export$96370210d2ca0fff = $0f2017ffca44b547$var$SizeBrea
 
 
 
-const { div: $6bbe441346901d5a$var$div, slot: $6bbe441346901d5a$var$slot } = (0, $hgUW1$elements);
+const { div: $6bbe441346901d5a$var$div , slot: $6bbe441346901d5a$var$slot  } = (0, $hgUW1$elements);
 class $6bbe441346901d5a$var$TabSelector extends (0, $hgUW1$Component) {
     value = 0;
     role = "tabpanel";
@@ -1030,7 +1037,7 @@ class $6bbe441346901d5a$var$TabSelector extends (0, $hgUW1$Component) {
     }
     // @ts-expect-error
     keyTab = (event)=>{
-        const { tabs: tabs } = this.parts;
+        const { tabs: tabs  } = this.parts;
         // @ts-expect-error
         const tabIndex = [
             ...tabs.children
@@ -1060,7 +1067,7 @@ class $6bbe441346901d5a$var$TabSelector extends (0, $hgUW1$Component) {
         ].filter((elt)=>elt.hasAttribute("name"));
     }
     pickTab = (event)=>{
-        const { tabs: tabs } = this.parts;
+        const { tabs: tabs  } = this.parts;
         // @ts-expect-error
         const target = event.target;
         const tabIndex = [
@@ -1069,7 +1076,7 @@ class $6bbe441346901d5a$var$TabSelector extends (0, $hgUW1$Component) {
         if (tabIndex > -1) this.value = tabIndex;
     };
     setupTabs = ()=>{
-        const { tabs: tabs } = this.parts;
+        const { tabs: tabs  } = this.parts;
         const tabBodies = [
             ...this.childNodes
         ].filter((child)=>child.hasAttribute("name"));
@@ -1088,13 +1095,13 @@ class $6bbe441346901d5a$var$TabSelector extends (0, $hgUW1$Component) {
     };
     connectedCallback() {
         super.connectedCallback();
-        const { tabs: tabs } = this.parts;
+        const { tabs: tabs  } = this.parts;
         tabs.addEventListener("click", this.pickTab);
         tabs.addEventListener("keydown", this.keyTab);
         this.setupTabs();
     }
     render() {
-        const { tabs: tabs, selected: selected } = this.parts;
+        const { tabs: tabs , selected: selected  } = this.parts;
         const tabBodies = this.bodies;
         for(let i = 0; i < tabBodies.length; i++){
             const tabBody = tabBodies[i];
