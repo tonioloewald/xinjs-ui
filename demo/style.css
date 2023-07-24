@@ -100,6 +100,7 @@ main > * {
   align-items: center;
   padding: var(--spacing);
   flex-wrap: wrap;
+  --text-color: var(--brand-color);
   background: var(--bar-color);
 }
 
@@ -260,7 +261,6 @@ filter-builder.show-help::after {
 
 .transparent,
 .iconic {
-  --text-color: var(--brand-color);
   background: none;
 }
 

@@ -1,11 +1,10 @@
 {
   "name": "xinjs-ui",
-  "version": "0.2.12",
+  "version": "0.2.14",
   "description": "simple robust web-components for use with xinjs or anything else",
-  "source": "src/index.ts",
-  "main": "dist/main.js",
-  "module": "dist/module.js",
+  "main": "dist/index.js",
   "types": "dist/types.d.ts",
+  "source": "src/index.ts",
   "scripts": {
     "start": "rm -rf www && bun docs.js && bun parcel demo/index.html --dist-dir www -p 8787",
     "build": "bun docs.js && bun format && bun test && rm -rf docs && bun parcel build --public-url . && cp demo/CNAME docs",
@@ -59,8 +58,10 @@
       "optimize": true
     },
     "dist": {
+      "context": "browser",
       "isLibrary": true,
       "distDir": "dist",
+      "includeNodeModules": false,
       "outputFormat": "esmodule"
     },
     "cdn": {
