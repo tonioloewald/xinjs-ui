@@ -118,7 +118,7 @@ main.append(
     span({ class: 'elastic' }),
     sizeBreak(
       { minWidth: 500, style: { margin: `0 10px` } },
-      img({ src: app.bundleUrl }),
+      img({ alt: 'bundlejs size badge', src: app.bundleUrl }),
       span({ slot: 'small' })
     ),
     a({ class: 'iconic' }, span({ class: 'icon-github', title: 'github' }), {
