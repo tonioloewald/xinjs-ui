@@ -121,8 +121,12 @@ main.append(
       img({ src: app.bundleUrl }),
       span({ slot: 'small' })
     ),
-    a({class: 'iconic'}, span({class: 'icon-github', title: 'github'}), { href: app.githubUrl }),
-    a({class: 'iconic'}, span({class: 'icon-npm', title: 'npmjs'}), { href: app.npmUrl })
+    a({ class: 'iconic' }, span({ class: 'icon-github', title: 'github' }), {
+      href: app.githubUrl,
+    }),
+    a({ class: 'iconic' }, span({ class: 'icon-npm', title: 'npmjs' }), {
+      href: app.npmUrl,
+    })
   ),
   tabSelector(
     {

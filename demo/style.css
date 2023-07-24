@@ -258,8 +258,8 @@ filter-builder.show-help::after {
   display: none;
 }
 
-.transparent, .iconic {
-
+.transparent,
+.iconic {
   --text-color: var(--brand-color);
   background: none;
 }
@@ -272,13 +272,15 @@ filter-builder.show-help::after {
   text-align: center;
 }
 
-.transparent:hover, .iconic:hover {
+.transparent:hover,
+.iconic:hover {
   background: #0002;
   box-shadow: none;
   color: var(--text-color);
 }
 
-.transparent:active, .iconic:active {
+.transparent:active,
+.iconic:active {
   background: #0004;
   box-shadow: none;
   color: var(--text-color);
