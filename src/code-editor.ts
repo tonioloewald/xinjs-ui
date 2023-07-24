@@ -2,7 +2,7 @@ import { Component as WebComponent, elements, vars } from 'xinjs'
 import { scriptTag } from './via-tag'
 
 const ACE_BASE_URL = 'https://cdnjs.cloudflare.com/ajax/libs/ace/1.23.2/'
-const DEFAULT_THEME = 'ace/theme/monokai'
+const DEFAULT_THEME = 'ace/theme/tomorrow'
 
 const makeCodeEditor = async (
   codeElement: any,

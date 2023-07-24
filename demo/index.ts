@@ -117,12 +117,12 @@ main.append(
     h1({ bindText: 'app.title' }),
     span({ class: 'elastic' }),
     sizeBreak(
-      { minWidth: 500 },
+      { minWidth: 500, style: { margin: `0 10px` } },
       img({ src: app.bundleUrl }),
       span({ slot: 'small' })
     ),
-    a('github', { href: app.githubUrl }),
-    a('npm', { href: app.npmUrl })
+    a({class: 'iconic'}, span({class: 'icon-github', title: 'github'}), { href: app.githubUrl }),
+    a({class: 'iconic'}, span({class: 'icon-npm', title: 'npmjs'}), { href: app.npmUrl })
   ),
   tabSelector(
     {
@@ -176,7 +176,7 @@ main.append(
               event.target.closest('side-nav').contentVisible = false
             },
           },
-          span({ class: 'feather-chevron-left' })
+          span({ class: 'icon-chevron-left' })
         ),
         markdownViewer({
           style: {
@@ -410,6 +410,7 @@ main.append(
         filter,
         button(
           {
+            class: 'iconic',
             style: {
               marginLeft: vars.spacing_50,
             },
@@ -420,7 +421,7 @@ main.append(
             },
           },
           span({
-            class: 'feather-help-circle',
+            class: 'icon-help',
           })
         )
       ),
@@ -440,6 +441,7 @@ main.append(
       codeEditor(
         {
           style: {
+            fontSize: '16px',
             flex: '1 1 auto',
             width: '100%',
           },

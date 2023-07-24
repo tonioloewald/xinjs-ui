@@ -9,16 +9,22 @@ Copyright ©2023 Tonio Loewald
 In general, `xinjs` strives to work _with_ the browser rather than trying to _replace_ it.
 
 `xinjs-ui` comprises a collection of [web-components](https://developer.mozilla.org/en-US/docs/Web/API/Web_components)
-with the goal of augmenting what _already_ works well and are as interoperable as
-possible with the stuff you already use. E.g. where appropriate, the `value` of an
+with the goal of augmenting what _already_ works well, and the components should be interoperable as
+possible with the stuff you already use as possible. E.g. where appropriate, the `value` of an
 element is its malleable `state`, and when this changes, the element emits a
 `change` event.
 
+Similarly, the xinjs base `Component` class and the components in this collection stive to
+be as similar in operation as possible to DOM elements as possible. E.g. binary attrbutes
+work as expected. Intinsic properties of components will default to `null` rather than `undefined`.
+
 Similarly, because web-components are highly interoperable, there's no reason to reinvent
 wheels. In particular, this library won't try to replace existing, excellent libraries
-such as [shoelace.style](https://shoelace.style/).
+such as [shoelace.style](https://shoelace.style/) or wrap perfectly functional HTML
+elements, like the venerable `<input>` or `<form>` elements that are already capable
+and accessible.
 
-The goal here is to provide useful components that augment what's built into HTML5 and CSS3.
+The goal here is to provide useful components that add to what's built into HTML5 and CSS3.
 
 ### `<tab-selector>`
 
@@ -168,4 +174,52 @@ you return `true` from the event-handler (or, in the case of `touch` events, the
 For mouse events, a "tracker" element is thrown up in front of everything for the event.
 
 For `touch` events, `dx` and `dy` are based on `event.touches[0]`. If you want to handle
-multi-touch or specific touches, handle the `event` properties yourself.
+multi-touch or specific touches, handle `event.touches` etc. yourself.
+
+### makeSorter
+
+I'm always confusing myself when writing sort functions, so I wrote `makeSorter()`. It's
+insanely simple and just works™. It makes writing an array sort callback for anything
+other than an array of numbers or strings easier.
+
+Usage:
+
+    interface Person {
+      nameFirst: string
+      nameLast: string
+    }
+
+    const people: Person[] = await getRecords(...)
+
+    // sort by nameLast, then nameFirst
+    const nameSorter = makeSorter(
+      (person: Person) => [person.nameLast, person.nameFirst]
+    )
+
+    people.sort(nameSorter)
+
+    interface Product {
+      name: string,
+      category: string,
+      sales: number
+    }
+
+    const productSales = await getRecords(...)
+
+    // sort by category (A-Z), then sales (highest to lowest)
+    const categorySalesSorter = makeSorter(
+      (product: Product) => [product.category, -product.sales]
+    )
+
+    productSales.sort(categorySalesSorter)
+
+Basically, you write a function that given some thing returns a prioritized list of
+`string`s or `number`s and `makeSorter` produces an callback function for `Array.sort()` 
+that will sort the array in _ascending_ order. 
+
+If you pass `false` as the (optional) second parameter you'll get a _descending_ sorter,
+but for numbers just multiplying by -1 is just as easy (per the example).
+
+If I ever conceive of a need for a version that lets you invert the sort order of
+individual array elements I'll extend it to allowing the second parameter to also be
+an array…
