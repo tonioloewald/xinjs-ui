@@ -18,7 +18,7 @@ const outsetMargins = {
 
 class SideNav extends WebComponent {
   panelPosition: 'left' | 'right' | 'top' | 'bottom' = 'left'
-  minSize = 600
+  minSize = 800
   navSize = 200
   compact = false
 
