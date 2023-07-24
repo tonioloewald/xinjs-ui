@@ -4,6 +4,7 @@
   --font-family: 'Roboto Slab', sans-serif;
   --code-font-family: 'Spline Sans Mono', monospace;
   --font-size: 16px;
+  --text-color: #222;
   --brand-color: #088358;
   --nav-bg: #f8fbf1f4;
   --bar-color: #dae3df;
@@ -21,6 +22,7 @@
 
 * {
   box-sizing: border-box;
+  color: var(--text-color);
 }
 
 body {
@@ -40,6 +42,7 @@ textarea {
 header {
   background: var(--brand-color);
   color: var(--brand-text-color);
+  --text-color: var(--brand-text-color);
   display: flex;
   align-items: center;
   line-height: calc(var(--line-height) * var(--h1-scale));
@@ -186,8 +189,7 @@ svg text.hover {
 
 .thead {
   background: var(--brand-color);
-  color: var(--brand-text-color);
-  font-weight: bold;
+  --text-color: var(--brand-text-color);
 }
 
 .th + .th {
@@ -256,25 +258,37 @@ filter-builder.show-help::after {
   display: none;
 }
 
-.transparent {
+.transparent, .iconic {
+
+  --text-color: var(--brand-color);
   background: none;
 }
 
-.transparent:hover {
-  background: #8882;
-  box-shadow: none;
+.iconic {
+  padding: 0;
+  font-size: 150%;
+  line-height: calc(var(--line-height) + var(--spacing));
+  width: calc(var(--line-height) + var(--spacing));
+  text-align: center;
 }
 
-.transparent:active {
-  background: #8884;
+.transparent:hover, .iconic:hover {
+  background: #0002;
   box-shadow: none;
+  color: var(--text-color);
+}
+
+.transparent:active, .iconic:active {
+  background: #0004;
+  box-shadow: none;
+  color: var(--text-color);
 }
 
 side-nav:not([compact]) .show-within-compact {
   display: none;
 }
 
-.on {
+.on.on {
   background: var(--brand-color);
-  color: var(--brand-text-color);
+  --text-color: var(--brand-text-color);
 }

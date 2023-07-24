@@ -42,9 +42,9 @@ interface ColumnOptions {
   visible?: boolean
   align?: string
   // @ts-expect-error
-  headerCell?: () => HTMLElement
+  headerCell?: (options: ColumnOptions) => HTMLElement
   // @ts-expect-error
-  dataCell?: () => HTMLElement
+  dataCell?: (options: ColumnOptions) => HTMLElement
 }
 
 interface TableData {
@@ -261,7 +261,7 @@ class DataTable extends WebComponent {
 
   dataCell = (options: ColumnOptions) => {
     if (options.dataCell !== undefined) {
-      return options.dataCell()
+      return options.dataCell(options)
     }
     return span({
       class: 'td',

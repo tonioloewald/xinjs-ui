@@ -11,6 +11,7 @@ class SizeBreak extends WebComponent {
 
   styleNode = WebComponent.StyleNode({
     ':host': {
+      display: 'inline-block',
       position: 'relative',
     },
   })
