@@ -214,8 +214,8 @@ Usage:
     productSales.sort(categorySalesSorter)
 
 Basically, you write a function that given some thing returns a prioritized list of
-`string`s or `number`s and `makeSorter` produces an callback function for `Array.sort()` 
-that will sort the array in _ascending_ order. 
+`string`s or `number`s and `makeSorter` produces an callback function for `Array.sort()`
+that will sort the array in _ascending_ order.
 
 If you pass `false` as the (optional) second parameter you'll get a _descending_ sorter,
 but for numbers just multiplying by -1 is just as easy (per the example).

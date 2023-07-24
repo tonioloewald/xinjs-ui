@@ -8,7 +8,7 @@
   "types": "dist/types.d.ts",
   "scripts": {
     "start": "rm -rf www && bun docs.js && bun parcel demo/index.html --dist-dir www -p 8787",
-    "build": "bun docs.js && bun format && bun test && rm -rf docs && npx parcel build --public-url . && cp demo/CNAME docs",
+    "build": "bun docs.js && bun format && bun test && rm -rf docs && bun parcel build --public-url . && cp demo/CNAME docs",
     "docs": "bun docs.js",
     "format": "bun prettier --write .",
     "test": "bun test",
@@ -51,14 +51,16 @@
   ],
   "type": "module",
   "targets": {
+    "docs": {
+      "context": "browser",
+      "distDir": "docs",
+      "source": "demo/index.html",
+      "isLibrary": false,
+      "optimize": true
+    },
     "dist": {
       "isLibrary": true,
       "distDir": "dist",
-      "outputFormat": "esmodule"
-    },
-    "www": {
-      "source": "demo/index.html",
-      "distDir": "www",
       "outputFormat": "esmodule"
     },
     "cdn": {

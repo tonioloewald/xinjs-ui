@@ -11,5 +11,8 @@ export const markdownViewer: import("xinjs").ElementCreator<HTMLElement>;
 export const sideNav: import("xinjs").ElementCreator<HTMLElement>;
 export const sizeBreak: import("xinjs").ElementCreator<HTMLElement>;
 export const tabSelector: import("xinjs").ElementCreator<HTMLElement>;
+type SortValuator<T> = (f: T) => (string | number)[];
+type SortCallback<T> = (p: T, q: T) => number;
+export function makeSorter<T>(sortValuator: SortValuator<T>, ascending?: boolean): SortCallback<T>;
 
 //# sourceMappingURL=types.d.ts.map

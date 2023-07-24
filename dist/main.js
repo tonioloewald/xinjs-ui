@@ -105,7 +105,7 @@ const $59f50bee37676c09$export$d75ad8f79fe096cb = $59f50bee37676c09$var$Bodymovi
 
 
 const $8a70bd76f9b7e656$var$ACE_BASE_URL = "https://cdnjs.cloudflare.com/ajax/libs/ace/1.23.2/";
-const $8a70bd76f9b7e656$var$DEFAULT_THEME = "ace/theme/monokai";
+const $8a70bd76f9b7e656$var$DEFAULT_THEME = "ace/theme/tomorrow";
 const $8a70bd76f9b7e656$var$makeCodeEditor = async (codeElement, mode = "html", options = {}, theme = $8a70bd76f9b7e656$var$DEFAULT_THEME)=>{
     const { ace: ace } = await (0, $5c31145f3e970423$export$c6e082819e9a0330)(`${$8a70bd76f9b7e656$var$ACE_BASE_URL}ace.min.js`);
     ace.config.set("basePath", $8a70bd76f9b7e656$var$ACE_BASE_URL);
@@ -405,7 +405,7 @@ class $e6e19030d0c18d6f$var$DataTable extends (0, $hgUW1$Component) {
             }
         }, typeof options.name === "string" ? options.name : options.prop);
     dataCell = (options)=>{
-        if (options.dataCell !== undefined) return options.dataCell();
+        if (options.dataCell !== undefined) return options.dataCell(options);
         return $e6e19030d0c18d6f$var$span({
             class: "td",
             role: "cell",
@@ -932,6 +932,7 @@ class $0f2017ffca44b547$var$SizeBreak extends (0, $hgUW1$Component) {
     ];
     styleNode = (0, $hgUW1$Component).StyleNode({
         ":host": {
+            display: "inline-block",
             position: "relative"
         }
     });
@@ -1134,7 +1135,19 @@ const $6bbe441346901d5a$export$a932f737dcd864a2 = $6bbe441346901d5a$var$TabSelec
 
 
 
+function $5a28660a6cbe2731$export$b37fb374f2e92eb6(sortValuator, ascending = true) {
+    return (p, q)=>{
+        const pSort = sortValuator(p);
+        const qSort = sortValuator(q);
+        for(const i in pSort){
+            if (pSort[i] !== qSort[i]) return ascending ? pSort[i] > qSort[i] ? 1 : -1 : pSort[i] > qSort[i] ? -1 : 1;
+        }
+        return 0;
+    };
+}
 
 
-export {$59f50bee37676c09$export$d75ad8f79fe096cb as bodymovinPlayer, $8a70bd76f9b7e656$export$d89b6f4d34274146 as codeEditor, $e6e19030d0c18d6f$export$f71ce0a5ddbe8fa0 as dataTable, $46dc716dd2cf5925$export$8ca73b4108207c1f as filterBuilder, $6246d5006b5a56c3$export$ca243e53be209efb as mapBox, $1b88c9cb596c3426$export$305b975a891d0dfa as markdownViewer, $b9e5aa5581e8f051$export$938418df2b06cb50 as sideNav, $0f2017ffca44b547$export$96370210d2ca0fff as sizeBreak, $6bbe441346901d5a$export$a932f737dcd864a2 as tabSelector, $5265d118b5240170$export$c947e3cd16175f27 as trackDrag, $5c31145f3e970423$export$c6e082819e9a0330 as scriptTag, $5c31145f3e970423$export$63257fda812a683f as styleSheet};
+
+
+export {$59f50bee37676c09$export$d75ad8f79fe096cb as bodymovinPlayer, $8a70bd76f9b7e656$export$d89b6f4d34274146 as codeEditor, $e6e19030d0c18d6f$export$f71ce0a5ddbe8fa0 as dataTable, $46dc716dd2cf5925$export$8ca73b4108207c1f as filterBuilder, $6246d5006b5a56c3$export$ca243e53be209efb as mapBox, $1b88c9cb596c3426$export$305b975a891d0dfa as markdownViewer, $b9e5aa5581e8f051$export$938418df2b06cb50 as sideNav, $0f2017ffca44b547$export$96370210d2ca0fff as sizeBreak, $6bbe441346901d5a$export$a932f737dcd864a2 as tabSelector, $5265d118b5240170$export$c947e3cd16175f27 as trackDrag, $5c31145f3e970423$export$c6e082819e9a0330 as scriptTag, $5c31145f3e970423$export$63257fda812a683f as styleSheet, $5a28660a6cbe2731$export$b37fb374f2e92eb6 as makeSorter};
 //# sourceMappingURL=main.js.map
