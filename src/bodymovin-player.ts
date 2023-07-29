@@ -1,11 +1,10 @@
 // https://lottiefiles.github.io/lottie-docs/advanced_interactions/
 
-import { Component as WebComponent, elements } from 'xinjs'
+import { Component as WebComponent, ElementCreator } from 'xinjs'
 import { scriptTag } from './via-tag'
 
 interface LottieConfig {
-  // @ts-expect-error
-  container?: HTMLElement
+  container?: HTMLElement | ShadowRoot
   renderer: 'svg' | 'cancas' | 'html'
   loop: boolean
   autoplay: boolean
@@ -60,7 +59,8 @@ class BodymovinPlayer extends WebComponent {
   private readonly load = ({ bodymovin }: { bodymovin: any }): void => {
     this._loading = true
 
-    this.config.container = this.shadowRoot
+    this.config.container =
+      this.shadowRoot !== null ? this.shadowRoot : undefined
     if (this.json !== '') {
       this.config.animationData = this.json
       delete this.config.path
@@ -81,7 +81,10 @@ class BodymovinPlayer extends WebComponent {
 
     if (this.animation) {
       this.animation.destroy()
-      this.shadowRoot.querySelector('svg').remove()
+      const root = this.shadowRoot
+      if (root !== null) {
+        root.querySelector('svg')?.remove()
+      }
     }
     this.animation = bodymovin.loadAnimation(this.config)
     this.animation.addEventListener('DOMLoaded', this.doneLoading)
@@ -100,4 +103,4 @@ class BodymovinPlayer extends WebComponent {
 
 export const bodymovinPlayer = BodymovinPlayer.elementCreator({
   tag: 'bodymovin-player',
-})
+}) as ElementCreator<BodymovinPlayer>

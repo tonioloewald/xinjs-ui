@@ -1,4 +1,4 @@
-import { Component as WebComponent, elements, vars } from 'xinjs'
+import { Component as WebComponent, ElementCreator, elements } from 'xinjs'
 
 const { slot } = elements
 
@@ -23,11 +23,12 @@ class SizeBreak extends WebComponent {
 
   onResize = () => {
     const { normal, small } = this.parts
-    if (this.offsetParent === null) {
+    const parent = this.offsetParent as HTMLElement | null
+    if (parent === null) {
       return
     } else if (
-      this.offsetParent.offsetWidth < this.minWidth ||
-      this.offsetParent.offsetHeight < this.minHeight
+      parent.offsetWidth < this.minWidth ||
+      parent.offsetHeight < this.minHeight
     ) {
       normal.hidden = true
       small.hidden = false
@@ -52,4 +53,6 @@ class SizeBreak extends WebComponent {
   }
 }
 
-export const sizeBreak = SizeBreak.elementCreator({ tag: 'size-break' })
+export const sizeBreak = SizeBreak.elementCreator({
+  tag: 'size-break',
+}) as ElementCreator<SizeBreak>

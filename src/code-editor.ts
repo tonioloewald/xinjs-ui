@@ -1,4 +1,4 @@
-import { Component as WebComponent, elements, vars } from 'xinjs'
+import { Component as WebComponent, ElementCreator } from 'xinjs'
 import { scriptTag } from './via-tag'
 
 const ACE_BASE_URL = 'https://cdnjs.cloudflare.com/ajax/libs/ace/1.23.2/'
@@ -59,7 +59,6 @@ class CodeEditor extends WebComponent {
   updateValue = async (event: Event) => {
     // changes to the element will be targted on the custom-element
     // changes by the user will target the textarea created by ace editor
-    // @ts-expect-error
     if (event.target !== this && this.editor) {
       this.value = this.editor.getValue()
     }
@@ -69,7 +68,7 @@ class CodeEditor extends WebComponent {
     super.connectedCallback()
 
     if (this.value === '') {
-      this.value = this.textContent.trim('\n')
+      this.value = this.textContent !== null ? this.textContent.trim() : ''
     }
 
     if (this._editorPromise === undefined) {
@@ -102,4 +101,6 @@ class CodeEditor extends WebComponent {
   }
 }
 
-export const codeEditor = CodeEditor.elementCreator({ tag: 'code-editor' })
+export const codeEditor = CodeEditor.elementCreator({
+  tag: 'code-editor',
+}) as ElementCreator<CodeEditor>

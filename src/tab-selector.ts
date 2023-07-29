@@ -1,4 +1,9 @@
-import { Component as WebComponent, elements, vars } from 'xinjs'
+import {
+  Component as WebComponent,
+  ElementCreator,
+  elements,
+  vars,
+} from 'xinjs'
 
 const { div, slot } = elements
 
@@ -66,12 +71,12 @@ class TabSelector extends WebComponent {
     this.initAttributes('anne', 'example')
   }
 
-  // @ts-expect-error
   addTabBody(body: HTMLElement, selectTab = false): void {
     if (!body.hasAttribute('name')) {
-      throw new Error('element has no name attribute', body)
+      console.error('element has no name attribute', body)
+      throw new Error('element has no name attribute')
     }
-    this.shadowRoot.append(body)
+    this.shadowRoot?.append(body)
     this.setupTabs()
     if (selectTab) {
       this.value = this.bodies.length - 1
@@ -79,22 +84,18 @@ class TabSelector extends WebComponent {
     this.queueRender()
   }
 
-  // @ts-expect-error
   keyTab = (event: KeyboardEvent): void => {
     const { tabs } = this.parts
-    // @ts-expect-error
     const tabIndex = [...tabs.children].indexOf(event.target as HTMLElement)
     switch (event.key) {
       case 'ArrowLeft':
         this.value =
           (tabIndex + Number(tabs.children.length) - 1) % tabs.children.length
-        // @ts-expect-error
         ;(tabs.children[this.value] as HTMLElement).focus()
         event.preventDefault()
         break
       case 'ArrowRight':
         this.value = (tabIndex + 1) % tabs.children.length
-        // @ts-expect-error
         ;(tabs.children[this.value] as HTMLElement).focus()
         event.preventDefault()
         break
@@ -107,14 +108,12 @@ class TabSelector extends WebComponent {
     }
   }
 
-  // @ts-expect-error
-  get bodies(): HTMLElement[] {
+  get bodies(): Element[] {
     return [...this.children].filter((elt) => elt.hasAttribute('name'))
   }
 
   pickTab = (event: Event): void => {
     const { tabs } = this.parts
-    // @ts-expect-error
     const target = event.target as HTMLElement
     const tabIndex = [...tabs.children].indexOf(target)
     if (tabIndex > -1) {
@@ -124,9 +123,9 @@ class TabSelector extends WebComponent {
 
   setupTabs = (): void => {
     const { tabs } = this.parts
-    const tabBodies = [...this.childNodes].filter((child) =>
-      child.hasAttribute('name')
-    )
+    const tabBodies = [...this.childNodes] as Element[]
+
+    tabBodies.filter((child) => child.hasAttribute('name'))
     tabs.textContent = ''
     for (const index in tabBodies) {
       const tabBody = tabBodies[index]
@@ -150,10 +149,9 @@ class TabSelector extends WebComponent {
     const tabBodies = this.bodies
     for (let i = 0; i < tabBodies.length; i++) {
       const tabBody = tabBodies[i]
-      // @ts-expect-error
       const tab = tabs.children[i] as HTMLElement
       if (this.value === Number(i)) {
-        tab.setAttribute('aria-selected', true)
+        tab.setAttribute('aria-selected', 'true')
         selected.style.marginLeft = `${tab.offsetLeft - tabs.offsetLeft}px`
         selected.style.width = `${tab.offsetWidth}px`
         tabBody.removeAttribute('hidden')
@@ -165,4 +163,6 @@ class TabSelector extends WebComponent {
   }
 }
 
-export const tabSelector = TabSelector.elementCreator({ tag: 'tab-selector' })
+export const tabSelector = TabSelector.elementCreator({
+  tag: 'tab-selector',
+}) as ElementCreator<TabSelector>

@@ -1,4 +1,4 @@
-import { Component as WebComponent, elements } from 'xinjs'
+import { Component as WebComponent, ElementCreator, elements } from 'xinjs'
 import { styleSheet, scriptTag } from './via-tag'
 
 export const MAPSTYLES = [
@@ -130,4 +130,6 @@ class MapBox extends WebComponent {
   }
 }
 
-export const mapBox = MapBox.elementCreator({ tag: 'map-box' })
+export const mapBox = MapBox.elementCreator({
+  tag: 'map-box',
+}) as ElementCreator<MapBox>

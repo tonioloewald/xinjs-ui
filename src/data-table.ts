@@ -1,4 +1,11 @@
-import { Component as WebComponent, elements, xin, vars, xinValue } from 'xinjs'
+import {
+  Component as WebComponent,
+  ElementCreator,
+  elements,
+  xin,
+  vars,
+  xinValue,
+} from 'xinjs'
 import { trackDrag } from './track-drag'
 
 function defaultWidth(
@@ -41,9 +48,7 @@ interface ColumnOptions {
   width: number
   visible?: boolean
   align?: string
-  // @ts-expect-error
   headerCell?: (options: ColumnOptions) => HTMLElement
-  // @ts-expect-error
   dataCell?: (options: ColumnOptions) => HTMLElement
 }
 
@@ -245,7 +250,7 @@ class DataTable extends WebComponent {
 
   headerCell = (options: ColumnOptions) =>
     options.headerCell !== undefined
-      ? options.headerCell()
+      ? options.headerCell(options)
       : span(
           {
             class: 'th',
@@ -332,4 +337,6 @@ class DataTable extends WebComponent {
   }
 }
 
-export const dataTable = DataTable.elementCreator({ tag: 'data-table' })
+export const dataTable = DataTable.elementCreator({
+  tag: 'data-table',
+}) as ElementCreator<DataTable>

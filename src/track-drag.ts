@@ -25,7 +25,6 @@ export const trackDrag = (
       },
     })
 
-    // @ts-expect-error
     document.body.append(tracker)
 
     const wrappedCallback = (event: any) => {
