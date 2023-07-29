@@ -1,4 +1,10 @@
-import { Component as WebComponent, elements, vars, varDefault } from 'xinjs'
+import {
+  Component as WebComponent,
+  ElementCreator,
+  elements,
+  vars,
+  varDefault,
+} from 'xinjs'
 
 const { slot } = elements
 
@@ -61,14 +67,14 @@ class SideNav extends WebComponent {
       return
     }
 
-    this.style.marginLeft = 0
-    this.style.marginRight = 0
-    this.style.marginTop = 0
-    this.style.marginBottom = 0
+    this.style.marginLeft =
+      this.style.marginRight =
+      this.style.marginTop =
+      this.style.marginBottom =
+        '0'
 
     const empty =
       [...this.childNodes].find((node) =>
-        // @ts-expect-error
         node instanceof Element ? node.getAttribute('slot') !== 'nav' : true
       ) === undefined
     if (empty) {
@@ -77,7 +83,7 @@ class SideNav extends WebComponent {
       return
     }
 
-    const parent = this.offsetParent
+    const parent = this.offsetParent as HTMLElement
     const size = this.panelPosition.match(/left|right/)
       ? parent.offsetWidth
       : parent.offsetWidth
@@ -97,8 +103,10 @@ class SideNav extends WebComponent {
 
       const margins = outsetMargins[this.panelPosition]
       if (this.contentVisible) {
+        // @ts-expect-error
         this.style[margins[0]] = '-100%'
       } else {
+        // @ts-expect-error
         this.style[margins[1]] = '-100%'
       }
     }
@@ -110,7 +118,6 @@ class SideNav extends WebComponent {
     this.contentVisible = this.parts.content.childNodes.length === 0
     globalThis.addEventListener('resize', this.onResize)
 
-    // @ts-expect-error
     this.observer = new MutationObserver(this.onResize)
     this.observer.observe(this, { childList: true })
   }
@@ -135,4 +142,6 @@ class SideNav extends WebComponent {
   }
 }
 
-export const sideNav = SideNav.elementCreator({ tag: 'side-nav' })
+export const sideNav = SideNav.elementCreator({
+  tag: 'side-nav',
+}) as ElementCreator<SideNav>

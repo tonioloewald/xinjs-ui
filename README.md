@@ -8,7 +8,7 @@ Copyright ©2023 Tonio Loewald
 
 In general, `xinjs` strives to work _with_ the browser rather than trying to _replace_ it.
 
-`xinjs-ui` comprises a collection of [web-components](https://developer.mozilla.org/en-US/docs/Web/API/Web_components)
+In a similar vein, `xinjs-ui` comprises a collection of [web-components](https://developer.mozilla.org/en-US/docs/Web/API/Web_components)
 with the goal of augmenting what _already_ works well, and the components should be interoperable as
 possible with the stuff you already use as possible. E.g. where appropriate, the `value` of an
 element is its malleable `state`, and when this changes, the element emits a

@@ -1,4 +1,9 @@
-import { Component as WebComponent, elements, debounce } from 'xinjs'
+import {
+  Component as WebComponent,
+  ElementCreator,
+  elements,
+  debounce,
+} from 'xinjs'
 
 const { input } = elements
 
@@ -218,7 +223,7 @@ class FilterBuilder extends WebComponent {
   }
 
   handleInput = (event: Event) => {
-    const { input } = this.parts
+    const { input } = this.parts as { [key: string]: HTMLInputElement }
     this.buildFilter(input.value)
     this.value = input.value
     event.stopPropagation()
@@ -235,7 +240,7 @@ class FilterBuilder extends WebComponent {
       )
       .join('\n')
 
-    const { input } = this.parts
+    const { input } = this.parts as { [key: string]: HTMLInputElement }
     input.value = this.value
     input.addEventListener('input', this.handleInput)
     input.addEventListener('change', this.handleInput)
@@ -244,7 +249,7 @@ class FilterBuilder extends WebComponent {
 
   render() {
     super.render()
-    const { input } = this.parts
+    const { input } = this.parts as { [key: string]: HTMLInputElement }
     input.placeholder =
       this.placeholder !== ''
         ? this.placeholder
@@ -255,4 +260,4 @@ class FilterBuilder extends WebComponent {
 
 export const filterBuilder = FilterBuilder.elementCreator({
   tag: 'filter-builder',
-})
+}) as ElementCreator<FilterBuilder>

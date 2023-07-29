@@ -17,7 +17,6 @@ function $5c31145f3e970423$export$c6e082819e9a0330(src, existingSymbolName) {
         const scriptElt = (0, $hgUW1$elements).script({
             src: src
         });
-        // @ts-expect-error
         document.head.append(scriptElt);
         $5c31145f3e970423$var$loadedScripts[src] = new Promise((resolve)=>{
             scriptElt.onload = ()=>resolve(globalThis);
@@ -33,7 +32,6 @@ function $5c31145f3e970423$export$63257fda812a683f(href) {
             type: "text/css",
             href: href
         });
-        // @ts-expect-error
         document.head.append(linkElement);
         $5c31145f3e970423$var$loadedStyleSheets[href] = new Promise((resolve)=>{
             linkElement.onload = resolve;
@@ -75,7 +73,7 @@ class $59f50bee37676c09$var$BodymovinPlayer extends (0, $hgUW1$Component) {
     };
     load = ({ bodymovin: bodymovin })=>{
         this._loading = true;
-        this.config.container = this.shadowRoot;
+        this.config.container = this.shadowRoot !== null ? this.shadowRoot : undefined;
         if (this.json !== "") {
             this.config.animationData = this.json;
             delete this.config.path;
@@ -85,7 +83,8 @@ class $59f50bee37676c09$var$BodymovinPlayer extends (0, $hgUW1$Component) {
         } else console.log("%c<bodymovin-player>%c expected either %cjson%c (animation data) or %csrc% c(url) but found neither.", "color: #44f; background: #fff; padding: 0 5px", "color: default", "color: #44f; background: #fff; padding: 0 5px", "color: default", "color: #44f; background: #fff; padding: 0 5px", "color: default");
         if (this.animation) {
             this.animation.destroy();
-            this.shadowRoot.querySelector("svg").remove();
+            const root = this.shadowRoot;
+            if (root !== null) root.querySelector("svg")?.remove();
         }
         this.animation = bodymovin.loadAnimation(this.config);
         this.animation.addEventListener("DOMLoaded", this.doneLoading);
@@ -147,12 +146,11 @@ class $8a70bd76f9b7e656$var$CodeEditor extends (0, $hgUW1$Component) {
     updateValue = async (event)=>{
         // changes to the element will be targted on the custom-element
         // changes by the user will target the textarea created by ace editor
-        // @ts-expect-error
         if (event.target !== this && this.editor) this.value = this.editor.getValue();
     };
     connectedCallback() {
         super.connectedCallback();
-        if (this.value === "") this.value = this.textContent.trim("\n");
+        if (this.value === "") this.value = this.textContent !== null ? this.textContent.trim() : "";
         if (this._editorPromise === undefined) {
             this._editorPromise = $8a70bd76f9b7e656$var$makeCodeEditor(this, this.mode, this.options, this.theme);
             this._editorPromise.then((editor)=>{
@@ -193,7 +191,6 @@ const $5265d118b5240170$export$c947e3cd16175f27 = (event, callback, cursor = "de
                 cursor: cursor
             }
         });
-        // @ts-expect-error
         document.body.append(tracker);
         const wrappedCallback = (event)=>{
             const dx = event.clientX - origX;
@@ -395,7 +392,7 @@ class $e6e19030d0c18d6f$var$DataTable extends (0, $hgUW1$Component) {
             textOverflow: "ellipsis"
         };
     }
-    headerCell = (options)=>options.headerCell !== undefined ? options.headerCell() : $e6e19030d0c18d6f$var$span({
+    headerCell = (options)=>options.headerCell !== undefined ? options.headerCell(options) : $e6e19030d0c18d6f$var$span({
             class: "th",
             role: "columnheader",
             ariaSort: "none",
@@ -775,7 +772,7 @@ class $1b88c9cb596c3426$var$MarkdownViewer extends (0, $hgUW1$Component) {
     }
     render() {
         super.render();
-        this.innerHTML = (0, $hgUW1$marked)(this.value, {
+        this.innerHTML = (0, $hgUW1$marked)(typeof this.value === "string" ? this.value : "", {
             mangle: false,
             headerIds: false
         });
@@ -856,14 +853,10 @@ class $b9e5aa5581e8f051$var$SideNav extends (0, $hgUW1$Component) {
     onResize = ()=>{
         const { content: content } = this.parts;
         if (this.offsetParent === null) return;
-        this.style.marginLeft = 0;
-        this.style.marginRight = 0;
-        this.style.marginTop = 0;
-        this.style.marginBottom = 0;
+        this.style.marginLeft = this.style.marginRight = this.style.marginTop = this.style.marginBottom = "0";
         const empty = [
             ...this.childNodes
-        ].find((node)=>// @ts-expect-error
-            node instanceof Element ? node.getAttribute("slot") !== "nav" : true) === undefined;
+        ].find((node)=>node instanceof Element ? node.getAttribute("slot") !== "nav" : true) === undefined;
         if (empty) {
             this.style.setProperty("--nav-width", "100%");
             this.style.setProperty("--content-width", "0%");
@@ -881,8 +874,10 @@ class $b9e5aa5581e8f051$var$SideNav extends (0, $hgUW1$Component) {
             this.style.setProperty("--nav-width", "50%");
             this.style.setProperty("--content-width", "50%");
             const margins = $b9e5aa5581e8f051$var$outsetMargins[this.panelPosition];
-            if (this.contentVisible) this.style[margins[0]] = "-100%";
-            else this.style[margins[1]] = "-100%";
+            if (this.contentVisible) // @ts-expect-error
+            this.style[margins[0]] = "-100%";
+            else // @ts-expect-error
+            this.style[margins[1]] = "-100%";
         }
     };
     observer;
@@ -890,7 +885,6 @@ class $b9e5aa5581e8f051$var$SideNav extends (0, $hgUW1$Component) {
         super.connectedCallback();
         this.contentVisible = this.parts.content.childNodes.length === 0;
         globalThis.addEventListener("resize", this.onResize);
-        // @ts-expect-error
         this.observer = new MutationObserver(this.onResize);
         this.observer.observe(this, {
             childList: true
@@ -942,8 +936,9 @@ class $0f2017ffca44b547$var$SizeBreak extends (0, $hgUW1$Component) {
     }
     onResize = ()=>{
         const { normal: normal, small: small } = this.parts;
-        if (this.offsetParent === null) return;
-        else if (this.offsetParent.offsetWidth < this.minWidth || this.offsetParent.offsetHeight < this.minHeight) {
+        const parent = this.offsetParent;
+        if (parent === null) return;
+        else if (parent.offsetWidth < this.minWidth || parent.offsetHeight < this.minHeight) {
             normal.hidden = true;
             small.hidden = false;
             this.value = "small";
@@ -1036,18 +1031,18 @@ class $6bbe441346901d5a$var$TabSelector extends (0, $hgUW1$Component) {
         super();
         this.initAttributes("anne", "example");
     }
-    // @ts-expect-error
     addTabBody(body, selectTab = false) {
-        if (!body.hasAttribute("name")) throw new Error("element has no name attribute", body);
-        this.shadowRoot.append(body);
+        if (!body.hasAttribute("name")) {
+            console.error("element has no name attribute", body);
+            throw new Error("element has no name attribute");
+        }
+        this.shadowRoot?.append(body);
         this.setupTabs();
         if (selectTab) this.value = this.bodies.length - 1;
         this.queueRender();
     }
-    // @ts-expect-error
     keyTab = (event)=>{
         const { tabs: tabs } = this.parts;
-        // @ts-expect-error
         const tabIndex = [
             ...tabs.children
         ].indexOf(event.target);
@@ -1069,7 +1064,6 @@ class $6bbe441346901d5a$var$TabSelector extends (0, $hgUW1$Component) {
             default:
         }
     };
-    // @ts-expect-error
     get bodies() {
         return [
             ...this.children
@@ -1077,7 +1071,6 @@ class $6bbe441346901d5a$var$TabSelector extends (0, $hgUW1$Component) {
     }
     pickTab = (event)=>{
         const { tabs: tabs } = this.parts;
-        // @ts-expect-error
         const target = event.target;
         const tabIndex = [
             ...tabs.children
@@ -1088,7 +1081,8 @@ class $6bbe441346901d5a$var$TabSelector extends (0, $hgUW1$Component) {
         const { tabs: tabs } = this.parts;
         const tabBodies = [
             ...this.childNodes
-        ].filter((child)=>child.hasAttribute("name"));
+        ];
+        tabBodies.filter((child)=>child.hasAttribute("name"));
         tabs.textContent = "";
         for(const index in tabBodies){
             const tabBody = tabBodies[index];
@@ -1114,10 +1108,9 @@ class $6bbe441346901d5a$var$TabSelector extends (0, $hgUW1$Component) {
         const tabBodies = this.bodies;
         for(let i = 0; i < tabBodies.length; i++){
             const tabBody = tabBodies[i];
-            // @ts-expect-error
             const tab = tabs.children[i];
             if (this.value === Number(i)) {
-                tab.setAttribute("aria-selected", true);
+                tab.setAttribute("aria-selected", "true");
                 selected.style.marginLeft = `${tab.offsetLeft - tabs.offsetLeft}px`;
                 selected.style.width = `${tab.offsetWidth}px`;
                 tabBody.removeAttribute("hidden");

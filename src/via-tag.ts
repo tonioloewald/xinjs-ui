@@ -18,7 +18,6 @@ export function scriptTag(
 
     const scriptElt = elements.script({ src })
 
-    // @ts-expect-error
     document.head.append(scriptElt)
 
     loadedScripts[src] = new Promise((resolve) => {
@@ -38,7 +37,6 @@ export function styleSheet(href: string): Promise<void> {
       href,
     })
 
-    // @ts-expect-error
     document.head.append(linkElement)
 
     loadedStyleSheets[href] = new Promise((resolve) => {
