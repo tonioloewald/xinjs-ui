@@ -6,6 +6,7 @@
   --font-size: 16px;
   --text-color: #222;
   --brand-color: #088358;
+  --background: #fafafa;
   --nav-bg: #f8fbf1f4;
   --bar-color: #dae3df;
   --focus-color: #08835880;
@@ -30,6 +31,7 @@ body {
   font-size: var(--font-size);
   margin: 0;
   line-height: var(--line-height);
+  background: var(--background);
 }
 
 input,
@@ -307,4 +309,9 @@ rich-text [part='doc'] {
   padding: 20px;
   box-shadow: none !important;
   border-top: 0.25px solid var(--brand-color);
+}
+
+.current {
+  color: var(--brand-color);
+  background: var(--background);
 }

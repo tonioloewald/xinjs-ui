@@ -794,12 +794,14 @@ class $1b88c9cb596c3426$var$MarkdownViewer extends (0, $hgUW1$Component) {
         })();
         else if (this.value === "") this.value = this.textContent != null ? this.textContent : "";
     }
+    didRender = ()=>{};
     render() {
         super.render();
         this.innerHTML = (0, $hgUW1$marked)(typeof this.value === "string" ? this.value : "", {
             mangle: false,
             headerIds: false
         });
+        this.didRender();
     }
 }
 const $1b88c9cb596c3426$export$305b975a891d0dfa = $1b88c9cb596c3426$var$MarkdownViewer.elementCreator({
