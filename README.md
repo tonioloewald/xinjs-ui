@@ -4,7 +4,7 @@
 
 Copyright ©2023 Tonio Loewald
 
-## the xinjs component library
+## the xinjs ui library
 
 In general, `xinjs` strives to work _with_ the browser rather than trying to _replace_ it.
 
@@ -24,19 +24,9 @@ such as [shoelace.style](https://shoelace.style/) or wrap perfectly functional H
 elements, like the venerable `<input>` or `<form>` elements that are already capable
 and accessible.
 
-The goal here is to provide useful components that add to what's built into HTML5 and CSS3.
+The goal here is to provide useful components and other utilities that add to what's built into HTML5 and CSS3.
 
-### `<tab-selector>`
-
-A tab-selector with nice animations.
-
-### `<map-box>`
-
-A [mapboxgl](https://docs.mapbox.com/mapbox-gl-js/api/) wrapper.
-
-    <map-box coords="21.4389,-158.0001,9" token="your-mapbox-token-goes-here"></map-box>
-
-There's no need to learn new apis, just access the element's `map` property.
+## custom elements
 
 ### `<bodymovin-player>`
 
@@ -58,21 +48,10 @@ You can set the `<data-table>`'s `value` to `{ array: any[], columns: ColumnOpti
 If you set the `<data-table>`'s `rowHeight` to `0` it will render all its elements (i.e. not be virtual). This is
 useful for smaller tables, or tables with variable row-heights.
 
-### `<markdown-viewer>`
+### `<code-editor>`
 
-Render [markdown](https://www.markdownguide.org/) anywhere, either using the `src` attribute to load
-the file asynchronousely, or just put the text inside it. Powered by [marked](https://www.npmjs.com/package/marked).
-
-    <markdown-viewer src="/path/to/file.md">
-
-Or (but don't include the indentation!!):
-
-    <markdown-viewer>
-      # hello
-      world
-    </markdown-viewer>
-
-And just set the element's `value` and it will render it for you.
+Sometimes, it's nice to be able to just toss a code-editor in a web-page. The element's `value` is
+the code.
 
 ### `<filter-builder>`
 
@@ -111,10 +90,53 @@ The default `filters` provided are (in priority order):
 Right now multiple criteria are `AND`ed together. This will be extended to allow `()`, `OR`, `<` and `>` comparisons will
 become smarter (convert both sides to numbers if possible), and extensibility will be added.
 
-### `<code-editor>`
+### `<map-box>`
 
-Sometimes, it's nice to be able to just toss a code-editor in a web-page. The element's `value` is
-the code.
+A [mapboxgl](https://docs.mapbox.com/mapbox-gl-js/api/) wrapper.
+
+    <map-box coords="21.4389,-158.0001,9" token="your-mapbox-token-goes-here"></map-box>
+
+There's no need to learn new apis, just access the element's `map` property.
+
+### `<markdown-viewer>`
+
+Render [markdown](https://www.markdownguide.org/) anywhere, either using the `src` attribute to load
+the file asynchronousely, or just put the text inside it. Powered by [marked](https://www.npmjs.com/package/marked).
+
+    <markdown-viewer src="/path/to/file.md">
+
+Or (but don't include the indentation!!):
+
+    <markdown-viewer>
+      # hello
+      world
+    </markdown-viewer>
+
+And just set the element's `value` and it will render it for you.
+
+### `<rich-text>`
+
+A simple and easily extensible `document.execCommand` WYSIWYG editor with some conveniences.
+
+By default, it treats its initial contents as its document, but you can also set (and get)
+its `value`.
+
+It has a `toolbar` slot (actually a xin-slot because it doesn't use the shadowDOM).
+
+A `<button>` element in the toolbar simply needs a `data-command` attribute and it
+will fire `document.execCommand`. You can add extra parameters (the second parameter is
+added as `false` automatically) using commas, e.g. `data-command="formatBlock,H2"` will
+trigger `document.execCommand('formatBlock', false, 'H2')`.
+
+`<select>` elements are also supported, just put the same string in the `<option>` elements'
+`value` property.
+
+Obviously, you can just implement your own widgets and do anything you want.
+
+The `<rich-text>` component provides `selectedText` and `selectedBlocks` properties, allowing
+you to easily perform operations on text selections, and a `selectionChange` callback (which
+simply passes through document `selectionchange` events, but also passes a reference to
+the `<rich-text>` component).
 
 ### `<side-nav>`
 
@@ -139,6 +161,10 @@ the window's `resize` events and its own (via `ResizeObserver`).
 `<size-break>` supports both `min-width` and/or `min-height`, and you can of course target only one
 of the slots if you like. The demo site uses them to hide the [bundlejs](https://bundlejs.com/) badge when
 space is tight.
+
+### `<tab-selector>`
+
+A tab-selector with nice animations.
 
 ## utilities
 

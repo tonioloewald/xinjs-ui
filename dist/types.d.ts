@@ -106,6 +106,12 @@ interface FilterMaker {
     token: RegExp;
     makeFilter: (...matches: string[]) => ObjectTest;
 }
+export const availableFilters: FilterMaker[];
+interface Filter {
+    description: string;
+    test: ObjectTest;
+}
+export function getFilter(term: string, filters?: FilterMaker[]): Filter | undefined;
 declare class FilterBuilder extends Component {
     value: string;
     filter: _ArrayFilter1;
@@ -122,6 +128,10 @@ declare class FilterBuilder extends Component {
     render(): void;
 }
 export const filterBuilder: ElementCreator<FilterBuilder>;
+export const MAPSTYLES: {
+    name: string;
+    url: string;
+}[];
 declare class MapBox extends Component {
     coords: string;
     content: HTMLDivElement;
@@ -148,6 +158,20 @@ declare class MarkdownViewer extends Component {
     render(): void;
 }
 export const markdownViewer: ElementCreator<MarkdownViewer>;
+declare class RichText extends Component {
+    get value(): string;
+    set value(docHtml: string);
+    blockElement(elt: Node): Element | undefined;
+    get selectedBlocks(): any[];
+    get selectedText(): string;
+    selectionChange: (event: Event, editor: RichText) => void;
+    content: any[];
+    doCommand(command?: string): void;
+    handleSelectChange: (event: Event) => void;
+    handleButtonClick: (event: Event) => void;
+    connectedCallback(): void;
+}
+export const richText: ElementCreator<RichText>;
 declare class SideNav extends Component {
     panelPosition: 'left' | 'right' | 'top' | 'bottom';
     minSize: number;

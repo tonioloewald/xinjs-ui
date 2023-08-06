@@ -34,6 +34,7 @@ body {
 
 input,
 button,
+select,
 textarea {
   font-family: var(--font-family);
   font-size: var(--font-size);
@@ -104,8 +105,17 @@ main > * {
   background: var(--bar-color);
 }
 
-a,
+a {
+  text-decoration: none;
+  border-bottom: 1px solid var(--brand-color);
+}
+
+a:hover {
+  color: var(--brand-color);
+}
+
 button,
+select,
 .clickable {
   transition: ease-out 0.2s;
   background: var(--brand-text-color);
@@ -135,22 +145,17 @@ input {
   color: var(--focus-color);
 }
 
-a {
-  margin-top: calc(var(--spacing) * -0.5);
-  margin-bottom: calc(var(--spacing) * -0.5);
-}
-
 img {
   vertical-align: middle;
 }
 
-a:hover,
+button:hover,
 button:hover,
 .clickable:hover {
   box-shadow: 0 0 0 2px var(--brand-color);
 }
 
-a:active,
+button:active,
 button:active,
 .clickable:active {
   background: var(--brand-color);
@@ -293,4 +298,13 @@ side-nav:not([compact]) .show-within-compact {
 .on.on {
   background: var(--brand-color);
   --text-color: var(--brand-text-color);
+}
+
+rich-text [part='toolbar'] {
+  --text-color: var(--brand-color);
+}
+rich-text [part='doc'] {
+  padding: 20px;
+  box-shadow: none !important;
+  border-top: 0.25px solid var(--brand-color);
 }
