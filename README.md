@@ -1,6 +1,6 @@
 # xinjs-ui
 
-[xinjs](https://xinjs.net) [discord](https://discord.gg/ramJ9rgky5) [github](https://github.com/tonioloewald/xinjs-ui#readme) [npm](https://www.npmjs.com/package/xinjs-ui) <size-break min-width="500"><img alt="bundlejs" src="https://deno.bundlejs.com/?q=xinjs-ui&badge="></size-break>
+[ui.xinjs.net live demo](https://ui.xinjs.net) [xinjs](https://xinjs.net) [discord](https://discord.gg/ramJ9rgky5) [github](https://github.com/tonioloewald/xinjs-ui#readme) [npm](https://www.npmjs.com/package/xinjs-ui) <size-break min-width="500"><img alt="bundlejs" src="https://deno.bundlejs.com/?q=xinjs-ui&badge="></size-break>
 
 Copyright ©2023 Tonio Loewald
 
@@ -9,13 +9,13 @@ Copyright ©2023 Tonio Loewald
 In general, `xinjs` strives to work _with_ the browser rather than trying to _replace_ it.
 
 In a similar vein, `xinjs-ui` comprises a collection of [web-components](https://developer.mozilla.org/en-US/docs/Web/API/Web_components)
-with the goal of augmenting what _already_ works well, and the components should be interoperable as
-possible with the stuff you already use as possible. E.g. where appropriate, the `value` of an
+with the goal of augmenting what _already_ works well, and the components are intended be interoperable as
+similar as possible to things that you already uses, like `<input>` elements. E.g. where appropriate, the `value` of an
 element is its malleable `state`, and when this changes, the element emits a
 `change` event.
 
 Similarly, the xinjs base `Component` class and the components in this collection stive to
-be as similar in operation as possible to DOM elements as possible. E.g. binary attrbutes
+be as similar in operation as possible to DOM elements as possible. E.g. binary attributes
 work as expected. Intinsic properties of components will default to `null` rather than `undefined`.
 
 Similarly, because web-components are highly interoperable, there's no reason to reinvent
