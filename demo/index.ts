@@ -6,6 +6,7 @@ import {
   markdownViewer,
   dataTable,
   filterBuilder,
+  richText,
   scriptTag,
   sideNav,
   sizeBreak,
@@ -55,7 +56,7 @@ const { app } = xinProxy({
 })
 
 bindings.columns = {
-  toDOM(elt, columns) {
+  toDOM(elt: any, columns) {
     elt.columns = columns
   },
 }
@@ -85,11 +86,24 @@ bindings.columns = {
 
 Object.assign(globalThis, { app, xin, bindings, elements, vars, touch })
 
-// @ts-expect-error
-const main = document.querySelector('main')
+const main = document.querySelector('main') as HTMLElement
 
-const { h1, h2, div, span, a, img, p, label, input, header, button, pre } =
-  elements
+const {
+  h1,
+  h2,
+  h3,
+  div,
+  span,
+  a,
+  img,
+  p,
+  label,
+  input,
+  header,
+  button,
+  select,
+  option,
+} = elements
 
 const table = dataTable({
   style: {
@@ -98,6 +112,7 @@ const table = dataTable({
     overflowY: 'scroll',
   },
   rowHeight: 34,
+  // @ts-expect-error
   bindValue: app.tableData,
 })
 
@@ -139,6 +154,7 @@ main.append(
       {
         name: 'Read Me!',
         navSize: 150,
+        minSize: 600,
         style: {
           height: '100%',
         },
@@ -209,16 +225,19 @@ main.append(
             hidden: true,
             accept: '.json,application/json',
             onChange(event: Event) {
-              // @ts-expect-error
-              const about = document.querySelector('.bodymovin-info')
+              const about = document.querySelector(
+                '.bodymovin-info'
+              ) as HTMLElement
               // @ts-expect-error
               const { files } = event.target
               if (files && files.length === 1) {
-                // @ts-expect-error
                 const reader = new FileReader()
 
                 reader.onload = () => {
                   let { result } = reader
+                  if (typeof result !== 'string') {
+                    return
+                  }
                   if (app.optimizeLottie) {
                     const origSize = result.length
                     result = result.replace(/"mn":\s*"[^"]*",/g, '')
@@ -237,9 +256,8 @@ main.append(
                     about.textContent = `size: ${result.length}`
                   }
                   // @ts-expect-error
-                  document.querySelector('bodymovin-player').json = JSON.parse(
-                    reader.result
-                  )
+                  document.querySelector('bodymovin-player').json =
+                    JSON.parse(result)
                 }
                 app.lottieFilename = files[0].name
                 reader.readAsText(files[0])
@@ -322,12 +340,15 @@ main.append(
               // @ts-expect-error
               const { files } = event.target
               if (files && files.length === 1) {
-                // @ts-expect-error
                 const reader = new FileReader()
                 reader.onload = () => {
+                  const { result } = reader
+                  if (typeof result !== 'string') {
+                    return
+                  }
                   app.tableData = {
                     columns: null,
-                    array: JSON.parse(reader.result),
+                    array: JSON.parse(result),
                   }
                 }
                 reader.readAsText(files[0])
@@ -452,10 +473,77 @@ main.append(
         },
         "console.log('hello, world')"
       )
+    ),
+    richText(
+      {
+        name: 'rich-text',
+        selectionChange(event: Event, rt: any) {
+          const select = rt.querySelector(
+            'select[title="paragraph style"]'
+          ) as HTMLSelectElement
+          let blockTags = (rt.selectedBlocks as HTMLElement[]).map(
+            (block) => block.tagName
+          )
+          blockTags = [...new Set(blockTags)]
+          select.value =
+            blockTags.length === 1 ? `formatBlock,${blockTags[0]}` : ''
+        },
+      },
+      select(
+        { title: 'paragraph style', slot: 'toolbar' },
+        option('Heading 1', { value: 'formatBlock,H1' }),
+        option('Heading 2', { value: 'formatBlock,H2' }),
+        option('Heading 3', { value: 'formatBlock,H3' }),
+        option('Heading 4', { value: 'formatBlock,H4' }),
+        option('Body', { value: 'formatBlock,P' }),
+        option('Code', { value: 'formatBlock,PRE' })
+      ),
+      span({ slot: 'toolbar', style: { flex: '0 0 10px', content: ' ' } }),
+      button(
+        { slot: 'toolbar', dataCommand: 'indent', title: 'indent' },
+        span({ class: 'icon-format_indent_increase' })
+      ),
+      button(
+        { slot: 'toolbar', dataCommand: 'outdent', title: 'decrease indent' },
+        span({ class: 'icon-format_indent_decrease' })
+      ),
+      span({ slot: 'toolbar', style: { flex: '0 0 10px', content: ' ' } }),
+      button(
+        { slot: 'toolbar', dataCommand: 'bold', title: 'bold' },
+        span({ class: 'icon-format_bold' })
+      ),
+      button(
+        { slot: 'toolbar', dataCommand: 'italic', title: 'italic' },
+        span({ class: 'icon-format_italic' })
+      ),
+      button(
+        { slot: 'toolbar', dataCommand: 'underline', title: 'underline' },
+        span({ class: 'icon-format_underlined' })
+      ),
+      span({ slot: 'toolbar', style: { flex: '0 0 10px', content: ' ' } }),
+      button(
+        {
+          slot: 'toolbar',
+          dataCommand: 'insertUnorderedList',
+          title: 'bullet list',
+        },
+        span({ class: 'icon-format_list_bulleted' })
+      ),
+      button(
+        {
+          slot: 'toolbar',
+          dataCommand: 'insertOrderedList',
+          title: 'numbered list',
+        },
+        span({ class: 'icon-format_list_numbered' })
+      ),
+      h3('Rich Text Editor'),
+      p(
+        'This is a minimalist, but easily extended rich-text editor based on the deprecated but widely-supported and not-being-replaced-any-time-soon document.execCommand API.'
+      ),
+      a('document.execCommand is documented here', {
+        href: 'https://developer.mozilla.org/en-US/docs/Web/API/Document/execCommand',
+      })
     )
   )
 )
-
-function accessor<T>(obj: T, prop: keyof T): any {
-  console.log(obj[prop])
-}

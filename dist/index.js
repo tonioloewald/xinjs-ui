@@ -1,6 +1,12 @@
 import {Component as $hgUW1$Component, elements as $hgUW1$elements, xinValue as $hgUW1$xinValue, xin as $hgUW1$xin, vars as $hgUW1$vars, debounce as $hgUW1$debounce, varDefault as $hgUW1$varDefault} from "xinjs";
 import {marked as $hgUW1$marked} from "marked";
 
+function $parcel$export(e, n, v, s) {
+  Object.defineProperty(e, n, {get: v, set: s, enumerable: true, configurable: true});
+}
+var $59f50bee37676c09$exports = {};
+
+$parcel$export($59f50bee37676c09$exports, "bodymovinPlayer", () => $59f50bee37676c09$export$d75ad8f79fe096cb);
 // https://lottiefiles.github.io/lottie-docs/advanced_interactions/
 
 
@@ -101,6 +107,9 @@ const $59f50bee37676c09$export$d75ad8f79fe096cb = $59f50bee37676c09$var$Bodymovi
 });
 
 
+var $8a70bd76f9b7e656$exports = {};
+
+$parcel$export($8a70bd76f9b7e656$exports, "codeEditor", () => $8a70bd76f9b7e656$export$d89b6f4d34274146);
 
 
 const $8a70bd76f9b7e656$var$ACE_BASE_URL = "https://cdnjs.cloudflare.com/ajax/libs/ace/1.23.2/";
@@ -173,6 +182,9 @@ const $8a70bd76f9b7e656$export$d89b6f4d34274146 = $8a70bd76f9b7e656$var$CodeEdit
 });
 
 
+var $e6e19030d0c18d6f$exports = {};
+
+$parcel$export($e6e19030d0c18d6f$exports, "dataTable", () => $e6e19030d0c18d6f$export$f71ce0a5ddbe8fa0);
 
 
 const $5265d118b5240170$export$c947e3cd16175f27 = (event, callback, cursor = "default")=>{
@@ -457,6 +469,11 @@ const $e6e19030d0c18d6f$export$f71ce0a5ddbe8fa0 = $e6e19030d0c18d6f$var$DataTabl
 });
 
 
+var $46dc716dd2cf5925$exports = {};
+
+$parcel$export($46dc716dd2cf5925$exports, "availableFilters", () => $46dc716dd2cf5925$export$16a138bde9d9de87);
+$parcel$export($46dc716dd2cf5925$exports, "getFilter", () => $46dc716dd2cf5925$export$61ec8404f465cd36);
+$parcel$export($46dc716dd2cf5925$exports, "filterBuilder", () => $46dc716dd2cf5925$export$8ca73b4108207c1f);
 
 const { input: $46dc716dd2cf5925$var$input } = (0, $hgUW1$elements);
 const $46dc716dd2cf5925$var$passThru = (array)=>array;
@@ -639,6 +656,10 @@ const $46dc716dd2cf5925$export$8ca73b4108207c1f = $46dc716dd2cf5925$var$FilterBu
 });
 
 
+var $6246d5006b5a56c3$exports = {};
+
+$parcel$export($6246d5006b5a56c3$exports, "MAPSTYLES", () => $6246d5006b5a56c3$export$7d6f3ccbb0a81c30);
+$parcel$export($6246d5006b5a56c3$exports, "mapBox", () => $6246d5006b5a56c3$export$ca243e53be209efb);
 
 
 const $6246d5006b5a56c3$export$7d6f3ccbb0a81c30 = [
@@ -752,6 +773,9 @@ const $6246d5006b5a56c3$export$ca243e53be209efb = $6246d5006b5a56c3$var$MapBox.e
 });
 
 
+var $1b88c9cb596c3426$exports = {};
+
+$parcel$export($1b88c9cb596c3426$exports, "markdownViewer", () => $1b88c9cb596c3426$export$305b975a891d0dfa);
 
 
 class $1b88c9cb596c3426$var$MarkdownViewer extends (0, $hgUW1$Component) {
@@ -783,6 +807,120 @@ const $1b88c9cb596c3426$export$305b975a891d0dfa = $1b88c9cb596c3426$var$Markdown
 });
 
 
+var $815deb6062b0b31b$exports = {};
+
+$parcel$export($815deb6062b0b31b$exports, "richText", () => $815deb6062b0b31b$export$7bcc4193ad80bf91);
+
+const { style: $815deb6062b0b31b$var$style, xinSlot: $815deb6062b0b31b$var$xinSlot, div: $815deb6062b0b31b$var$div } = (0, $hgUW1$elements);
+const $815deb6062b0b31b$var$richTextStyle = $815deb6062b0b31b$var$style();
+$815deb6062b0b31b$var$richTextStyle.innerText = `
+rich-text {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+rich-text [part="toolbar"] {
+  padding: 4px;
+  display: flex;
+  gap: 0px;
+  flex: 0 0 auto;
+}
+`;
+document.head.append($815deb6062b0b31b$var$richTextStyle);
+class $815deb6062b0b31b$var$RichText extends (0, $hgUW1$Component) {
+    get value() {
+        return this.parts.doc.innerHTML;
+    }
+    set value(docHtml) {
+        this.parts.doc.innerHTML = docHtml;
+    }
+    blockElement(elt) {
+        const { doc: doc } = this.parts;
+        while(elt.parentElement !== null && elt.parentElement !== doc)elt = elt.parentElement;
+        return elt.parentElement === doc ? elt : undefined;
+    }
+    get selectedBlocks() {
+        const { doc: doc } = this.parts;
+        const selObject = window.getSelection();
+        if (selObject === null) return [];
+        const blocks = [];
+        for(let i = 0; i < selObject.rangeCount; i++){
+            const range = selObject.getRangeAt(i);
+            if (!doc.contains(range.commonAncestorContainer)) continue;
+            let block = this.blockElement(range.startContainer);
+            const lastBlock = this.blockElement(range.endContainer);
+            blocks.push(block);
+            while(block !== lastBlock && block !== null){
+                block = block.nextElementSibling;
+                blocks.push(block);
+            }
+        }
+        return blocks;
+    }
+    get selectedText() {
+        const selObject = window.getSelection();
+        if (selObject === null) return "";
+        return this.selectedBlocks.length ? selObject.toString() : "";
+    }
+    selectionChange = (event, editor)=>{};
+    content = [
+        $815deb6062b0b31b$var$xinSlot({
+            name: "toolbar",
+            part: "toolbar"
+        }),
+        $815deb6062b0b31b$var$div({
+            part: "doc",
+            contenteditable: true,
+            style: {
+                flex: "1 1 auto",
+                outline: "none"
+            }
+        }),
+        $815deb6062b0b31b$var$xinSlot({
+            part: "content"
+        })
+    ];
+    doCommand(command) {
+        if (command === undefined) return;
+        const args = command.split(",");
+        console.log("execCommand", args[0], false, ...args.slice(1));
+        document.execCommand(args[0], false, ...args.slice(1));
+    }
+    handleSelectChange = (event)=>{
+        // @ts-expect-error
+        const select = event.target.closest("select");
+        if (select == null) return;
+        this.doCommand(select.value);
+    };
+    handleButtonClick = (event)=>{
+        // @ts-expect-error
+        const button = event.target.closest("button");
+        if (button == null) return;
+        this.doCommand(button.dataset.command);
+    };
+    connectedCallback() {
+        super.connectedCallback();
+        const { doc: doc, content: content, toolbar: toolbar } = this.parts;
+        if (content.innerHTML !== "" && doc.innerHTML === "") {
+            doc.innerHTML = content.innerHTML;
+            content.innerHTML = "";
+        }
+        content.style.display = "none";
+        toolbar.addEventListener("click", this.handleButtonClick);
+        toolbar.addEventListener("change", this.handleSelectChange);
+        document.addEventListener("selectionchange", (event)=>{
+            this.selectionChange(event, this);
+        });
+    }
+}
+const $815deb6062b0b31b$export$7bcc4193ad80bf91 = $815deb6062b0b31b$var$RichText.elementCreator({
+    tag: "rich-text"
+});
+
+
+var $b9e5aa5581e8f051$exports = {};
+
+$parcel$export($b9e5aa5581e8f051$exports, "sideNav", () => $b9e5aa5581e8f051$export$938418df2b06cb50);
 
 const { slot: $b9e5aa5581e8f051$var$slot } = (0, $hgUW1$elements);
 const $b9e5aa5581e8f051$var$flexDirections = {
@@ -909,6 +1047,9 @@ const $b9e5aa5581e8f051$export$938418df2b06cb50 = $b9e5aa5581e8f051$var$SideNav.
 });
 
 
+var $0f2017ffca44b547$exports = {};
+
+$parcel$export($0f2017ffca44b547$exports, "sizeBreak", () => $0f2017ffca44b547$export$96370210d2ca0fff);
 
 const { slot: $0f2017ffca44b547$var$slot } = (0, $hgUW1$elements);
 class $0f2017ffca44b547$var$SizeBreak extends (0, $hgUW1$Component) {
@@ -964,6 +1105,9 @@ const $0f2017ffca44b547$export$96370210d2ca0fff = $0f2017ffca44b547$var$SizeBrea
 });
 
 
+var $6bbe441346901d5a$exports = {};
+
+$parcel$export($6bbe441346901d5a$exports, "tabSelector", () => $6bbe441346901d5a$export$a932f737dcd864a2);
 
 const { div: $6bbe441346901d5a$var$div, slot: $6bbe441346901d5a$var$slot } = (0, $hgUW1$elements);
 class $6bbe441346901d5a$var$TabSelector extends (0, $hgUW1$Component) {
@@ -1142,5 +1286,5 @@ function $5a28660a6cbe2731$export$b37fb374f2e92eb6(sortValuator, ascending = tru
 
 
 
-export {$59f50bee37676c09$export$d75ad8f79fe096cb as bodymovinPlayer, $8a70bd76f9b7e656$export$d89b6f4d34274146 as codeEditor, $e6e19030d0c18d6f$export$f71ce0a5ddbe8fa0 as dataTable, $46dc716dd2cf5925$export$8ca73b4108207c1f as filterBuilder, $6246d5006b5a56c3$export$ca243e53be209efb as mapBox, $1b88c9cb596c3426$export$305b975a891d0dfa as markdownViewer, $b9e5aa5581e8f051$export$938418df2b06cb50 as sideNav, $0f2017ffca44b547$export$96370210d2ca0fff as sizeBreak, $6bbe441346901d5a$export$a932f737dcd864a2 as tabSelector, $5265d118b5240170$export$c947e3cd16175f27 as trackDrag, $5c31145f3e970423$export$c6e082819e9a0330 as scriptTag, $5c31145f3e970423$export$63257fda812a683f as styleSheet, $5a28660a6cbe2731$export$b37fb374f2e92eb6 as makeSorter};
+export {$5265d118b5240170$export$c947e3cd16175f27 as trackDrag, $5c31145f3e970423$export$c6e082819e9a0330 as scriptTag, $5c31145f3e970423$export$63257fda812a683f as styleSheet, $5a28660a6cbe2731$export$b37fb374f2e92eb6 as makeSorter, $59f50bee37676c09$export$d75ad8f79fe096cb as bodymovinPlayer, $8a70bd76f9b7e656$export$d89b6f4d34274146 as codeEditor, $e6e19030d0c18d6f$export$f71ce0a5ddbe8fa0 as dataTable, $46dc716dd2cf5925$export$16a138bde9d9de87 as availableFilters, $46dc716dd2cf5925$export$61ec8404f465cd36 as getFilter, $46dc716dd2cf5925$export$8ca73b4108207c1f as filterBuilder, $6246d5006b5a56c3$export$7d6f3ccbb0a81c30 as MAPSTYLES, $6246d5006b5a56c3$export$ca243e53be209efb as mapBox, $1b88c9cb596c3426$export$305b975a891d0dfa as markdownViewer, $b9e5aa5581e8f051$export$938418df2b06cb50 as sideNav, $0f2017ffca44b547$export$96370210d2ca0fff as sizeBreak, $6bbe441346901d5a$export$a932f737dcd864a2 as tabSelector, $815deb6062b0b31b$export$7bcc4193ad80bf91 as richText};
 //# sourceMappingURL=index.js.map
