@@ -19,12 +19,14 @@ class MarkdownViewer extends Component {
       this.value = this.textContent != null ? this.textContent : ''
     }
   }
+  didRender = (): void => {}
   render() {
     super.render()
     this.innerHTML = marked(typeof this.value === 'string' ? this.value : '', {
       mangle: false,
       headerIds: false,
     })
+    this.didRender()
   }
 }
 

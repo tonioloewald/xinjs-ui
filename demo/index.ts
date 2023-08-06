@@ -1,3 +1,5 @@
+import { getListItem } from 'xinjs'
+
 import {
   tabSelector,
   bodymovinPlayer,
@@ -52,6 +54,7 @@ const { app } = xinProxy({
     },
     lottieFilename: '',
     lottieData: '',
+    contents: [] as any[],
   },
 })
 
@@ -103,6 +106,7 @@ const {
   button,
   select,
   option,
+  template,
 } = elements
 
 const table = dataTable({
@@ -153,7 +157,7 @@ main.append(
     sideNav(
       {
         name: 'Read Me!',
-        navSize: 150,
+        navSize: 200,
         minSize: 600,
         style: {
           height: '100%',
@@ -169,13 +173,24 @@ main.append(
             height: '100%',
             background: vars.navBg,
           },
-        },
-        button('read me', {
-          onClick(event: Event) {
-            // @ts-expect-error
-            event.target.closest('side-nav').contentVisible = true
+          bindList: {
+            value: app.contents,
           },
-        })
+        },
+        template(
+          a({
+            bindText: '^.textContent',
+            style: {
+              cursor: 'pointer',
+              borderBottom: 'none',
+              padding: '5px 15px',
+            },
+            onClick(event: Event) {
+              const content = getListItem(event.target as HTMLElement)
+              content.scrollIntoView({ behavior: 'smooth' })
+            },
+          })
+        )
       ),
       div(
         {
@@ -183,6 +198,27 @@ main.append(
             position: 'relative',
             overflowY: 'scroll',
             height: '100%',
+          },
+          onScroll(event: Event) {
+            // @ts-expect-error
+            const { scrollTop } = event.target
+            // @ts-expect-error
+            const navItems =
+              event.target.previousElementSibling.querySelectorAll('a')
+
+            let foundFirstVisible = false
+            for (const navItem of navItems) {
+              const heading = getListItem(navItem)
+              navItem.classList.remove('current')
+              if (foundFirstVisible === false) {
+                if (heading.offsetTop - scrollTop >= -5) {
+                  foundFirstVisible = true
+                  navItem.classList.add('current')
+                }
+              } else {
+                navItem.classList.remove('current')
+              }
+            }
           },
         },
         button(
@@ -206,6 +242,10 @@ main.append(
             padding: `0 2em`,
           },
           value: getDocSource('README.md'),
+          didRender: function () {
+            // @ts-expect-error
+            app.contents = [...this.querySelectorAll('h1,h2,h3')]
+          },
         })
       )
     ),

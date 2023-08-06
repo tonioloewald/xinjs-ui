@@ -28,6 +28,42 @@ The goal here is to provide useful components and other utilities that add to wh
 
 ## custom elements
 
+Using any of these elements.
+
+The simplest way to use these elements is to simply import the element and then either
+use HTML or the `ElementCreator` function exported.
+
+E.g. to use the markdown viewer:
+
+```
+import { markdownViewer } from 'xinjs-ui'
+
+document.append(markdownViewer(`
+# hello world
+
+here is some markdown
+`))
+```
+
+Assuming you import the javascript somewhere, this HMTL will work as well.
+
+```
+&lt;markdown-viewer>
+# hello world
+
+here is some markdown
+</markdown-viewer>
+```
+
+The big difference with using the `markdownViewer()` function is that the `xinjs` `Component`
+class will automatically pick a new tag if the expected tag is taken (e.g. by a previously
+defined custom-element from another library). `markdownViewer()` will create an element of
+the correct type.
+
+The other thing is that `xinjs` `ElementCreator` functions are convenient and composable,
+allowing you to build DOM elements with less code than pretty much any other option, including
+JSX, TSX, or HTML.
+
 ### `<bodymovin-player>`
 
 A wrapper for AirBnb's bodymovin, a.k.a. [lottie](https://airbnb.io/lottie/#/web), player.
@@ -170,7 +206,7 @@ A tab-selector with nice animations.
 
 ### scriptTag & styleSheet
 
-If you need to load an old schoole javascript library via cdn (both mapboxgl and bodymovin are
+If you need to load an old school javascript library via cdn (both mapboxgl and bodymovin are
 fine examples) then use these two functions. They return promises that resolve when the
 module in question has loaded.
 
@@ -184,11 +220,11 @@ Usage:
       globalThis.bodymovien.loadAnimation(...)
     })
 
-`<bodymovin-player>` and is implemented in such a way that if you've preloaded the module
+`<bodymovin-player>` is implemented in such a way that if you've preloaded the module
 (e.g. via a script tag or packaging) it won't load it again, which affords offline
 use.
 
-There's no point for mapbox since it won't work without connectivity anyway.
+There's no point for `<map-box>` since it won't work without connectivity anyway.
 
 ### trackDrag
 
@@ -247,5 +283,4 @@ If you pass `false` as the (optional) second parameter you'll get a _descending_
 but for numbers just multiplying by -1 is just as easy (per the example).
 
 If I ever conceive of a need for a version that lets you invert the sort order of
-individual array elements I'll extend it to allowing the second parameter to also be
-an array…
+multiple non-numerical array elements I'll extend it.
