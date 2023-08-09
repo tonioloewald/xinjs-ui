@@ -155,7 +155,7 @@ declare class MarkdownViewer extends Component {
     content: null;
     constructor();
     connectedCallback(): void;
-    didRender: () => void;
+    didRender: (() => void) | (() => Promise<void>);
     render(): void;
 }
 export const markdownViewer: ElementCreator<MarkdownViewer>;

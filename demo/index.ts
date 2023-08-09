@@ -1,4 +1,12 @@
-import { getListItem } from 'xinjs'
+import {
+  elements,
+  xinProxy,
+  vars,
+  xin,
+  bindings,
+  touch,
+  getListItem,
+} from 'xinjs'
 
 import {
   tabSelector,
@@ -20,14 +28,18 @@ const getDocSource = (name: string) => {
   return doc !== undefined ? doc.text : `document **"${name}"** not found`
 }
 
-import { elements, xinProxy, vars, xin, bindings, touch } from 'xinjs'
-
 const download = (name: string, data: string): void => {
   const link = a({
     download: name,
     href: `data:text/plain;charset=UTF-8,${encodeURIComponent(data)}`,
   })
   link.click()
+}
+
+bindings.dataSource = {
+  toDOM(element, tagName) {
+    element.dataset.source = tagName
+  },
 }
 
 const deathsUrl =
@@ -180,11 +192,7 @@ main.append(
         template(
           a({
             bindText: '^.textContent',
-            style: {
-              cursor: 'pointer',
-              borderBottom: 'none',
-              padding: '5px 15px',
-            },
+            bindDataSource: '^.tagName',
             onClick(event: Event) {
               const content = getListItem(event.target as HTMLElement)
               content.scrollIntoView({ behavior: 'smooth' })
@@ -202,8 +210,8 @@ main.append(
           onScroll(event: Event) {
             // @ts-expect-error
             const { scrollTop } = event.target
-            // @ts-expect-error
             const navItems =
+              // @ts-expect-error
               event.target.previousElementSibling.querySelectorAll('a')
 
             let foundFirstVisible = false

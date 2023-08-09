@@ -223,15 +223,14 @@ svg text.hover {
 pre {
   background: var(--code-bg);
   padding: var(--spacing);
-  border-radius: calc(var(--spacing) * 0.5);
-  box-shadow: inset 0 2px 4px #0004;
+  border-radius: calc(var(--spacing) * 0.25);
   overflow: scroll;
 }
 
 pre,
 code {
   font-family: var(--code-font-family);
-  color: var(--brand-color);
+  color: var(--text-color);
 }
 
 filter-builder {
@@ -314,4 +313,18 @@ rich-text [part='doc'] {
 .current {
   color: var(--brand-color);
   background: var(--background);
+}
+
+[data-source] {
+  cursor: pointer;
+  border-bottom: none;
+  padding: 5px 15px;
+}
+
+[data-source='H2'] {
+  padding-left: 30px;
+}
+
+[data-source='H3'] {
+  padding-left: 45px;
 }
