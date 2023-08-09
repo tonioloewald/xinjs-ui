@@ -1,6 +1,6 @@
 {
   "name": "xinjs-ui",
-  "version": "0.2.18",
+  "version": "0.2.19",
   "description": "simple robust web-components for use with xinjs or anything else",
   "main": "dist/index.js",
   "types": "dist/types.d.ts",
