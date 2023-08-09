@@ -28,8 +28,6 @@ The goal here is to provide useful components and other utilities that add to wh
 
 ## custom elements
 
-Using any of these elements.
-
 The simplest way to use these elements is to simply import the element and then either
 use HTML or the `ElementCreator` function exported.
 
@@ -45,7 +43,7 @@ here is some markdown
 `))
 ```
 
-Assuming you import the javascript somewhere, this HMTL will work as well.
+Assuming you import the javascript somewhere, this HTML will work as well.
 
 ```
 &lt;markdown-viewer>
@@ -92,7 +90,8 @@ the code.
 ### `<filter-builder>`
 
 Automatically creates `ArrayFilter` functions `(a: any[]) => any[]` based on a text query that accepts the
-following space-delimited criteria — all text matches are performed in `LocaleLowerCase`.
+following criteria — all text matches are performed in `LocaleLowerCase`. Criteria are space-delimited, but
+a quoted string which can include spaces (but not nested quotation marks) is allowed on the right.
 
 `<filter-builder>` has sets its `filter` property to an `ArrayFilter`, by default it just passes through
 the array untouched. Its `value` is the source `string`.
@@ -116,9 +115,10 @@ The default `filters` provided are (in priority order):
 
 - `[field]=value` if `field` is specified, matches `value`, otherwise looks for `value` anwhere
 - `field!=value` matches if `field` is not `value`
-- `field>value` / `field<value` - matches if `field` is `>`/`<` `value`, if `isNaN(Number(value))` this will
+- `field<<value` / `field>>value` matches if `field` is before / after `value` (as a date)
+- `field>value` / `field<value` matches if `field` is greater / less than `value`, if `isNaN(Number(value))` this will
   be an alphabetical order comparison, otherwise it will be numberic.
-- `field:value` matches if `field` contains `value`
+- `field:value` / `field!:value` matches if `field` contains / does not contain `value`
 - `!!field` matches if `field` is **truthy**
 - `!field` matches if `field` is **falsy** (e.g. `''`, `null`, `undefined`, `false`, `0`)
 - `value` matches if any field contains `value`
