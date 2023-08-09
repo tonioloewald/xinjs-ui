@@ -2,28 +2,12 @@ import {
   Component as WebComponent,
   ElementCreator,
   elements,
-  vars,
   varDefault,
 } from 'xinjs'
 
 const { slot } = elements
 
-const flexDirections = {
-  left: 'row',
-  right: 'row-reverse',
-  top: 'column',
-  bottom: 'column-reverse',
-}
-
-const outsetMargins = {
-  left: ['marginLeft', 'marginRight'],
-  right: ['marginRight', 'marginLeft'],
-  top: ['marginTop', 'marginBottom'],
-  bottom: ['marginBottom', 'marginTop'],
-}
-
 class SideNav extends WebComponent {
-  panelPosition: 'left' | 'right' | 'top' | 'bottom' = 'left'
   minSize = 800
   navSize = 200
   compact = false
@@ -42,8 +26,13 @@ class SideNav extends WebComponent {
 
   styleNode = WebComponent.StyleNode({
     ':host': {
-      display: 'flex',
-      flexDirection: vars.flexDirection,
+      display: 'grid',
+      gridTemplateColumns: `${varDefault.navWidth(
+        '50%'
+      )} ${varDefault.contentWidth('50%')}`,
+      gridTemplateRows: '100%',
+      position: 'relative',
+      margin: varDefault.margin('0 0 0 -100%'),
       transition: varDefault.sideNavTransition('0.25s ease-out'),
     },
     ':host slot': {
@@ -51,13 +40,9 @@ class SideNav extends WebComponent {
     },
     ':host slot:not([name])': {
       display: 'block',
-      flex: `0 0 ${vars.contentWidth}`,
-      width: vars.contentWidth,
     },
     ':host slot[name="nav"]': {
       display: 'block',
-      flex: `0 0 ${vars.navWidth}`,
-      width: vars.navWidth,
     },
   })
 
@@ -66,12 +51,6 @@ class SideNav extends WebComponent {
     if (this.offsetParent === null) {
       return
     }
-
-    this.style.marginLeft =
-      this.style.marginRight =
-      this.style.marginTop =
-      this.style.marginBottom =
-        '0'
 
     const empty =
       [...this.childNodes].find((node) =>
@@ -84,11 +63,8 @@ class SideNav extends WebComponent {
     }
 
     const parent = this.offsetParent as HTMLElement
-    const size = this.panelPosition.match(/left|right/)
-      ? parent.offsetWidth
-      : parent.offsetWidth
 
-    this.compact = size < this.minSize
+    this.compact = parent.offsetWidth < this.minSize
     if (!this.compact) {
       content.classList.add('-side-nav-visible')
       this.style.setProperty('--nav-width', `${this.navSize}px`)
@@ -96,18 +72,16 @@ class SideNav extends WebComponent {
         '--content-width',
         `calc(100% - ${this.navSize}px)`
       )
+      this.style.setProperty('--margin', '0')
     } else {
       content.classList.remove('-side-nav-visible')
       this.style.setProperty('--nav-width', '50%')
       this.style.setProperty('--content-width', '50%')
 
-      const margins = outsetMargins[this.panelPosition]
       if (this.contentVisible) {
-        // @ts-expect-error
-        this.style[margins[0]] = '-100%'
+        this.style.setProperty('--margin', '0 0 0 -100%')
       } else {
-        // @ts-expect-error
-        this.style[margins[1]] = '-100%'
+        this.style.setProperty('--margin', '0 -100% 0 0')
       }
     }
   }
@@ -129,15 +103,11 @@ class SideNav extends WebComponent {
 
   constructor() {
     super()
-    this.initAttributes('panelPosition', 'minSize', 'navSize', 'compact')
+    this.initAttributes('minSize', 'navSize', 'compact')
   }
 
   render(): void {
     super.render()
-    this.style.setProperty(
-      '--flex-direction',
-      flexDirections[this.panelPosition]
-    )
     this.onResize()
   }
 }
