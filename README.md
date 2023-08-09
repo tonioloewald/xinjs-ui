@@ -38,7 +38,6 @@ import { markdownViewer } from 'xinjs-ui'
 
 document.append(markdownViewer(`
 # hello world
-
 here is some markdown
 `))
 ```
@@ -46,9 +45,8 @@ here is some markdown
 Assuming you import the javascript somewhere, this HTML will work as well.
 
 ```
-&lt;markdown-viewer>
+<markdown-viewer>
 # hello world
-
 here is some markdown
 </markdown-viewer>
 ```
@@ -139,14 +137,18 @@ There's no need to learn new apis, just access the element's `map` property.
 Render [markdown](https://www.markdownguide.org/) anywhere, either using the `src` attribute to load
 the file asynchronousely, or just put the text inside it. Powered by [marked](https://www.npmjs.com/package/marked).
 
-    <markdown-viewer src="/path/to/file.md">
+```
+<markdown-viewer src="/path/to/file.md">
+```
 
-Or (but don't include the indentation!!):
+And you can set the `<markdown-viewer>` element's `value` directly, or:
 
-    <markdown-viewer>
-      # hello
-      world
-    </markdown-viewer>
+```
+<markdown-viewer>
+# hello
+world
+</markdown-viewer>
+```
 
 And just set the element's `value` and it will render it for you.
 
