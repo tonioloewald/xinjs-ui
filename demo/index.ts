@@ -184,6 +184,7 @@ main.append(
             width: '100%',
             height: '100%',
             background: vars.navBg,
+            overflowY: 'scroll',
           },
           bindList: {
             value: app.contents,
