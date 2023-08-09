@@ -954,32 +954,7 @@ var $b9e5aa5581e8f051$exports = {};
 $parcel$export($b9e5aa5581e8f051$exports, "sideNav", () => $b9e5aa5581e8f051$export$938418df2b06cb50);
 
 const { slot: $b9e5aa5581e8f051$var$slot } = (0, $hgUW1$elements);
-const $b9e5aa5581e8f051$var$flexDirections = {
-    left: "row",
-    right: "row-reverse",
-    top: "column",
-    bottom: "column-reverse"
-};
-const $b9e5aa5581e8f051$var$outsetMargins = {
-    left: [
-        "marginLeft",
-        "marginRight"
-    ],
-    right: [
-        "marginRight",
-        "marginLeft"
-    ],
-    top: [
-        "marginTop",
-        "marginBottom"
-    ],
-    bottom: [
-        "marginBottom",
-        "marginTop"
-    ]
-};
 class $b9e5aa5581e8f051$var$SideNav extends (0, $hgUW1$Component) {
-    panelPosition = "left";
     minSize = 800;
     navSize = 200;
     compact = false;
@@ -1001,28 +976,26 @@ class $b9e5aa5581e8f051$var$SideNav extends (0, $hgUW1$Component) {
     }
     styleNode = (0, $hgUW1$Component).StyleNode({
         ":host": {
-            display: "flex",
-            flexDirection: (0, $hgUW1$vars).flexDirection,
+            display: "grid",
+            gridTemplateColumns: `${(0, $hgUW1$varDefault).navWidth("50%")} ${(0, $hgUW1$varDefault).contentWidth("50%")}`,
+            gridTemplateRows: "100%",
+            position: "relative",
+            margin: (0, $hgUW1$varDefault).margin("0 0 0 -100%"),
             transition: (0, $hgUW1$varDefault).sideNavTransition("0.25s ease-out")
         },
         ":host slot": {
             position: "relative"
         },
         ":host slot:not([name])": {
-            display: "block",
-            flex: `0 0 ${(0, $hgUW1$vars).contentWidth}`,
-            width: (0, $hgUW1$vars).contentWidth
+            display: "block"
         },
         ':host slot[name="nav"]': {
-            display: "block",
-            flex: `0 0 ${(0, $hgUW1$vars).navWidth}`,
-            width: (0, $hgUW1$vars).navWidth
+            display: "block"
         }
     });
     onResize = ()=>{
         const { content: content } = this.parts;
         if (this.offsetParent === null) return;
-        this.style.marginLeft = this.style.marginRight = this.style.marginTop = this.style.marginBottom = "0";
         const empty = [
             ...this.childNodes
         ].find((node)=>node instanceof Element ? node.getAttribute("slot") !== "nav" : true) === undefined;
@@ -1032,21 +1005,18 @@ class $b9e5aa5581e8f051$var$SideNav extends (0, $hgUW1$Component) {
             return;
         }
         const parent = this.offsetParent;
-        const size = this.panelPosition.match(/left|right/) ? parent.offsetWidth : parent.offsetWidth;
-        this.compact = size < this.minSize;
+        this.compact = parent.offsetWidth < this.minSize;
         if (!this.compact) {
             content.classList.add("-side-nav-visible");
             this.style.setProperty("--nav-width", `${this.navSize}px`);
             this.style.setProperty("--content-width", `calc(100% - ${this.navSize}px)`);
+            this.style.setProperty("--margin", "0");
         } else {
             content.classList.remove("-side-nav-visible");
             this.style.setProperty("--nav-width", "50%");
             this.style.setProperty("--content-width", "50%");
-            const margins = $b9e5aa5581e8f051$var$outsetMargins[this.panelPosition];
-            if (this.contentVisible) // @ts-expect-error
-            this.style[margins[0]] = "-100%";
-            else // @ts-expect-error
-            this.style[margins[1]] = "-100%";
+            if (this.contentVisible) this.style.setProperty("--margin", "0 0 0 -100%");
+            else this.style.setProperty("--margin", "0 -100% 0 0");
         }
     };
     observer;
@@ -1065,11 +1035,10 @@ class $b9e5aa5581e8f051$var$SideNav extends (0, $hgUW1$Component) {
     }
     constructor(){
         super();
-        this.initAttributes("panelPosition", "minSize", "navSize", "compact");
+        this.initAttributes("minSize", "navSize", "compact");
     }
     render() {
         super.render();
-        this.style.setProperty("--flex-direction", $b9e5aa5581e8f051$var$flexDirections[this.panelPosition]);
         this.onResize();
     }
 }

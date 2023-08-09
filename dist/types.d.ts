@@ -174,7 +174,6 @@ declare class RichText extends Component {
 }
 export const richText: ElementCreator<RichText>;
 declare class SideNav extends Component {
-    panelPosition: 'left' | 'right' | 'top' | 'bottom';
     minSize: number;
     navSize: number;
     compact: boolean;

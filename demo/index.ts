@@ -196,6 +196,8 @@ main.append(
             bindDataSource: '^.tagName',
             onClick(event: Event) {
               const content = getListItem(event.target as HTMLElement)
+              // @ts-expect-error
+              event.target.closest('side-nav').contentVisible = true
               content.scrollIntoView({ behavior: 'smooth' })
             },
           })
@@ -234,7 +236,8 @@ main.append(
           {
             class: 'transparent close-nav show-within-compact',
             style: {
-              position: 'absolute',
+              marginTop: '2px',
+              position: 'fixed',
             },
             onClick(event: Event) {
               // @ts-expect-error
