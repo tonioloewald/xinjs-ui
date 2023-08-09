@@ -483,7 +483,7 @@ const $46dc716dd2cf5925$export$16a138bde9d9de87 = [
         hint: "field=value",
         explanation: "field is value, ignoring case",
         description: (field, value)=>isNaN(Number(value)) ? field !== "" ? `${field} is "${value}"` : `any field is "${value}"` : field !== "" ? `${field} == ${value}` : `any field == ${value}`,
-        token: /^([\w-_]*)=(.+)$/,
+        token: /^([^\s]+?)=(.+)$/,
         makeFilter: (field, value)=>{
             if (isNaN(Number(value))) {
                 value = String(value).toLocaleLowerCase();
@@ -499,17 +499,37 @@ const $46dc716dd2cf5925$export$16a138bde9d9de87 = [
         hint: "field!=value",
         explanation: "field is not value, ignoring case",
         description: (field, value)=>`${field} ≠ ${value}`,
-        token: /^([\w-_]+)!=(.+)$/,
+        token: /^([^\s]+?)!=(.+)$/,
         makeFilter: (field, value)=>{
             value = value.toLocaleLowerCase();
             return (obj)=>String(obj[field]).toLocaleLowerCase() != value;
         }
     },
     {
+        hint: "field>>value",
+        explanation: "field is after value (as date)",
+        description: (field, value)=>`${field} is after ${new Date(value).toISOString()}`,
+        token: /^([^\s]+?)>>(.+)$/,
+        makeFilter: (field, value)=>{
+            const date = new Date(value);
+            return (obj)=>new Date(obj[field]) > date;
+        }
+    },
+    {
+        hint: "field<<value",
+        explanation: "field is before value (as date)",
+        description: (field, value)=>`${field} is before ${new Date(value).toISOString()}`,
+        token: /^([^\s]+?)<<(.+)$/,
+        makeFilter: (field, value)=>{
+            const date = new Date(value);
+            return (obj)=>new Date(obj[field]) < date;
+        }
+    },
+    {
         hint: "field>value",
         explanation: "field > value (numeric / A-Z)",
         description: (field, value)=>isNaN(Number(value)) ? `${field} > ${value} (A-Z)` : `${field} > ${value}`,
-        token: /^([\w-_]+)>(.+)$/,
+        token: /^([^\s]+?)>(.+)$/,
         makeFilter: (field, value)=>{
             if (!isNaN(Number(value))) {
                 const num = Number(value);
@@ -523,7 +543,7 @@ const $46dc716dd2cf5925$export$16a138bde9d9de87 = [
         hint: "field<value",
         explanation: "field < value (numeric / A-Z)",
         description: (field, value)=>isNaN(Number(value)) ? `${field} < ${value} (A-Z)` : `${field} < ${value}`,
-        token: /^([\w-_]+)<(.+)$/,
+        token: /^([^\s+]+?)<(.+)$/,
         makeFilter: (field, value)=>{
             if (!isNaN(Number(value))) {
                 const num = Number(value);
@@ -534,10 +554,20 @@ const $46dc716dd2cf5925$export$16a138bde9d9de87 = [
         }
     },
     {
+        hint: "field!:value",
+        explanation: "field does not contain value, ignoring case",
+        description: (field, value)=>`${field} does not contain "${value}"`,
+        token: /^([^\s]+?)!:(.+)$/,
+        makeFilter: (field, value)=>{
+            value = value.toLocaleLowerCase();
+            return (obj)=>!String(obj[field]).toLocaleLowerCase().includes(value);
+        }
+    },
+    {
         hint: "field:value",
         explanation: "field contains value, ignoring case",
         description: (field, value)=>`${field} contains "${value}"`,
-        token: /^([\w-_]+):(.+)$/,
+        token: /^([^\s]+?):(.+)$/,
         makeFilter: (field, value)=>{
             value = value.toLocaleLowerCase();
             return (obj)=>String(obj[field]).toLocaleLowerCase().includes(value);
@@ -547,14 +577,14 @@ const $46dc716dd2cf5925$export$16a138bde9d9de87 = [
         hint: "!!field",
         explanation: "field is true, non-empty, non-zero",
         description: (match)=>`${match} is truthy`,
-        token: /^!!([\w-_]+)$/,
+        token: /^!!([^\s]+?)$/,
         makeFilter: (match)=>(obj)=>!!obj[match]
     },
     {
         hint: "!field",
         explanation: "field is false, empty, zero",
         description: (match)=>`${match} is falsy`,
-        token: /^!([\w-_]+)$/,
+        token: /^!([^\s]+?)$/,
         makeFilter: (match)=>(obj)=>!obj[match]
     },
     {
@@ -599,9 +629,8 @@ class $46dc716dd2cf5925$var$FilterBuilder extends (0, $hgUW1$Component) {
         this.initAttributes("title", "placeholder", "help");
     }
     buildFilter = (0, $hgUW1$debounce)((query)=>{
-        // @ts-expect-error
-        const filters = query.split(/\s+/).filter((part)=>part !== "").map((part)=>$46dc716dd2cf5925$export$61ec8404f465cd36(part, this.filters)).filter((part)=>part !== undefined) // because we remove undefined
-        ;
+        const specs = (query.match(/[^\s"]+("[^"]+")?/g) || []).map((spec)=>spec.replace(/"/g, ""));
+        const filters = specs.map((part)=>$46dc716dd2cf5925$export$61ec8404f465cd36(part, this.filters)).filter((part)=>part !== undefined);
         if (filters.length === 0) {
             this.title = $46dc716dd2cf5925$var$NULL_FILTER_DESCRIPTION;
             if (this.filter !== $46dc716dd2cf5925$var$passThru) {
@@ -637,7 +666,7 @@ class $46dc716dd2cf5925$var$FilterBuilder extends (0, $hgUW1$Component) {
     connectedCallback() {
         super.connectedCallback();
         this.setAttribute("title", this.title);
-        this.help = this.filters.map((f)=>f.explanation !== undefined ? `${f.hint}: ${f.explanation}` : f.hint).join("\n");
+        this.help = this.filters.map((f)=>f.explanation !== undefined ? `${f.hint} — ${f.explanation}` : f.hint).join("\n");
         const { input: input } = this.parts;
         input.value = this.value;
         input.addEventListener("input", this.handleInput);
@@ -1288,5 +1317,5 @@ function $5a28660a6cbe2731$export$b37fb374f2e92eb6(sortValuator, ascending = tru
 
 
 
-export {$5265d118b5240170$export$c947e3cd16175f27 as trackDrag, $5c31145f3e970423$export$c6e082819e9a0330 as scriptTag, $5c31145f3e970423$export$63257fda812a683f as styleSheet, $5a28660a6cbe2731$export$b37fb374f2e92eb6 as makeSorter, $59f50bee37676c09$export$d75ad8f79fe096cb as bodymovinPlayer, $8a70bd76f9b7e656$export$d89b6f4d34274146 as codeEditor, $e6e19030d0c18d6f$export$f71ce0a5ddbe8fa0 as dataTable, $46dc716dd2cf5925$export$16a138bde9d9de87 as availableFilters, $46dc716dd2cf5925$export$61ec8404f465cd36 as getFilter, $46dc716dd2cf5925$export$8ca73b4108207c1f as filterBuilder, $6246d5006b5a56c3$export$7d6f3ccbb0a81c30 as MAPSTYLES, $6246d5006b5a56c3$export$ca243e53be209efb as mapBox, $1b88c9cb596c3426$export$305b975a891d0dfa as markdownViewer, $b9e5aa5581e8f051$export$938418df2b06cb50 as sideNav, $0f2017ffca44b547$export$96370210d2ca0fff as sizeBreak, $6bbe441346901d5a$export$a932f737dcd864a2 as tabSelector, $815deb6062b0b31b$export$7bcc4193ad80bf91 as richText};
+export {$5265d118b5240170$export$c947e3cd16175f27 as trackDrag, $5c31145f3e970423$export$c6e082819e9a0330 as scriptTag, $5c31145f3e970423$export$63257fda812a683f as styleSheet, $5a28660a6cbe2731$export$b37fb374f2e92eb6 as makeSorter, $59f50bee37676c09$export$d75ad8f79fe096cb as bodymovinPlayer, $8a70bd76f9b7e656$export$d89b6f4d34274146 as codeEditor, $e6e19030d0c18d6f$export$f71ce0a5ddbe8fa0 as dataTable, $46dc716dd2cf5925$export$16a138bde9d9de87 as availableFilters, $46dc716dd2cf5925$export$61ec8404f465cd36 as getFilter, $46dc716dd2cf5925$export$8ca73b4108207c1f as filterBuilder, $6246d5006b5a56c3$export$7d6f3ccbb0a81c30 as MAPSTYLES, $6246d5006b5a56c3$export$ca243e53be209efb as mapBox, $1b88c9cb596c3426$export$305b975a891d0dfa as markdownViewer, $815deb6062b0b31b$export$7bcc4193ad80bf91 as richText, $b9e5aa5581e8f051$export$938418df2b06cb50 as sideNav, $0f2017ffca44b547$export$96370210d2ca0fff as sizeBreak, $6bbe441346901d5a$export$a932f737dcd864a2 as tabSelector};
 //# sourceMappingURL=index.js.map

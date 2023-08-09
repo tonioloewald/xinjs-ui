@@ -432,6 +432,9 @@ main.append(
                 name: value,
                 number: (Math.random() * 1e2 - 50).toFixed(2),
                 isLucky: Math.random() < 0.1,
+                date: new Date(
+                  Date.now() - Math.random() * 10 * 365 * 24 * 3600 * 1000
+                ).toLocaleString(),
               })
             )
 
@@ -472,6 +475,10 @@ main.append(
                     })
                   )
                 },
+              },
+              {
+                prop: 'date',
+                width: 200,
               },
             ]
             app.tableData = {
