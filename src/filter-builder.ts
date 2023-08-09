@@ -34,7 +34,7 @@ export const availableFilters: FilterMaker[] = [
         : field !== ''
         ? `${field} == ${value}`
         : `any field == ${value}`,
-    token: /^([\w-_]*)=(.+)$/,
+    token: /^([^\s]+?)=(.+)$/,
     makeFilter: (field: string, value: string) => {
       if (isNaN(Number(value))) {
         value = String(value).toLocaleLowerCase()
@@ -58,10 +58,32 @@ export const availableFilters: FilterMaker[] = [
     hint: 'field!=value',
     explanation: 'field is not value, ignoring case',
     description: (field: string, value: string) => `${field} ≠ ${value}`,
-    token: /^([\w-_]+)!=(.+)$/,
+    token: /^([^\s]+?)!=(.+)$/,
     makeFilter: (field: string, value: string) => {
       value = value.toLocaleLowerCase()
       return (obj: any) => String(obj[field]).toLocaleLowerCase() != value
+    },
+  },
+  {
+    hint: 'field>>value',
+    explanation: 'field is after value (as date)',
+    description: (field: string, value: string) =>
+      `${field} is after ${new Date(value).toISOString()}`,
+    token: /^([^\s]+?)>>(.+)$/,
+    makeFilter: (field: string, value: string) => {
+      const date = new Date(value)
+      return (obj: any) => new Date(obj[field]) > date
+    },
+  },
+  {
+    hint: 'field<<value',
+    explanation: 'field is before value (as date)',
+    description: (field: string, value: string) =>
+      `${field} is before ${new Date(value).toISOString()}`,
+    token: /^([^\s]+?)<<(.+)$/,
+    makeFilter: (field: string, value: string) => {
+      const date = new Date(value)
+      return (obj: any) => new Date(obj[field]) < date
     },
   },
   {
@@ -71,7 +93,7 @@ export const availableFilters: FilterMaker[] = [
       isNaN(Number(value))
         ? `${field} > ${value} (A-Z)`
         : `${field} > ${value}`,
-    token: /^([\w-_]+)>(.+)$/,
+    token: /^([^\s]+?)>(.+)$/,
     makeFilter: (field: string, value: string) => {
       if (!isNaN(Number(value))) {
         const num = Number(value)
@@ -88,7 +110,7 @@ export const availableFilters: FilterMaker[] = [
       isNaN(Number(value))
         ? `${field} < ${value} (A-Z)`
         : `${field} < ${value}`,
-    token: /^([\w-_]+)<(.+)$/,
+    token: /^([^\s+]+?)<(.+)$/,
     makeFilter: (field: string, value: string) => {
       if (!isNaN(Number(value))) {
         const num = Number(value)
@@ -99,11 +121,23 @@ export const availableFilters: FilterMaker[] = [
     },
   },
   {
+    hint: 'field!:value',
+    explanation: 'field does not contain value, ignoring case',
+    description: (field: string, value: string) =>
+      `${field} does not contain "${value}"`,
+    token: /^([^\s]+?)!:(.+)$/,
+    makeFilter: (field: string, value: string) => {
+      value = value.toLocaleLowerCase()
+      return (obj: any) =>
+        !String(obj[field]).toLocaleLowerCase().includes(value)
+    },
+  },
+  {
     hint: 'field:value',
     explanation: 'field contains value, ignoring case',
     description: (field: string, value: string) =>
       `${field} contains "${value}"`,
-    token: /^([\w-_]+):(.+)$/,
+    token: /^([^\s]+?):(.+)$/,
     makeFilter: (field: string, value: string) => {
       value = value.toLocaleLowerCase()
       return (obj: any) =>
@@ -114,14 +148,14 @@ export const availableFilters: FilterMaker[] = [
     hint: '!!field',
     explanation: 'field is true, non-empty, non-zero',
     description: (match: string) => `${match} is truthy`,
-    token: /^!!([\w-_]+)$/,
+    token: /^!!([^\s]+?)$/,
     makeFilter: (match: string) => (obj: any) => !!obj[match],
   },
   {
     hint: '!field',
     explanation: 'field is false, empty, zero',
     description: (match: string) => `${match} is falsy`,
-    token: /^!([\w-_]+)$/,
+    token: /^!([^\s]+?)$/,
     makeFilter: (match: string) => (obj: any) => !obj[match],
   },
   {
@@ -182,12 +216,12 @@ class FilterBuilder extends WebComponent {
   }
 
   buildFilter = debounce((query: string): void => {
-    // @ts-expect-error
-    const filters: Filter[] = query
-      .split(/\s+/)
-      .filter((part) => part !== '')
+    const specs = (query.match(/[^\s"]+("[^"]+")?/g) || []).map((spec) =>
+      spec.replace(/"/g, '')
+    )
+    const filters = specs
       .map((part) => getFilter(part, this.filters))
-      .filter((part) => part !== undefined) // because we remove undefined
+      .filter((part) => part !== undefined) as Filter[]
 
     if (filters.length === 0) {
       this.title = NULL_FILTER_DESCRIPTION
@@ -236,7 +270,7 @@ class FilterBuilder extends WebComponent {
 
     this.help = this.filters
       .map((f) =>
-        f.explanation !== undefined ? `${f.hint}: ${f.explanation}` : f.hint
+        f.explanation !== undefined ? `${f.hint} — ${f.explanation}` : f.hint
       )
       .join('\n')
 
