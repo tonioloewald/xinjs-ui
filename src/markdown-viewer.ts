@@ -19,7 +19,7 @@ class MarkdownViewer extends Component {
       this.value = this.textContent != null ? this.textContent : ''
     }
   }
-  didRender = (): void => {}
+  didRender: (() => void) | (() => Promise<void>) = (): void => {}
   render() {
     super.render()
     this.innerHTML = marked(typeof this.value === 'string' ? this.value : '', {
