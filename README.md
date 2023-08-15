@@ -10,13 +10,14 @@ In general, `xinjs` strives to work _with_ the browser rather than trying to _re
 
 In a similar vein, `xinjs-ui` comprises a collection of [web-components](https://developer.mozilla.org/en-US/docs/Web/API/Web_components)
 with the goal of augmenting what _already_ works well, and the components are intended be interoperable as
-similar as possible to things that you already uses, like `<input>` elements. E.g. where appropriate, the `value` of an
-element is its malleable `state`, and when this changes, the element emits a
-`change` event.
+similar as possible to things that you already use, such as `<input>` or `<select>` elements.
+E.g. where appropriate, the `value` of an element is its malleable `state`, and when this changes,
+the element emits a `change` event.
 
 Similarly, the xinjs base `Component` class and the components in this collection stive to
 be as similar in operation as possible to DOM elements as possible. E.g. binary attributes
-work as expected. Intinsic properties of components will default to `null` rather than `undefined`.
+work as expected. Adding the `hidden` attribute makes them disappear.
+Intinsic properties of components will default to `null` rather than `undefined`.
 
 Similarly, because web-components are highly interoperable, there's no reason to reinvent
 wheels. In particular, this library won't try to replace existing, excellent libraries
@@ -206,40 +207,6 @@ A tab-selector with nice animations.
 
 ## utilities
 
-### scriptTag & styleSheet
-
-If you need to load an old school javascript library via cdn (both mapboxgl and bodymovin are
-fine examples) then use these two functions. They return promises that resolve when the
-module in question has loaded.
-
-Usage:
-
-    import { scriptTag } from 'xinjs-ui'
-
-    const bodymovinAvailable = scriptTag('../lottie.min.js')
-
-    bodymovinAvailable.then(() => {
-      globalThis.bodymovien.loadAnimation(...)
-    })
-
-`<bodymovin-player>` is implemented in such a way that if you've preloaded the module
-(e.g. via a script tag or packaging) it won't load it again, which affords offline
-use.
-
-There's no point for `<map-box>` since it won't work without connectivity anyway.
-
-### trackDrag
-
-Sometimes you want to track a mouse-drag or touch-drag operation without messing around.
-This is how the resizeable columns in `<data-table>` work.
-
-Just call `trackDrag(event, (dx, dy, event) => { ... })` and you'll get updates on corresponding events until
-you return `true` from the event-handler (or, in the case of `touch` events, the last `touch` ends).
-For mouse events, a "tracker" element is thrown up in front of everything for the event.
-
-For `touch` events, `dx` and `dy` are based on `event.touches[0]`. If you want to handle
-multi-touch or specific touches, handle `event.touches` etc. yourself.
-
 ### makeSorter
 
 I'm always confusing myself when writing sort functions, so I wrote `makeSorter()`. It's
@@ -261,6 +228,8 @@ Usage:
     )
 
     people.sort(nameSorter)
+
+Here's a slightly more complex example:
 
     interface Product {
       name: string,
@@ -286,3 +255,45 @@ but for numbers just multiplying by -1 is just as easy (per the example).
 
 If I ever conceive of a need for a version that lets you invert the sort order of
 multiple non-numerical array elements I'll extend it.
+
+### scriptTag & styleSheet
+
+If you need to load an old school javascript library via cdn (both mapboxgl and bodymovin are
+fine examples) then use these two functions. They return promises that resolve `globalThis` when the
+module in question has loaded.
+
+Using `scriptTag`:
+
+    import { scriptTag } from 'xinjs-ui'
+    const { bodyMovin } = await scriptTag('../lottie.min.js')
+
+    bodymovin.loadAnimation(...)
+
+Note that `scriptTag` will resolve `globalThis` so it behaves as much like async `import()`
+as possible.
+
+Using `styleSheet`:
+
+    styleSheet('../path/to/style.css')
+
+This is awaitable, if you care. The stylesheet `<link>` will only be inserted _once_.
+
+As an aside:
+
+`<bodymovin-player>` is implemented in such a way that if you've preloaded the module
+(e.g. via a script tag or packaging) it won't load it again, which affords offline
+use.
+
+There's no point for `<map-box>` since it won't work without connectivity anyway.
+
+### trackDrag
+
+Sometimes you want to track a mouse-drag or touch-drag operation without messing around.
+This is how the resizeable columns in `<data-table>` work.
+
+Just call `trackDrag(event, (dx, dy, event) => { ... })` and you'll get updates on corresponding events until
+you return `true` from the event-handler (or, in the case of `touch` events, the last `touch` ends).
+For mouse events, a "tracker" element is thrown up in front of everything for the event.
+
+For `touch` events, `dx` and `dy` are based on `event.touches[0]`. If you want to handle
+multi-touch or specific touches, handle `event.touches` etc. yourself.
