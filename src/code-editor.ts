@@ -23,7 +23,7 @@ const makeCodeEditor = async (
   return editor
 }
 
-class CodeEditor extends WebComponent {
+export class CodeEditor extends WebComponent {
   value = ''
   mode = 'javascript'
   disabled = false

@@ -3,7 +3,7 @@
 import { Component as WebComponent, ElementCreator } from 'xinjs'
 import { scriptTag } from './via-tag'
 
-interface LottieConfig {
+export interface LottieConfig {
   container?: HTMLElement | ShadowRoot
   renderer: 'svg' | 'cancas' | 'html'
   loop: boolean
@@ -13,7 +13,7 @@ interface LottieConfig {
   [key: string]: any
 }
 
-class BodymovinPlayer extends WebComponent {
+export class BodymovinPlayer extends WebComponent {
   content = null
   src = ''
   json = ''

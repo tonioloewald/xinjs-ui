@@ -1,7 +1,7 @@
 import { Component, ElementCreator } from "xinjs";
 export function scriptTag(src: string, existingSymbolName?: string): Promise<any>;
 export function styleSheet(href: string): Promise<void>;
-interface LottieConfig {
+export interface LottieConfig {
     container?: HTMLElement | ShadowRoot;
     renderer: 'svg' | 'cancas' | 'html';
     loop: boolean;
@@ -10,7 +10,7 @@ interface LottieConfig {
     path?: string;
     [key: string]: any;
 }
-declare class BodymovinPlayer extends Component {
+export class BodymovinPlayer extends Component {
     content: null;
     src: string;
     json: string;
@@ -23,7 +23,7 @@ declare class BodymovinPlayer extends Component {
     render(): void;
 }
 export const bodymovinPlayer: ElementCreator<BodymovinPlayer>;
-declare class CodeEditor extends Component {
+export class CodeEditor extends Component {
     value: string;
     mode: string;
     disabled: boolean;
@@ -41,7 +41,7 @@ declare class CodeEditor extends Component {
 export const codeEditor: ElementCreator<CodeEditor>;
 type TrackerCallback = (dx: number, dy: number, event: any) => true | undefined;
 export const trackDrag: (event: any, callback: TrackerCallback, cursor?: string) => void;
-interface ColumnOptions {
+export interface ColumnOptions {
     name?: string;
     prop: string;
     width: number;
@@ -50,13 +50,13 @@ interface ColumnOptions {
     headerCell?: (options: ColumnOptions) => HTMLElement;
     dataCell?: (options: ColumnOptions) => HTMLElement;
 }
-interface TableData {
+export interface TableData {
     columns?: ColumnOptions[] | null;
     array: any[];
     filter?: ArrayFilter | null;
 }
-type ArrayFilter = (array: any[]) => any[];
-declare class DataTable extends Component {
+export type ArrayFilter = (array: any[]) => any[];
+export class DataTable extends Component {
     get value(): TableData;
     set value(data: TableData);
     charWidth: number;
@@ -112,7 +112,7 @@ interface Filter {
     test: ObjectTest;
 }
 export function getFilter(term: string, filters?: FilterMaker[]): Filter | undefined;
-declare class FilterBuilder extends Component {
+export class FilterBuilder extends Component {
     value: string;
     filter: _ArrayFilter1;
     title: string;
@@ -149,7 +149,7 @@ declare class MapBox extends Component {
     render(): void;
 }
 export const mapBox: ElementCreator<MapBox>;
-declare class MarkdownViewer extends Component {
+export class MarkdownViewer extends Component {
     src: string;
     value: string;
     content: null;
@@ -159,7 +159,7 @@ declare class MarkdownViewer extends Component {
     render(): void;
 }
 export const markdownViewer: ElementCreator<MarkdownViewer>;
-declare class RichText extends Component {
+export class RichText extends Component {
     get value(): string;
     set value(docHtml: string);
     blockElement(elt: Node): Element | undefined;
@@ -173,7 +173,7 @@ declare class RichText extends Component {
     connectedCallback(): void;
 }
 export const richText: ElementCreator<RichText>;
-declare class SideNav extends Component {
+export class SideNav extends Component {
     minSize: number;
     navSize: number;
     compact: boolean;
@@ -188,7 +188,7 @@ declare class SideNav extends Component {
     render(): void;
 }
 export const sideNav: ElementCreator<SideNav>;
-declare class SizeBreak extends Component {
+export class SizeBreak extends Component {
     minWidth: number;
     minHeight: number;
     value: 'normal' | 'small';
@@ -200,7 +200,7 @@ declare class SizeBreak extends Component {
     disconnectedCallback(): void;
 }
 export const sizeBreak: ElementCreator<SizeBreak>;
-declare class TabSelector extends Component {
+export class TabSelector extends Component {
     value: number;
     role: string;
     styleNode: HTMLStyleElement;

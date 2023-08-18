@@ -11,14 +11,18 @@ import {
 import {
   tabSelector,
   bodymovinPlayer,
+  BodymovinPlayer,
   codeEditor,
   mapBox,
   markdownViewer,
   dataTable,
+  TableData,
   filterBuilder,
+  FilterBuilder,
   richText,
   scriptTag,
   sideNav,
+  SideNav,
   sizeBreak,
 } from '../src'
 
@@ -63,7 +67,7 @@ const { app } = xinProxy({
         { id: 'NCC-1701', name: 'Enterprise', number: 17, hasKirk: true },
         { id: 'NCC-74656-A', name: 'Voyager', number: 74, hasKirk: false },
       ] as any[],
-    },
+    } as TableData,
     lottieFilename: '',
     lottieData: '',
     contents: [] as any[],
@@ -96,6 +100,7 @@ bindings.columns = {
         return obj
       }, {} as { [key: string]: any })
     ),
+    filter: undefined,
   }
 })()
 
@@ -128,16 +133,14 @@ const table = dataTable({
     overflowY: 'scroll',
   },
   rowHeight: 34,
-  // @ts-expect-error
-  bindValue: app.tableData,
+  bindValue: 'app.tableData',
 })
 
 const filter = filterBuilder({
   class: 'elastic',
   placeholder: 'enter query',
   onChange(event: Event) {
-    // @ts-expect-error
-    app.tableData.filter = event.target.filter
+    app.tableData.filter = (event.target as FilterBuilder).filter
     touch('app.tableData')
   },
 })
@@ -196,8 +199,10 @@ main.append(
             bindDataSource: '^.tagName',
             onClick(event: Event) {
               const content = getListItem(event.target as HTMLElement)
-              // @ts-expect-error
-              event.target.closest('side-nav').contentVisible = true
+              const nav = (event.target as HTMLElement).closest(
+                'side-nav'
+              ) as SideNav
+              nav.contentVisible = true
               content.scrollIntoView({ behavior: 'smooth' })
             },
           })
@@ -211,12 +216,16 @@ main.append(
             height: '100%',
           },
           onScroll(event: Event) {
-            // @ts-expect-error
-            const { scrollTop } = event.target
-            const navItems =
-              // @ts-expect-error
-              event.target.previousElementSibling.querySelectorAll('a')
+            const { scrollTop } = event.target as HTMLElement
+            const navItems = (
+              event.target as HTMLElement
+            ).previousElementSibling?.querySelectorAll('a') as
+              | HTMLAnchorElement[]
+              | undefined
 
+            if (navItems === undefined || navItems.length === 0) {
+              return
+            }
             let foundFirstVisible = false
             for (const navItem of navItems) {
               const heading = getListItem(navItem)
@@ -240,8 +249,9 @@ main.append(
               position: 'fixed',
             },
             onClick(event: Event) {
-              // @ts-expect-error
-              event.target.closest('side-nav').contentVisible = false
+              ;(
+                (event.target as HTMLElement).closest('side-nav') as SideNav
+              ).contentVisible = false
             },
           },
           span({ class: 'icon-chevron-left' })
@@ -255,8 +265,9 @@ main.append(
           },
           value: getDocSource('README.md'),
           didRender: function () {
-            // @ts-expect-error
-            app.contents = [...this.querySelectorAll('h1,h2,h3')]
+            app.contents = [
+              ...(this as HTMLElement).querySelectorAll('h1,h2,h3'),
+            ]
           },
         })
       )
@@ -280,8 +291,7 @@ main.append(
               const about = document.querySelector(
                 '.bodymovin-info'
               ) as HTMLElement
-              // @ts-expect-error
-              const { files } = event.target
+              const { files } = event.target as HTMLInputElement
               if (files && files.length === 1) {
                 const reader = new FileReader()
 
@@ -307,9 +317,11 @@ main.append(
                   } else {
                     about.textContent = `size: ${result.length}`
                   }
-                  // @ts-expect-error
-                  document.querySelector('bodymovin-player').json =
-                    JSON.parse(result)
+                  ;(
+                    document.querySelector(
+                      'bodymovin-player'
+                    ) as BodymovinPlayer
+                  ).json = JSON.parse(result)
                 }
                 app.lottieFilename = files[0].name
                 reader.readAsText(files[0])
@@ -389,8 +401,7 @@ main.append(
             hidden: true,
             accept: '.json,application/json',
             onChange(event: Event) {
-              // @ts-expect-error
-              const { files } = event.target
+              const { files } = event.target as HTMLInputElement
               if (files && files.length === 1) {
                 const reader = new FileReader()
                 reader.onload = () => {
@@ -421,7 +432,7 @@ main.append(
             const things = standards
 
               .map((standard: string) => {
-                // @ts-expect-error
+                // @ts-expect-error it is a legal value
                 const values = Intl.supportedValuesOf(standard)
                 return values.map((value) => ({ standard, value }))
               })
@@ -499,8 +510,9 @@ main.append(
               marginLeft: vars.spacing_50,
             },
             onClick(event: Event) {
-              // @ts-expect-error
-              event.target.closest('button').classList.toggle('on')
+              ;(event.target as HTMLElement)
+                .closest('button')
+                ?.classList.toggle('on')
               filter.classList.toggle('show-help')
             },
           },

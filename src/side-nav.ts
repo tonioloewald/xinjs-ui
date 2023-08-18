@@ -7,7 +7,7 @@ import {
 
 const { slot } = elements
 
-class SideNav extends WebComponent {
+export class SideNav extends WebComponent {
   minSize = 800
   navSize = 200
   compact = false
