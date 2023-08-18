@@ -2,7 +2,7 @@ import { Component as WebComponent, ElementCreator, elements } from 'xinjs'
 
 const { slot } = elements
 
-class SizeBreak extends WebComponent {
+export class SizeBreak extends WebComponent {
   minWidth = 0
   minHeight = 0
   value: 'normal' | 'small' = 'normal'

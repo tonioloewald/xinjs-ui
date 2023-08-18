@@ -42,7 +42,7 @@ function defaultWidth(
 
 const { div, span, template } = elements
 
-interface ColumnOptions {
+export interface ColumnOptions {
   name?: string
   prop: string
   width: number
@@ -52,17 +52,17 @@ interface ColumnOptions {
   dataCell?: (options: ColumnOptions) => HTMLElement
 }
 
-interface TableData {
+export interface TableData {
   columns?: ColumnOptions[] | null
   array: any[]
   filter?: ArrayFilter | null
 }
 
-type ArrayFilter = (array: any[]) => any[]
+export type ArrayFilter = (array: any[]) => any[]
 
 const passThru = (array: any[]) => array
 
-class DataTable extends WebComponent {
+export class DataTable extends WebComponent {
   get value(): TableData {
     return {
       array: this.array,

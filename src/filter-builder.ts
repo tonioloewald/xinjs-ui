@@ -193,7 +193,7 @@ export function getFilter(
   }
 }
 
-class FilterBuilder extends WebComponent {
+export class FilterBuilder extends WebComponent {
   value = ''
   filter: ArrayFilter = passThru
   title = NULL_FILTER_DESCRIPTION

@@ -7,7 +7,7 @@ import {
 
 const { div, slot } = elements
 
-class TabSelector extends WebComponent {
+export class TabSelector extends WebComponent {
   value = 0
 
   role = 'tabpanel'

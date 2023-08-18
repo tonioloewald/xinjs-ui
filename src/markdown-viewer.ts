@@ -1,6 +1,6 @@
 import { Component, ElementCreator } from 'xinjs'
 import { marked } from 'marked'
-class MarkdownViewer extends Component {
+export class MarkdownViewer extends Component {
   src = ''
   value = ''
   content = null

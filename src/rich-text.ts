@@ -1,9 +1,4 @@
-import {
-  Component as WebComponent,
-  ElementCreator,
-  elements,
-  vars,
-} from 'xinjs'
+import { Component as WebComponent, ElementCreator, elements } from 'xinjs'
 
 const { style, xinSlot, div } = elements
 
@@ -25,7 +20,7 @@ rich-text [part="toolbar"] {
 
 document.head.append(richTextStyle)
 
-class RichText extends WebComponent {
+export class RichText extends WebComponent {
   get value(): string {
     return this.parts.doc.innerHTML
   }
@@ -75,6 +70,7 @@ class RichText extends WebComponent {
     return this.selectedBlocks.length ? selObject.toString() : ''
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   selectionChange = (event: Event, editor: RichText): void => {}
 
   content = [
@@ -106,7 +102,7 @@ class RichText extends WebComponent {
   }
 
   handleSelectChange = (event: Event) => {
-    // @ts-expect-error
+    // @ts-expect-error Typescript is wrong about event.target lacking closest
     const select = event.target.closest('select') as HTMLSelectElement
     if (select == null) {
       return
@@ -116,7 +112,7 @@ class RichText extends WebComponent {
   }
 
   handleButtonClick = (event: Event) => {
-    // @ts-expect-error
+    // @ts-expect-error Typescript is wrong about event.target lacking closest
     const button = event.target.closest('button')
     if (button == null) {
       return
