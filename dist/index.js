@@ -931,7 +931,6 @@ preview.append(div({class: 'example'}, 'fiddle de dee!'))
 ```html
 <h2>Example</h2>
 ```
-
 */ 
 
 
@@ -1165,34 +1164,35 @@ const $ada9b1474dc4b958$var$codeStyle = {
         height: "100%"
     }
 };
-document.head.append($ada9b1474dc4b958$var$style(`
-    :root {
-      --live-example-height: 400px;
-      --live-example-preview-height: calc(var(--live-example-height) * 0.5);
-      --live-example-editor-height: calc(var(--live-example-height) * 0.5);
-    }
+document.head.append($ada9b1474dc4b958$var$style({
+    id: "live-example"
+}, `:root {
+  --live-example-height: 400px;
+  --live-example-preview-height: calc(var(--live-example-height) * 0.5);
+  --live-example-editor-height: calc(var(--live-example-height) * 0.5);
+}
 
-    live-example {
-      position: relative;
-      display: flex;
-      flex-direction: column;
-      height: var(--live-example-height);
-    }
+live-example {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  height: var(--live-example-height);
+}
 
-    live-example [part="example"] {
-      flex: 1 1 50%;
-      position: relative;
-    }
+live-example [part="example"] {
+  flex: 1 1 50%;
+  position: relative;
+}
 
-    live-example [part=preview] {
-      height: 100%;
-    }
+live-example [part=preview] {
+  height: 100%;
+}
 
-    live-example [part="editors"] {
-      flex: 1 1 var(--live-example-editor-height);
-      position: relative;
-    }
-  `));
+live-example [part="editors"] {
+  flex: 1 1 var(--live-example-editor-height);
+  position: relative;
+}
+`));
 class $ada9b1474dc4b958$export$41199f9ac14d8c08 extends (0, $hgUW1$Component) {
     get css() {
         return this.parts.css.value;
@@ -1490,13 +1490,52 @@ const $1b88c9cb596c3426$export$305b975a891d0dfa = $1b88c9cb596c3426$export$575eb
 
 var $815deb6062b0b31b$exports = {};
 
+$parcel$export($815deb6062b0b31b$exports, "blockStyle", () => $815deb6062b0b31b$export$94309935dd6eab19);
+$parcel$export($815deb6062b0b31b$exports, "spacer", () => $815deb6062b0b31b$export$8cc075c801fd6817);
+$parcel$export($815deb6062b0b31b$exports, "elastic", () => $815deb6062b0b31b$export$e3f8198a677f57c2);
+$parcel$export($815deb6062b0b31b$exports, "commandButton", () => $815deb6062b0b31b$export$74540e56d8cdd242);
+$parcel$export($815deb6062b0b31b$exports, "richTextWidgets", () => $815deb6062b0b31b$export$8ed2ffe5d58aaa75);
 $parcel$export($815deb6062b0b31b$exports, "RichText", () => $815deb6062b0b31b$export$f284d8638abd8920);
 $parcel$export($815deb6062b0b31b$exports, "richText", () => $815deb6062b0b31b$export$7bcc4193ad80bf91);
+/*!
+# `<rich-text>`
 
-const { style: $815deb6062b0b31b$var$style, xinSlot: $815deb6062b0b31b$var$xinSlot, div: $815deb6062b0b31b$var$div } = (0, $hgUW1$elements);
-const $815deb6062b0b31b$var$richTextStyle = $815deb6062b0b31b$var$style();
-$815deb6062b0b31b$var$richTextStyle.innerText = `
-rich-text {
+A simple and easily extensible `document.execCommand` WYSIWYG editor with some conveniences.
+
+By default, it treats its initial contents as its document, but you can also set (and get)
+its `value`.
+
+```html
+<rich-text widgets="minimal">
+<h2>Heading</h2>
+<p>And some <b>text</b></p>
+</rich-text>
+```
+
+It has a `toolbar` slot (actually a xin-slot because it doesn't use the shadowDOM).
+
+If you set the `widgets` attribute to `default` or `minimal` you will get a toolbar
+for free. Or you can add your own custom widgets.
+
+A number of convenience functions available, including:
+
+- `commandButton(title: string, command: string, iconClass: string)`
+- `blockStyle(options: Array<{caption: string, tagType: string}>)`
+- `spacer(width = '10px')`
+- `elastic(width = '10px')`
+
+These each create a toolbar widget. A `blockStyle`-generated `<select>` element will
+automatically have its value changed based on the current selection.
+
+The `<rich-text>` component provides `selectedText` and `selectedBlocks` properties, allowing
+you to easily perform operations on text selections, and a `selectionChange` callback (which
+simply passes through document `selectionchange` events, but also passes a reference to
+the `<rich-text>` component).
+*/ 
+const { style: $815deb6062b0b31b$var$style, xinSlot: $815deb6062b0b31b$var$xinSlot, div: $815deb6062b0b31b$var$div, select: $815deb6062b0b31b$var$select, option: $815deb6062b0b31b$var$option, button: $815deb6062b0b31b$var$button, span: $815deb6062b0b31b$var$span } = (0, $hgUW1$elements);
+document.head.append($815deb6062b0b31b$var$style({
+    id: "rich-text"
+}, `rich-text {
   display: flex;
   flex-direction: column;
   height: 100%;
@@ -1505,11 +1544,102 @@ rich-text [part="toolbar"] {
   padding: 4px;
   display: flex;
   gap: 0px;
-  flex: 0 0 auto;
+  flex: 1 0 auto;
+  flex-wrap: wrap;
 }
-`;
-document.head.append($815deb6062b0b31b$var$richTextStyle);
+`));
+const $815deb6062b0b31b$var$blockStyles = [
+    {
+        caption: "Title",
+        tagType: "H1"
+    },
+    {
+        caption: "Heading",
+        tagType: "H2"
+    },
+    {
+        caption: "Subheading",
+        tagType: "H3"
+    },
+    {
+        caption: "Minor heading",
+        tagType: "H4"
+    },
+    {
+        caption: "Body",
+        tagType: "P"
+    },
+    {
+        caption: "Code Block",
+        tagType: "PRE"
+    }
+];
+function $815deb6062b0b31b$export$94309935dd6eab19(options = $815deb6062b0b31b$var$blockStyles) {
+    return $815deb6062b0b31b$var$select({
+        title: "paragraph style",
+        slot: "toolbar",
+        class: "block-style"
+    }, ...options.map(({ caption: caption, tagType: tagType })=>$815deb6062b0b31b$var$option(caption, {
+            value: `formatBlock,${tagType}`
+        })));
+}
+function $815deb6062b0b31b$export$8cc075c801fd6817(width = "10px") {
+    return $815deb6062b0b31b$var$span({
+        slot: "toolbar",
+        style: {
+            flex: `0 0 ${width}`,
+            content: " "
+        }
+    });
+}
+function $815deb6062b0b31b$export$e3f8198a677f57c2(width = "10px") {
+    return $815deb6062b0b31b$var$span({
+        slot: "toolbar",
+        style: {
+            flex: `0 0 ${width}`,
+            content: " "
+        }
+    });
+}
+function $815deb6062b0b31b$export$74540e56d8cdd242(title, dataCommand, iconClass) {
+    return $815deb6062b0b31b$var$button({
+        slot: "toolbar",
+        dataCommand: dataCommand,
+        title: title
+    }, $815deb6062b0b31b$var$span({
+        class: iconClass
+    }));
+}
+const $815deb6062b0b31b$var$paragraphStyleWidgets = ()=>[
+        $815deb6062b0b31b$export$74540e56d8cdd242("left-justify", "justifyLeft", "icon-format_align_left"),
+        $815deb6062b0b31b$export$74540e56d8cdd242("center", "justifyCenter", "icon-format_align_center"),
+        $815deb6062b0b31b$export$74540e56d8cdd242("right-justify", "justifyRight", "icon-format_align_right"),
+        $815deb6062b0b31b$export$8cc075c801fd6817(),
+        $815deb6062b0b31b$export$74540e56d8cdd242("bullet list", "insertUnorderedList", "icon-format_list_bulleted"),
+        $815deb6062b0b31b$export$74540e56d8cdd242("numbered list", "insertOrderedList", "icon-format_list_numbered"),
+        $815deb6062b0b31b$export$8cc075c801fd6817(),
+        $815deb6062b0b31b$export$74540e56d8cdd242("indent", "indent", "icon-format_indent_increase"),
+        $815deb6062b0b31b$export$74540e56d8cdd242("indent", "outdent", "icon-format_indent_decrease")
+    ];
+const $815deb6062b0b31b$var$characterStyleWidgets = ()=>[
+        $815deb6062b0b31b$export$74540e56d8cdd242("bold", "bold", "icon-format_bold"),
+        $815deb6062b0b31b$export$74540e56d8cdd242("italic", "italic", "icon-format_italic"),
+        $815deb6062b0b31b$export$74540e56d8cdd242("underline", "underline", "icon-format_underlined")
+    ];
+const $815deb6062b0b31b$var$minimalWidgets = ()=>[
+        $815deb6062b0b31b$export$94309935dd6eab19(),
+        $815deb6062b0b31b$export$8cc075c801fd6817(),
+        ...$815deb6062b0b31b$var$characterStyleWidgets()
+    ];
+const $815deb6062b0b31b$export$8ed2ffe5d58aaa75 = ()=>[
+        $815deb6062b0b31b$export$94309935dd6eab19(),
+        $815deb6062b0b31b$export$8cc075c801fd6817(),
+        ...$815deb6062b0b31b$var$paragraphStyleWidgets(),
+        $815deb6062b0b31b$export$8cc075c801fd6817(),
+        ...$815deb6062b0b31b$var$characterStyleWidgets()
+    ];
 class $815deb6062b0b31b$export$f284d8638abd8920 extends (0, $hgUW1$Component) {
+    widgets = "default";
     get value() {
         return this.parts.doc.innerHTML;
     }
@@ -1563,6 +1693,10 @@ class $815deb6062b0b31b$export$f284d8638abd8920 extends (0, $hgUW1$Component) {
             part: "content"
         })
     ];
+    constructor(){
+        super();
+        this.initAttributes("widgets");
+    }
     doCommand(command) {
         if (command === undefined) return;
         const args = command.split(",");
@@ -1581,6 +1715,15 @@ class $815deb6062b0b31b$export$f284d8638abd8920 extends (0, $hgUW1$Component) {
         if (button == null) return;
         this.doCommand(button.dataset.command);
     };
+    updateBlockStyle() {
+        const select = this.parts.toolbar.querySelector("select.block-style");
+        if (select === null) return;
+        let blockTags = this.selectedBlocks.map((block)=>block.tagName);
+        blockTags = [
+            ...new Set(blockTags)
+        ];
+        select.value = blockTags.length === 1 ? `formatBlock,${blockTags[0]}` : "";
+    }
     connectedCallback() {
         super.connectedCallback();
         const { doc: doc, content: content, toolbar: toolbar } = this.parts;
@@ -1592,8 +1735,21 @@ class $815deb6062b0b31b$export$f284d8638abd8920 extends (0, $hgUW1$Component) {
         toolbar.addEventListener("click", this.handleButtonClick);
         toolbar.addEventListener("change", this.handleSelectChange);
         document.addEventListener("selectionchange", (event)=>{
+            this.updateBlockStyle();
             this.selectionChange(event, this);
         });
+    }
+    render() {
+        const { toolbar: toolbar } = this.parts;
+        super.render();
+        if (toolbar.children.length === 0) switch(this.widgets){
+            case "minimal":
+                toolbar.append(...$815deb6062b0b31b$var$minimalWidgets());
+                break;
+            case "default":
+                toolbar.append(...$815deb6062b0b31b$export$8ed2ffe5d58aaa75());
+                break;
+        }
     }
 }
 const $815deb6062b0b31b$export$7bcc4193ad80bf91 = $815deb6062b0b31b$export$f284d8638abd8920.elementCreator({
@@ -1795,5 +1951,5 @@ $parcel$exportWildcard($149c1bd638913645$exports, $0f2017ffca44b547$exports);
 $parcel$exportWildcard($149c1bd638913645$exports, $6bbe441346901d5a$exports);
 
 
-export {$5265d118b5240170$export$c947e3cd16175f27 as trackDrag, $5c31145f3e970423$export$c6e082819e9a0330 as scriptTag, $5c31145f3e970423$export$63257fda812a683f as styleSheet, $5a28660a6cbe2731$export$b37fb374f2e92eb6 as makeSorter, $59f50bee37676c09$export$c74d6d817c60b9e6 as BodymovinPlayer, $59f50bee37676c09$export$d75ad8f79fe096cb as bodymovinPlayer, $8a70bd76f9b7e656$export$b7127187684f7150 as CodeEditor, $8a70bd76f9b7e656$export$d89b6f4d34274146 as codeEditor, $e6e19030d0c18d6f$export$df30df7ec97b32b5 as DataTable, $e6e19030d0c18d6f$export$f71ce0a5ddbe8fa0 as dataTable, $46dc716dd2cf5925$export$16a138bde9d9de87 as availableFilters, $46dc716dd2cf5925$export$61ec8404f465cd36 as getFilter, $46dc716dd2cf5925$export$afb49bb3b076029e as FilterBuilder, $46dc716dd2cf5925$export$8ca73b4108207c1f as filterBuilder, $ada9b1474dc4b958$export$41199f9ac14d8c08 as LiveExample, $ada9b1474dc4b958$export$dafbe0fa988b899b as liveExample, $ada9b1474dc4b958$export$afa6494eb589c19e as makeExamplesLive, $6246d5006b5a56c3$export$7d6f3ccbb0a81c30 as MAPSTYLES, $6246d5006b5a56c3$export$f2ffec4d96a433ed as MapBox, $6246d5006b5a56c3$export$ca243e53be209efb as mapBox, $1b88c9cb596c3426$export$575eb698d362902 as MarkdownViewer, $1b88c9cb596c3426$export$305b975a891d0dfa as markdownViewer, $815deb6062b0b31b$export$f284d8638abd8920 as RichText, $815deb6062b0b31b$export$7bcc4193ad80bf91 as richText, $b9e5aa5581e8f051$export$1a35787d6353cf6a as SideNav, $b9e5aa5581e8f051$export$938418df2b06cb50 as sideNav, $0f2017ffca44b547$export$7140c0f3c1b65d3f as SizeBreak, $0f2017ffca44b547$export$96370210d2ca0fff as sizeBreak, $6bbe441346901d5a$export$a3a7254f7f149b03 as TabSelector, $6bbe441346901d5a$export$a932f737dcd864a2 as tabSelector};
+export {$5265d118b5240170$export$c947e3cd16175f27 as trackDrag, $5c31145f3e970423$export$c6e082819e9a0330 as scriptTag, $5c31145f3e970423$export$63257fda812a683f as styleSheet, $5a28660a6cbe2731$export$b37fb374f2e92eb6 as makeSorter, $59f50bee37676c09$export$c74d6d817c60b9e6 as BodymovinPlayer, $59f50bee37676c09$export$d75ad8f79fe096cb as bodymovinPlayer, $8a70bd76f9b7e656$export$b7127187684f7150 as CodeEditor, $8a70bd76f9b7e656$export$d89b6f4d34274146 as codeEditor, $e6e19030d0c18d6f$export$df30df7ec97b32b5 as DataTable, $e6e19030d0c18d6f$export$f71ce0a5ddbe8fa0 as dataTable, $46dc716dd2cf5925$export$16a138bde9d9de87 as availableFilters, $46dc716dd2cf5925$export$61ec8404f465cd36 as getFilter, $46dc716dd2cf5925$export$afb49bb3b076029e as FilterBuilder, $46dc716dd2cf5925$export$8ca73b4108207c1f as filterBuilder, $ada9b1474dc4b958$export$41199f9ac14d8c08 as LiveExample, $ada9b1474dc4b958$export$dafbe0fa988b899b as liveExample, $ada9b1474dc4b958$export$afa6494eb589c19e as makeExamplesLive, $6246d5006b5a56c3$export$7d6f3ccbb0a81c30 as MAPSTYLES, $6246d5006b5a56c3$export$f2ffec4d96a433ed as MapBox, $6246d5006b5a56c3$export$ca243e53be209efb as mapBox, $1b88c9cb596c3426$export$575eb698d362902 as MarkdownViewer, $1b88c9cb596c3426$export$305b975a891d0dfa as markdownViewer, $815deb6062b0b31b$export$94309935dd6eab19 as blockStyle, $815deb6062b0b31b$export$8cc075c801fd6817 as spacer, $815deb6062b0b31b$export$e3f8198a677f57c2 as elastic, $815deb6062b0b31b$export$74540e56d8cdd242 as commandButton, $815deb6062b0b31b$export$8ed2ffe5d58aaa75 as richTextWidgets, $815deb6062b0b31b$export$f284d8638abd8920 as RichText, $815deb6062b0b31b$export$7bcc4193ad80bf91 as richText, $b9e5aa5581e8f051$export$1a35787d6353cf6a as SideNav, $b9e5aa5581e8f051$export$938418df2b06cb50 as sideNav, $0f2017ffca44b547$export$7140c0f3c1b65d3f as SizeBreak, $0f2017ffca44b547$export$96370210d2ca0fff as sizeBreak, $6bbe441346901d5a$export$a3a7254f7f149b03 as TabSelector, $6bbe441346901d5a$export$a932f737dcd864a2 as tabSelector};
 //# sourceMappingURL=index.js.map

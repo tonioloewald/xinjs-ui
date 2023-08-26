@@ -1,25 +1,3 @@
-import { Component as WebComponent, ElementCreator, elements } from 'xinjs'
-
-const { style, xinSlot, div } = elements
-
-const richTextStyle = style()
-
-richTextStyle.innerText = `
-rich-text {
-  display: flex;
-  flex-direction: column;
-  height: 100%;
-}
-rich-text [part="toolbar"] {
-  padding: 4px;
-  display: flex;
-  gap: 0px;
-  flex: 0 0 auto;
-}
-`
-
-document.head.append(richTextStyle)
-
 /*!
 # `<rich-text>`
 
@@ -28,17 +6,27 @@ A simple and easily extensible `document.execCommand` WYSIWYG editor with some c
 By default, it treats its initial contents as its document, but you can also set (and get)
 its `value`.
 
+```html
+<rich-text widgets="minimal">
+<h2>Heading</h2>
+<p>And some <b>text</b></p>
+</rich-text>
+```
+
 It has a `toolbar` slot (actually a xin-slot because it doesn't use the shadowDOM).
 
-A `<button>` element in the toolbar simply needs a `data-command` attribute and it
-will fire `document.execCommand`. You can add extra parameters (the second parameter is
-added as `false` automatically) using commas, e.g. `data-command="formatBlock,H2"` will
-trigger `document.execCommand('formatBlock', false, 'H2')`.
+If you set the `widgets` attribute to `default` or `minimal` you will get a toolbar
+for free. Or you can add your own custom widgets.
 
-`<select>` elements are also supported, just put the same string in the `<option>` elements'
-`value` property.
+A number of convenience functions available, including:
 
-Obviously, you can just implement your own widgets and do anything you want.
+- `commandButton(title: string, command: string, iconClass: string)`
+- `blockStyle(options: Array<{caption: string, tagType: string}>)`
+- `spacer(width = '10px')`
+- `elastic(width = '10px')`
+
+These each create a toolbar widget. A `blockStyle`-generated `<select>` element will
+automatically have its value changed based on the current selection.
 
 The `<rich-text>` component provides `selectedText` and `selectedBlocks` properties, allowing
 you to easily perform operations on text selections, and a `selectionChange` callback (which
@@ -46,7 +34,133 @@ simply passes through document `selectionchange` events, but also passes a refer
 the `<rich-text>` component).
 */
 
+import { Component as WebComponent, ElementCreator, elements } from 'xinjs'
+
+const { style, xinSlot, div, select, option, button, span } = elements
+
+document.head.append(
+  style(
+    { id: 'rich-text' },
+    `rich-text {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+rich-text [part="toolbar"] {
+  padding: 4px;
+  display: flex;
+  gap: 0px;
+  flex: 1 0 auto;
+  flex-wrap: wrap;
+}
+`
+  )
+)
+
+const blockStyles = [
+  {
+    caption: 'Title',
+    tagType: 'H1',
+  },
+  {
+    caption: 'Heading',
+    tagType: 'H2',
+  },
+  {
+    caption: 'Subheading',
+    tagType: 'H3',
+  },
+  {
+    caption: 'Minor heading',
+    tagType: 'H4',
+  },
+  {
+    caption: 'Body',
+    tagType: 'P',
+  },
+  {
+    caption: 'Code Block',
+    tagType: 'PRE',
+  },
+]
+
+export function blockStyle(options = blockStyles) {
+  return select(
+    { title: 'paragraph style', slot: 'toolbar', class: 'block-style' },
+    ...options.map(({ caption, tagType }) =>
+      option(caption, { value: `formatBlock,${tagType}` })
+    )
+  )
+}
+
+export function spacer(width = '10px') {
+  return span({
+    slot: 'toolbar',
+    style: { flex: `0 0 ${width}`, content: ' ' },
+  })
+}
+
+export function elastic(width = '10px') {
+  return span({
+    slot: 'toolbar',
+    style: { flex: `0 0 ${width}`, content: ' ' },
+  })
+}
+
+export function commandButton(
+  title: string,
+  dataCommand: string,
+  iconClass: string
+) {
+  return button(
+    { slot: 'toolbar', dataCommand, title },
+    span({ class: iconClass })
+  )
+}
+
+const paragraphStyleWidgets = () => [
+  commandButton('left-justify', 'justifyLeft', 'icon-format_align_left'),
+  commandButton('center', 'justifyCenter', 'icon-format_align_center'),
+  commandButton('right-justify', 'justifyRight', 'icon-format_align_right'),
+  spacer(),
+  commandButton(
+    'bullet list',
+    'insertUnorderedList',
+    'icon-format_list_bulleted'
+  ),
+  commandButton(
+    'numbered list',
+    'insertOrderedList',
+    'icon-format_list_numbered'
+  ),
+  spacer(),
+  commandButton('indent', 'indent', 'icon-format_indent_increase'),
+  commandButton('indent', 'outdent', 'icon-format_indent_decrease'),
+]
+
+const characterStyleWidgets = () => [
+  commandButton('bold', 'bold', 'icon-format_bold'),
+  commandButton('italic', 'italic', 'icon-format_italic'),
+  commandButton('underline', 'underline', 'icon-format_underlined'),
+]
+
+const minimalWidgets = () => [
+  blockStyle(),
+  spacer(),
+  ...characterStyleWidgets(),
+]
+
+export const richTextWidgets = () => [
+  blockStyle(),
+  spacer(),
+  ...paragraphStyleWidgets(),
+  spacer(),
+  ...characterStyleWidgets(),
+]
+
 export class RichText extends WebComponent {
+  widgets: 'none' | 'minimal' | 'default' = 'default'
+
   get value(): string {
     return this.parts.doc.innerHTML
   }
@@ -117,6 +231,11 @@ export class RichText extends WebComponent {
     }),
   ]
 
+  constructor() {
+    super()
+    this.initAttributes('widgets')
+  }
+
   doCommand(command?: string) {
     if (command === undefined) {
       return
@@ -147,6 +266,20 @@ export class RichText extends WebComponent {
     this.doCommand(button.dataset.command)
   }
 
+  updateBlockStyle() {
+    const select = this.parts.toolbar.querySelector(
+      'select.block-style'
+    ) as HTMLSelectElement | null
+    if (select === null) {
+      return
+    }
+    let blockTags = (this.selectedBlocks as HTMLElement[]).map(
+      (block) => block.tagName
+    )
+    blockTags = [...new Set(blockTags)]
+    select.value = blockTags.length === 1 ? `formatBlock,${blockTags[0]}` : ''
+  }
+
   connectedCallback(): void {
     super.connectedCallback()
 
@@ -161,8 +294,26 @@ export class RichText extends WebComponent {
     toolbar.addEventListener('change', this.handleSelectChange)
 
     document.addEventListener('selectionchange', (event: Event) => {
+      this.updateBlockStyle()
       this.selectionChange(event, this)
     })
+  }
+
+  render(): void {
+    const { toolbar } = this.parts
+
+    super.render()
+
+    if (toolbar.children.length === 0) {
+      switch (this.widgets) {
+        case 'minimal':
+          toolbar.append(...minimalWidgets())
+          break
+        case 'default':
+          toolbar.append(...richTextWidgets())
+          break
+      }
+    }
   }
 }
 

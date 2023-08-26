@@ -281,32 +281,16 @@ export class MarkdownViewer extends Component {
     render(): void;
 }
 export const markdownViewer: ElementCreator<MarkdownViewer>;
-/*!
-# `<rich-text>`
-
-A simple and easily extensible `document.execCommand` WYSIWYG editor with some conveniences.
-
-By default, it treats its initial contents as its document, but you can also set (and get)
-its `value`.
-
-It has a `toolbar` slot (actually a xin-slot because it doesn't use the shadowDOM).
-
-A `<button>` element in the toolbar simply needs a `data-command` attribute and it
-will fire `document.execCommand`. You can add extra parameters (the second parameter is
-added as `false` automatically) using commas, e.g. `data-command="formatBlock,H2"` will
-trigger `document.execCommand('formatBlock', false, 'H2')`.
-
-`<select>` elements are also supported, just put the same string in the `<option>` elements'
-`value` property.
-
-Obviously, you can just implement your own widgets and do anything you want.
-
-The `<rich-text>` component provides `selectedText` and `selectedBlocks` properties, allowing
-you to easily perform operations on text selections, and a `selectionChange` callback (which
-simply passes through document `selectionchange` events, but also passes a reference to
-the `<rich-text>` component).
-*/
+export function blockStyle(options?: {
+    caption: string;
+    tagType: string;
+}[]): HTMLSelectElement;
+export function spacer(width?: string): HTMLSpanElement;
+export function elastic(width?: string): HTMLSpanElement;
+export function commandButton(title: string, dataCommand: string, iconClass: string): HTMLButtonElement;
+export const richTextWidgets: () => HTMLSpanElement[];
 export class RichText extends Component {
+    widgets: 'none' | 'minimal' | 'default';
     get value(): string;
     set value(docHtml: string);
     blockElement(elt: Node): Element | undefined;
@@ -314,10 +298,13 @@ export class RichText extends Component {
     get selectedText(): string;
     selectionChange: (event: Event, editor: RichText) => void;
     content: any[];
+    constructor();
     doCommand(command?: string): void;
     handleSelectChange: (event: Event) => void;
     handleButtonClick: (event: Event) => void;
+    updateBlockStyle(): void;
     connectedCallback(): void;
+    render(): void;
 }
 export const richText: ElementCreator<RichText>;
 export class SideNav extends Component {
