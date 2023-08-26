@@ -1,3 +1,20 @@
+/*!
+# `<map-box>`
+
+A [mapboxgl](https://docs.mapbox.com/mapbox-gl-js/api/) wrapper.
+
+```html
+<!-- please don't abuse my mapbox token -->
+<map-box 
+  style="width: 100%; height: 190px"
+  coords="21.4389,-158.0001,9"
+  token="pk.eyJ1IjoicG9kcGVyc29uIiwiYSI6ImNqc2JlbWU0bjA1ZmY0YW5ycHZod3VhbWcifQ.arvqfpOqMgFYkKgQ35UScA"
+></map-box>
+```
+
+There's no need to learn new apis, just access the element's `map` property.
+*/
+
 import { Component as WebComponent, ElementCreator, elements } from 'xinjs'
 import { styleSheet, scriptTag } from './via-tag'
 
@@ -46,7 +63,7 @@ export const MAPSTYLES = [
 
 const { div } = elements
 
-class MapBox extends WebComponent {
+export class MapBox extends WebComponent {
   coords = '65.01715565258993,25.48081004203459,12'
   content = div({ style: { width: '100%', height: '100%' } })
   get map(): any {

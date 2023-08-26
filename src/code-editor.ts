@@ -1,3 +1,20 @@
+/*!
+# `<code-editor>`
+
+Sometimes, it's nice to be able to just toss a code-editor in a web-page. It's a thin wrapper around the [ACE Editor](https://ace.c9.io/). 
+
+`<code-editor>`'s `value` is the code it contains. Its `mode` attribute sets the language, and you can further configure
+the ACE editor instance via its `options` property.
+
+```html
+<code-editor style="width: 100%; height: 190px" mode="css">
+body {
+  box-sizing: border-box;
+}
+</code-editor>
+```
+*/
+
 import { Component as WebComponent, ElementCreator } from 'xinjs'
 import { scriptTag } from './via-tag'
 
@@ -24,7 +41,20 @@ const makeCodeEditor = async (
 }
 
 export class CodeEditor extends WebComponent {
-  value = ''
+  private source = ''
+
+  get value(): string {
+    return this.editor === undefined ? this.source : this.editor.getValue()
+  }
+
+  set value(text: string) {
+    if (this.editor === undefined) {
+      this.source = text
+    } else {
+      this.editor.setValue(text)
+    }
+  }
+
   mode = 'javascript'
   disabled = false
   role = 'code editor'
@@ -56,19 +86,11 @@ export class CodeEditor extends WebComponent {
     }
   }
 
-  updateValue = async (event: Event) => {
-    // changes to the element will be targted on the custom-element
-    // changes by the user will target the textarea created by ace editor
-    if (event.target !== this && this.editor) {
-      this.value = this.editor.getValue()
-    }
-  }
-
   connectedCallback() {
     super.connectedCallback()
 
-    if (this.value === '') {
-      this.value = this.textContent !== null ? this.textContent.trim() : ''
+    if (this.source === '') {
+      this.value = this.innerText.trim()
     }
 
     if (this._editorPromise === undefined) {
@@ -80,7 +102,7 @@ export class CodeEditor extends WebComponent {
       )
       this._editorPromise.then((editor) => {
         this._editor = editor
-        editor.setValue(this.value, 1)
+        editor.setValue(this.source, 1)
       })
     }
 
@@ -90,11 +112,6 @@ export class CodeEditor extends WebComponent {
   render(): void {
     super.render()
 
-    if (this.editor !== undefined) {
-      if (this.editor.getValue() !== this.value) {
-        this.editor.setValue(this.value)
-      }
-    }
     if (this._editorPromise !== undefined) {
       this._editorPromise.then((editor) => editor.setReadOnly(this.disabled))
     }

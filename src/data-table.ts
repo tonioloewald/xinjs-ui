@@ -1,3 +1,55 @@
+/*!
+# `<data-table>`
+
+A virtual data-table, configurable via a `columns` array (which will automatically be generated if not provided),
+that displays gigantic tables with fixed headers (and live column-resizing) using a minimum of resources and cpu.
+
+```js
+const { dataTable } = xinjsui
+
+const emojiRequest = await fetch('https://raw.githubusercontent.com/tonioloewald/emoji-metadata/master/emoji-metadata.json')
+const emojiData = await emojiRequest.json()
+
+const columns = [
+  {
+    "name": "chars",
+    "prop": "chars",
+    "align": "left",
+    "visible": true,
+    "width": 80
+  },
+  {
+    "name": "name",
+    "prop": "name",
+    "align": "left",
+    "visible": true,
+    "width": 300
+  },
+  {
+    "name": "category",
+    "prop": "category",
+    "align": "left",
+    "visible": true,
+    "width": 150
+  },
+  {
+    "name": "subcategory",
+    "prop": "subcategory",
+    "align": "left",
+    "visible": true,
+    "width": 150
+  },
+]
+
+preview.append(dataTable({ array: emojiData, columns }))
+```
+
+You can set the `<data-table>`'s `value` to `{ array: any[], columns: ColumnOptions[] | null, filter?: ArrayFilter }`
+
+If you set the `<data-table>`'s `rowHeight` to `0` it will render all its elements (i.e. not be virtual). This is
+useful for smaller tables, or tables with variable row-heights.
+*/
+
 import {
   Component as WebComponent,
   ElementCreator,
@@ -63,6 +115,8 @@ export type ArrayFilter = (array: any[]) => any[]
 const passThru = (array: any[]) => array
 
 export class DataTable extends WebComponent {
+  maxVisibleRows = 10000
+
   get value(): TableData {
     return {
       array: this.array,
@@ -286,7 +340,8 @@ export class DataTable extends WebComponent {
   render() {
     super.render()
 
-    xin[this.instanceId] = this.filter(this._array)
+    const found = this.filter(this._array)
+    xin[this.instanceId] = found.slice(0, this.maxVisibleRows)
 
     this.textContent = ''
 

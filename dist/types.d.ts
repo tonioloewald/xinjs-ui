@@ -10,6 +10,30 @@ export interface LottieConfig {
     path?: string;
     [key: string]: any;
 }
+/*!
+# `<bodymovin-player>`
+
+A wrapper for AirBnb's bodymovin, a.k.a. [lottie](https://airbnb.io/lottie/#/web), player.
+
+```html
+<bodymovin-player
+  style="height: 160px; width: 160px"
+  src="https://raw.githubusercontent.com/tonioloewald/xinjs-ui/main/demo/88140-rocket-livetrade.json"
+></bodymovin-player>
+```
+```css
+bodymovin-player {
+  margin: var(--spacing);
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+}
+```
+
+Or you can directly set its `json` property to the content of a `lottie.json` file.
+
+And of course just access the element's `animation` property to use the usual APIs.
+*/
 export class BodymovinPlayer extends Component {
     content: null;
     src: string;
@@ -24,7 +48,8 @@ export class BodymovinPlayer extends Component {
 }
 export const bodymovinPlayer: ElementCreator<BodymovinPlayer>;
 export class CodeEditor extends Component {
-    value: string;
+    get value(): string;
+    set value(text: string);
     mode: string;
     disabled: boolean;
     role: string;
@@ -34,13 +59,51 @@ export class CodeEditor extends Component {
     styleNode: HTMLStyleElement;
     constructor();
     onResize(): void;
-    updateValue: (event: Event) => Promise<void>;
     connectedCallback(): void;
     render(): void;
 }
 export const codeEditor: ElementCreator<CodeEditor>;
 type TrackerCallback = (dx: number, dy: number, event: any) => true | undefined;
-export const trackDrag: (event: any, callback: TrackerCallback, cursor?: string) => void;
+/*!
+# trackDrag
+
+Sometimes you want to track a mouse-drag or touch-drag operation without messing around.
+This is how the resizeable columns in `<data-table>` work.
+
+Just call `trackDrag(event, (dx, dy, event) => { ... })` and you'll get updates on corresponding events until
+you return `true` from the event-handler (or, in the case of `touch` events, the last `touch` ends).
+For mouse events, a "tracker" element is thrown up in front of everything for the event.
+
+For example, this is how the `<data-table>` component tracks the user resizing a column.
+
+```
+trackDrag(
+  event,
+  (dx, dy, event: any) => {
+    const touch = isTouchEvent
+      ? [...event.touches].find(
+          (touch: any) => touch.identifier === touchIdentifier
+        )
+      : true
+    if (touch === undefined) {
+      return true
+    }
+    const width = origWidth + dx
+    column.width =
+      width > this.minColumnWidth ? width : this.minColumnWidth
+    this.setColumnWidths()
+    if (event.type === 'mouseup') {
+      return true
+    }
+  },
+  'col-resize'
+)
+```
+
+For `touch` events, `dx` and `dy` are based on `event.touches[0]`. If you want to handle
+multi-touch or specific touches, handle `event.touches` etc. yourself.
+*/
+export const trackDrag: (event: PointerEvent, callback: TrackerCallback, cursor?: string) => void;
 export interface ColumnOptions {
     name?: string;
     prop: string;
@@ -57,6 +120,7 @@ export interface TableData {
 }
 export type ArrayFilter = (array: any[]) => any[];
 export class DataTable extends Component {
+    maxVisibleRows: number;
     get value(): TableData;
     set value(data: TableData);
     charWidth: number;
@@ -113,13 +177,14 @@ interface Filter {
 }
 export function getFilter(term: string, filters?: FilterMaker[]): Filter | undefined;
 export class FilterBuilder extends Component {
-    value: string;
     filter: _ArrayFilter1;
     title: string;
     content: HTMLInputElement;
     placeholder: string;
     help: string;
     filters: FilterMaker[];
+    get value(): string;
+    set value(query: string);
     constructor();
     buildFilter: import("xinjs").VoidFunc;
     reset(): void;
@@ -128,11 +193,41 @@ export class FilterBuilder extends Component {
     render(): void;
 }
 export const filterBuilder: ElementCreator<FilterBuilder>;
+export class TabSelector extends Component {
+    value: number;
+    styleNode: HTMLStyleElement;
+    content: (HTMLSlotElement | HTMLDivElement)[];
+    constructor();
+    addTabBody(body: HTMLElement, selectTab?: boolean): void;
+    keyTab: (event: KeyboardEvent) => void;
+    get bodies(): Element[];
+    pickTab: (event: Event) => void;
+    setupTabs: () => void;
+    connectedCallback(): void;
+    render(): void;
+}
+export const tabSelector: ElementCreator<TabSelector>;
+export class LiveExample extends Component {
+    get css(): string;
+    set css(code: string);
+    get html(): string;
+    set html(code: string);
+    get js(): string;
+    set js(code: string);
+    content: () => any[];
+    connectedCallback(): void;
+    refresh: () => void;
+    initFromElements(elements: HTMLElement[]): void;
+    showDefaultTab(): void;
+    render(): void;
+}
+export const liveExample: ElementCreator<LiveExample>;
+export function makeExamplesLive(element: HTMLElement): void;
 export const MAPSTYLES: {
     name: string;
     url: string;
 }[];
-declare class MapBox extends Component {
+export class MapBox extends Component {
     coords: string;
     content: HTMLDivElement;
     get map(): any;
@@ -149,6 +244,33 @@ declare class MapBox extends Component {
     render(): void;
 }
 export const mapBox: ElementCreator<MapBox>;
+/*!
+# `<markdown-viewer>`
+
+Render [markdown](https://www.markdownguide.org/) anywhere, either using the `src` attribute to load
+the file asynchronousely, or just put the text inside it. Powered by [marked](https://www.npmjs.com/package/marked).
+
+```
+<markdown-viewer src="/path/to/file.md">
+```
+
+And you can set the `<markdown-viewer>` element's `value` directly, or:
+
+```html
+<markdown-viewer>
+## hello
+world
+</markdown-viewer>
+```
+```css
+markdown-viewer {
+  display: block;
+  padding: var(--spacing);
+}
+```
+
+And just set the element's `value` and it will render it for you.
+*/
 export class MarkdownViewer extends Component {
     src: string;
     value: string;
@@ -159,6 +281,31 @@ export class MarkdownViewer extends Component {
     render(): void;
 }
 export const markdownViewer: ElementCreator<MarkdownViewer>;
+/*!
+# `<rich-text>`
+
+A simple and easily extensible `document.execCommand` WYSIWYG editor with some conveniences.
+
+By default, it treats its initial contents as its document, but you can also set (and get)
+its `value`.
+
+It has a `toolbar` slot (actually a xin-slot because it doesn't use the shadowDOM).
+
+A `<button>` element in the toolbar simply needs a `data-command` attribute and it
+will fire `document.execCommand`. You can add extra parameters (the second parameter is
+added as `false` automatically) using commas, e.g. `data-command="formatBlock,H2"` will
+trigger `document.execCommand('formatBlock', false, 'H2')`.
+
+`<select>` elements are also supported, just put the same string in the `<option>` elements'
+`value` property.
+
+Obviously, you can just implement your own widgets and do anything you want.
+
+The `<rich-text>` component provides `selectedText` and `selectedBlocks` properties, allowing
+you to easily perform operations on text selections, and a `selectionChange` callback (which
+simply passes through document `selectionchange` events, but also passes a reference to
+the `<rich-text>` component).
+*/
 export class RichText extends Component {
     get value(): string;
     set value(docHtml: string);
@@ -188,6 +335,27 @@ export class SideNav extends Component {
     render(): void;
 }
 export const sideNav: ElementCreator<SideNav>;
+/*!
+# `<size-break>`
+
+While we wait for enough browsers to implement [container-queries](https://www.w3.org/TR/css-contain-3/),
+and in any event when you simply want to do different things at different sizes (e.g. in the project I'm
+working on right now, a row of buttons turns into a menu at narrow widths) there's `<size-break>`.
+
+Note that the sizes referred to are of the `<size-break>`'s `.offsetParent`, and it watches for
+the window's `resize` events and its own (via `ResizeObserver`).
+
+```
+<size-break min-width="500">
+  <default-thing>I am big!</default-thing>
+  <small-thing slot="small">I am little</small-thing>
+</size-break>
+```
+
+`<size-break>` supports both `min-width` and/or `min-height`, and you can of course target only one
+of the slots if you like. The demo site uses them to hide the [bundlejs](https://bundlejs.com/) badge when
+space is tight.
+*/
 export class SizeBreak extends Component {
     minWidth: number;
     minHeight: number;
@@ -200,23 +368,62 @@ export class SizeBreak extends Component {
     disconnectedCallback(): void;
 }
 export const sizeBreak: ElementCreator<SizeBreak>;
-export class TabSelector extends Component {
-    value: number;
-    role: string;
-    styleNode: HTMLStyleElement;
-    content: (HTMLSlotElement | HTMLDivElement)[];
-    constructor();
-    addTabBody(body: HTMLElement, selectTab?: boolean): void;
-    keyTab: (event: KeyboardEvent) => void;
-    get bodies(): Element[];
-    pickTab: (event: Event) => void;
-    setupTabs: () => void;
-    connectedCallback(): void;
-    render(): void;
-}
-export const tabSelector: ElementCreator<TabSelector>;
 type SortValuator<T> = (f: T) => (string | number)[];
 type SortCallback<T> = (p: T, q: T) => number;
+/*!
+# makeSorter
+
+I'm always confusing myself when writing sort functions, so I wrote `makeSorter()`. It's
+insanely simple and just works™. It makes writing an array sort callback for anything
+other than an array of numbers or strings easier.
+
+Usage:
+
+```
+interface Person {
+  nameFirst: string
+  nameLast: string
+}
+
+const people: Person[] = await getRecords(...)
+
+// sort by nameLast, then nameFirst
+const nameSorter = makeSorter(
+  (person: Person) => [person.nameLast, person.nameFirst]
+)
+
+people.sort(nameSorter)
+```
+
+Here's a slightly more complex example:
+
+```
+interface Product {
+  name: string,
+  category: string,
+  sales: number
+}
+
+const productSales = await getRecords(...)
+
+// sort by category (A-Z), then sales (highest to lowest)
+const categorySalesSorter = makeSorter(
+  (product: Product) => [product.category, -product.sales]
+)
+
+productSales.sort(categorySalesSorter)
+```
+
+Basically, you write a function that given some thing returns a prioritized list of
+`string`s or `number`s and `makeSorter` produces an callback function for `Array.sort()`
+that will sort the array in _ascending_ order.
+
+If you pass `false` as the (optional) second parameter you'll get a _descending_ sorter,
+but for numbers just multiplying by -1 is just as easy (per the example).
+
+If I ever conceive of a need for a version that lets you invert the sort order of
+multiple non-numerical array elements I'll extend it.
+*/
 export function makeSorter<T>(sortValuator: SortValuator<T>, ascending?: boolean): SortCallback<T>;
 
 //# sourceMappingURL=types.d.ts.map

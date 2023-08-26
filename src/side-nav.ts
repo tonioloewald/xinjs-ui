@@ -1,3 +1,13 @@
+/*!
+# `<side-nav>`
+
+The default layout for iOS / iPadOS apps is to hide the sidebar when displaying content on small
+screens, and display the sidebar when space is available (with the user able to explicitly hide
+the sidebar if so desired). `<side-nav>` provides this functionality.
+
+`<side-nav>` is used to handle the layout of the documentation tab panel.
+*/
+
 import {
   Component as WebComponent,
   ElementCreator,
