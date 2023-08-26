@@ -28,7 +28,6 @@ preview.append(div({class: 'example'}, 'fiddle de dee!'))
 ```html
 <h2>Example</h2>
 ```
-
 */
 
 import { Component as WebComponent, ElementCreator, elements } from 'xinjs'
@@ -50,34 +49,34 @@ const codeStyle = {
 
 document.head.append(
   style(
-    `
-    :root {
-      --live-example-height: 400px;
-      --live-example-preview-height: calc(var(--live-example-height) * 0.5);
-      --live-example-editor-height: calc(var(--live-example-height) * 0.5);
-    }
+    { id: 'live-example' },
+    `:root {
+  --live-example-height: 400px;
+  --live-example-preview-height: calc(var(--live-example-height) * 0.5);
+  --live-example-editor-height: calc(var(--live-example-height) * 0.5);
+}
 
-    live-example {
-      position: relative;
-      display: flex;
-      flex-direction: column;
-      height: var(--live-example-height);
-    }
+live-example {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  height: var(--live-example-height);
+}
 
-    live-example [part="example"] {
-      flex: 1 1 50%;
-      position: relative;
-    }
+live-example [part="example"] {
+  flex: 1 1 50%;
+  position: relative;
+}
 
-    live-example [part=preview] {
-      height: 100%;
-    }
+live-example [part=preview] {
+  height: 100%;
+}
 
-    live-example [part="editors"] {
-      flex: 1 1 var(--live-example-editor-height);
-      position: relative;
-    }
-  `
+live-example [part="editors"] {
+  flex: 1 1 var(--live-example-editor-height);
+  position: relative;
+}
+`
   )
 )
 
