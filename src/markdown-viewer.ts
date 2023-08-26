@@ -1,5 +1,34 @@
 import { Component, ElementCreator } from 'xinjs'
 import { marked } from 'marked'
+
+/*!
+# `<markdown-viewer>`
+
+Render [markdown](https://www.markdownguide.org/) anywhere, either using the `src` attribute to load
+the file asynchronousely, or just put the text inside it. Powered by [marked](https://www.npmjs.com/package/marked).
+
+```
+<markdown-viewer src="/path/to/file.md">
+```
+
+And you can set the `<markdown-viewer>` element's `value` directly, or:
+
+```html
+<markdown-viewer>
+## hello
+world
+</markdown-viewer>
+```
+```css
+markdown-viewer {
+  display: block;
+  padding: var(--spacing);
+}
+```
+
+And just set the element's `value` and it will render it for you.
+*/
+
 export class MarkdownViewer extends Component {
   src = ''
   value = ''

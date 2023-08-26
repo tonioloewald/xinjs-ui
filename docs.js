@@ -8,7 +8,9 @@ function findMarkdownFiles(dirs, ignore) {
   let markdownFiles = []
 
   function traverseDirectory(dir, ignore) {
-    const files = fs.readdirSync(dir)
+    const files = fs
+      .readdirSync(dir)
+      .sort((a, b) => (a.toLocaleLowerCase() < b.toLocaleLowerCase() ? -1 : 1))
     if (ignore.includes(dir)) {
       return
     }
@@ -27,6 +29,17 @@ function findMarkdownFiles(dirs, ignore) {
           path: filePath,
         }
         markdownFiles.push(markdownFile)
+      } else if (['.ts', '.js', '.css'].includes(path.extname(file))) {
+        const content = fs.readFileSync(filePath, 'utf8')
+        const docs = content.match(/\/\*![\s\S]+?\*\//g) || []
+        if (docs.length) {
+          const markdown = docs.map((s) => s.substring(3, s.length - 2).trim())
+          markdownFiles.push({
+            text: markdown.join('\n\n'),
+            filename: file,
+            path: filePath,
+          })
+        }
       }
     })
   }

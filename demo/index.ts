@@ -12,25 +12,20 @@ import {
   tabSelector,
   bodymovinPlayer,
   BodymovinPlayer,
-  codeEditor,
-  mapBox,
   markdownViewer,
   dataTable,
-  TableData,
   filterBuilder,
   FilterBuilder,
+  liveExample,
   richText,
   scriptTag,
   sideNav,
   SideNav,
   sizeBreak,
+  TableData,
 } from '../src'
 
 import docs from './docs.json'
-const getDocSource = (name: string) => {
-  const doc = docs.find((doc) => doc.filename === name)
-  return doc !== undefined ? doc.text : `document **"${name}"** not found`
-}
 
 const download = (name: string, data: string): void => {
   const link = a({
@@ -38,12 +33,6 @@ const download = (name: string, data: string): void => {
     href: `data:text/plain;charset=UTF-8,${encodeURIComponent(data)}`,
   })
   link.click()
-}
-
-bindings.dataSource = {
-  toDOM(element, tagName) {
-    element.dataset.source = tagName
-  },
 }
 
 const deathsUrl =
@@ -70,7 +59,11 @@ const { app } = xinProxy({
     } as TableData,
     lottieFilename: '',
     lottieData: '',
-    contents: [] as any[],
+    currentDoc:
+      document.location.search !== ''
+        ? document.location.search.substring(1)
+        : 'README.md',
+    docs,
   },
 })
 
@@ -104,6 +97,19 @@ bindings.columns = {
   }
 })()
 
+bindings.docLink = {
+  toDOM(elt, filename) {
+    elt.setAttribute('href', `?${filename}`)
+  },
+}
+
+bindings.current = {
+  toDOM(elt, currentFile) {
+    const boundFile = elt.getAttribute('href') || ''
+    elt.classList.toggle('current', currentFile === boundFile.substring(1))
+  },
+}
+
 Object.assign(globalThis, { app, xin, bindings, elements, vars, touch })
 
 const main = document.querySelector('main') as HTMLElement
@@ -129,8 +135,6 @@ const {
 const table = dataTable({
   style: {
     flex: '1 1 auto',
-    overflow: 'hidden',
-    overflowY: 'scroll',
   },
   rowHeight: 34,
   bindValue: 'app.tableData',
@@ -142,6 +146,57 @@ const filter = filterBuilder({
   onChange(event: Event) {
     app.tableData.filter = (event.target as FilterBuilder).filter
     touch('app.tableData')
+  },
+})
+
+const docViewer = markdownViewer({
+  style: {
+    display: 'block',
+    maxWidth: '44em',
+    margin: 'auto',
+    padding: `0 2em`,
+  },
+  value: app.docs.find((doc) => doc.filename === app.currentDoc)!.text,
+  didRender() {
+    const sources = [
+      ...docViewer.querySelectorAll(
+        'pre code[class="language-html"],pre code[class="language-js"],pre code[class="language-css"]'
+      ),
+    ].map((code) => ({
+      block: code.parentElement as HTMLPreElement,
+      language: code.classList[0].split('-').pop(),
+      code: (code as HTMLElement).innerText,
+    }))
+    for (let index = 0; index < sources.length; index += 1) {
+      const exampleSources = [sources[index]]
+      while (
+        index < sources.length - 1 &&
+        sources[index].block.nextElementSibling === sources[index + 1].block
+      ) {
+        exampleSources.push(sources[index + 1])
+        index += 1
+      }
+      const example = liveExample()
+      ;(exampleSources[0].block.parentElement as HTMLElement).insertBefore(
+        example,
+        exampleSources[0].block
+      )
+      exampleSources.forEach((source) => {
+        switch (source.language) {
+          case 'js':
+            example.js = source.code
+            break
+          case 'html':
+            example.html = source.code
+            break
+          case 'css':
+            example.css = source.code
+            break
+        }
+        source.block.remove()
+      })
+      example.showDefaultTab()
+    }
   },
 })
 
@@ -171,7 +226,7 @@ main.append(
     },
     sideNav(
       {
-        name: 'Read Me!',
+        name: 'Documentation',
         navSize: 200,
         minSize: 600,
         style: {
@@ -190,20 +245,27 @@ main.append(
             overflowY: 'scroll',
           },
           bindList: {
-            value: app.contents,
+            value: app.docs,
           },
         },
         template(
           a({
-            bindText: '^.textContent',
-            bindDataSource: '^.tagName',
+            class: 'doc-link',
+            bindText: '^.filename',
+            bindCurrent: 'app.currentDoc',
+            bindDocLink: '^.filename',
             onClick(event: Event) {
-              const content = getListItem(event.target as HTMLElement)
+              const a = event.target as HTMLAnchorElement
+              const doc = getListItem(event.target as HTMLElement)
               const nav = (event.target as HTMLElement).closest(
                 'side-nav'
               ) as SideNav
               nav.contentVisible = true
-              content.scrollIntoView({ behavior: 'smooth' })
+              const { href } = a
+              window.history.pushState({ href }, '', href)
+              app.currentDoc = doc.filename
+              docViewer.value = doc.text
+              event.preventDefault()
             },
           })
         )
@@ -214,31 +276,6 @@ main.append(
             position: 'relative',
             overflowY: 'scroll',
             height: '100%',
-          },
-          onScroll(event: Event) {
-            const { scrollTop } = event.target as HTMLElement
-            const navItems = (
-              event.target as HTMLElement
-            ).previousElementSibling?.querySelectorAll('a') as
-              | HTMLAnchorElement[]
-              | undefined
-
-            if (navItems === undefined || navItems.length === 0) {
-              return
-            }
-            let foundFirstVisible = false
-            for (const navItem of navItems) {
-              const heading = getListItem(navItem)
-              navItem.classList.remove('current')
-              if (foundFirstVisible === false) {
-                if (heading.offsetTop - scrollTop >= -5) {
-                  foundFirstVisible = true
-                  navItem.classList.add('current')
-                }
-              } else {
-                navItem.classList.remove('current')
-              }
-            }
           },
         },
         button(
@@ -256,20 +293,7 @@ main.append(
           },
           span({ class: 'icon-chevron-left' })
         ),
-        markdownViewer({
-          style: {
-            display: 'block',
-            maxWidth: '44em',
-            margin: 'auto',
-            padding: `0 2em`,
-          },
-          value: getDocSource('README.md'),
-          didRender: function () {
-            app.contents = [
-              ...(this as HTMLElement).querySelectorAll('h1,h2,h3'),
-            ]
-          },
-        })
+        docViewer
       )
     ),
     div(
@@ -351,32 +375,11 @@ main.append(
       bodymovinPlayer({ style: { marginTop: vars.spacing200 }, json: rocket }),
       p(
         { class: 'bodymovin-info' },
-        'Animation by',
+        'Animation by ',
         a('chiến lê hồng', {
           href: 'https://lottiefiles.com/dvskjbicfc',
         })
       )
-    ),
-    div(
-      {
-        name: 'mapbox',
-        style: {
-          textAlign: 'center',
-          display: 'flex',
-          flexDirection: 'column',
-          height: '100%',
-        },
-      },
-      h2('mapbox'),
-      // this is my token, please don't abuse it!
-      mapBox({
-        style: {
-          flex: '1 1 auto',
-          width: '100%',
-        },
-        token:
-          'pk.eyJ1IjoicG9kcGVyc29uIiwiYSI6ImNqc2JlbWU0bjA1ZmY0YW5ycHZod3VhbWcifQ.arvqfpOqMgFYkKgQ35UScA',
-      })
     ),
     div(
       {
@@ -395,7 +398,7 @@ main.append(
         },
         label(
           { class: 'clickable', tabindex: 0 },
-          'load json data',
+          'load json',
           input({
             type: 'file',
             hidden: true,
@@ -412,6 +415,41 @@ main.append(
                   app.tableData = {
                     columns: null,
                     array: JSON.parse(result),
+                  }
+                }
+                reader.readAsText(files[0])
+              }
+            },
+          })
+        ),
+        label(
+          { class: 'clickable', tabindex: 0 },
+          'load tsv',
+          input({
+            type: 'file',
+            hidden: true,
+            accept: '.tsv,text/tab-separated-values',
+            onChange(event: Event) {
+              const { files } = event.target as HTMLInputElement
+              if (files && files.length === 1) {
+                const reader = new FileReader()
+                reader.onload = () => {
+                  const { result } = reader
+                  if (typeof result !== 'string') {
+                    return
+                  }
+                  const rows = result.split('\n').map((row) => row.split('\t'))
+                  const keys = rows.shift() as string[]
+                  const array = rows.map((row) => {
+                    const obj: { [key: string]: string } = {}
+                    for (const i in keys) {
+                      obj[keys[i]] = row[i]
+                    }
+                    return obj
+                  })
+                  app.tableData = {
+                    columns: null,
+                    array,
                   }
                 }
                 reader.readAsText(files[0])
@@ -522,28 +560,6 @@ main.append(
         )
       ),
       table
-    ),
-    div(
-      {
-        name: 'code-editor',
-        style: {
-          textAlign: 'center',
-          display: 'flex',
-          flexDirection: 'column',
-          height: '100%',
-        },
-      },
-      h2('code-editor'),
-      codeEditor(
-        {
-          style: {
-            fontSize: '16px',
-            flex: '1 1 auto',
-            width: '100%',
-          },
-        },
-        "console.log('hello, world')"
-      )
     ),
     richText(
       {

@@ -56,7 +56,7 @@ header {
 }
 
 h1 {
-  color: var(--brand-color);
+  --text-color: var(--brand-color);
   font-size: calc(var(--font-size) * var(--h1-scale));
   line-height: calc(var(--line-height) * var(--h1-scale));
   font-weight: 400;
@@ -315,16 +315,13 @@ rich-text [part='doc'] {
   background: var(--background);
 }
 
-[data-source] {
+.doc-link {
   cursor: pointer;
   border-bottom: none;
   padding: 5px 15px;
 }
 
-[data-source='H2'] {
-  padding-left: 30px;
-}
-
-[data-source='H3'] {
-  padding-left: 45px;
+live-example {
+  margin: var(--spacing);
+  box-shadow: 0 0 0 var(--spacing) #08835840;
 }

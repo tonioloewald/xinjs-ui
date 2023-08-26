@@ -1,3 +1,83 @@
+/*!
+# `<filter-builder>`
+
+Automatically creates `ArrayFilter` functions `(a: any[]) => any[]` based on a text query that accepts the
+following criteria — all text matches are performed in `LocaleLowerCase`. Criteria are space-delimited, but
+a quoted string which can include spaces (but not nested quotation marks) is allowed on the right.
+
+`<filter-builder>` has sets its `filter` property to an `ArrayFilter`, by default it just passes through
+the array untouched. Its `value` is the source `string`.
+
+The filter-builder has a default set of `FilterMaker` objects which it uses to **curry** an filter function.
+
+    type ObjectTest (obj: any) => boolean
+
+    interface FilterMaker {
+      hint: string                                    // describes the grammar
+      description: (...matches: string[]) => string   // describes the actual filter
+      token: RegExp                                   // matches the token
+      filterMaker(...matches: string) => ObjectTest   // builds an ObjectTest
+    }
+
+The `<filter-builder>` will use the `hint` values to write its `placeholder` (you can override this if
+you explicitly set the `placeholder`) and it will use the `description` function to create the
+`title` attribute, describing the filter.
+
+## availableFilters
+
+As well as `filterBuilder`, the `availableFilters` collection is exported and can be customized directly. By default,
+each `<filter-builder>` element's `filters` property defaults to `availableFilters` but you can augment it or
+individually set.
+
+The default `filters` provided are (in priority order):
+
+- `[field]=value` if `field` is specified, matches `value`, otherwise looks for `value` anwhere
+- `field!=value` matches if `field` is not `value`
+- `field<<value` / `field>>value` matches if `field` is before / after `value` (as a date)
+- `field>value` / `field<value` matches if `field` is greater / less than `value`, if `isNaN(Number(value))` this will
+  be an alphabetical order comparison, otherwise it will be numberic.
+- `field:value` / `field!:value` matches if `field` contains / does not contain `value`
+- `!!field` matches if `field` is **truthy**
+- `!field` matches if `field` is **falsy** (e.g. `''`, `null`, `undefined`, `false`, `0`)
+- `value` matches if any field contains `value`
+
+Right now multiple criteria are `AND`ed together. This will be extended to allow `()`, `OR`, `<` and `>` comparisons will
+become smarter (convert both sides to numbers if possible), and extensibility will be added.
+
+### Customizing Filters
+
+Filters should be ordered from strictest `token` to least-strict `token` where tokens have a chance of
+overlapping. E.g. the `>>` (before) token has to be before the `>` (greater than) token, otherwise `>` will steal its tokens
+(and the arguments of tokens are very liberal, since you never know what string someone will want to compare something to).
+
+I just needed the new capabilities for the project I'm working on and figured they were probably pretty likely to be useful to other people.
+
+A filter is just an object that conforms to the `FilterMaker` interface. E.g. the "contains" filter looks like this:
+
+```
+{
+ hint: 'field:value',
+ explanation: 'field contains value, ignoring case',
+ description: (field: string, value: string) =>
+   `${field} contains "${value}"`,
+ token: /^([^\s]+?):(.+)$/,
+ makeFilter: (field: string, value: string) => {
+   value = value.toLocaleLowerCase()
+   return (obj: any) =>
+     String(obj[field]).toLocaleLowerCase().includes(value)
+ },
+}
+```
+
+This is sufficient to make each filter atom composable and self-documenting as a text `hint`, in general `explanation`, and in particular `description`.
+
+Tokens are matched against a term, and must return enough values to drive `makeFilter`. A **term** currently looks like:
+
+`query.match(/[^\s"]+("[^"]+")?/g)`
+
+I.e. a bunch of non-whitespace characters optionally followed directly by a double-quoted string (containing not double-quotes). E.g. `foo` `$$foo:bar!><` or `foo"bar baz"`.
+*/
+
 import {
   Component as WebComponent,
   ElementCreator,
@@ -194,7 +274,6 @@ export function getFilter(
 }
 
 export class FilterBuilder extends WebComponent {
-  value = ''
   filter: ArrayFilter = passThru
   title = NULL_FILTER_DESCRIPTION
   content = input({
@@ -209,6 +288,14 @@ export class FilterBuilder extends WebComponent {
   help = ''
 
   filters = availableFilters
+
+  get value(): string {
+    return (this.parts.input as HTMLInputElement).value
+  }
+
+  set value(query: string) {
+    ;(this.parts.input as HTMLInputElement).value = query
+  }
 
   constructor() {
     super()
@@ -246,7 +333,7 @@ export class FilterBuilder extends WebComponent {
       this.title = filters.map((f) => f.description).join(', and ')
       this.dispatchEvent(new Event('change'))
     }
-  }, 500)
+  }, 250)
 
   reset() {
     if (this.filter !== passThru) {

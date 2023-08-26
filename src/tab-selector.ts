@@ -1,3 +1,46 @@
+/*!
+# `<tab-selector>`
+
+`<tab-selector>` creates a `tabpanel` for its children, creating a `tab` for each based on its
+`name` attribute.
+
+```html
+<tab-selector>
+  <div name="first">first body</div>
+  <div name="second">second body</div>
+  <div name="third">third body</div>
+</tab-selector>
+```
+```css
+  tab-selector {
+    height: 100%;
+  }
+  
+  div[name] {
+    padding: 20px;
+    text-align: center;
+    height: 100%;
+    font-size: 200%;
+  }
+```
+```js
+[...preview.querySelectorAll('div[name]')].forEach(div => {
+  div.style.color = `hsl(${(Math.random() * 360).toFixed(0)} 50% 50%)`
+})
+```
+
+Usage:
+
+`TabSelector` is the class and `tabSelector` is the `ElementCreator`. So the three methods
+of creating a `<tab-selector>` are:
+
+1. importing `TabSelector` and inserting the appropriate HTML: `<tab-selector>`.
+2. using `new TabSelector()` and appending it to the DOM.
+3. using `tabSelector()` and appending it to the DOM. This last is more convenient because
+   `ElementCreator` allows composition, convenient assignment of properties and attributes,
+   and so forth.
+*/
+
 import {
   Component as WebComponent,
   ElementCreator,
@@ -10,14 +53,13 @@ const { div, slot } = elements
 export class TabSelector extends WebComponent {
   value = 0
 
-  role = 'tabpanel'
-
   styleNode = WebComponent.StyleNode({
     ':host': {
       display: 'flex',
       flexDirection: 'column',
       position: 'relative',
       overflow: 'hidden',
+      boxShadow: 'none !important',
     },
     slot: {
       position: 'relative',
@@ -26,12 +68,18 @@ export class TabSelector extends WebComponent {
       overflow: 'hidden',
       overflowY: 'auto',
     },
+    'slot[name="after-tabs"]': {
+      flex: '0 0 auto',
+    },
     '::slotted([hidden])': {
       display: 'none !important',
     },
     ':host .tab-holder': {
       display: 'flex',
       flexDirection: 'column',
+    },
+    ':host .tab-row': {
+      display: 'flex',
     },
     ':host .tabs': {
       display: 'flex',
@@ -59,8 +107,13 @@ export class TabSelector extends WebComponent {
 
   content = [
     div(
-      { class: 'tab-holder' },
-      div({ class: 'tabs', part: 'tabs' }),
+      { class: 'tab-holder', role: 'tabpanel' },
+      div(
+        { class: 'tab-row' },
+        div({ class: 'tabs', part: 'tabs' }),
+        div({ style: { flex: '1 1 auto' } }),
+        slot({ name: 'after-tabs' })
+      ),
       div({ class: 'border' }, div({ class: 'selected', part: 'selected' }))
     ),
     slot(),
@@ -123,7 +176,7 @@ export class TabSelector extends WebComponent {
 
   setupTabs = (): void => {
     const { tabs } = this.parts
-    const tabBodies = [...this.childNodes] as Element[]
+    const tabBodies = [...this.children] as Element[]
 
     tabBodies.filter((child) => child.hasAttribute('name'))
     tabs.textContent = ''

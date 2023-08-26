@@ -13,6 +13,31 @@ export interface LottieConfig {
   [key: string]: any
 }
 
+/*!
+# `<bodymovin-player>`
+
+A wrapper for AirBnb's bodymovin, a.k.a. [lottie](https://airbnb.io/lottie/#/web), player.
+
+```html
+<bodymovin-player 
+  style="height: 160px; width: 160px" 
+  src="https://raw.githubusercontent.com/tonioloewald/xinjs-ui/main/demo/88140-rocket-livetrade.json"
+></bodymovin-player>
+```
+```css
+bodymovin-player {
+  margin: var(--spacing);
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+}
+```
+
+Or you can directly set its `json` property to the content of a `lottie.json` file.
+
+And of course just access the element's `animation` property to use the usual APIs.
+*/
+
 export class BodymovinPlayer extends WebComponent {
   content = null
   src = ''
