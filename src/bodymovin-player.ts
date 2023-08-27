@@ -16,7 +16,8 @@ export interface LottieConfig {
 /*!
 # `<bodymovin-player>`
 
-A wrapper for AirBnb's bodymovin, a.k.a. [lottie](https://airbnb.io/lottie/#/web), player.
+A wrapper for AirBnb's bodymovin, a.k.a. [lottie](https://airbnb.io/lottie/#/web), player. It's designed
+to work like an `<img>` element (just set its `src` attribute).
 
 ```html
 <bodymovin-player 
@@ -34,9 +35,9 @@ A wrapper for AirBnb's bodymovin, a.k.a. [lottie](https://airbnb.io/lottie/#/web
 }
 ```
 
-Or you can directly set its `json` property to the content of a `lottie.json` file.
+You can also directly set its `json` property to the content of a `lottie.json` file.
 
-And of course just access the element's `animation` property to use the usual APIs.
+And of course just access the element's `animation` property to [use the bodymovin API](https://airbnb.io/lottie/#/web).
 */
 
 export class BodymovinPlayer extends WebComponent {

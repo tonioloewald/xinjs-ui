@@ -565,7 +565,10 @@ class $e6e19030d0c18d6f$export$df30df7ec97b32b5 extends (0, $hgUW1$Component) {
         this.setColumnWidths();
         this.append($e6e19030d0c18d6f$var$div({
             class: "thead",
-            role: "rowgroup"
+            role: "rowgroup",
+            style: {
+                touchAction: "none"
+            }
         }, $e6e19030d0c18d6f$var$div({
             class: "tr",
             role: "row",
@@ -1186,6 +1189,7 @@ live-example [part="example"] {
 
 live-example [part=preview] {
   height: 100%;
+  overflow: hidden;
 }
 
 live-example [part="editors"] {
@@ -1508,7 +1512,7 @@ its `value`.
 
 ```html
 <rich-text widgets="minimal">
-<h2>Heading</h2>
+<h3>Heading</h3>
 <p>And some <b>text</b></p>
 </rich-text>
 ```

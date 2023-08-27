@@ -8,7 +8,7 @@ its `value`.
 
 ```html
 <rich-text widgets="minimal">
-<h2>Heading</h2>
+<h3>Heading</h3>
 <p>And some <b>text</b></p>
 </rich-text>
 ```
