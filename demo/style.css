@@ -7,11 +7,11 @@
   --text-color: #222;
   --brand-color: #088358;
   --background: #fafafa;
-  --nav-bg: #f8fbf1f4;
+  --nav-bg: #dee0dbd2;
   --bar-color: #dae3df;
   --focus-color: #08835880;
   --brand-text-color: #ecf3dd;
-  --code-bg: #eaeee2;
+  --code-bg: #f8ffe9;
   --spacing: 10px;
   --line-height: calc(var(--font-size) * 1.6);
   --h1-scale: 2;

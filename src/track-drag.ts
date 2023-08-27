@@ -12,8 +12,6 @@ Just call `trackDrag(event, (dx, dy, event) => { ... })` and you'll get updates 
 you return `true` from the event-handler (or, in the case of `touch` events, the last `touch` ends).
 For mouse events, a "tracker" element is thrown up in front of everything for the event.
 
-For example, this is how the `<data-table>` component tracks the user resizing a column.
-
 ```html
 <p>
   Try dragging the squares…
@@ -23,6 +21,10 @@ For example, this is how the `<data-table>` component tracks the user resizing a
 <div class="draggable" style="bottom: 30px; right: 10px; background: #00f8"></div>
 ```
 ```css
+.preview {
+  touch-action: none;
+}
+
 .draggable {
   content: ' ';
   position: absolute;
@@ -49,33 +51,8 @@ function dragItem(event) {
   }
 }
 
-preview.addEventListener('mousedown', dragItem)
+preview.addEventListener('mousedown', dragItem )
 preview.addEventListener('touchstart', dragItem, { passive: true } )
-```
-
-```
-trackDrag(
-  event,
-  (dx, dy, event: any) => {
-    const touch = isTouchEvent
-      ? [...event.touches].find(
-          (touch: any) => touch.identifier === touchIdentifier
-        )
-      : true
-    if (touch === undefined) {
-      return true
-    }
-    const width = origWidth + dx
-    column.width =
-      width > this.minColumnWidth ? width : this.minColumnWidth
-    this.setColumnWidths()
-    event.preventDefault()
-    if (event.type === 'mouseup') {
-      return true
-    }
-  },
-  'col-resize'
-)
 ```
 
 For `touch` events, `dx` and `dy` are based on `event.touches[0]`. If you want to handle

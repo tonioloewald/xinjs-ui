@@ -70,6 +70,7 @@ live-example [part="example"] {
 
 live-example [part=preview] {
   height: 100%;
+  overflow: hidden;
 }
 
 live-example [part="editors"] {

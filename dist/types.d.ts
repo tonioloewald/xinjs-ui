@@ -13,7 +13,8 @@ export interface LottieConfig {
 /*!
 # `<bodymovin-player>`
 
-A wrapper for AirBnb's bodymovin, a.k.a. [lottie](https://airbnb.io/lottie/#/web), player.
+A wrapper for AirBnb's bodymovin, a.k.a. [lottie](https://airbnb.io/lottie/#/web), player. It's designed
+to work like an `<img>` element (just set its `src` attribute).
 
 ```html
 <bodymovin-player
@@ -31,9 +32,9 @@ A wrapper for AirBnb's bodymovin, a.k.a. [lottie](https://airbnb.io/lottie/#/web
 }
 ```
 
-Or you can directly set its `json` property to the content of a `lottie.json` file.
+You can also directly set its `json` property to the content of a `lottie.json` file.
 
-And of course just access the element's `animation` property to use the usual APIs.
+And of course just access the element's `animation` property to [use the bodymovin API](https://airbnb.io/lottie/#/web).
 */
 export class BodymovinPlayer extends Component {
     content: null;
@@ -75,8 +76,6 @@ Just call `trackDrag(event, (dx, dy, event) => { ... })` and you'll get updates 
 you return `true` from the event-handler (or, in the case of `touch` events, the last `touch` ends).
 For mouse events, a "tracker" element is thrown up in front of everything for the event.
 
-For example, this is how the `<data-table>` component tracks the user resizing a column.
-
 ```html
 <p>
   Try dragging the squares…
@@ -86,6 +85,10 @@ For example, this is how the `<data-table>` component tracks the user resizing a
 <div class="draggable" style="bottom: 30px; right: 10px; background: #00f8"></div>
 ```
 ```css
+.preview {
+  touch-action: none;
+}
+
 .draggable {
   content: ' ';
   position: absolute;
@@ -112,33 +115,8 @@ function dragItem(event) {
   }
 }
 
-preview.addEventListener('mousedown', dragItem)
+preview.addEventListener('mousedown', dragItem )
 preview.addEventListener('touchstart', dragItem, { passive: true } )
-```
-
-```
-trackDrag(
-  event,
-  (dx, dy, event: any) => {
-    const touch = isTouchEvent
-      ? [...event.touches].find(
-          (touch: any) => touch.identifier === touchIdentifier
-        )
-      : true
-    if (touch === undefined) {
-      return true
-    }
-    const width = origWidth + dx
-    column.width =
-      width > this.minColumnWidth ? width : this.minColumnWidth
-    this.setColumnWidths()
-    event.preventDefault()
-    if (event.type === 'mouseup') {
-      return true
-    }
-  },
-  'col-resize'
-)
 ```
 
 For `touch` events, `dx` and `dy` are based on `event.touches[0]`. If you want to handle

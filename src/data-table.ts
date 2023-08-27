@@ -351,7 +351,7 @@ export class DataTable extends WebComponent {
     this.setColumnWidths()
     this.append(
       div(
-        { class: 'thead', role: 'rowgroup' },
+        { class: 'thead', role: 'rowgroup', style: { touchAction: 'none' } },
         div(
           {
             class: 'tr',

@@ -133,7 +133,7 @@ const docViewer = markdownViewer({
     display: 'block',
     maxWidth: '44em',
     margin: 'auto',
-    padding: `0 2em`,
+    padding: `0 1em`,
   },
   value: app.docs.find((doc) => doc.filename === app.currentDoc)!.text,
   didRender() {
@@ -155,7 +155,7 @@ const docViewer = markdownViewer({
         exampleSources.push(sources[index + 1])
         index += 1
       }
-      const example = liveExample()
+      const example = liveExample({ style: { margin: `1em -1em` } })
       ;(exampleSources[0].block.parentElement as HTMLElement).insertBefore(
         example,
         exampleSources[0].block
