@@ -52,11 +52,11 @@ document.head.append(
     { id: 'live-example' },
     `:root {
   --live-example-height: 400px;
-  --live-example-preview-height: calc(var(--live-example-height) * 0.5);
-  --live-example-editor-height: calc(var(--live-example-height) * 0.5);
 }
 
 live-example {
+  --live-example-preview-height: calc(var(--live-example-height) * 0.5);
+  --live-example-editor-height: calc(var(--live-example-height) * 0.5);
   position: relative;
   display: flex;
   flex-direction: column;
