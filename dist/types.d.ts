@@ -20,13 +20,14 @@ A wrapper for AirBnb's bodymovin, a.k.a. [lottie](https://airbnb.io/lottie/#/web
   style="height: 160px; width: 160px"
   src="https://raw.githubusercontent.com/tonioloewald/xinjs-ui/main/demo/88140-rocket-livetrade.json"
 ></bodymovin-player>
+<div>
+  Animation by <a target="_blank" href="https://lottiefiles.com/dvskjbicfc">chiến lê hồng</a>
+</div>
 ```
 ```css
-bodymovin-player {
-  margin: var(--spacing);
-  position: absolute;
-  left: 50%;
-  transform: translateX(-50%);
+.preview {
+  padding: var(--spacing);
+  text-align: center;
 }
 ```
 
