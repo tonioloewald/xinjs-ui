@@ -77,6 +77,45 @@ For mouse events, a "tracker" element is thrown up in front of everything for th
 
 For example, this is how the `<data-table>` component tracks the user resizing a column.
 
+```html
+<p>
+  Try dragging the squares…
+</p>
+<div class="draggable" style="top: 20px; left: 40px; background: #f008"></div>
+<div class="draggable" style="left: 40%; bottom: 30%; background: #0f08"></div>
+<div class="draggable" style="bottom: 30px; right: 10px; background: #00f8"></div>
+```
+```css
+.draggable {
+  content: ' ';
+  position: absolute;
+  width: 50px;
+  height: 50px;
+  cursor: move;
+}
+```
+```js
+const { trackDrag } = xinjsui
+
+function dragItem(event) {
+  const draggable = event.target
+  if (draggable.classList.contains('draggable')) {
+    const x = draggable.offsetLeft
+    const y = draggable.offsetTop
+    trackDrag(event, (dx, dy, event) => {
+      draggable.style.left = (x + dx) + 'px'
+      draggable.style.top = (y + dy) + 'px'
+      draggable.style.bottom = 'auto'
+      draggable.style.right = 'auto'
+      return event.type === 'mouseup'
+    })
+  }
+}
+
+preview.addEventListener('mousedown', dragItem)
+preview.addEventListener('touchstart', dragItem, { passive: true } )
+```
+
 ```
 trackDrag(
   event,
@@ -93,6 +132,7 @@ trackDrag(
     column.width =
       width > this.minColumnWidth ? width : this.minColumnWidth
     this.setColumnWidths()
+    event.preventDefault()
     if (event.type === 'mouseup') {
       return true
     }
