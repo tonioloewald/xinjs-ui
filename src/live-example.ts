@@ -109,7 +109,7 @@ export class LiveExample extends WebComponent {
     div(
       { part: 'example' },
       style({ part: 'style' }),
-      div({ part: 'preview' })
+      div({ part: 'preview', class: 'preview' })
     ),
     tabSelector(
       { part: 'editors' },

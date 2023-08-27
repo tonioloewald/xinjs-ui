@@ -321,7 +321,10 @@ rich-text [part='doc'] {
   padding: 5px 15px;
 }
 
+.doc-link:not(.current) {
+  opacity: 0.75;
+}
+
 live-example {
-  margin: var(--spacing);
-  box-shadow: 0 0 0 var(--spacing) #08835840;
+  margin: var(--spacing) 0;
 }

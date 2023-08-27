@@ -7,7 +7,7 @@
   "source": "src/index.ts",
   "scripts": {
     "start": "rm -rf www && bun docs.js && bun parcel demo/index.html --dist-dir www -p 8787",
-    "pack": "bun docs.js && bun format && bun test && rm -rf docs && bun parcel build --public-url . && cp demo/CNAME docs",
+    "pack": "bun docs.js && bun format && bun test && rm -rf docs && bun parcel build --public-url . && cp demo/CNAME docs && cp demo/robots.txt docs",
     "docs": "bun docs.js",
     "format": "bun eslint src demo --fix && bun prettier --write .",
     "test": "bun test",

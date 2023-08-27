@@ -274,32 +274,32 @@ const emojiData = await emojiRequest.json()
 
 const columns = [
   {
-    "name": "chars",
-    "prop": "chars",
-    "align": "left",
-    "visible": true,
-    "width": 80
+    name: "emoji",
+    prop: "chars",
+    align: "center",
+    visible: true,
+    width: 80
   },
   {
-    "name": "name",
-    "prop": "name",
-    "align": "left",
-    "visible": true,
-    "width": 300
+    name: "name",
+    prop: "name",
+    align: "left",
+    visible: true,
+    width: 300
   },
   {
-    "name": "category",
-    "prop": "category",
-    "align": "left",
-    "visible": true,
-    "width": 150
+    name: "category",
+    prop: "category",
+    align: "left",
+    visible: true,
+    width: 150
   },
   {
-    "name": "subcategory",
-    "prop": "subcategory",
-    "align": "left",
-    "visible": true,
-    "width": 150
+    name: "subcategory",
+    prop: "subcategory",
+    align: "left",
+    visible: true,
+    width: 150
   },
 ]
 
@@ -1218,7 +1218,8 @@ class $ada9b1474dc4b958$export$41199f9ac14d8c08 extends (0, $hgUW1$Component) {
             }, $ada9b1474dc4b958$var$style({
                 part: "style"
             }), $ada9b1474dc4b958$var$div({
-                part: "preview"
+                part: "preview",
+                class: "preview"
             })),
             (0, $6bbe441346901d5a$export$a932f737dcd864a2)({
                 part: "editors"
@@ -1431,7 +1432,7 @@ class $6246d5006b5a56c3$export$f2ffec4d96a433ed extends (0, $hgUW1$Component) {
         const [long, lat, zoom] = this.coords.split(",").map((x)=>Number(x));
         if (this.map) this.map.remove();
         $6246d5006b5a56c3$export$f2ffec4d96a433ed.mapboxAvailable.then(({ mapboxgl: mapboxgl })=>{
-            console.log("%cmapbox may complain about missing css because it is loaded async on demand", "background: orange; color: black; padding: 0 5px;");
+            console.log("%cmapbox may complain about missing css -- don't panic!", "background: orange; color: black; padding: 0 5px;");
             mapboxgl.accessToken = this.token;
             this._map = new mapboxgl.Map({
                 container: div,

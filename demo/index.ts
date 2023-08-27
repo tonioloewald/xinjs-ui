@@ -10,8 +10,6 @@ import {
 
 import {
   tabSelector,
-  bodymovinPlayer,
-  BodymovinPlayer,
   markdownViewer,
   dataTable,
   filterBuilder,
@@ -26,18 +24,15 @@ import {
 
 import docs from './docs.json'
 
-const download = (name: string, data: string): void => {
-  const link = a({
-    download: name,
-    href: `data:text/plain;charset=UTF-8,${encodeURIComponent(data)}`,
-  })
-  link.click()
-}
+console.log(
+  '%cwelcome to ui.xinjs.net',
+  `color: ${getComputedStyle(document.body).getPropertyValue(
+    '--brand-color'
+  )}; padding: 0 5px;`
+)
 
 const deathsUrl =
   'https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_time_series/time_series_covid19_deaths_global.csv'
-
-import rocket from './88140-rocket-livetrade.json'
 
 const PROJECT = 'xinjs-ui'
 
@@ -113,7 +108,7 @@ Object.assign(globalThis, { app, xin, bindings, elements, vars, touch })
 
 const main = document.querySelector('main') as HTMLElement
 
-const { h1, h2, div, span, a, img, p, label, input, header, button, template } =
+const { h1, h2, div, span, a, img, label, input, header, button, template } =
   elements
 
 const table = dataTable({
@@ -278,91 +273,6 @@ main.append(
           span({ class: 'icon-chevron-left' })
         ),
         docViewer
-      )
-    ),
-    div(
-      {
-        name: 'bodymovin',
-        style: { textAlign: 'center' },
-      },
-      h2('bodymovin-player'),
-      div(
-        { class: 'bar' },
-        label(
-          'test lotte.json',
-          { class: 'clickable', tabindex: 0 },
-          input({
-            type: 'file',
-            hidden: true,
-            accept: '.json,application/json',
-            onChange(event: Event) {
-              const about = document.querySelector(
-                '.bodymovin-info'
-              ) as HTMLElement
-              const { files } = event.target as HTMLInputElement
-              if (files && files.length === 1) {
-                const reader = new FileReader()
-
-                reader.onload = () => {
-                  let { result } = reader
-                  if (typeof result !== 'string') {
-                    return
-                  }
-                  if (app.optimizeLottie) {
-                    const origSize = result.length
-                    result = result.replace(/"mn":\s*"[^"]*",/g, '')
-                    result = result.replace(/"nm":\s*"[^"]*",/g, '')
-                    result = result.replace(
-                      /\d+\.\d+/g,
-                      (floatString: string) => {
-                        const float = Number(floatString)
-                        return float > 10 ? float.toFixed(0) : float.toFixed(1)
-                      }
-                    )
-                    const currentSize = result.length
-                    about.textContent = `loaded ${origSize} chars, reduced to ${currentSize}`
-                    app.lottieData = result
-                  } else {
-                    about.textContent = `size: ${result.length}`
-                  }
-                  ;(
-                    document.querySelector(
-                      'bodymovin-player'
-                    ) as BodymovinPlayer
-                  ).json = JSON.parse(result)
-                }
-                app.lottieFilename = files[0].name
-                reader.readAsText(files[0])
-              }
-            },
-          })
-        ),
-        label(
-          input({
-            title: 'optimize',
-            type: 'checkbox',
-            bindValue: 'app.optimizeLottie',
-          }),
-          'optimize'
-        ),
-        span({ class: 'elastic' }),
-        button('Save Data', {
-          bindEnabled: 'app.lottieData',
-          onClick() {
-            download(
-              app.lottieFilename.replace(/\.json/, '-optimized.json'),
-              app.lottieData
-            )
-          },
-        })
-      ),
-      bodymovinPlayer({ style: { marginTop: vars.spacing200 }, json: rocket }),
-      p(
-        { class: 'bodymovin-info' },
-        'Animation by ',
-        a('chiến lê hồng', {
-          href: 'https://lottiefiles.com/dvskjbicfc',
-        })
       )
     ),
     div(

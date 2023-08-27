@@ -131,7 +131,7 @@ export class MapBox extends WebComponent {
 
     MapBox.mapboxAvailable!.then(({ mapboxgl }: { mapboxgl: any }) => {
       console.log(
-        '%cmapbox may complain about missing css because it is loaded async on demand',
+        "%cmapbox may complain about missing css -- don't panic!",
         'background: orange; color: black; padding: 0 5px;'
       )
       mapboxgl.accessToken = this.token
