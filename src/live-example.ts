@@ -71,6 +71,9 @@ live-example [part="example"] {
 live-example [part=preview] {
   height: 100%;
   overflow: hidden;
+  background: #f7f7f7 url('data:image/svg+xml,\
+  <svg xmlns="http://www.w3.org/2000/svg" width="80" height="80" viewBox="0 0 8 8" fill-opacity=".02" >\
+  <rect x="4" width="4" height="4" /><rect y="4" width="4" height="4" /></svg>');
 }
 
 live-example [part="editors"] {
