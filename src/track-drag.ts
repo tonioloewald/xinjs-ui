@@ -14,7 +14,8 @@ For mouse events, a "tracker" element is thrown up in front of everything for th
 
 ```html
 <p>
-  Try dragging the squares…
+  Try dragging the squares…<br>
+  (You can drag them separately with multi-touch!)
 </p>
 <div class="draggable" style="top: 20px; left: 40px; background: #f008"></div>
 <div class="draggable" style="left: 40%; bottom: 30%; background: #0f08"></div>
@@ -32,6 +33,13 @@ For mouse events, a "tracker" element is thrown up in front of everything for th
   height: 50px;
   cursor: move;
 }
+
+.preview p {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translateX(-50%) translateY(-50%);
+}
 ```
 ```js
 const { trackDrag } = xinjsui
@@ -47,7 +55,7 @@ function dragItem(event) {
       draggable.style.bottom = 'auto'
       draggable.style.right = 'auto'
       return event.type === 'mouseup'
-    })
+    }, 'move')
   }
 }
 
@@ -55,8 +63,10 @@ preview.addEventListener('mousedown', dragItem )
 preview.addEventListener('touchstart', dragItem, { passive: true } )
 ```
 
-For `touch` events, `dx` and `dy` are based on `event.touches[0]`. If you want to handle
-multi-touch or specific touches, handle `event.touches` etc. yourself.
+For `touch` events, `dx` and `dy` are based on tracking `event.changedTouches[0]` which
+is almost certainly what you want.
+
+To handle multi-touch gestures you will need to track the touches yourself.
 */
 export const trackDrag = (
   event: PointerEvent,
@@ -94,18 +104,21 @@ export const trackDrag = (
     tracker.addEventListener('mousemove', wrappedCallback, { passive: true })
     tracker.addEventListener('mouseup', wrappedCallback, { passive: true })
   } else if (event instanceof TouchEvent) {
-    const origX = event.touches[0].clientX
-    const origY = event.touches[0].clientY
+    const touch = event.changedTouches[0]
+    const touchId = touch.identifier
+    const origX = touch.clientX
+    const origY = touch.clientY
     const target: any = event.target
 
     let dx = 0
     let dy = 0
     const wrappedCallback = (event: any) => {
-      if (event.touches.length > 0) {
-        dx = event.touches[0].clientX - origX
-        dy = event.touches[0].clientY - origY
+      const touch = [...event.touches].find(touch => touch.identifier === touchId)
+      if (touch !== undefined) {
+        dx = touch.clientX - origX
+        dy = touch.clientY - origY
       }
-      if (callback(dx, dy, event) === true || event.touches.length === 0) {
+      if (callback(dx, dy, event) === true || touch === undefined) {
         target.removeEventListener('touchmove', wrappedCallback)
         target.removeEventListener('touchend', wrappedCallback)
         target.removeEventListener('touchcancel', wrappedCallback)

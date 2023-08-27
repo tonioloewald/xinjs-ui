@@ -120,7 +120,8 @@ preview.addEventListener('touchstart', dragItem, { passive: true } )
 ```
 
 For `touch` events, `dx` and `dy` are based on `event.touches[0]`. If you want to handle
-multi-touch or specific touches, handle `event.touches` etc. yourself.
+multi-touch gestures (e.g. pinch-to-zoom) or specific touches, handle the `event.touches`
+array yourself.
 */
 export const trackDrag: (event: PointerEvent, callback: TrackerCallback, cursor?: string) => void;
 export interface ColumnOptions {
