@@ -55,7 +55,7 @@ function dragItem(event) {
       draggable.style.bottom = 'auto'
       draggable.style.right = 'auto'
       return event.type === 'mouseup'
-    }, 'move')
+    })
   }
 }
 
@@ -71,7 +71,7 @@ To handle multi-touch gestures you will need to track the touches yourself.
 export const trackDrag = (
   event: PointerEvent,
   callback: TrackerCallback,
-  cursor = 'default'
+  cursor = 'move'
 ): void => {
   const isTouchEvent = event.type.startsWith('touch')
 
@@ -113,7 +113,9 @@ export const trackDrag = (
     let dx = 0
     let dy = 0
     const wrappedCallback = (event: any) => {
-      const touch = [...event.touches].find(touch => touch.identifier === touchId)
+      const touch = [...event.touches].find(
+        (touch) => touch.identifier === touchId
+      )
       if (touch !== undefined) {
         dx = touch.clientX - origX
         dy = touch.clientY - origY

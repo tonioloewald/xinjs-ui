@@ -7,7 +7,7 @@
   --text-color: #222;
   --brand-color: #088358;
   --background: #fafafa;
-  --nav-bg: #dee0dbd2;
+  --nav-bg: #efefeed2;
   --bar-color: #dae3df;
   --focus-color: #08835880;
   --brand-text-color: #ecf3dd;
@@ -40,6 +40,10 @@ select,
 textarea {
   font-family: var(--font-family);
   font-size: var(--font-size);
+}
+
+select {
+  -webkit-appearance: none;
 }
 
 header {
@@ -129,6 +133,12 @@ select,
   border: none;
   border-radius: calc(var(--spacing) * 0.5);
   margin: 0 calc(var(--spacing) * 0.25);
+}
+
+select + .icon-chevron-down {
+  margin-left: -20px;
+  align-self: center;
+  pointer-events: none;
 }
 
 input {
