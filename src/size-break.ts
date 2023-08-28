@@ -12,11 +12,60 @@ working on right now, a row of buttons turns into a menu at narrow widths) there
 Note that the sizes referred to are of the `<size-break>`'s `.offsetParent`, and it watches for
 the window's `resize` events and its own (via `ResizeObserver`).
 
+```html
+<div class="container">
+  <size-break min-width="150" min-height="80">
+    <h1>BIG!</h1>
+    <i slot="small">little</i>
+  </size-break>
+  <div class="sizer"></div>
+</div>
 ```
-<size-break min-width="500">
-  <default-thing>I am big!</default-thing>
-  <small-thing slot="small">I am little</small-thing>
-</size-break>
+```css
+size-break {
+  width: 100%;
+  height: 100%;
+  background: #fff8;
+  border: 1px solid #aaa;
+}
+
+.container {
+  position: relative;
+  min-width: 100px;
+  min-height: 40px;
+  max-height: 200px;
+  width: 400px;
+  height: 100px;
+}
+
+.sizer {
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  background: #0003;
+  bottom: 0;
+  right: 0;
+  cursor: nwse-resize;
+}
+```
+```js
+const { trackDrag } = xinjsui
+
+const container = preview.querySelector('.container')
+const sizer = preview.querySelector('.sizer')
+
+function resize(event) {
+  const w = container.offsetWidth
+  const h = container.offsetHeight
+  trackDrag(event, (dx, dy, event) => {
+    container.style.width = (w + dx) + 'px'
+    container.style.height = (h + dy) + 'px'
+    return event.type === 'mouseup'
+  }, 'nwse-resize')
+}
+
+sizer.addEventListener('mousedown', resize, 'nwse-resize')
+sizer.addEventListener('touchstart', resize, 'nwse-resize')
 ```
 
 `<size-break>` supports both `min-width` and/or `min-height`, and you can of course target only one
@@ -46,7 +95,7 @@ export class SizeBreak extends WebComponent {
   onResize = () => {
     const { normal, small } = this.parts
     const parent = this.offsetParent as HTMLElement | null
-    if (parent === null) {
+    if (!(parent instanceof HTMLElement)) {
       return
     } else if (
       parent.offsetWidth < this.minWidth ||
@@ -63,7 +112,7 @@ export class SizeBreak extends WebComponent {
   }
 
   // TODO trigger a resize event when an ancestor element
-  // is inerted or moved into the DOM.
+  // is inserted or moved into the DOM.
   connectedCallback(): void {
     super.connectedCallback()
     globalThis.addEventListener('resize', this.onResize)

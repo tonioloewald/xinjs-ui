@@ -36,7 +36,7 @@ the `<rich-text>` component).
 
 import { Component as WebComponent, ElementCreator, elements } from 'xinjs'
 
-const { style, xinSlot, div, select, option, button, span } = elements
+const { style, xinSlot, div, select, fragment, option, button, span } = elements
 
 document.head.append(
   style(
@@ -85,11 +85,14 @@ const blockStyles = [
 ]
 
 export function blockStyle(options = blockStyles) {
-  return select(
-    { title: 'paragraph style', slot: 'toolbar', class: 'block-style' },
-    ...options.map(({ caption, tagType }) =>
-      option(caption, { value: `formatBlock,${tagType}` })
-    )
+  return fragment(
+    select(
+      { title: 'paragraph style', slot: 'toolbar', class: 'block-style' },
+      ...options.map(({ caption, tagType }) =>
+        option(caption, { value: `formatBlock,${tagType}` })
+      )
+    ),
+    span({ class: 'icon-chevron-down' })
   )
 }
 

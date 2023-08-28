@@ -312,7 +312,7 @@ If you set the `<data-table>`'s `rowHeight` to `0` it will render all its elemen
 useful for smaller tables, or tables with variable row-heights.
 */ 
 
-const $5265d118b5240170$export$c947e3cd16175f27 = (event, callback, cursor = "default")=>{
+const $5265d118b5240170$export$c947e3cd16175f27 = (event, callback, cursor = "move")=>{
     const isTouchEvent = event.type.startsWith("touch");
     if (!isTouchEvent) {
         const origX = event.clientX;
@@ -341,17 +341,22 @@ const $5265d118b5240170$export$c947e3cd16175f27 = (event, callback, cursor = "de
             passive: true
         });
     } else if (event instanceof TouchEvent) {
-        const origX = event.touches[0].clientX;
-        const origY = event.touches[0].clientY;
+        const touch = event.changedTouches[0];
+        const touchId = touch.identifier;
+        const origX = touch.clientX;
+        const origY = touch.clientY;
         const target = event.target;
         let dx = 0;
         let dy = 0;
         const wrappedCallback = (event)=>{
-            if (event.touches.length > 0) {
-                dx = event.touches[0].clientX - origX;
-                dy = event.touches[0].clientY - origY;
+            const touch = [
+                ...event.touches
+            ].find((touch)=>touch.identifier === touchId);
+            if (touch !== undefined) {
+                dx = touch.clientX - origX;
+                dy = touch.clientY - origY;
             }
-            if (callback(dx, dy, event) === true || event.touches.length === 0) {
+            if (callback(dx, dy, event) === true || touch === undefined) {
                 target.removeEventListener("touchmove", wrappedCallback);
                 target.removeEventListener("touchend", wrappedCallback);
                 target.removeEventListener("touchcancel", wrappedCallback);
@@ -916,6 +921,10 @@ languages (js, html, css) as annotations or you can directly set the `js`, `html
 and `css` properties.
 
 ```css
+.preview {
+  padding: 0 var(--spacing);  
+}
+
 .example {
   animation: throb ease-in-out 1s infinite alternate;
 }
@@ -1190,6 +1199,9 @@ live-example [part="example"] {
 live-example [part=preview] {
   height: 100%;
   overflow: hidden;
+  background: #f7f7f7 url('data:image/svg+xml,\
+  <svg xmlns="http://www.w3.org/2000/svg" width="80" height="80" viewBox="0 0 8 8" fill-opacity=".02" >\
+  <rect x="4" width="4" height="4" /><rect y="4" width="4" height="4" /></svg>');
 }
 
 live-example [part="editors"] {
@@ -1537,7 +1549,7 @@ you to easily perform operations on text selections, and a `selectionChange` cal
 simply passes through document `selectionchange` events, but also passes a reference to
 the `<rich-text>` component).
 */ 
-const { style: $815deb6062b0b31b$var$style, xinSlot: $815deb6062b0b31b$var$xinSlot, div: $815deb6062b0b31b$var$div, select: $815deb6062b0b31b$var$select, option: $815deb6062b0b31b$var$option, button: $815deb6062b0b31b$var$button, span: $815deb6062b0b31b$var$span } = (0, $hgUW1$elements);
+const { style: $815deb6062b0b31b$var$style, xinSlot: $815deb6062b0b31b$var$xinSlot, div: $815deb6062b0b31b$var$div, select: $815deb6062b0b31b$var$select, fragment: $815deb6062b0b31b$var$fragment, option: $815deb6062b0b31b$var$option, button: $815deb6062b0b31b$var$button, span: $815deb6062b0b31b$var$span } = (0, $hgUW1$elements);
 document.head.append($815deb6062b0b31b$var$style({
     id: "rich-text"
 }, `rich-text {
@@ -1580,13 +1592,15 @@ const $815deb6062b0b31b$var$blockStyles = [
     }
 ];
 function $815deb6062b0b31b$export$94309935dd6eab19(options = $815deb6062b0b31b$var$blockStyles) {
-    return $815deb6062b0b31b$var$select({
+    return $815deb6062b0b31b$var$fragment($815deb6062b0b31b$var$select({
         title: "paragraph style",
         slot: "toolbar",
         class: "block-style"
     }, ...options.map(({ caption: caption, tagType: tagType })=>$815deb6062b0b31b$var$option(caption, {
             value: `formatBlock,${tagType}`
-        })));
+        }))), $815deb6062b0b31b$var$span({
+        class: "icon-chevron-down"
+    }));
 }
 function $815deb6062b0b31b$export$8cc075c801fd6817(width = "10px") {
     return $815deb6062b0b31b$var$span({
@@ -1901,7 +1915,7 @@ class $0f2017ffca44b547$export$7140c0f3c1b65d3f extends (0, $hgUW1$Component) {
     onResize = ()=>{
         const { normal: normal, small: small } = this.parts;
         const parent = this.offsetParent;
-        if (parent === null) return;
+        if (!(parent instanceof HTMLElement)) return;
         else if (parent.offsetWidth < this.minWidth || parent.offsetHeight < this.minHeight) {
             normal.hidden = true;
             small.hidden = false;
@@ -1913,7 +1927,7 @@ class $0f2017ffca44b547$export$7140c0f3c1b65d3f extends (0, $hgUW1$Component) {
         }
     };
     // TODO trigger a resize event when an ancestor element
-    // is inerted or moved into the DOM.
+    // is inserted or moved into the DOM.
     connectedCallback() {
         super.connectedCallback();
         globalThis.addEventListener("resize", this.onResize);

@@ -78,7 +78,8 @@ For mouse events, a "tracker" element is thrown up in front of everything for th
 
 ```html
 <p>
-  Try dragging the squares…
+  Try dragging the squares…<br>
+  (You can drag them separately with multi-touch!)
 </p>
 <div class="draggable" style="top: 20px; left: 40px; background: #f008"></div>
 <div class="draggable" style="left: 40%; bottom: 30%; background: #0f08"></div>
@@ -95,6 +96,13 @@ For mouse events, a "tracker" element is thrown up in front of everything for th
   width: 50px;
   height: 50px;
   cursor: move;
+}
+
+.preview p {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translateX(-50%) translateY(-50%);
 }
 ```
 ```js
@@ -119,9 +127,10 @@ preview.addEventListener('mousedown', dragItem )
 preview.addEventListener('touchstart', dragItem, { passive: true } )
 ```
 
-For `touch` events, `dx` and `dy` are based on `event.touches[0]`. If you want to handle
-multi-touch gestures (e.g. pinch-to-zoom) or specific touches, handle the `event.touches`
-array yourself.
+For `touch` events, `dx` and `dy` are based on tracking `event.changedTouches[0]` which
+is almost certainly what you want.
+
+To handle multi-touch gestures you will need to track the touches yourself.
 */
 export const trackDrag: (event: PointerEvent, callback: TrackerCallback, cursor?: string) => void;
 export interface ColumnOptions {
@@ -304,11 +313,11 @@ export const markdownViewer: ElementCreator<MarkdownViewer>;
 export function blockStyle(options?: {
     caption: string;
     tagType: string;
-}[]): HTMLSelectElement;
+}[]): any;
 export function spacer(width?: string): HTMLSpanElement;
 export function elastic(width?: string): HTMLSpanElement;
 export function commandButton(title: string, dataCommand: string, iconClass: string): HTMLButtonElement;
-export const richTextWidgets: () => HTMLSpanElement[];
+export const richTextWidgets: () => any[];
 export class RichText extends Component {
     widgets: 'none' | 'minimal' | 'default';
     get value(): string;
@@ -352,11 +361,60 @@ working on right now, a row of buttons turns into a menu at narrow widths) there
 Note that the sizes referred to are of the `<size-break>`'s `.offsetParent`, and it watches for
 the window's `resize` events and its own (via `ResizeObserver`).
 
+```html
+<div class="container">
+  <size-break min-width="150" min-height="80">
+    <h1>BIG!</h1>
+    <i slot="small">little</i>
+  </size-break>
+  <div class="sizer"></div>
+</div>
 ```
-<size-break min-width="500">
-  <default-thing>I am big!</default-thing>
-  <small-thing slot="small">I am little</small-thing>
-</size-break>
+```css
+size-break {
+  width: 100%;
+  height: 100%;
+  background: #fff8;
+  border: 1px solid #aaa;
+}
+
+.container {
+  position: relative;
+  min-width: 100px;
+  min-height: 40px;
+  max-height: 200px;
+  width: 400px;
+  height: 100px;
+}
+
+.sizer {
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  background: #0003;
+  bottom: 0;
+  right: 0;
+  cursor: nwse-resize;
+}
+```
+```js
+const { trackDrag } = xinjsui
+
+const container = preview.querySelector('.container')
+const sizer = preview.querySelector('.sizer')
+
+function resize(event) {
+  const w = container.offsetWidth
+  const h = container.offsetHeight
+  trackDrag(event, (dx, dy, event) => {
+    container.style.width = (w + dx) + 'px'
+    container.style.height = (h + dy) + 'px'
+    return event.type === 'mouseup'
+  }, 'nwse-resize')
+}
+
+sizer.addEventListener('mousedown', resize, 'nwse-resize')
+sizer.addEventListener('touchstart', resize, 'nwse-resize')
 ```
 
 `<size-break>` supports both `min-width` and/or `min-height`, and you can of course target only one

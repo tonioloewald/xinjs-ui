@@ -10,6 +10,10 @@ languages (js, html, css) as annotations or you can directly set the `js`, `html
 and `css` properties.
 
 ```css
+.preview {
+  padding: 0 var(--spacing);  
+}
+
 .example {
   animation: throb ease-in-out 1s infinite alternate;
 }
