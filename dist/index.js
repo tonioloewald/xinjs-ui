@@ -658,6 +658,51 @@ Automatically creates `ArrayFilter` functions `(a: any[]) => any[]` based on a t
 following criteria — all text matches are performed in `LocaleLowerCase`. Criteria are space-delimited, but
 a quoted string which can include spaces (but not nested quotation marks) is allowed on the right.
 
+```js
+const { dataTable, filterBuilder } = xinjsui
+
+const emojiRequest = await fetch('https://raw.githubusercontent.com/tonioloewald/emoji-metadata/master/emoji-metadata.json')
+const emojiData = await emojiRequest.json()
+
+const table = dataTable({ array: emojiData, columns })
+const filter = filterBuilder({
+  onChange() {
+    table.filter = filter.filter
+  }
+})
+const columns = [
+  {
+    name: "emoji",
+    prop: "chars",
+    align: "center",
+    visible: true,
+    width: 80
+  },
+  {
+    name: "name",
+    prop: "name",
+    align: "left",
+    visible: true,
+    width: 300
+  },
+  {
+    name: "category",
+    prop: "category",
+    align: "left",
+    visible: true,
+    width: 150
+  },
+  {
+    name: "subcategory",
+    prop: "subcategory",
+    align: "left",
+    visible: true,
+    width: 150
+  },
+]
+preview.append(filter, table)
+```
+
 `<filter-builder>` has sets its `filter` property to an `ArrayFilter`, by default it just passes through
 the array untouched. Its `value` is the source `string`.
 

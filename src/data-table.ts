@@ -15,28 +15,18 @@ const columns = [
     name: "emoji",
     prop: "chars",
     align: "center",
-    visible: true,
     width: 80
   },
   {
-    name: "name",
     prop: "name",
-    align: "left",
-    visible: true,
     width: 300
   },
   {
-    name: "category",
     prop: "category",
-    align: "left",
-    visible: true,
     width: 150
   },
   {
     name: "subcategory",
-    prop: "subcategory",
-    align: "left",
-    visible: true,
     width: 150
   },
 ]
