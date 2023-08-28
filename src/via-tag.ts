@@ -3,16 +3,57 @@
 
 ## scriptTag
 
-If you need to load an old school javascript library via cdn (both mapboxgl and bodymovin are
+If you need to load an old school (cjs) javascript library via cdn (both mapboxgl and bodymovin are
 fine examples) then use these two functions. They return promises that resolve `globalThis` when the
-module in question has loaded.
+module in question has loaded and otherwise behave as much like aync `import()` as possible.
 
 Using `scriptTag`:
 
-    import { scriptTag } from 'xinjs-ui'
-    const { bodyMovin } = await scriptTag('../lottie.min.js')
+```html
+<canvas></canvas>
+```
+```css
+canvas {
+  width: 100%;
+  height: 100%;
+}
+```
+```js
+const { scriptTag } = xinjsui
 
-    bodymovin.loadAnimation(...)
+// Note that the current version of Chart.js is an ES6 module so you could just use `import()` instead
+const { Chart } = await scriptTag('https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.3/Chart.min.js')
+const data = {
+  labels: ['first', 'second', 'third'],
+  datasets: [
+    {
+      label: 'amazingness',
+      backgroundColor: '#fff4',
+      borderColor: '#f008',
+      borderWidth: 2,
+      data: [21, 27, 57]
+    }
+  ]
+}
+const options = {
+  scales: {
+    yAxes:[{
+      stacked:true,
+      gridLines: {
+        display:true,
+        color: '#00f2'
+      }
+    }],
+    xAxes:[{
+      gridLines: {
+        display:false
+      }
+    }]
+  }
+}
+
+Chart.Bar(preview.querySelector('canvas'), {data, options})
+```
 
 Note that `scriptTag` will resolve `globalThis` so it behaves as much like async `import()`
 as possible.
