@@ -1990,8 +1990,9 @@ function $5a28660a6cbe2731$export$b37fb374f2e92eb6(sortValuator, ascending = tru
     return (p, q)=>{
         const pSort = sortValuator(p);
         const qSort = sortValuator(q);
-        for(const i in pSort){
-            if (pSort[i] !== qSort[i]) return ascending ? pSort[i] > qSort[i] ? 1 : -1 : pSort[i] > qSort[i] ? -1 : 1;
+        for(const i in pSort)if (pSort[i] !== qSort[i]) {
+            const isAscending = Array.isArray(ascending) ? ascending[i] !== false : ascending;
+            return isAscending ? pSort[i] > qSort[i] ? 1 : -1 : pSort[i] > qSort[i] ? -1 : 1;
         }
         return 0;
     };
