@@ -137,9 +137,6 @@ main.append(
       name: 'Documentation',
       navSize: 200,
       minSize: 600,
-      style: {
-        height: '100%',
-      },
     },
     div(
       {
