@@ -309,6 +309,7 @@ that displays gigantic tables with fixed headers (and live column-resizing) usin
 
 ```js
 const { dataTable } = xinjsui
+const { input } = xinjs.elements
 
 const emojiRequest = await fetch('https://raw.githubusercontent.com/tonioloewald/emoji-metadata/master/emoji-metadata.json')
 const emojiData = await emojiRequest.json()
@@ -318,36 +319,53 @@ const columns = [
     name: "emoji",
     prop: "chars",
     align: "center",
-    visible: true,
     width: 80
   },
   {
-    name: "name",
     prop: "name",
-    align: "left",
-    visible: true,
-    width: 300
+    width: 300,
+    // custom cell using xinjs bindings to make the field editable
+    dataCell() {
+      return input({
+        class: 'td',
+        bindValue: '^.name',
+        title: 'name',
+      })
+    },
   },
   {
-    name: "category",
     prop: "category",
-    align: "left",
-    visible: true,
     width: 150
   },
   {
-    name: "subcategory",
     prop: "subcategory",
-    align: "left",
-    visible: true,
     width: 150
   },
 ]
 
 preview.append(dataTable({ array: emojiData, columns }))
 ```
+```css
+.preview input.td {
+  margin: 0;
+  border-radius: 0;
+  box-shadow: none !important;
+}
 
-You can set the `<data-table>`'s `value` to `{ array: any[], columns: ColumnOptions[] | null, filter?: ArrayFilter }`
+.preview data-table {
+  height: 100%;
+}
+```
+
+You can set the `<data-table>`'s `array`, `columns`, and `filter` properties directly, or set its `value` to:
+
+```
+{ 
+  array: any[], 
+  columns: ColumnOptions[] | null, 
+  filter?: ArrayFilter 
+}
+```
 
 If you set the `<data-table>`'s `rowHeight` to `0` it will render all its elements (i.e. not be virtual). This is
 useful for smaller tables, or tables with variable row-heights.
@@ -624,7 +642,7 @@ class $e6e19030d0c18d6f$export$df30df7ec97b32b5 extends (0, $hgUW1$Component) {
             role: "rowgroup",
             style: {
                 content: " ",
-                minHeight: "200px",
+                minHeight: "100px",
                 flex: "1 1 100px",
                 overflow: "hidden",
                 overflowY: "scroll"
@@ -648,296 +666,381 @@ const $e6e19030d0c18d6f$export$f71ce0a5ddbe8fa0 = $e6e19030d0c18d6f$export$df30d
 var $46dc716dd2cf5925$exports = {};
 
 $parcel$export($46dc716dd2cf5925$exports, "availableFilters", () => $46dc716dd2cf5925$export$16a138bde9d9de87);
-$parcel$export($46dc716dd2cf5925$exports, "getFilter", () => $46dc716dd2cf5925$export$61ec8404f465cd36);
+$parcel$export($46dc716dd2cf5925$exports, "FilterPart", () => $46dc716dd2cf5925$export$b7838412d9f17b13);
+$parcel$export($46dc716dd2cf5925$exports, "filterPart", () => $46dc716dd2cf5925$export$2237595b531763d7);
 $parcel$export($46dc716dd2cf5925$exports, "FilterBuilder", () => $46dc716dd2cf5925$export$afb49bb3b076029e);
 $parcel$export($46dc716dd2cf5925$exports, "filterBuilder", () => $46dc716dd2cf5925$export$8ca73b4108207c1f);
 /*!
 # `<filter-builder>`
 
-Automatically creates `ArrayFilter` functions `(a: any[]) => any[]` based on a text query that accepts the
-following criteria — all text matches are performed in `LocaleLowerCase`. Criteria are space-delimited, but
-a quoted string which can include spaces (but not nested quotation marks) is allowed on the right.
+Automatically creates `ArrayFilter` functions `(a: any[]) => any[]` based on the query you build using its
+macOS Finder-inspired interface, using an easily customizable / extensible collection of `Filter` objects.
 
-`<filter-builder>` has sets its `filter` property to an `ArrayFilter`, by default it just passes through
-the array untouched. Its `value` is the source `string`.
+```js
+const { dataTable, filterBuilder, availableFilters } = xinjsui
 
-The filter-builder has a default set of `FilterMaker` objects which it uses to **curry** an filter function.
+const sourceWords = ['acorn', 'bubblegum', 'copper', 'daisy', 'ellipse', 'fabulous', 'gerund', 'hopscotch', 'idiom', 'joke']
+function randomWords () {
+  let numWords = Math.random() * 4
+  const words = []
+  while (numWords > 0) {
+    numWords -= 1
+    words.push(sourceWords[Math.floor(Math.random() * 10)])
+  }
+  return words
+}
 
-    type ObjectTest (obj: any) => boolean
+const array = []
+for(let i = 0; i < 1000; i++) {
+  array.push({
+    date: new Date(Math.random() * Date.now()).toISOString().split('T')[0],
+    isLucky: Math.random() < 0.1,
+    number: Math.floor(Math.random() * 200 - 100),
+    string: randomWords().join(' '),
+  })
+}
 
-    interface FilterMaker {
-      hint: string                                    // describes the grammar
-      description: (...matches: string[]) => string   // describes the actual filter
-      token: RegExp                                   // matches the token
-      filterMaker(...matches: string) => ObjectTest   // builds an ObjectTest
-    }
+const columns = [
+  {
+    prop: 'date',
+    width: 120
+  },
+  {
+    prop: 'isLucky',
+    type: 'boolean',
+    width: 100
+  },
+  {
+    prop: 'number',
+    align: 'right',
+    width: 100
+  },
+  {
+    prop: 'string',
+    width: 300
+  },
+]
 
-The `<filter-builder>` will use the `hint` values to write its `placeholder` (you can override this if
-you explicitly set the `placeholder`) and it will use the `description` function to create the
-`title` attribute, describing the filter.
+const table = dataTable({ array, columns })
+const { contains, equals, after, isTrue, isFalse } = availableFilters
+const filter = filterBuilder({
+  filters: { contains, equals, after, isTrue, isFalse },
+  fields: columns,
+  onChange(event) {
+    console.log(filter.filter, filter.description)
+    table.filter = filter.filter
+  }
+})
+preview.append(filter, table)
+```
+```css
+.preview {
+  display: flex;
+  flex-direction: column;
+}
+
+.preview data-table {
+  flex: 1 1 auto;
+}
+```
 
 ## availableFilters
 
-As well as `filterBuilder`, the `availableFilters` collection is exported and can be customized directly. By default,
-each `<filter-builder>` element's `filters` property defaults to `availableFilters` but you can augment it or
-individually set.
+`<filter-builder>` has a default set of `FilterMaker` objects which it uses to construct filter function.
+In the example above, the default collection of filters is reduced to `contains`, `equals`, `after`, and `isTrue`.
 
-The default `filters` provided are (in priority order):
+The full collection includes:
 
-- `[field]=value` if `field` is specified, matches `value`, otherwise looks for `value` anwhere
-- `field!=value` matches if `field` is not `value`
-- `field<<value` / `field>>value` matches if `field` is before / after `value` (as a date)
-- `field>value` / `field<value` matches if `field` is greater / less than `value`, if `isNaN(Number(value))` this will
-  be an alphabetical order comparison, otherwise it will be numberic.
-- `field:value` / `field!:value` matches if `field` contains / does not contain `value`
-- `!!field` matches if `field` is **truthy**
-- `!field` matches if `field` is **falsy** (e.g. `''`, `null`, `undefined`, `false`, `0`)
-- `value` matches if any field contains `value`
+- **contains** * looks for fields containing a string (ignoring case)
+- **equals** * looks for fields containing equivalent values (ignoring case)
+- **after** * looks for fields with a date after a provided value
+- **greaterThan** * looks for fields with a value greater than a provided value
+- **truthy** * looks for fields that are true / non-zero / non-empty
+- **true** looks for fields that are `true`
+- **false** looks for fields that are `false`
 
-Right now multiple criteria are `AND`ed together. This will be extended to allow `()`, `OR`, `<` and `>` comparisons will
-become smarter (convert both sides to numbers if possible), and extensibility will be added.
-
-### Customizing Filters
-
-Filters should be ordered from strictest `token` to least-strict `token` where tokens have a chance of
-overlapping. E.g. the `>>` (before) token has to be before the `>` (greater than) token, otherwise `>` will steal its tokens
-(and the arguments of tokens are very liberal, since you never know what string someone will want to compare something to).
-
-I just needed the new capabilities for the project I'm working on and figured they were probably pretty likely to be useful to other people.
-
-A filter is just an object that conforms to the `FilterMaker` interface. E.g. the "contains" filter looks like this:
+**Note**: the filters marked with an * have negative version (e.g. does not contain).
 
 ```
-{
- hint: 'field:value',
- explanation: 'field contains value, ignoring case',
- description: (field: string, value: string) =>
-   `${field} contains "${value}"`,
- token: /^([^\s]+?):(.+)$/,
- makeFilter: (field: string, value: string) => {
-   value = value.toLocaleLowerCase()
-   return (obj: any) =>
-     String(obj[field]).toLocaleLowerCase().includes(value)
- },
+type ObjectTest (obj: any) => boolean
+
+interface FilterMaker {
+  caption: string                                 // describes the test condition
+  negative?: string                               // describes the negative test condition
+  needsValue?: boolean                            // if false, the filterMaker doesn't need a needle value
+  filterMaker(needle: any) => ObjectTest          // builds an ObjectTest
 }
 ```
-
-This is sufficient to make each filter atom composable and self-documenting as a text `hint`, in general `explanation`, and in particular `description`.
-
-Tokens are matched against a term, and must return enough values to drive `makeFilter`. A **term** currently looks like:
-
-`query.match(/[^\s"]+("[^"]+")?/g)`
-
-I.e. a bunch of non-whitespace characters optionally followed directly by a double-quoted string (containing not double-quotes). E.g. `foo` `$$foo:bar!><` or `foo"bar baz"`.
 */ 
-const { input: $46dc716dd2cf5925$var$input } = (0, $hgUW1$elements);
+const { div: $46dc716dd2cf5925$var$div, input: $46dc716dd2cf5925$var$input, select: $46dc716dd2cf5925$var$select, option: $46dc716dd2cf5925$var$option, button: $46dc716dd2cf5925$var$button, span: $46dc716dd2cf5925$var$span, style: $46dc716dd2cf5925$var$style } = (0, $hgUW1$elements);
+document.head.append($46dc716dd2cf5925$var$style({
+    id: "filter-builder"
+}, `filter-part {
+  display: flex;
+}
+
+filter-part [part="needle"] {
+  flex: 1 1 auto;
+}
+
+filter-part [hidden]+[part="padding"] {
+  display: block;
+  content: ' ';
+  flex: 1 1 auto;
+}
+  
+
+filter-builder {
+  width: 100%;
+  height: auto;
+  display: flex;
+  align-items: center;
+}
+
+filter-builder [part="filterContainer"] {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  flex: 1 1 auto;
+}
+
+filter-builder [part="add"],
+filter-builder [part="reset"] {
+  --button-size: var(--touch-size, 32px);
+  border-radius: 999px;
+  height: var(--button-size);
+  line-height: var(--button-size);
+  margin: 0;
+  padding: 0;
+  text-align: center;
+  width: var(--button-size);
+}
+`));
 const $46dc716dd2cf5925$var$passThru = (array)=>array;
 const $46dc716dd2cf5925$var$NULL_FILTER_DESCRIPTION = "null filter, everything matches";
-const $46dc716dd2cf5925$export$16a138bde9d9de87 = [
-    {
-        hint: "field=value",
-        explanation: "field is value, ignoring case",
-        description: (field, value)=>isNaN(Number(value)) ? field !== "" ? `${field} is "${value}"` : `any field is "${value}"` : field !== "" ? `${field} == ${value}` : `any field == ${value}`,
-        token: /^([^\s]+?)=(.+)$/,
-        makeFilter: (field, value)=>{
+const $46dc716dd2cf5925$export$16a138bde9d9de87 = {
+    contains: {
+        caption: "contains",
+        negative: "does not contain",
+        makeTest: (value)=>{
+            value = value.toLocaleLowerCase();
+            return (obj)=>String(obj).toLocaleLowerCase().includes(value);
+        }
+    },
+    equals: {
+        caption: "=",
+        negative: "≠",
+        makeTest: (value)=>{
             if (isNaN(Number(value))) {
                 value = String(value).toLocaleLowerCase();
-                if (field !== "") return (obj)=>String(obj[field]).toLocaleLowerCase() == value;
-                return (obj)=>Object.values(obj).find((val)=>String(val).toLocaleLowerCase() == value) !== undefined;
+                return (obj)=>String(obj).toLocaleLowerCase() === value;
             }
             const num = Number(value);
-            if (field !== "") return (obj)=>Number(obj[field]) == num;
-            return (obj)=>Object.values(obj).find((val)=>Number(val) == num) !== undefined;
+            return (obj)=>Number(obj) === num;
         }
     },
-    {
-        hint: "field!=value",
-        explanation: "field is not value, ignoring case",
-        description: (field, value)=>`${field} ≠ ${value}`,
-        token: /^([^\s]+?)!=(.+)$/,
-        makeFilter: (field, value)=>{
-            value = value.toLocaleLowerCase();
-            return (obj)=>String(obj[field]).toLocaleLowerCase() != value;
-        }
-    },
-    {
-        hint: "field>>value",
-        explanation: "field is after value (as date)",
-        description: (field, value)=>`${field} is after ${new Date(value).toISOString()}`,
-        token: /^([^\s]+?)>>(.+)$/,
-        makeFilter: (field, value)=>{
+    after: {
+        caption: "is after",
+        negative: "is before",
+        makeTest: (value)=>{
             const date = new Date(value);
-            return (obj)=>new Date(obj[field]) > date;
+            return (obj)=>new Date(obj) > date;
         }
     },
-    {
-        hint: "field<<value",
-        explanation: "field is before value (as date)",
-        description: (field, value)=>`${field} is before ${new Date(value).toISOString()}`,
-        token: /^([^\s]+?)<<(.+)$/,
-        makeFilter: (field, value)=>{
-            const date = new Date(value);
-            return (obj)=>new Date(obj[field]) < date;
-        }
-    },
-    {
-        hint: "field>value",
-        explanation: "field > value (numeric / A-Z)",
-        description: (field, value)=>isNaN(Number(value)) ? `${field} > ${value} (A-Z)` : `${field} > ${value}`,
-        token: /^([^\s]+?)>(.+)$/,
-        makeFilter: (field, value)=>{
+    greaterThan: {
+        caption: ">",
+        negative: "≤",
+        makeTest: (value)=>{
             if (!isNaN(Number(value))) {
                 const num = Number(value);
-                return (obj)=>Number(obj[field]) > num;
+                return (obj)=>Number(obj) > num;
             }
             value = value.toLocaleLowerCase();
-            return (obj)=>String(obj[field]).toLocaleLowerCase() > value;
+            return (obj)=>String(obj).toLocaleLowerCase() > value;
         }
     },
-    {
-        hint: "field<value",
-        explanation: "field < value (numeric / A-Z)",
-        description: (field, value)=>isNaN(Number(value)) ? `${field} < ${value} (A-Z)` : `${field} < ${value}`,
-        token: /^([^\s+]+?)<(.+)$/,
-        makeFilter: (field, value)=>{
-            if (!isNaN(Number(value))) {
-                const num = Number(value);
-                return (obj)=>Number(obj[field]) < num;
-            }
-            value = value.toLocaleLowerCase();
-            return (obj)=>String(obj[field]).toLocaleLowerCase() < value;
-        }
+    truthy: {
+        caption: "is true / non-empty / no-zero",
+        negative: "is false / empty / zero",
+        needsValue: false,
+        makeTest: ()=>(obj)=>!!obj
     },
-    {
-        hint: "field!:value",
-        explanation: "field does not contain value, ignoring case",
-        description: (field, value)=>`${field} does not contain "${value}"`,
-        token: /^([^\s]+?)!:(.+)$/,
-        makeFilter: (field, value)=>{
-            value = value.toLocaleLowerCase();
-            return (obj)=>!String(obj[field]).toLocaleLowerCase().includes(value);
-        }
+    isTrue: {
+        caption: "= true",
+        needsValue: false,
+        makeTest: ()=>(obj)=>obj === true
     },
-    {
-        hint: "field:value",
-        explanation: "field contains value, ignoring case",
-        description: (field, value)=>`${field} contains "${value}"`,
-        token: /^([^\s]+?):(.+)$/,
-        makeFilter: (field, value)=>{
-            value = value.toLocaleLowerCase();
-            return (obj)=>String(obj[field]).toLocaleLowerCase().includes(value);
-        }
-    },
-    {
-        hint: "!!field",
-        explanation: "field is true, non-empty, non-zero",
-        description: (match)=>`${match} is truthy`,
-        token: /^!!([^\s]+?)$/,
-        makeFilter: (match)=>(obj)=>!!obj[match]
-    },
-    {
-        hint: "!field",
-        explanation: "field is false, empty, zero",
-        description: (match)=>`${match} is falsy`,
-        token: /^!([^\s]+?)$/,
-        makeFilter: (match)=>(obj)=>!obj[match]
-    },
-    {
-        hint: "value",
-        explanation: "any field contains value",
-        description: (match)=>`"${match}" in any property`,
-        token: /^(.+)$/,
-        makeFilter: (match)=>{
-            match = match.toLocaleLowerCase();
-            return (obj)=>Object.values(obj).find((value)=>String(value).toLocaleLowerCase().includes(match)) !== undefined;
-        }
+    isFalse: {
+        caption: "= false",
+        needsValue: false,
+        makeTest: ()=>(obj)=>obj === false
     }
-];
-function $46dc716dd2cf5925$export$61ec8404f465cd36(term, filters = $46dc716dd2cf5925$export$16a138bde9d9de87) {
-    const maker = filters.find((filter)=>filter.token.test(term));
-    if (maker !== undefined) {
-        // we know it will match
-        const [, ...terms] = term.match(maker.token);
-        return {
-            description: maker.description(...terms),
-            test: maker.makeFilter(...terms)
-        };
-    }
+};
+const $46dc716dd2cf5925$var$passAnything = {
+    description: "anything",
+    test: ()=>true
+};
+function $46dc716dd2cf5925$var$getSelectText(select) {
+    return select.options[select.selectedIndex].text;
 }
-class $46dc716dd2cf5925$export$afb49bb3b076029e extends (0, $hgUW1$Component) {
-    filter = $46dc716dd2cf5925$var$passThru;
-    title = $46dc716dd2cf5925$var$NULL_FILTER_DESCRIPTION;
-    content = $46dc716dd2cf5925$var$input({
-        type: "search",
-        part: "input",
-        style: {
-            width: "100%",
-            height: "auto"
-        }
-    });
-    placeholder = "";
-    help = "";
+class $46dc716dd2cf5925$export$b7838412d9f17b13 extends (0, $hgUW1$Component) {
+    fields = [];
     filters = $46dc716dd2cf5925$export$16a138bde9d9de87;
-    get value() {
-        return this.parts.input.value;
-    }
-    set value(query) {
-        this.parts.input.value = query;
-    }
-    constructor(){
-        super();
-        this.initAttributes("title", "placeholder", "help");
-    }
-    buildFilter = (0, $hgUW1$debounce)((query)=>{
-        const specs = (query.match(/[^\s"]+("[^"]+")?/g) || []).map((spec)=>spec.replace(/"/g, ""));
-        const filters = specs.map((part)=>$46dc716dd2cf5925$export$61ec8404f465cd36(part, this.filters)).filter((part)=>part !== undefined);
-        if (filters.length === 0) {
-            this.title = $46dc716dd2cf5925$var$NULL_FILTER_DESCRIPTION;
-            if (this.filter !== $46dc716dd2cf5925$var$passThru) {
-                this.filter = $46dc716dd2cf5925$var$passThru;
-                this.dispatchEvent(new Event("change"));
-            }
-        } else {
-            this.filter = filters.reduce((f, filter)=>{
-                let g;
-                if (f === false) g = (array)=>array.filter(filter.test);
-                else g = (array)=>f(array.filter(filter.test));
-                return g;
-            }, false) // because this array is not empty
-            ;
-            this.title = filters.map((f)=>f.description).join(", and ");
-            this.dispatchEvent(new Event("change"));
-        }
-    }, 250);
-    reset() {
-        if (this.filter !== $46dc716dd2cf5925$var$passThru) {
-            this.title = $46dc716dd2cf5925$var$NULL_FILTER_DESCRIPTION;
-            this.filter = $46dc716dd2cf5925$var$passThru;
-            this.dispatchEvent(new Event("change"));
-        }
-    }
-    handleInput = (event)=>{
-        const { input: input } = this.parts;
-        this.buildFilter(input.value);
-        this.value = input.value;
-        event.stopPropagation();
-        event.preventDefault();
+    content = [
+        $46dc716dd2cf5925$var$select({
+            part: "haystack"
+        }),
+        $46dc716dd2cf5925$var$select({
+            part: "condition"
+        }),
+        $46dc716dd2cf5925$var$input({
+            part: "needle"
+        }),
+        $46dc716dd2cf5925$var$span({
+            part: "padding"
+        }),
+        $46dc716dd2cf5925$var$button({
+            part: "remove",
+            title: "delete"
+        }, $46dc716dd2cf5925$var$span({
+            class: "icon-trash"
+        }))
+    ];
+    filter = $46dc716dd2cf5925$var$passAnything;
+    buildFilter = ()=>{
+        const { haystack: haystack, condition: condition, needle: needle } = this.parts;
+        const [, negative, key] = condition.value.match(/^(~)?(.+)/);
+        const filter = this.filters[key];
+        needle.hidden = filter.needsValue === false;
+        const baseTest = filter.needsValue === false ? filter.makeTest(undefined) : filter.makeTest(needle.value);
+        const field = haystack.value;
+        let test;
+        if (field !== "") test = negative === "~" ? (obj)=>!baseTest(obj[field]) : (obj)=>baseTest(obj[field]);
+        else test = negative === "~" ? (obj)=>Object.values(obj).find((v)=>!baseTest(v)) !== undefined : (obj)=>Object.values(obj).find((v)=>baseTest(v)) !== undefined;
+        const matchValue = filter.needsValue !== false ? ` "${needle.value}"` : "";
+        const description = `${$46dc716dd2cf5925$var$getSelectText(haystack)} ${$46dc716dd2cf5925$var$getSelectText(condition)}${matchValue}`;
+        console.log(description);
+        this.filter = {
+            description: description,
+            test: test
+        };
+        this.parentElement?.dispatchEvent(new Event("change"));
     };
     connectedCallback() {
         super.connectedCallback();
-        this.setAttribute("title", this.title);
-        this.help = this.filters.map((f)=>f.explanation !== undefined ? `${f.hint} — ${f.explanation}` : f.hint).join("\n");
-        const { input: input } = this.parts;
-        input.value = this.value;
-        input.addEventListener("input", this.handleInput);
-        input.addEventListener("change", this.handleInput);
-        this.style.position = "relative";
+        const { haystack: haystack, condition: condition, needle: needle, remove: remove } = this.parts;
+        haystack.addEventListener("change", this.buildFilter);
+        condition.addEventListener("change", this.buildFilter);
+        needle.addEventListener("input", this.buildFilter);
+        haystack.value = "";
+        condition.value = Object.keys(this.filters)[0];
+        needle.value = "";
+        remove.addEventListener("click", ()=>{
+            const { parentElement: parentElement } = this;
+            this.remove();
+            parentElement?.dispatchEvent(new Event("change"));
+        });
     }
     render() {
         super.render();
-        const { input: input } = this.parts;
-        input.placeholder = this.placeholder !== "" ? this.placeholder : this.filters.map((filter)=>filter.hint).join(" ");
-        input.value = this.value;
+        const { haystack: haystack, condition: condition } = this.parts;
+        haystack.textContent = "";
+        haystack.append($46dc716dd2cf5925$var$option("any field", {
+            value: ""
+        }), ...this.fields.map((field)=>{
+            const caption = field.name || field.prop;
+            return $46dc716dd2cf5925$var$option(`${caption}`, {
+                value: field.prop
+            });
+        }));
+        condition.textContent = "";
+        const conditions = Object.keys(this.filters).map((key)=>{
+            const filter = this.filters[key];
+            return filter.negative !== undefined ? [
+                $46dc716dd2cf5925$var$option(filter.caption, {
+                    value: key
+                }),
+                $46dc716dd2cf5925$var$option(filter.negative, {
+                    value: "~" + key
+                })
+            ] : $46dc716dd2cf5925$var$option(filter.caption, {
+                value: key
+            });
+        }).flat();
+        condition.append(...conditions);
+    }
+}
+const $46dc716dd2cf5925$export$2237595b531763d7 = $46dc716dd2cf5925$export$b7838412d9f17b13.elementCreator({
+    tag: "filter-part"
+});
+class $46dc716dd2cf5925$export$afb49bb3b076029e extends (0, $hgUW1$Component) {
+    fields = [];
+    filter = $46dc716dd2cf5925$var$passThru;
+    description = $46dc716dd2cf5925$var$NULL_FILTER_DESCRIPTION;
+    addFilter = ()=>{
+        const { fields: fields, filters: filters } = this;
+        const { filterContainer: filterContainer } = this.parts;
+        filterContainer.append($46dc716dd2cf5925$export$2237595b531763d7({
+            fields: fields,
+            filters: filters
+        }));
+    };
+    content = ()=>[
+            $46dc716dd2cf5925$var$button({
+                part: "add",
+                title: "add filter condition",
+                onClick: this.addFilter,
+                class: "round"
+            }, $46dc716dd2cf5925$var$span({
+                class: "icon-plus"
+            })),
+            $46dc716dd2cf5925$var$div({
+                part: "filterContainer"
+            }),
+            $46dc716dd2cf5925$var$button({
+                part: "reset",
+                title: "reset filter",
+                onClick: this.reset
+            }, $46dc716dd2cf5925$var$span({
+                class: "icon-x"
+            }))
+        ];
+    filters = $46dc716dd2cf5925$export$16a138bde9d9de87;
+    reset = ()=>{
+        const { fields: fields, filters: filters } = this;
+        const { filterContainer: filterContainer } = this.parts;
+        this.description = $46dc716dd2cf5925$var$NULL_FILTER_DESCRIPTION;
+        this.filter = $46dc716dd2cf5925$var$passThru;
+        filterContainer.textContent = "";
+        filterContainer.append($46dc716dd2cf5925$export$2237595b531763d7({
+            fields: fields,
+            filters: filters
+        }));
+        this.dispatchEvent(new Event("change"));
+    };
+    buildFilter = ()=>{
+        const { filterContainer: filterContainer } = this.parts;
+        if (filterContainer.children.length === 0) {
+            this.reset();
+            return;
+        }
+        const filters = [
+            ...filterContainer.children
+        ].map((filterPart)=>filterPart.filter);
+        const tests = filters.map((filter)=>filter.test);
+        this.description = filters.map((filter)=>filter.description).join(", ");
+        this.filter = (array)=>array.filter((obj)=>tests.find((f)=>f(obj) === false) === undefined);
+        console.log(this.description, this.filter);
+        this.dispatchEvent(new Event("change"));
+    };
+    connectedCallback() {
+        super.connectedCallback();
+        const { filterContainer: filterContainer } = this.parts;
+        filterContainer.addEventListener("change", this.buildFilter);
+        this.reset();
+    }
+    render() {
+        super.render();
     }
 }
 const $46dc716dd2cf5925$export$8ca73b4108207c1f = $46dc716dd2cf5925$export$afb49bb3b076029e.elementCreator({
@@ -1233,7 +1336,8 @@ live-example {
 }
 
 live-example [part="example"] {
-  flex: 1 1 50%;
+  flex: 1 1 var(--live-example-preview-height);
+  height: var(--live-example-preview-height);
   position: relative;
 }
 
@@ -1247,6 +1351,7 @@ live-example [part=preview] {
 
 live-example [part="editors"] {
   flex: 1 1 var(--live-example-editor-height);
+  height: var(--live-example-editor-height);
   position: relative;
 }
 `));
@@ -2012,5 +2117,5 @@ $parcel$exportWildcard($149c1bd638913645$exports, $0f2017ffca44b547$exports);
 $parcel$exportWildcard($149c1bd638913645$exports, $6bbe441346901d5a$exports);
 
 
-export {$5265d118b5240170$export$c947e3cd16175f27 as trackDrag, $5c31145f3e970423$export$c6e082819e9a0330 as scriptTag, $5c31145f3e970423$export$63257fda812a683f as styleSheet, $5a28660a6cbe2731$export$b37fb374f2e92eb6 as makeSorter, $59f50bee37676c09$export$c74d6d817c60b9e6 as BodymovinPlayer, $59f50bee37676c09$export$d75ad8f79fe096cb as bodymovinPlayer, $8a70bd76f9b7e656$export$b7127187684f7150 as CodeEditor, $8a70bd76f9b7e656$export$d89b6f4d34274146 as codeEditor, $e6e19030d0c18d6f$export$df30df7ec97b32b5 as DataTable, $e6e19030d0c18d6f$export$f71ce0a5ddbe8fa0 as dataTable, $46dc716dd2cf5925$export$16a138bde9d9de87 as availableFilters, $46dc716dd2cf5925$export$61ec8404f465cd36 as getFilter, $46dc716dd2cf5925$export$afb49bb3b076029e as FilterBuilder, $46dc716dd2cf5925$export$8ca73b4108207c1f as filterBuilder, $ada9b1474dc4b958$export$41199f9ac14d8c08 as LiveExample, $ada9b1474dc4b958$export$dafbe0fa988b899b as liveExample, $ada9b1474dc4b958$export$afa6494eb589c19e as makeExamplesLive, $6246d5006b5a56c3$export$7d6f3ccbb0a81c30 as MAPSTYLES, $6246d5006b5a56c3$export$f2ffec4d96a433ed as MapBox, $6246d5006b5a56c3$export$ca243e53be209efb as mapBox, $1b88c9cb596c3426$export$575eb698d362902 as MarkdownViewer, $1b88c9cb596c3426$export$305b975a891d0dfa as markdownViewer, $815deb6062b0b31b$export$94309935dd6eab19 as blockStyle, $815deb6062b0b31b$export$8cc075c801fd6817 as spacer, $815deb6062b0b31b$export$e3f8198a677f57c2 as elastic, $815deb6062b0b31b$export$74540e56d8cdd242 as commandButton, $815deb6062b0b31b$export$8ed2ffe5d58aaa75 as richTextWidgets, $815deb6062b0b31b$export$f284d8638abd8920 as RichText, $815deb6062b0b31b$export$7bcc4193ad80bf91 as richText, $b9e5aa5581e8f051$export$1a35787d6353cf6a as SideNav, $b9e5aa5581e8f051$export$938418df2b06cb50 as sideNav, $0f2017ffca44b547$export$7140c0f3c1b65d3f as SizeBreak, $0f2017ffca44b547$export$96370210d2ca0fff as sizeBreak, $6bbe441346901d5a$export$a3a7254f7f149b03 as TabSelector, $6bbe441346901d5a$export$a932f737dcd864a2 as tabSelector};
+export {$5265d118b5240170$export$c947e3cd16175f27 as trackDrag, $5c31145f3e970423$export$c6e082819e9a0330 as scriptTag, $5c31145f3e970423$export$63257fda812a683f as styleSheet, $5a28660a6cbe2731$export$b37fb374f2e92eb6 as makeSorter, $59f50bee37676c09$export$c74d6d817c60b9e6 as BodymovinPlayer, $59f50bee37676c09$export$d75ad8f79fe096cb as bodymovinPlayer, $8a70bd76f9b7e656$export$b7127187684f7150 as CodeEditor, $8a70bd76f9b7e656$export$d89b6f4d34274146 as codeEditor, $e6e19030d0c18d6f$export$df30df7ec97b32b5 as DataTable, $e6e19030d0c18d6f$export$f71ce0a5ddbe8fa0 as dataTable, $46dc716dd2cf5925$export$16a138bde9d9de87 as availableFilters, $46dc716dd2cf5925$export$b7838412d9f17b13 as FilterPart, $46dc716dd2cf5925$export$2237595b531763d7 as filterPart, $46dc716dd2cf5925$export$afb49bb3b076029e as FilterBuilder, $46dc716dd2cf5925$export$8ca73b4108207c1f as filterBuilder, $ada9b1474dc4b958$export$41199f9ac14d8c08 as LiveExample, $ada9b1474dc4b958$export$dafbe0fa988b899b as liveExample, $ada9b1474dc4b958$export$afa6494eb589c19e as makeExamplesLive, $6246d5006b5a56c3$export$7d6f3ccbb0a81c30 as MAPSTYLES, $6246d5006b5a56c3$export$f2ffec4d96a433ed as MapBox, $6246d5006b5a56c3$export$ca243e53be209efb as mapBox, $1b88c9cb596c3426$export$575eb698d362902 as MarkdownViewer, $1b88c9cb596c3426$export$305b975a891d0dfa as markdownViewer, $815deb6062b0b31b$export$94309935dd6eab19 as blockStyle, $815deb6062b0b31b$export$8cc075c801fd6817 as spacer, $815deb6062b0b31b$export$e3f8198a677f57c2 as elastic, $815deb6062b0b31b$export$74540e56d8cdd242 as commandButton, $815deb6062b0b31b$export$8ed2ffe5d58aaa75 as richTextWidgets, $815deb6062b0b31b$export$f284d8638abd8920 as RichText, $815deb6062b0b31b$export$7bcc4193ad80bf91 as richText, $b9e5aa5581e8f051$export$1a35787d6353cf6a as SideNav, $b9e5aa5581e8f051$export$938418df2b06cb50 as sideNav, $0f2017ffca44b547$export$7140c0f3c1b65d3f as SizeBreak, $0f2017ffca44b547$export$96370210d2ca0fff as sizeBreak, $6bbe441346901d5a$export$a3a7254f7f149b03 as TabSelector, $6bbe441346901d5a$export$a932f737dcd864a2 as tabSelector};
 //# sourceMappingURL=index.js.map

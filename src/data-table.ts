@@ -6,6 +6,7 @@ that displays gigantic tables with fixed headers (and live column-resizing) usin
 
 ```js
 const { dataTable } = xinjsui
+const { input } = xinjs.elements
 
 const emojiRequest = await fetch('https://raw.githubusercontent.com/tonioloewald/emoji-metadata/master/emoji-metadata.json')
 const emojiData = await emojiRequest.json()
@@ -15,36 +16,53 @@ const columns = [
     name: "emoji",
     prop: "chars",
     align: "center",
-    visible: true,
     width: 80
   },
   {
-    name: "name",
     prop: "name",
-    align: "left",
-    visible: true,
-    width: 300
+    width: 300,
+    // custom cell using xinjs bindings to make the field editable
+    dataCell() {
+      return input({
+        class: 'td',
+        bindValue: '^.name',
+        title: 'name',
+      })
+    },
   },
   {
-    name: "category",
     prop: "category",
-    align: "left",
-    visible: true,
     width: 150
   },
   {
-    name: "subcategory",
     prop: "subcategory",
-    align: "left",
-    visible: true,
     width: 150
   },
 ]
 
 preview.append(dataTable({ array: emojiData, columns }))
 ```
+```css
+.preview input.td {
+  margin: 0;
+  border-radius: 0;
+  box-shadow: none !important;
+}
 
-You can set the `<data-table>`'s `value` to `{ array: any[], columns: ColumnOptions[] | null, filter?: ArrayFilter }`
+.preview data-table {
+  height: 100%;
+}
+```
+
+You can set the `<data-table>`'s `array`, `columns`, and `filter` properties directly, or set its `value` to:
+
+```
+{ 
+  array: any[], 
+  columns: ColumnOptions[] | null, 
+  filter?: ArrayFilter 
+}
+```
 
 If you set the `<data-table>`'s `rowHeight` to `0` it will render all its elements (i.e. not be virtual). This is
 useful for smaller tables, or tables with variable row-heights.
@@ -367,7 +385,7 @@ export class DataTable extends WebComponent {
           role: 'rowgroup',
           style: {
             content: ' ',
-            minHeight: '200px',
+            minHeight: '100px',
             flex: '1 1 100px',
             overflow: 'hidden',
             overflowY: 'scroll',

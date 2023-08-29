@@ -190,34 +190,50 @@ export class DataTable extends Component {
     render(): void;
 }
 export const dataTable: ElementCreator<DataTable>;
-type _ArrayFilter1 = (array: any[]) => any[];
 type ObjectTest = (obj: any) => boolean;
+type _ArrayFilter1 = (array: any[]) => any[];
 interface FilterMaker {
-    hint: string;
-    explanation?: string;
-    description: (...matches: string[]) => string;
-    token: RegExp;
-    makeFilter: (...matches: string[]) => ObjectTest;
+    caption: string;
+    negative?: string;
+    needsValue?: boolean;
+    makeTest: (value: any) => ObjectTest;
 }
-export const availableFilters: FilterMaker[];
+export const availableFilters: {
+    [key: string]: FilterMaker;
+};
 interface Filter {
     description: string;
     test: ObjectTest;
 }
-export function getFilter(term: string, filters?: FilterMaker[]): Filter | undefined;
+export class FilterPart extends Component {
+    fields: {
+        name?: string | undefined;
+        prop: string;
+    }[];
+    filters: {
+        [key: string]: FilterMaker;
+    };
+    content: HTMLSpanElement[];
+    filter: Filter;
+    buildFilter: () => void;
+    connectedCallback(): void;
+    render(): void;
+}
+export const filterPart: ElementCreator<HTMLElement>;
 export class FilterBuilder extends Component {
+    fields: {
+        name?: string | undefined;
+        prop: string;
+    }[];
     filter: _ArrayFilter1;
-    title: string;
-    content: HTMLInputElement;
-    placeholder: string;
-    help: string;
-    filters: FilterMaker[];
-    get value(): string;
-    set value(query: string);
-    constructor();
-    buildFilter: import("xinjs").VoidFunc;
-    reset(): void;
-    handleInput: (event: Event) => void;
+    description: string;
+    addFilter: () => void;
+    content: () => (HTMLDivElement | HTMLButtonElement)[];
+    filters: {
+        [key: string]: FilterMaker;
+    };
+    reset: () => void;
+    buildFilter: () => void;
     connectedCallback(): void;
     render(): void;
 }
@@ -371,7 +387,11 @@ the window's `resize` events and its own (via `ResizeObserver`).
 </div>
 ```
 ```css
-size-break {
+.preview {
+  touch-action: none;
+}
+
+.preview size-break {
   width: 100%;
   height: 100%;
   background: #fff8;
