@@ -350,6 +350,7 @@ preview.append(dataTable({ array: emojiData, columns }))
   margin: 0;
   border-radius: 0;
   box-shadow: none !important;
+  background: transparent;
 }
 
 .preview data-table {
