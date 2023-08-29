@@ -68,7 +68,8 @@ live-example {
 }
 
 live-example [part="example"] {
-  flex: 1 1 50%;
+  flex: 1 1 var(--live-example-preview-height);
+  height: var(--live-example-preview-height);
   position: relative;
 }
 
@@ -82,6 +83,7 @@ live-example [part=preview] {
 
 live-example [part="editors"] {
   flex: 1 1 var(--live-example-editor-height);
+  height: var(--live-example-editor-height);
   position: relative;
 }
 `
