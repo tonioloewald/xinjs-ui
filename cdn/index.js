@@ -16,7 +16,6 @@ filter-part [hidden]+[part="padding"] {
   flex: 1 1 auto;
 }
   
-
 filter-builder {
   width: 100%;
   height: auto;
