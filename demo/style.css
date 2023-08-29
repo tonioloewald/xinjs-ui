@@ -20,6 +20,10 @@
   --tab-selector-selected-color: var(--brand-color);
   --tab-selector-bar-color: var(--brand-text-color);
   --touch-size: 32px;
+
+  --header-height: calc(
+    var(--line-height) * var(--h1-scale) + var(--spacing) * 2
+  );
 }
 
 * {
@@ -53,10 +57,9 @@ header {
   --text-color: var(--brand-text-color);
   display: flex;
   align-items: center;
-  line-height: calc(var(--line-height) * var(--h1-scale));
   padding: 0 var(--spacing);
   line-height: calc(var(--line-height) * var(--h1-scale));
-  height: calc(var(--line-height) * var(--h1-scale) + var(--spacing) * 2);
+  height: var(--header-height);
   white-space: nowrap;
 }
 
@@ -95,6 +98,10 @@ main {
   max-width: 100vw;
   height: 100vh;
   overflow: hidden;
+}
+
+main > side-nav {
+  height: calc(100vh - var(--header-height));
 }
 
 .bar {
