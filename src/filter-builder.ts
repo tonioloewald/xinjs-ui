@@ -1,72 +1,156 @@
 /*!
 # `<filter-builder>`
 
-Automatically creates `ArrayFilter` functions `(a: any[]) => any[]` based on a text query that accepts the
-following criteria — all text matches are performed in `LocaleLowerCase`. Criteria are space-delimited, but
-a quoted string which can include spaces (but not nested quotation marks) is allowed on the right.
+Automatically creates `ArrayFilter` functions `(a: any[]) => any[]` based on the query you build using its
+macOS Finder-inspired interface, using an easily customizable / extensible collection of `Filter` objects.
 
 ```js
 const { dataTable, filterBuilder, availableFilters } = xinjsui
 
-const emojiRequest = await fetch('https://raw.githubusercontent.com/tonioloewald/emoji-metadata/master/emoji-metadata.json')
-const emojiData = await emojiRequest.json()
+const sourceWords = ['acorn', 'bubblegum', 'copper', 'daisy', 'ellipse', 'fabulous', 'gerund', 'hopscotch', 'idiom', 'joke']
+function randomWords () {
+  let numWords = Math.random() * 4
+  const words = []
+  while (numWords > 0) {
+    numWords -= 1
+    words.push(sourceWords[Math.floor(Math.random() * 10)])
+  }
+  return words
+}
+
+const array = []
+for(let i = 0; i < 1000; i++) {
+  array.push({
+    date: new Date(Math.random() * Date.now()).toISOString().split('T')[0],
+    isLucky: Math.random() < 0.1,
+    number: Math.floor(Math.random() * 200 - 100),
+    string: randomWords().join(' '),
+  })
+}
 
 const columns = [
   {
-    name: "emoji",
-    prop: "chars",
-    align: "center",
-    width: 80
+    prop: 'date',
+    width: 120
   },
   {
-    prop: "name",
+    prop: 'isLucky',
+    type: 'boolean',
+    width: 100
+  },
+  {
+    prop: 'number',
+    align: 'right',
+    width: 100
+  },
+  {
+    prop: 'string',
     width: 300
-  },
-  {
-    prop: "category",
-    width: 150
-  },
-  {
-    name: "subcategory",
-    width: 150
   },
 ]
 
-const table = dataTable({ array: emojiData, columns })
-const { contains, equals } = availableFilters
+const table = dataTable({ array, columns })
+const { contains, equals, after, isTrue, isFalse } = availableFilters
 const filter = filterBuilder({
-  filters: { contains, equals },
+  filters: { contains, equals, after, isTrue, isFalse },
   fields: columns,
   onChange(event) {
-    table.filter = event.target.filter
+    console.log(filter.filter, filter.description)
+    table.filter = filter.filter
   }
 })
 preview.append(filter, table)
 ```
+```css
+.preview {
+  display: flex;
+  flex-direction: column;
+}
 
-`<filter-builder>` has sets its `filter` property to an `ArrayFilter`, by default it just passes through
-the array untouched. Its `value` is the source `string`.
+.preview data-table {
+  flex: 1 1 auto;
+}
+```
 
-The filter-builder has a default set of `FilterMaker` objects which it uses to construct filter function.
+## availableFilters
 
-    type ObjectTest (obj: any) => boolean
+`<filter-builder>` has a default set of `FilterMaker` objects which it uses to construct filter function.
+In the example above, the default collection of filters is reduced to `contains`, `equals`, `after`, and `isTrue`.
 
-    interface FilterMaker {
-      caption: string                                 // describes the test condition
-      negativeCaption: string                         // describes the negative test condition
-      needsValue?: boolean                            // if false, the filterMaker doesn't need a needle value
-      filterMaker(needle: any) => ObjectTest          // builds an ObjectTest
-    }
+The full collection includes:
+
+- **contains** * looks for fields containing a string (ignoring case)
+- **equals** * looks for fields containing equivalent values (ignoring case)
+- **after** * looks for fields with a date after a provided value
+- **greaterThan** * looks for fields with a value greater than a provided value
+- **truthy** * looks for fields that are true / non-zero / non-empty
+- **true** looks for fields that are `true`
+- **false** looks for fields that are `false`
+
+**Note**: the filters marked with an * have negative version (e.g. does not contain).
+
+```
+type ObjectTest (obj: any) => boolean
+
+interface FilterMaker {
+  caption: string                                 // describes the test condition
+  negative?: string                               // describes the negative test condition
+  needsValue?: boolean                            // if false, the filterMaker doesn't need a needle value
+  filterMaker(needle: any) => ObjectTest          // builds an ObjectTest
+}
+```
 */
 
-import {
-  Component as WebComponent,
-  ElementCreator,
-  elements,
-  vars,
-} from 'xinjs'
+import { Component as WebComponent, ElementCreator, elements } from 'xinjs'
 
-const { div, input, select, option, button, span } = elements
+const { div, input, select, option, button, span, style } = elements
+
+document.head.append(
+  style(
+    { id: 'filter-builder' },
+    `filter-part {
+  display: flex;
+}
+
+filter-part [part="needle"] {
+  flex: 1 1 auto;
+}
+
+filter-part [hidden]+[part="padding"] {
+  display: block;
+  content: ' ';
+  flex: 1 1 auto;
+}
+  
+
+filter-builder {
+  width: 100%;
+  height: auto;
+  display: flex;
+  align-items: center;
+}
+
+filter-builder [part="filterContainer"] {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  flex: 1 1 auto;
+}
+
+filter-builder [part="add"],
+filter-builder [part="reset"] {
+  --button-size: var(--touch-size, 32px);
+  border-radius: 999px;
+  height: var(--button-size);
+  line-height: var(--button-size);
+  margin: 0;
+  padding: 0;
+  text-align: center;
+  width: var(--button-size);
+}
+`
+  )
+)
 
 type ObjectTest = (obj: any) => boolean
 type ArrayFilter = (array: any[]) => any[]
@@ -75,14 +159,15 @@ const passThru = (array: any[]) => array
 const NULL_FILTER_DESCRIPTION = 'null filter, everything matches'
 
 interface FilterMaker {
-  caption?: string
+  caption: string
   negative?: string
   needsValue?: boolean // default true
   makeTest: (value: any) => ObjectTest
 }
 
-export const availableFilters: {[key: string]: FilterMaker} = {
+export const availableFilters: { [key: string]: FilterMaker } = {
   contains: {
+    caption: 'contains',
     negative: 'does not contain',
     makeTest: (value: string) => {
       value = value.toLocaleLowerCase()
@@ -92,17 +177,19 @@ export const availableFilters: {[key: string]: FilterMaker} = {
   equals: {
     caption: '=',
     negative: '≠',
-    makeTest: (field: string, value: string) => {
+    makeTest: (value: string) => {
       if (isNaN(Number(value))) {
         value = String(value).toLocaleLowerCase()
         return (obj: any) => String(obj).toLocaleLowerCase() === value
       }
       const num = Number(value)
-      return (obj: any) => Number(obj).toLocaleLowerCase() === num
+      return (obj: any) => Number(obj) === num
     },
   },
   after: {
-    makeTest: (field: string, value: string) => {
+    caption: 'is after',
+    negative: 'is before',
+    makeTest: (value: any) => {
       const date = new Date(value)
       return (obj: any) => new Date(obj) > date
     },
@@ -110,7 +197,7 @@ export const availableFilters: {[key: string]: FilterMaker} = {
   greaterThan: {
     caption: '>',
     negative: '≤',
-    makeTest: (field: string, value: string) => {
+    makeTest: (value: any) => {
       if (!isNaN(Number(value))) {
         const num = Number(value)
         return (obj: any) => Number(obj) > num
@@ -120,8 +207,20 @@ export const availableFilters: {[key: string]: FilterMaker} = {
     },
   },
   truthy: {
+    caption: 'is true / non-empty / no-zero',
+    negative: 'is false / empty / zero',
     needsValue: false,
     makeTest: () => (obj: any) => !!obj,
+  },
+  isTrue: {
+    caption: '= true',
+    needsValue: false,
+    makeTest: () => (obj: any) => obj === true,
+  },
+  isFalse: {
+    caption: '= false',
+    needsValue: false,
+    makeTest: () => (obj: any) => obj === false,
   },
 }
 
@@ -132,155 +231,195 @@ interface Filter {
 
 const passAnything = {
   description: 'anything',
-  test: () => true as ObjectTest
+  test: () => true,
 }
 
 function getSelectText(select: HTMLSelectElement): string {
   return select.options[select.selectedIndex].text
 }
 
-export class SimpleFilter extends WebComponent {
-  fields = [] as Array<{name?: string, prop: string}>
+export class FilterPart extends WebComponent {
+  fields = [] as Array<{ name?: string; prop: string }>
   filters = availableFilters
-  
+
   content = [
-    select({part: 'haystack'}),
-    select({part: 'condition'}),
-    input({part: 'needle'}),
-    button({part: 'remove', title: 'delete'}, span({class: 'icon-x'}))
+    select({ part: 'haystack' }),
+    select({ part: 'condition' }),
+    input({ part: 'needle' }),
+    span({ part: 'padding' }),
+    button({ part: 'remove', title: 'delete' }, span({ class: 'icon-trash' })),
   ]
-  
+
   filter: Filter = passAnything
-  
-  buildFilter = () => {
-    const { haystack, condition, needle } = this.parts
-    const [, negative, key] = condition.value.match(/^(~)?(.+)/)
-    const filter = this.filters[key] as Filter
+
+  buildFilter = (/* event: Event */) => {
+    const { haystack, condition, needle } = this.parts as {
+      haystack: HTMLSelectElement
+      condition: HTMLSelectElement
+      needle: HTMLInputElement
+    }
+    const [, negative, key] = condition.value.match(/^(~)?(.+)/) as string[]
+    const filter = this.filters[key] as FilterMaker
     needle.hidden = filter.needsValue === false
-    
-    const baseTest = filter.needsValue === false ? filter.makeTest() : filter.makeTest(needle.value)
+
+    const baseTest =
+      filter.needsValue === false
+        ? filter.makeTest(undefined)
+        : filter.makeTest(needle.value)
     const field = haystack.value
     let test
+
     if (field !== '') {
-      test = negative === '~' ? obj => !baseTest(obj[haystack.value]) : obj => baseTest(obj[haystack.value])
+      test =
+        negative === '~'
+          ? (obj: any) => !baseTest(obj[field])
+          : (obj: any) => baseTest(obj[field])
     } else {
-      test = negative === '~' ? obj => Object.values(obj).find(v => baseTest(v)) === undefined : obj => Object.values(obj).find(v => baseTest(v)) !== undefined
+      test =
+        negative === '~'
+          ? (obj: any) =>
+              Object.values(obj).find((v) => !baseTest(v)) !== undefined
+          : (obj: any) =>
+              Object.values(obj).find((v) => baseTest(v)) !== undefined
     }
-    
-    const matchValue = filter.needsValue !== false ? ` "${needle.value}"`: ''
-    const description = `${getSelectText(haystack)} ${getSelectText(condition)}${matchValue}`
+
+    const matchValue = filter.needsValue !== false ? ` "${needle.value}"` : ''
+    const description = `${getSelectText(haystack)} ${getSelectText(
+      condition
+    )}${matchValue}`
     console.log(description)
-    
+
     this.filter = {
       description,
-      test
+      test,
     }
-    this.dispatchEvent(new Event('change'))
+
+    this.parentElement?.dispatchEvent(new Event('change'))
   }
-  
+
   connectedCallback() {
     super.connectedCallback()
-    
-    const { haystack, condition, needle, remove } = this.parts
-    
+
+    const { haystack, condition, needle, remove } = this.parts as {
+      haystack: HTMLSelectElement
+      condition: HTMLSelectElement
+      needle: HTMLInputElement
+      remove: HTMLButtonElement
+    }
+
     haystack.addEventListener('change', this.buildFilter)
     condition.addEventListener('change', this.buildFilter)
-    needle.addEventListener('change', this.buildFilter)
+    needle.addEventListener('input', this.buildFilter)
     haystack.value = ''
     condition.value = Object.keys(this.filters)[0]
     needle.value = ''
-    
+
     remove.addEventListener('click', () => {
+      const { parentElement } = this
       this.remove()
+      parentElement?.dispatchEvent(new Event('change'))
     })
   }
-  
+
   render() {
     super.render()
-    
-    const { haystack, condition, needle, remove } = this.parts
-        
+
+    const { haystack, condition } = this.parts as {
+      haystack: HTMLSelectElement
+      condition: HTMLSelectElement
+    }
+
     haystack.textContent = ''
-    haystack.append(option('any field', {value: ''}), ...this.fields.map(field => {
-      const caption = field.name || field.prop
-      return option(`${caption}`, {value: field.prop})
-    }))
+    haystack.append(
+      option('any field', { value: '' }),
+      ...this.fields.map((field) => {
+        const caption = field.name || field.prop
+        return option(`${caption}`, { value: field.prop })
+      })
+    )
     condition.textContent = ''
-    const conditions = Object.keys(this.filters).map(key => {
-      const filter = this.filters[key]
-      const caption = filter.caption || key
-      return [
-        option(filter.negative === undefined ? `is ${caption}` : caption, {value: key}),
-        option(filter.negative === undefined ? `is not ${caption}` : filter.negative, {value: '~' + key}),
-      ]
-    }).flat()
-    console.log(conditions)
+    const conditions = Object.keys(this.filters)
+      .map((key) => {
+        const filter = this.filters[key]
+        return filter.negative !== undefined
+          ? [
+              option(filter.caption, { value: key }),
+              option(filter.negative, { value: '~' + key }),
+            ]
+          : option(filter.caption, { value: key })
+      })
+      .flat()
     condition.append(...conditions)
   }
 }
 
-export const simpleFilter = SimpleFilter.elementCreator({ tag: 'simple-filter' })
+export const filterPart = FilterPart.elementCreator({ tag: 'filter-part' })
 
 export class FilterBuilder extends WebComponent {
-  fields = [] as Array<{name?: string, prop: string}>
+  fields = [] as Array<{ name?: string; prop: string }>
   filter: ArrayFilter = passThru
-  title = NULL_FILTER_DESCRIPTION
-  
+  description = NULL_FILTER_DESCRIPTION
+
   addFilter = () => {
     const { fields, filters } = this
     const { filterContainer } = this.parts
-    filterContainer.append(simpleFilter({fields, filters}))
+    filterContainer.append(filterPart({ fields, filters }))
   }
-  
-  content = () => div(
-    {
-      style: {
-        width: '100%',
-        height: 'auto',
+
+  content = () => [
+    button(
+      {
+        part: 'add',
+        title: 'add filter condition',
+        onClick: this.addFilter,
+        class: 'round',
       },
-    },
-    button({class: 'icon-plus', title: 'add filter condition', onClick: this.addFilter}),
-    div({
-      style: {
-        display: 'flex',
-        flexDirection: 'column'
-      },
-      part: 'filterContainer'
-    }),
-  )
-  
+      span({ class: 'icon-plus' })
+    ),
+    div({ part: 'filterContainer' }),
+    button(
+      { part: 'reset', title: 'reset filter', onClick: this.reset },
+      span({ class: 'icon-x' })
+    ),
+  ]
+
   filters = availableFilters
-  
-  reset() {
+
+  reset = () => {
     const { fields, filters } = this
     const { filterContainer } = this.parts
-    this.title = NULL_FILTER_DESCRIPTION
+    this.description = NULL_FILTER_DESCRIPTION
     this.filter = passThru
     filterContainer.textContent = ''
-    filterContainer.append(simpleFilter({fields, filters}))
+    filterContainer.append(filterPart({ fields, filters }))
     this.dispatchEvent(new Event('change'))
   }
 
-  constructor() {
-    super()
-    this.initAttributes('title', 'placeholder', 'help')
-  }
-
-  buildFilter = (event: Event) => {
+  buildFilter = (/* event: Event */) => {
     const { filterContainer } = this.parts
-    const filters = ([...filterContainer.children] as SimpleFilter[]).map(simpleFilter => simpleFilter.filter.test) as ObjectTest[]
-    this.filter = (array: any[]) => array.filter((obj: any) => filters.find(f => f(obj) === false) === undefined)
-    event.stopPropagation()
+    if (filterContainer.children.length === 0) {
+      this.reset()
+      return
+    }
+    const filters = ([...filterContainer.children] as FilterPart[]).map(
+      (filterPart) => filterPart.filter
+    ) as Filter[]
+    const tests = filters.map((filter) => filter.test) as ObjectTest[]
+    this.description = filters.map((filter) => filter.description).join(', ')
+    this.filter = (array: any[]) =>
+      array.filter(
+        (obj: any) => tests.find((f) => f(obj) === false) === undefined
+      )
+    console.log(this.description, this.filter)
     this.dispatchEvent(new Event('change'))
   }
 
   connectedCallback(): void {
     super.connectedCallback()
-    
+
     const { filterContainer } = this.parts
-    
     filterContainer.addEventListener('change', this.buildFilter)
-    
+
     this.reset()
   }
 
