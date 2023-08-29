@@ -97,10 +97,6 @@ main {
   overflow: hidden;
 }
 
-main > * {
-  max-width: 100vw;
-}
-
 .bar {
   display: flex;
   gap: var(--spacing);
