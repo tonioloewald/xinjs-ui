@@ -19,6 +19,7 @@
   --h3-scale: 1.25;
   --tab-selector-selected-color: var(--brand-color);
   --tab-selector-bar-color: var(--brand-text-color);
+  --touch-size: 32px;
 }
 
 * {
@@ -125,14 +126,19 @@ select,
 .clickable {
   transition: ease-out 0.2s;
   background: var(--brand-text-color);
-  color: var(--brand-color);
+  --text-color: var(--brand-color);
   display: inline-block;
   text-decoration: none;
   padding: 0 calc(var(--spacing) * 1.25);
-  line-height: calc(var(--line-height) + var(--spacing));
   border: none;
   border-radius: calc(var(--spacing) * 0.5);
-  margin: 0 calc(var(--spacing) * 0.25);
+}
+
+button,
+select,
+clickable,
+input {
+  line-height: calc(var(--line-height) + var(--spacing));
 }
 
 select + .icon-chevron-down {
@@ -144,7 +150,6 @@ select + .icon-chevron-down {
 input {
   border: none;
   outline: none;
-  line-height: calc(var(--line-height) + var(--spacing));
   padding: 0 calc(var(--spacing) * 1.5);
   border-radius: calc(var(--spacing) * 0.5);
 }
@@ -164,7 +169,7 @@ img {
 button:hover,
 button:hover,
 .clickable:hover {
-  box-shadow: 0 0 0 2px var(--brand-color);
+  box-shadow: inset 0 0 0 2px var(--brand-color);
 }
 
 button:active,
@@ -241,34 +246,6 @@ pre,
 code {
   font-family: var(--code-font-family);
   color: var(--text-color);
-}
-
-filter-builder {
-  position: relative;
-  overflow: initial !important;
-}
-filter-builder.show-help::after,
-filter-builder[title]:not(:hover):focus-within:after {
-  font-family: Menlo, Monaco, monospace;
-  background: #000c;
-  color: white;
-  font-size: 14px;
-  display: block;
-  position: absolute;
-  top: calc(100% + 2px);
-  left: 50%;
-  transform: translateX(-50%);
-  padding: 5px 10px;
-  border-radius: 4px;
-  white-space: pre-wrap;
-  width: calc(100% - 20px);
-  z-index: 10;
-}
-filter-builder[title]:not(.show-help):not(:hover):focus-within:after {
-  content: attr(title);
-}
-filter-builder.show-help::after {
-  content: attr(help);
 }
 
 .-side-nav-visible .close-content {

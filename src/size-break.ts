@@ -22,7 +22,11 @@ the window's `resize` events and its own (via `ResizeObserver`).
 </div>
 ```
 ```css
-size-break {
+.preview {
+  touch-action: none;
+}
+
+.preview size-break {
   width: 100%;
   height: 100%;
   background: #fff8;
