@@ -240,6 +240,8 @@ pre {
   padding: var(--spacing);
   border-radius: calc(var(--spacing) * 0.25);
   overflow: scroll;
+  font-size: 75%;
+  line-height: calc(var(--font-size) * 1.2);
 }
 
 pre,
