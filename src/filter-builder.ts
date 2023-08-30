@@ -114,6 +114,7 @@ document.head.append(
 
 filter-part [part="needle"] {
   flex: 1 1 auto;
+  width: 80px;
 }
 
 filter-part [hidden]+[part="padding"] {
@@ -146,6 +147,7 @@ filter-builder [part="reset"] {
   padding: 0;
   text-align: center;
   width: var(--button-size);
+  flex: 0 0 var(--button-size);
 }
 `
   )

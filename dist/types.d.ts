@@ -253,6 +253,10 @@ export class TabSelector extends Component {
 }
 export const tabSelector: ElementCreator<TabSelector>;
 export class LiveExample extends Component {
+    context: {
+        [key: string]: any;
+    };
+    static insertExamples(element: HTMLElement): void;
     get css(): string;
     set css(code: string);
     get html(): string;
@@ -293,7 +297,7 @@ export const mapBox: ElementCreator<MapBox>;
 # `<markdown-viewer>`
 
 Render [markdown](https://www.markdownguide.org/) anywhere, either using the `src` attribute to load
-the file asynchronousely, or just put the text inside it. Powered by [marked](https://www.npmjs.com/package/marked).
+the file asynchronously, or just put the text inside it. Powered by [marked](https://www.npmjs.com/package/marked).
 
 ```
 <markdown-viewer src="/path/to/file.md">
