@@ -110,7 +110,7 @@ main.append(
         a({
           class: 'doc-link',
           bindText: '^.filename',
-          bindCurrent: 'app.currentDoc',
+          bindCurrent: 'app.currentDoc.filename',
           bindDocLink: '^.filename',
           onClick(event: Event) {
             const a = event.target as HTMLAnchorElement
