@@ -1507,9 +1507,9 @@ class $ada9b1474dc4b958$export$41199f9ac14d8c08 extends (0, $hgUW1$Component) {
         ]);
     }
     copy = ()=>{
-        const js = this.js !== "" ? "```js\n" + this.js + "\n```\n" : "";
-        const html = this.js !== "" ? "```html\n" + this.html + "\n```\n" : "";
-        const css = this.js !== "" ? "```css\n" + this.css + "\n```\n" : "";
+        const js = this.js !== "" ? "```js\n" + this.js.trim() + "\n```\n" : "";
+        const html = this.html !== "" ? "```html\n" + this.html.trim() + "\n```\n" : "";
+        const css = this.css !== "" ? "```css\n" + this.css.trim() + "\n```\n" : "";
         navigator.clipboard.writeText(js + html + css);
     };
     toggleMaximize = ()=>{
