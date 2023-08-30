@@ -99,7 +99,7 @@ live-example [part="example"] {
   position: relative;
 }
 
-live-example [part=preview] {
+live-example .preview {
   height: 100%;
   position: relative;
   overflow: hidden;
@@ -187,11 +187,7 @@ export class LiveExample extends WebComponent {
   }
 
   content = () => [
-    div(
-      { part: 'example' },
-      style({ part: 'style' }),
-      div({ part: 'preview', class: 'preview' })
-    ),
+    div({ part: 'example' }, style({ part: 'style' })),
     tabSelector(
       { part: 'editors' },
       codeEditor({ name: 'js', mode: 'javascript', part: 'js', ...codeStyle }),
@@ -249,13 +245,19 @@ export class LiveExample extends WebComponent {
   }
 
   refresh = () => {
-    const { style, preview } = this.parts as {
+    const { example, style } = this.parts as {
       style: HTMLStyleElement
-      preview: HTMLDivElement
+      example: HTMLElement
     }
 
-    style.innerText = this.css
+    const preview = div({ class: 'preview' })
     preview.innerHTML = this.html
+    style.innerText = this.css
+    if (example.children.length > 1) {
+      example.children[1].replaceWith(preview)
+    } else {
+      example.append(preview)
+    }
 
     const context = { preview, ...this.context }
     // @ts-expect-error ts is wrong

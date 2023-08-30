@@ -7,7 +7,7 @@ Sometimes, it's nice to be able to just toss a code-editor in a web-page. `<code
 the ACE editor instance via its `options` property.
 
 ```html
-<code-editor style="width: 100%; height: 190px" mode="css">
+<code-editor style="width: 100%; height: 100%" mode="css">
 body {
   box-sizing: border-box;
 }
@@ -90,7 +90,7 @@ export class CodeEditor extends WebComponent {
     super.connectedCallback()
 
     if (this.source === '') {
-      this.value = this.innerText.trim()
+      this.value = this.textContent !== null ? this.textContent.trim() : ''
     }
 
     if (this._editorPromise === undefined) {
