@@ -557,7 +557,7 @@ class $e6e19030d0c18d6f$export$df30df7ec97b32b5 extends (0, $hgUW1$Component) {
             const origWidth = column.width;
             const isTouchEvent = event.touches !== undefined;
             const touchIdentifier = isTouchEvent ? event.touches[0].identifier : undefined;
-            (0, $5265d118b5240170$export$c947e3cd16175f27)(event, (dx, dy, event)=>{
+            (0, $5265d118b5240170$export$c947e3cd16175f27)(event, (dx, _dy, event)=>{
                 const touch = isTouchEvent ? [
                     ...event.touches
                 ].find((touch)=>touch.identifier === touchIdentifier) : true;
@@ -782,6 +782,7 @@ document.head.append($46dc716dd2cf5925$var$style({
 
 filter-part [part="needle"] {
   flex: 1 1 auto;
+  width: 80px;
 }
 
 filter-part [hidden]+[part="padding"] {
@@ -814,6 +815,7 @@ filter-builder [part="reset"] {
   padding: 0;
   text-align: center;
   width: var(--button-size);
+  flex: 0 0 var(--button-size);
 }
 `));
 const $46dc716dd2cf5925$var$passThru = (array)=>array;
@@ -1087,6 +1089,17 @@ preview.append(div({class: 'example'}, 'fiddle de dee!'))
 ```html
 <h2>Example</h2>
 ```
+
+A <live-example> can be given a `context` object {[key: string]: any}, which is the 
+set of values available in the javascript's execution context (it is wrapped in an
+async function and passed those values). By default, that context comprises `preview` 
+(the `<div>` in which the example is rendered), `xinjs` (`* from xinjs`), 
+and `xinjsui` (`* from xinjsui`).
+
+The `LiveExample` class provides a static method, `insertExamples(element: HTMLElement)` 
+that will replace any sequence of 
+`pre code[class="language-html"],pre code[class="language-js"],pre code[class="language-css"]`
+elements with a `<live-example>` instance.
 */ 
 
 
@@ -1356,6 +1369,49 @@ live-example [part="editors"] {
 }
 `));
 class $ada9b1474dc4b958$export$41199f9ac14d8c08 extends (0, $hgUW1$Component) {
+    context = {
+        xinjs: $hgUW1$xinjs,
+        xinjsui: $149c1bd638913645$exports
+    };
+    static insertExamples(element) {
+        const sources = [
+            ...element.querySelectorAll('pre code[class="language-html"],pre code[class="language-js"],pre code[class="language-css"]')
+        ].map((code)=>({
+                block: code.parentElement,
+                language: code.classList[0].split("-").pop(),
+                code: code.innerText
+            }));
+        for(let index = 0; index < sources.length; index += 1){
+            const exampleSources = [
+                sources[index]
+            ];
+            while(index < sources.length - 1 && sources[index].block.nextElementSibling === sources[index + 1].block){
+                exampleSources.push(sources[index + 1]);
+                index += 1;
+            }
+            const example = $ada9b1474dc4b958$export$dafbe0fa988b899b({
+                style: {
+                    margin: `1em -1em`
+                }
+            });
+            exampleSources[0].block.parentElement.insertBefore(example, exampleSources[0].block);
+            exampleSources.forEach((source)=>{
+                switch(source.language){
+                    case "js":
+                        example.js = source.code;
+                        break;
+                    case "html":
+                        example.html = source.code;
+                        break;
+                    case "css":
+                        example.css = source.code;
+                        break;
+                }
+                source.block.remove();
+            });
+            example.showDefaultTab();
+        }
+    }
     get css() {
         return this.parts.css.value;
     }
@@ -1424,9 +1480,13 @@ class $ada9b1474dc4b958$export$41199f9ac14d8c08 extends (0, $hgUW1$Component) {
         const { style: style, preview: preview } = this.parts;
         style.innerText = this.css;
         preview.innerHTML = this.html;
+        const context = {
+            preview: preview,
+            ...this.context
+        };
         // @ts-expect-error ts is wrong
-        const func = new $ada9b1474dc4b958$var$AsyncFunction("preview", "xinjs", "xinjsui", this.js);
-        func(preview, $hgUW1$xinjs, $149c1bd638913645$exports).catch((err)=>console.error(err));
+        const func = new $ada9b1474dc4b958$var$AsyncFunction(...Object.keys(context), this.js);
+        func(...Object.values(context)).catch((err)=>console.error(err));
     };
     initFromElements(elements) {
         for (const element of elements){

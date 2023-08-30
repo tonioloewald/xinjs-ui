@@ -250,7 +250,7 @@ pre {
 pre,
 code {
   font-family: var(--code-font-family);
-  color: var(--text-color);
+  --text-color: var(--brand-color);
 }
 
 .-side-nav-visible .close-content {

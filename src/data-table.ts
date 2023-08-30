@@ -267,7 +267,7 @@ export class DataTable extends WebComponent {
         : undefined
       trackDrag(
         event,
-        (dx, dy, event: any) => {
+        (dx, _dy, event: any) => {
           const touch = isTouchEvent
             ? [...event.touches].find(
                 (touch: any) => touch.identifier === touchIdentifier

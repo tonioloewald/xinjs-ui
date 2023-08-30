@@ -32,6 +32,17 @@ preview.append(div({class: 'example'}, 'fiddle de dee!'))
 ```html
 <h2>Example</h2>
 ```
+
+A <live-example> can be given a `context` object {[key: string]: any}, which is the 
+set of values available in the javascript's execution context (it is wrapped in an
+async function and passed those values). By default, that context comprises `preview` 
+(the `<div>` in which the example is rendered), `xinjs` (`* from xinjs`), 
+and `xinjsui` (`* from xinjsui`).
+
+The `LiveExample` class provides a static method, `insertExamples(element: HTMLElement)` 
+that will replace any sequence of 
+`pre code[class="language-html"],pre code[class="language-js"],pre code[class="language-css"]`
+elements with a `<live-example>` instance.
 */
 
 import { Component as WebComponent, ElementCreator, elements } from 'xinjs'
@@ -91,6 +102,50 @@ live-example [part="editors"] {
 )
 
 export class LiveExample extends WebComponent {
+  context: { [key: string]: any } = { xinjs, xinjsui }
+
+  static insertExamples(element: HTMLElement): void {
+    const sources = [
+      ...element.querySelectorAll(
+        'pre code[class="language-html"],pre code[class="language-js"],pre code[class="language-css"]'
+      ),
+    ].map((code) => ({
+      block: code.parentElement as HTMLPreElement,
+      language: code.classList[0].split('-').pop(),
+      code: (code as HTMLElement).innerText,
+    }))
+    for (let index = 0; index < sources.length; index += 1) {
+      const exampleSources = [sources[index]]
+      while (
+        index < sources.length - 1 &&
+        sources[index].block.nextElementSibling === sources[index + 1].block
+      ) {
+        exampleSources.push(sources[index + 1])
+        index += 1
+      }
+      const example = liveExample({ style: { margin: `1em -1em` } })
+      ;(exampleSources[0].block.parentElement as HTMLElement).insertBefore(
+        example,
+        exampleSources[0].block
+      )
+      exampleSources.forEach((source) => {
+        switch (source.language) {
+          case 'js':
+            example.js = source.code
+            break
+          case 'html':
+            example.html = source.code
+            break
+          case 'css':
+            example.css = source.code
+            break
+        }
+        source.block.remove()
+      })
+      example.showDefaultTab()
+    }
+  }
+
   get css(): string {
     return (this.parts.css as CodeEditor).value
   }
@@ -154,9 +209,10 @@ export class LiveExample extends WebComponent {
     style.innerText = this.css
     preview.innerHTML = this.html
 
+    const context = { preview, ...this.context }
     // @ts-expect-error ts is wrong
-    const func = new AsyncFunction('preview', 'xinjs', 'xinjsui', this.js)
-    func(preview, xinjs, xinjsui).catch((err: Error) => console.error(err))
+    const func = new AsyncFunction(...Object.keys(context), this.js)
+    func(...Object.values(context)).catch((err: Error) => console.error(err))
   }
 
   initFromElements(elements: HTMLElement[]) {
