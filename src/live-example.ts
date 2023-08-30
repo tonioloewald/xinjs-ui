@@ -33,14 +33,14 @@ preview.append(div({class: 'example'}, 'fiddle de dee!'))
 <h2>Example</h2>
 ```
 
-A <live-example> can be given a `context` object {[key: string]: any}, which is the 
+A `<live-example>` can be given a `context` object {[key: string]: any}, which is the 
 set of values available in the javascript's execution context (it is wrapped in an
 async function and passed those values). By default, that context comprises `preview` 
 (the `<div>` in which the example is rendered), `xinjs` (`* from xinjs`), 
 and `xinjsui` (`* from xinjsui`).
 
-The `LiveExample` class provides a static method, `insertExamples(element: HTMLElement)` 
-that will replace any sequence of 
+The `LiveExample` class provides the static `insertExamples(element: HTMLElement)` 
+function that will replace any sequence of 
 `pre code[class="language-html"],pre code[class="language-js"],pre code[class="language-css"]`
 elements with a `<live-example>` instance.
 */
@@ -76,6 +76,21 @@ live-example {
   display: flex;
   flex-direction: column;
   height: var(--live-example-height);
+  background: var(--background);
+}
+
+live-example.-maximize {
+  position: fixed;
+  left: 0;
+  top: 0;
+  height: 100vh;
+  width: 100vw;
+  margin: 0 !important;
+}
+
+live-example.-maximize .hide-if-maximized,
+live-example:not(.-maximize) .show-if-maximized {
+  display: none;
 }
 
 live-example [part="example"] {
@@ -86,6 +101,7 @@ live-example [part="example"] {
 
 live-example [part=preview] {
   height: 100%;
+  position: relative;
   overflow: hidden;
   background: #f7f7f7 url('data:image/svg+xml,\
   <svg xmlns="http://www.w3.org/2000/svg" width="80" height="80" viewBox="0 0 8 8" fill-opacity=".02" >\
@@ -184,11 +200,31 @@ export class LiveExample extends WebComponent {
       button(
         {
           slot: 'after-tabs',
+          title: 'copy as markdown',
+          class: 'transparent',
+          onClick: this.copy,
+        },
+        span({ class: 'icon-copy' })
+      ),
+      button(
+        {
+          slot: 'after-tabs',
           title: 'reload',
           class: 'transparent',
           onClick: this.refresh,
         },
         span({ class: 'icon-refresh' })
+      ),
+      button(
+        {
+          part: 'maximize',
+          slot: 'after-tabs',
+          title: 'maximize',
+          class: 'transparent',
+          onClick: this.toggleMaximize,
+        },
+        span({ class: 'show-if-maximized icon-minimize' }),
+        span({ class: 'hide-if-maximized icon-maximize' })
       )
     ),
     xinSlot({ part: 'sources', hidden: true }),
@@ -198,6 +234,18 @@ export class LiveExample extends WebComponent {
     super.connectedCallback()
     const { sources } = this.parts
     this.initFromElements([...sources.children] as HTMLElement[])
+  }
+
+  copy = () => {
+    const js = this.js !== '' ? '```js\n' + this.js + '\n```\n' : ''
+    const html = this.js !== '' ? '```html\n' + this.html + '\n```\n' : ''
+    const css = this.js !== '' ? '```css\n' + this.css + '\n```\n' : ''
+
+    navigator.clipboard.writeText(js + html + css)
+  }
+
+  toggleMaximize = () => {
+    this.classList.toggle('-maximize')
   }
 
   refresh = () => {

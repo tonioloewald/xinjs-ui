@@ -1,7 +1,7 @@
 /*!
 # `<code-editor>`
 
-Sometimes, it's nice to be able to just toss a code-editor in a web-page. It's a thin wrapper around the [ACE Editor](https://ace.c9.io/). 
+Sometimes, it's nice to be able to just toss a code-editor in a web-page. `<code-editor>` is a thin wrapper around the [ACE Editor](https://ace.c9.io/). 
 
 `<code-editor>`'s `value` is the code it contains. Its `mode` attribute sets the language, and you can further configure
 the ACE editor instance via its `options` property.

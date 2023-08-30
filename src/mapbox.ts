@@ -6,13 +6,14 @@ A [mapboxgl](https://docs.mapbox.com/mapbox-gl-js/api/) wrapper.
 ```html
 <!-- please don't abuse my mapbox token -->
 <map-box 
-  style="width: 100%; height: 190px"
+  style="width: 100%; height: 100%"
   coords="21.4389,-158.0001,9"
   token="pk.eyJ1IjoicG9kcGVyc29uIiwiYSI6ImNqc2JlbWU0bjA1ZmY0YW5ycHZod3VhbWcifQ.arvqfpOqMgFYkKgQ35UScA"
 ></map-box>
 ```
 
-There's no need to learn new apis, just access the element's `map` property.
+There's no need to learn new APIs or write wrappers, just access the element's `map` property 
+and [use the standard mapbox APIs directly](https://docs.mapbox.com/).
 */
 
 import { Component as WebComponent, ElementCreator, elements } from 'xinjs'

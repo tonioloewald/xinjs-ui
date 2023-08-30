@@ -265,6 +265,8 @@ export class LiveExample extends Component {
     set js(code: string);
     content: () => any[];
     connectedCallback(): void;
+    copy: () => void;
+    toggleMaximize: () => void;
     refresh: () => void;
     initFromElements(elements: HTMLElement[]): void;
     showDefaultTab(): void;
