@@ -3,7 +3,7 @@ export function scriptTag(src: string, existingSymbolName?: string): Promise<any
 export function styleSheet(href: string): Promise<void>;
 export interface LottieConfig {
     container?: HTMLElement | ShadowRoot;
-    renderer: 'svg' | 'cancas' | 'html';
+    renderer: 'svg' | 'canvas' | 'html';
     loop: boolean;
     autoplay: boolean;
     animationData?: string;
@@ -18,10 +18,10 @@ to work like an `<img>` element (just set its `src` attribute).
 
 ```html
 <bodymovin-player
-  style="height: 160px; width: 160px"
+  style="max-height: calc(100% - 40px); width: 100%"
   src="https://raw.githubusercontent.com/tonioloewald/xinjs-ui/main/demo/88140-rocket-livetrade.json"
 ></bodymovin-player>
-<div>
+<div style="height: 40px; line-height: 40px">
   Animation by <a target="_blank" href="https://lottiefiles.com/dvskjbicfc">chiến lê hồng</a>
 </div>
 ```

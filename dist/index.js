@@ -220,7 +220,7 @@ Sometimes, it's nice to be able to just toss a code-editor in a web-page. `<code
 the ACE editor instance via its `options` property.
 
 ```html
-<code-editor style="width: 100%; height: 190px" mode="css">
+<code-editor style="width: 100%; height: 100%" mode="css">
 body {
   box-sizing: border-box;
 }
@@ -277,7 +277,7 @@ class $8a70bd76f9b7e656$export$b7127187684f7150 extends (0, $hgUW1$Component) {
     }
     connectedCallback() {
         super.connectedCallback();
-        if (this.source === "") this.value = this.innerText.trim();
+        if (this.source === "") this.value = this.textContent !== null ? this.textContent.trim() : "";
         if (this._editorPromise === undefined) {
             this._editorPromise = $8a70bd76f9b7e656$var$makeCodeEditor(this, this.mode, this.options, this.theme);
             this._editorPromise.then((editor)=>{
@@ -1369,7 +1369,7 @@ live-example [part="example"] {
   position: relative;
 }
 
-live-example [part=preview] {
+live-example .preview {
   height: 100%;
   position: relative;
   overflow: hidden;
@@ -1451,9 +1451,6 @@ class $ada9b1474dc4b958$export$41199f9ac14d8c08 extends (0, $hgUW1$Component) {
                 part: "example"
             }, $ada9b1474dc4b958$var$style({
                 part: "style"
-            }), $ada9b1474dc4b958$var$div({
-                part: "preview",
-                class: "preview"
             })),
             (0, $6bbe441346901d5a$export$a932f737dcd864a2)({
                 part: "editors"
@@ -1519,9 +1516,14 @@ class $ada9b1474dc4b958$export$41199f9ac14d8c08 extends (0, $hgUW1$Component) {
         this.classList.toggle("-maximize");
     };
     refresh = ()=>{
-        const { style: style, preview: preview } = this.parts;
-        style.innerText = this.css;
+        const { example: example, style: style } = this.parts;
+        const preview = $ada9b1474dc4b958$var$div({
+            class: "preview"
+        });
         preview.innerHTML = this.html;
+        style.innerText = this.css;
+        if (example.children.length > 1) example.children[1].replaceWith(preview);
+        else example.append(preview);
         const context = {
             preview: preview,
             ...this.context

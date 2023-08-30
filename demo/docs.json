@@ -5,12 +5,12 @@
     "path": "README.md"
   },
   {
-    "text": "# `<bodymovin-player>`\n\nA wrapper for AirBnb's bodymovin, a.k.a. [lottie](https://airbnb.io/lottie/#/web), player. It's designed\nto work like an `<img>` element (just set its `src` attribute).\n\n```html\n<bodymovin-player \n  style=\"height: 160px; width: 160px\" \n  src=\"https://raw.githubusercontent.com/tonioloewald/xinjs-ui/main/demo/88140-rocket-livetrade.json\"\n></bodymovin-player>\n<div>\n  Animation by <a target=\"_blank\" href=\"https://lottiefiles.com/dvskjbicfc\">chiến lê hồng</a>\n</div>\n```\n```css\n.preview {\n  padding: var(--spacing);\n  text-align: center;\n}\n```\n\nYou can also directly set its `json` property to the content of a `lottie.json` file.\n\nAnd of course just access the element's `animation` property to [use the bodymovin API](https://airbnb.io/lottie/#/web).",
+    "text": "# `<bodymovin-player>`\n\nA wrapper for AirBnb's bodymovin, a.k.a. [lottie](https://airbnb.io/lottie/#/web), player. It's designed\nto work like an `<img>` element (just set its `src` attribute).\n\n```html\n<bodymovin-player \n  style=\"max-height: calc(100% - 40px); width: 100%\" \n  src=\"https://raw.githubusercontent.com/tonioloewald/xinjs-ui/main/demo/88140-rocket-livetrade.json\"\n></bodymovin-player>\n<div style=\"height: 40px; line-height: 40px\">\n  Animation by <a target=\"_blank\" href=\"https://lottiefiles.com/dvskjbicfc\">chiến lê hồng</a>\n</div>\n```\n```css\n.preview {\n  padding: var(--spacing);\n  text-align: center;\n}\n```\n\nYou can also directly set its `json` property to the content of a `lottie.json` file.\n\nAnd of course just access the element's `animation` property to [use the bodymovin API](https://airbnb.io/lottie/#/web).",
     "filename": "bodymovin-player.ts",
     "path": "src/bodymovin-player.ts"
   },
   {
-    "text": "# `<code-editor>`\n\nSometimes, it's nice to be able to just toss a code-editor in a web-page. `<code-editor>` is a thin wrapper around the [ACE Editor](https://ace.c9.io/). \n\n`<code-editor>`'s `value` is the code it contains. Its `mode` attribute sets the language, and you can further configure\nthe ACE editor instance via its `options` property.\n\n```html\n<code-editor style=\"width: 100%; height: 190px\" mode=\"css\">\nbody {\n  box-sizing: border-box;\n}\n</code-editor>\n```",
+    "text": "# `<code-editor>`\n\nSometimes, it's nice to be able to just toss a code-editor in a web-page. `<code-editor>` is a thin wrapper around the [ACE Editor](https://ace.c9.io/). \n\n`<code-editor>`'s `value` is the code it contains. Its `mode` attribute sets the language, and you can further configure\nthe ACE editor instance via its `options` property.\n\n```html\n<code-editor style=\"width: 100%; height: 100%\" mode=\"css\">\nbody {\n  box-sizing: border-box;\n}\n</code-editor>\n```",
     "filename": "code-editor.ts",
     "path": "src/code-editor.ts"
   },
