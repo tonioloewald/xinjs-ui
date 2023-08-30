@@ -214,7 +214,7 @@ $parcel$export($8a70bd76f9b7e656$exports, "codeEditor", () => $8a70bd76f9b7e656$
 /*!
 # `<code-editor>`
 
-Sometimes, it's nice to be able to just toss a code-editor in a web-page. It's a thin wrapper around the [ACE Editor](https://ace.c9.io/). 
+Sometimes, it's nice to be able to just toss a code-editor in a web-page. `<code-editor>` is a thin wrapper around the [ACE Editor](https://ace.c9.io/). 
 
 `<code-editor>`'s `value` is the code it contains. Its `mode` attribute sets the language, and you can further configure
 the ACE editor instance via its `options` property.
@@ -1090,14 +1090,14 @@ preview.append(div({class: 'example'}, 'fiddle de dee!'))
 <h2>Example</h2>
 ```
 
-A <live-example> can be given a `context` object {[key: string]: any}, which is the 
+A `<live-example>` can be given a `context` object {[key: string]: any}, which is the 
 set of values available in the javascript's execution context (it is wrapped in an
 async function and passed those values). By default, that context comprises `preview` 
 (the `<div>` in which the example is rendered), `xinjs` (`* from xinjs`), 
 and `xinjsui` (`* from xinjsui`).
 
-The `LiveExample` class provides a static method, `insertExamples(element: HTMLElement)` 
-that will replace any sequence of 
+The `LiveExample` class provides the static `insertExamples(element: HTMLElement)` 
+function that will replace any sequence of 
 `pre code[class="language-html"],pre code[class="language-js"],pre code[class="language-css"]`
 elements with a `<live-example>` instance.
 */ 
@@ -1346,6 +1346,21 @@ live-example {
   display: flex;
   flex-direction: column;
   height: var(--live-example-height);
+  background: var(--background);
+}
+
+live-example.-maximize {
+  position: fixed;
+  left: 0;
+  top: 0;
+  height: 100vh;
+  width: 100vw;
+  margin: 0 !important;
+}
+
+live-example.-maximize .hide-if-maximized,
+live-example:not(.-maximize) .show-if-maximized {
+  display: none;
 }
 
 live-example [part="example"] {
@@ -1356,6 +1371,7 @@ live-example [part="example"] {
 
 live-example [part=preview] {
   height: 100%;
+  position: relative;
   overflow: hidden;
   background: #f7f7f7 url('data:image/svg+xml,\
   <svg xmlns="http://www.w3.org/2000/svg" width="80" height="80" viewBox="0 0 8 8" fill-opacity=".02" >\
@@ -1458,11 +1474,28 @@ class $ada9b1474dc4b958$export$41199f9ac14d8c08 extends (0, $hgUW1$Component) {
                 ...$ada9b1474dc4b958$var$codeStyle
             }), $ada9b1474dc4b958$var$button({
                 slot: "after-tabs",
+                title: "copy as markdown",
+                class: "transparent",
+                onClick: this.copy
+            }, $ada9b1474dc4b958$var$span({
+                class: "icon-copy"
+            })), $ada9b1474dc4b958$var$button({
+                slot: "after-tabs",
                 title: "reload",
                 class: "transparent",
                 onClick: this.refresh
             }, $ada9b1474dc4b958$var$span({
                 class: "icon-refresh"
+            })), $ada9b1474dc4b958$var$button({
+                part: "maximize",
+                slot: "after-tabs",
+                title: "maximize",
+                class: "transparent",
+                onClick: this.toggleMaximize
+            }, $ada9b1474dc4b958$var$span({
+                class: "show-if-maximized icon-minimize"
+            }), $ada9b1474dc4b958$var$span({
+                class: "hide-if-maximized icon-maximize"
             }))),
             $ada9b1474dc4b958$var$xinSlot({
                 part: "sources",
@@ -1476,6 +1509,15 @@ class $ada9b1474dc4b958$export$41199f9ac14d8c08 extends (0, $hgUW1$Component) {
             ...sources.children
         ]);
     }
+    copy = ()=>{
+        const js = this.js !== "" ? "```js\n" + this.js + "\n```\n" : "";
+        const html = this.js !== "" ? "```html\n" + this.html + "\n```\n" : "";
+        const css = this.js !== "" ? "```css\n" + this.css + "\n```\n" : "";
+        navigator.clipboard.writeText(js + html + css);
+    };
+    toggleMaximize = ()=>{
+        this.classList.toggle("-maximize");
+    };
     refresh = ()=>{
         const { style: style, preview: preview } = this.parts;
         style.innerText = this.css;
@@ -1554,13 +1596,14 @@ A [mapboxgl](https://docs.mapbox.com/mapbox-gl-js/api/) wrapper.
 ```html
 <!-- please don't abuse my mapbox token -->
 <map-box 
-  style="width: 100%; height: 190px"
+  style="width: 100%; height: 100%"
   coords="21.4389,-158.0001,9"
   token="pk.eyJ1IjoicG9kcGVyc29uIiwiYSI6ImNqc2JlbWU0bjA1ZmY0YW5ycHZod3VhbWcifQ.arvqfpOqMgFYkKgQ35UScA"
 ></map-box>
 ```
 
-There's no need to learn new apis, just access the element's `map` property.
+There's no need to learn new APIs or write wrappers, just access the element's `map` property 
+and [use the standard mapbox APIs directly](https://docs.mapbox.com/).
 */ 
 
 const $6246d5006b5a56c3$export$7d6f3ccbb0a81c30 = [
@@ -1767,7 +1810,7 @@ rich-text [part="toolbar"] {
   padding: 4px;
   display: flex;
   gap: 0px;
-  flex: 1 0 auto;
+  flex: 0 0 auto;
   flex-wrap: wrap;
 }
 `));

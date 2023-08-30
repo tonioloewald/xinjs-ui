@@ -50,7 +50,7 @@ rich-text [part="toolbar"] {
   padding: 4px;
   display: flex;
   gap: 0px;
-  flex: 1 0 auto;
+  flex: 0 0 auto;
   flex-wrap: wrap;
 }
 `

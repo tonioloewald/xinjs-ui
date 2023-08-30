@@ -22,7 +22,7 @@
   --touch-size: 32px;
 
   --header-height: calc(
-    var(--line-height) * var(--h1-scale) + var(--spacing) * 2
+    var(--line-height) * var(--h2-scale) + var(--spacing) * 2
   );
 }
 
@@ -57,7 +57,7 @@ header {
   --text-color: var(--brand-text-color);
   display: flex;
   align-items: center;
-  padding: 0 var(--spacing);
+  padding: 0 calc(var(--spacing) * 1.5);
   line-height: calc(var(--line-height) * var(--h1-scale));
   height: var(--header-height);
   white-space: nowrap;
@@ -73,7 +73,7 @@ h1 {
   text-align: center;
 }
 
-header h1 {
+header h2 {
   color: var(--brand-text-color);
   white-space: nowrap;
 }
@@ -310,7 +310,7 @@ rich-text [part='doc'] {
 .doc-link {
   cursor: pointer;
   border-bottom: none;
-  padding: 5px 15px;
+  padding: calc(var(--spacing) * 0.5) calc(var(--spacing) * 1.5);
 }
 
 .doc-link:not(.current) {

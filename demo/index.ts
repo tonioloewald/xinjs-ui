@@ -66,15 +66,15 @@ Object.assign(globalThis, { app, xin, bindings, elements, vars, touch })
 
 const main = document.querySelector('main') as HTMLElement
 
-const { h1, div, span, a, img, header, button, template } = elements
+const { h2, div, span, a, img, header, button, template } = elements
 
 main.append(
   header(
     // img({src: favicon}),
-    h1({ bindText: 'app.title' }),
+    h2({ bindText: 'app.title' }),
     span({ class: 'elastic' }),
     sizeBreak(
-      { minWidth: 500, style: { margin: `0 10px` } },
+      { minWidth: 500, style: { marginRight: vars.spacing, display: 'flex' } },
       img({ alt: 'bundlejs size badge', src: app.bundleUrl }),
       span({ slot: 'small' })
     ),
