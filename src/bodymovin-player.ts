@@ -19,6 +19,39 @@ export interface LottieConfig {
 A wrapper for AirBnb's bodymovin, a.k.a. [lottie](https://airbnb.io/lottie/#/web), player. It's designed
 to work like an `<img>` element (just set its `src` attribute).
 
+```js
+const { xinProxy } = xinjs
+const { div, label, input, select, option, span } = xinjs.elements
+
+const rocket = preview.querySelector('bodymovin-player')
+preview.append(
+  div(
+    { class: 'panel' },
+    label(
+      'speed',
+      input({ type: 'range', min: -1, max: 1, step: 0.25, value: 0, onChange(event) {
+        const speed = Math.pow(5, Number(event.target.value))
+        rocket.animation.setSpeed(speed)
+        event.target.nextSibling.textContent = (speed * 100).toFixed(0) + '%'
+      } }),
+      span('100%', {style: { textAlign: 'right', width: '40px'}})
+    ),
+    label(
+      'direction',
+      select(
+        option('Forwards', {value: 1, selected: true}),
+        option('Backwards', {value: -1}),
+        {
+          onChange(event) {
+            rocket.animation.setDirection(event.target.value)
+          }
+        }
+      ),
+      span({class: 'icon-chevron-down'}),
+    )
+  )
+)
+```
 ```html
 <bodymovin-player 
   style="max-height: calc(100% - 40px); width: 100%" 
@@ -33,7 +66,20 @@ to work like an `<img>` element (just set its `src` attribute).
   padding: var(--spacing);
   text-align: center;
 }
+
+.preview .panel {
+  position: absolute;
+  right: 10px;
+  top: 10px;
+  padding: 10px;
+  border-radius: 5px;
+  background: white;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.25);
+  display: flex;
+  flex-direction: column;
+}
 ```
+
 
 You can also directly set its `json` property to the content of a `lottie.json` file.
 

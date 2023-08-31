@@ -144,8 +144,11 @@ input {
   line-height: calc(var(--line-height) + var(--spacing));
 }
 
+select:has(+ .icon-chevron-down) {
+  padding-right: calc(var(--spacing) * 2.5);
+}
 select + .icon-chevron-down {
-  margin-left: -20px;
+  margin-left: calc(var(--spacing) * -3);
   align-self: center;
   pointer-events: none;
 }
