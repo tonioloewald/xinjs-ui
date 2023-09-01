@@ -68,6 +68,12 @@ const main = document.querySelector('main') as HTMLElement
 
 const { h2, div, span, a, img, header, button, template } = elements
 
+window.addEventListener('popstate', () => {
+  const filename = window.location.search.substring(1)
+  app.currentDoc =
+    app.docs.find((doc) => doc.filename === filename) || app.docs[0]
+})
+
 main.append(
   header(
     // img({src: favicon}),
