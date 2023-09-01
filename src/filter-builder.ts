@@ -55,7 +55,6 @@ const filter = filterBuilder({
   filters: { contains, equals, after, isTrue, isFalse },
   fields: columns,
   onChange(event) {
-    console.log(filter.filter, filter.description)
     table.filter = filter.filter
   }
 })
@@ -288,7 +287,6 @@ export class FilterPart extends WebComponent {
     const description = `${getSelectText(haystack)} ${getSelectText(
       condition
     )}${matchValue}`
-    console.log(description)
 
     this.filter = {
       description,
@@ -411,7 +409,6 @@ export class FilterBuilder extends WebComponent {
       array.filter(
         (obj: any) => tests.find((f) => f(obj) === false) === undefined
       )
-    console.log(this.description, this.filter)
     this.dispatchEvent(new Event('change'))
   }
 
