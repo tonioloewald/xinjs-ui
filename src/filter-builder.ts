@@ -244,7 +244,9 @@ export class FilterPart extends WebComponent {
 
   content = [
     select({ part: 'haystack' }),
+    span({ class: 'icon-chevron-down' }),
     select({ part: 'condition' }),
+    span({ class: 'icon-chevron-down' }),
     input({ part: 'needle' }),
     span({ part: 'padding' }),
     button({ part: 'remove', title: 'delete' }, span({ class: 'icon-trash' })),

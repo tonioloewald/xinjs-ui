@@ -289,6 +289,7 @@ export class TabSelector extends Component {
     content: (HTMLSlotElement | HTMLDivElement)[];
     constructor();
     addTabBody(body: HTMLElement, selectTab?: boolean): void;
+    removeTabBody(body: HTMLElement): void;
     keyTab: (event: KeyboardEvent) => void;
     get bodies(): Element[];
     pickTab: (event: Event) => void;
@@ -544,7 +545,7 @@ Interactive example:
 }
 ```
 ```js
-const { select, option, div, ul, li } = xinjs.elements
+const { select, option, div, span, ul, li } = xinjs.elements
 const { makeSorter } = xinjsui
 
 const people = [
@@ -586,7 +587,10 @@ function render () {
 }
 
 preview.append(
-  sortPicker,
+  div(
+    sortPicker,
+    span({class: 'icon-chevron-down'})
+  ),
   list
 )
 
