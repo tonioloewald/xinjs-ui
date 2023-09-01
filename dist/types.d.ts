@@ -26,7 +26,7 @@ preview.append(
     { class: 'panel' },
     label(
       'speed',
-      input({ type: 'range', min: -1, max: 1, step: 0.25, value: 0, onChange(event) {
+      input({ type: 'range', min: -1, max: 1, step: 0.1, value: 0, onInput(event) {
         const speed = Math.pow(5, Number(event.target.value))
         rocket.animation.setSpeed(speed)
         event.target.nextSibling.textContent = (speed * 100).toFixed(0) + '%'
@@ -76,7 +76,6 @@ preview.append(
   flex-direction: column;
 }
 ```
-
 
 You can also directly set its `json` property to the content of a `lottie.json` file.
 
