@@ -12,6 +12,25 @@ working on right now, a row of buttons turns into a menu at narrow widths) there
 Note that the sizes referred to are of the `<size-break>`'s `.offsetParent`, and it watches for
 the window's `resize` events and its own (via `ResizeObserver`).
 
+```js
+const { trackDrag } = xinjsui
+
+const container = preview.querySelector('.container')
+const sizer = preview.querySelector('.sizer')
+
+function resize(event) {
+  const w = container.offsetWidth
+  const h = container.offsetHeight
+  trackDrag(event, (dx, dy, event) => {
+    container.style.width = (w + dx) + 'px'
+    container.style.height = (h + dy) + 'px'
+    return event.type === 'mouseup'
+  }, 'nwse-resize')
+}
+
+sizer.addEventListener('mousedown', resize, 'nwse-resize')
+sizer.addEventListener('touchstart', resize, 'nwse-resize')
+```
 ```html
 <div class="container">
   <size-break min-width="150" min-height="80">
@@ -33,6 +52,13 @@ the window's `resize` events and its own (via `ResizeObserver`).
   border: 1px solid #aaa;
 }
 
+size-break * {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translateX(-50%) translateY(-50%);
+}
+
 .container {
   position: relative;
   min-width: 100px;
@@ -51,25 +77,6 @@ the window's `resize` events and its own (via `ResizeObserver`).
   right: 0;
   cursor: nwse-resize;
 }
-```
-```js
-const { trackDrag } = xinjsui
-
-const container = preview.querySelector('.container')
-const sizer = preview.querySelector('.sizer')
-
-function resize(event) {
-  const w = container.offsetWidth
-  const h = container.offsetHeight
-  trackDrag(event, (dx, dy, event) => {
-    container.style.width = (w + dx) + 'px'
-    container.style.height = (h + dy) + 'px'
-    return event.type === 'mouseup'
-  }, 'nwse-resize')
-}
-
-sizer.addEventListener('mousedown', resize, 'nwse-resize')
-sizer.addEventListener('touchstart', resize, 'nwse-resize')
 ```
 
 `<size-break>` supports both `min-width` and/or `min-height`, and you can of course target only one
