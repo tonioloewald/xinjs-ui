@@ -4,15 +4,37 @@
 `<tab-selector>` creates a `tabpanel` for its children, creating a `tab` for each based on its
 `name` attribute.
 
+```js
+[...preview.querySelectorAll('div[name]')].forEach(div => {
+  div.style.color = `hsl(${(Math.random() * 360).toFixed(0)} 50% 50%)`
+})
+
+const { div, button } = xinjs.elements
+const tabSelector = preview.querySelector('tab-selector')
+
+let bodycount = 0
+preview.querySelector('.add').addEventListener('click', () => {
+  const name = `new tab ${++bodycount}`
+  const body = div(
+    {name}, 
+    name,
+    button('Remove Me', { onClick() { tabSelector.removeTabBody(body) }})
+  )
+  tabSelector.addTabBody(body, true)
+})
+```
 ```html
 <tab-selector>
   <div name="first">first body</div>
   <div name="second">second body</div>
   <div name="third">third body</div>
+  <button class="add" slot="after-tabs">
+    <span class="icon-plus"></span>
+  </button>
 </tab-selector>
 ```
 ```css
-  tab-selector {
+tab-selector {
     height: 100%;
   }
   
@@ -23,22 +45,14 @@
     font-size: 200%;
   }
 ```
-```js
-[...preview.querySelectorAll('div[name]')].forEach(div => {
-  div.style.color = `hsl(${(Math.random() * 360).toFixed(0)} 50% 50%)`
-})
-```
 
-Usage:
 
-`TabSelector` is the class and `tabSelector` is the `ElementCreator`. So the three methods
-of creating a `<tab-selector>` are:
+The `<tab-selector>`s `value` is the index of its active body.
 
-1. importing `TabSelector` and inserting the appropriate HTML: `<tab-selector>`.
-2. using `new TabSelector()` and appending it to the DOM.
-3. using `tabSelector()` and appending it to the DOM. This last is more convenient because
-   `ElementCreator` allows composition, convenient assignment of properties and attributes,
-   and so forth.
+A `<tab-selector>` has `addTabBody(body: HTMLElement, select?: boolean)` and 
+`removeTabBody(body: number | HTMLElement)` methods for updating its content.
+
+If you want 
 */
 
 import {
@@ -129,11 +143,17 @@ export class TabSelector extends WebComponent {
       console.error('element has no name attribute', body)
       throw new Error('element has no name attribute')
     }
-    this.shadowRoot?.append(body)
+    this.append(body)
     this.setupTabs()
     if (selectTab) {
       this.value = this.bodies.length - 1
     }
+    this.queueRender()
+  }
+
+  removeTabBody(body: HTMLElement) {
+    body.remove()
+    this.setupTabs()
     this.queueRender()
   }
 
@@ -176,10 +196,13 @@ export class TabSelector extends WebComponent {
 
   setupTabs = (): void => {
     const { tabs } = this.parts
-    const tabBodies = [...this.children] as Element[]
-
-    tabBodies.filter((child) => child.hasAttribute('name'))
+    const tabBodies = [...this.children].filter(
+      (child) => !child.hasAttribute('slot') && child.hasAttribute('name')
+    )
     tabs.textContent = ''
+    if (this.value >= tabBodies.length) {
+      this.value = tabBodies.length - 1
+    }
     for (const index in tabBodies) {
       const tabBody = tabBodies[index]
       const name = tabBody.getAttribute('name') as string

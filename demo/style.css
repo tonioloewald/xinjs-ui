@@ -145,12 +145,14 @@ input {
 }
 
 select:has(+ .icon-chevron-down) {
-  padding-right: calc(var(--spacing) * 2.5);
+  padding-right: calc(var(--spacing) * 3);
 }
 select + .icon-chevron-down {
   margin-left: calc(var(--spacing) * -3);
+  min-width: calc(var(--spacing) * 3.2);
   align-self: center;
   pointer-events: none;
+  color: var(--brand-color);
 }
 
 input {

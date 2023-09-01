@@ -36,18 +36,25 @@ E.g. to use the markdown viewer:
 
 ```
 import { markdownViewer } from 'xinjs-ui'
-
-document.append(markdownViewer(`
-# hello world
-here is some markdown
-`))
+document.body.append(markdownViewer('# hello world\nthis is a test'))
 ```
 
-Assuming you import the javascript somewhere, this HTML will work as well.
+```js
+const { markdownViewer } = xinjsui
+
+preview.append(
+  markdownViewer(`
+## hello world
+here is some markdown
+`)
+)
+```
+
+Assuming you import the module somewhere, the HTML will work as well.
 
 ```
 <markdown-viewer>
-# hello world
+## hello world
 here is some markdown
 </markdown-viewer>
 ```

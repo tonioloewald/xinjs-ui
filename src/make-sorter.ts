@@ -40,7 +40,7 @@ Interactive example:
 }
 ```
 ```js
-const { select, option, div, ul, li } = xinjs.elements
+const { select, option, div, span, ul, li } = xinjs.elements
 const { makeSorter } = xinjsui
 
 const people = [
@@ -82,7 +82,10 @@ function render () {
 }
 
 preview.append(
-  sortPicker,
+  div(
+    sortPicker,
+    span({class: 'icon-chevron-down'})
+  ),
   list
 )
 
