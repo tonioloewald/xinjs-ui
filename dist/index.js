@@ -37,8 +37,14 @@ A thin wrapper around [babylonjs](https://www.babylonjs.com/).
 
 A `<b-3d>` element is initialized with an `engine`, `canvas`, `scene`, and update-loop.
 
-You can access the `scene` and `engine` properties (see the example) and if you set
-`onUpdate` that will be executed before each update.
+You can access the `scene` and `engine` properties (see the example). You can also
+assign `onSceneCreated` and `onUpdate` callbacks that will be executed when the scene is
+first initialized and before each update, respectively.
+
+By default, this component loads `babylon.max.js` from the `babylonjs` cdn, but if
+BABYLON is already defined then it will use that.
+
+If you want to load `gltf` content, you should load `https://cdn.babylonjs.com/loaders/babylonjs.loaders.min.js`.
 
 ```js
 const b3d = preview.querySelector('b-3d')
@@ -205,13 +211,13 @@ class $ef1971ff775ba547$export$1bc633d0db17d4e1 extends (0, $hgUW1$Component) {
     constructor(){
         super();
         this.babylonReady = (async ()=>{
-            const { BABYLON: BABYLON } = await (0, $5c31145f3e970423$export$c6e082819e9a0330)("https://cdn.babylonjs.com/babylon.max.js");
-            (0, $5c31145f3e970423$export$c6e082819e9a0330)("https://cdn.babylonjs.com/loaders/babylonjs.loaders.min.js");
+            const { BABYLON: BABYLON } = await (0, $5c31145f3e970423$export$c6e082819e9a0330)("https://cdn.babylonjs.com/babylon.max.js", "BABYLON");
             return BABYLON;
         })();
     }
     scene;
     engine;
+    onSceneCreated;
     onUpdate;
     update = ()=>{
         if (this.scene) {
@@ -228,6 +234,7 @@ class $ef1971ff775ba547$export$1bc633d0db17d4e1 extends (0, $hgUW1$Component) {
         this.babylonReady.then((BABYLON)=>{
             this.engine = new BABYLON.Engine(canvas, true);
             this.scene = new BABYLON.Scene(this.engine);
+            if (this.onSceneCreated) this.onSceneCreated();
             this.engine.runRenderLoop(this.update);
         });
     }

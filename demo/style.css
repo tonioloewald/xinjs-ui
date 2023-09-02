@@ -148,11 +148,15 @@ select:has(+ .icon-chevron-down) {
   padding-right: calc(var(--spacing) * 3);
 }
 select + .icon-chevron-down {
-  margin-left: calc(var(--spacing) * -3);
-  min-width: calc(var(--spacing) * 3.2);
+  margin-left: calc(var(--spacing) * -2);
+  min-width: calc(var(--spacing) * 2.2);
   align-self: center;
   pointer-events: none;
   color: var(--brand-color);
+}
+
+label > select + .icon-chevron-down {
+  margin-left: calc(var(--spacing) * -2.5);
 }
 
 input {
@@ -324,4 +328,8 @@ rich-text [part='doc'] {
 
 live-example {
   margin: var(--spacing) 0;
+}
+
+.icon-plus {
+  content: '+';
 }

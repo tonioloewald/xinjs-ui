@@ -7,6 +7,7 @@ export class B3d extends Component {
     constructor();
     scene: any;
     engine: any;
+    onSceneCreated?: () => void;
     onUpdate?: () => void;
     onResize(): void;
     connectedCallback(): void;
