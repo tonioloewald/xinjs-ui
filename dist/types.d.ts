@@ -1,6 +1,18 @@
 import { Component, ElementCreator } from "xinjs";
 export function scriptTag(src: string, existingSymbolName?: string): Promise<any>;
 export function styleSheet(href: string): Promise<void>;
+export class B3d extends Component {
+    styleNode: HTMLStyleElement;
+    content: HTMLCanvasElement;
+    constructor();
+    scene: any;
+    engine: any;
+    onUpdate?: () => void;
+    onResize(): void;
+    connectedCallback(): void;
+    disconnectedCallback(): void;
+}
+export const b3d: import("xinjs").ElementCreator<HTMLElement>;
 export interface LottieConfig {
     container?: HTMLElement | ShadowRoot;
     renderer: 'svg' | 'canvas' | 'html';
