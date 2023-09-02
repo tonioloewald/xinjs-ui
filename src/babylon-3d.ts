@@ -28,8 +28,6 @@ const box = BABYLON.MeshBuilder.CreateBox('box', {})
 b3d.onUpdate = () => {
   box.rotation.y += 0.005
 }
-
-console.log(box)
 ```
 ```html
 <b-3d></b-3d>
