@@ -3,13 +3,18 @@ import fs from 'fs'
 
 const outputFilePath = './src/icon-data.ts'
 
+const roundNearest = (s) =>
+  s.replace(/\d+\.\d+/g, (floatString) => {
+    return Number(floatString).toFixed(0)
+  })
+
 const iconData = selection.icons
   .filter((icon) => icon.icon.isMulticolor === false)
   .reduce((map, icon) => {
     const iconName = icon.properties.name
       .replace(/_/g, '-')
       .replace(/-([a-z])/g, (_, char) => char.toLocaleUpperCase())
-    map[iconName] = icon.icon.paths
+    map[iconName] = icon.icon.paths.map(roundNearest)
     return map
   }, {})
 
