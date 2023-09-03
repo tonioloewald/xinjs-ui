@@ -85,10 +85,10 @@ main.append(
       img({ alt: 'bundlejs size badge', src: app.bundleUrl }),
       span({ slot: 'small' })
     ),
-    a({ class: 'iconic', title: 'github' }, icons.github(), {
+    a({ class: 'iconic', title: 'github', target: '_blank' }, icons.github(), {
       href: app.githubUrl,
     }),
-    a({ class: 'iconic', title: 'npmjs' }, icons.npm(), {
+    a({ class: 'iconic', title: 'npmjs', target: '_blank' }, icons.npm(), {
       href: app.npmUrl,
     })
   ),
