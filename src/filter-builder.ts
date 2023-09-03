@@ -101,6 +101,7 @@ interface FilterMaker {
 */
 
 import { Component as WebComponent, ElementCreator, elements } from 'xinjs'
+import { icons } from '../src'
 
 const { div, input, select, option, button, span, style } = elements
 
@@ -121,7 +122,7 @@ filter-part [hidden]+[part="padding"] {
   content: ' ';
   flex: 1 1 auto;
 }
-  
+
 filter-builder {
   width: 100%;
   height: auto;
@@ -244,12 +245,12 @@ export class FilterPart extends WebComponent {
 
   content = [
     select({ part: 'haystack' }),
-    span({ class: 'icon-chevron-down' }),
+    icons.chevronDown(),
     select({ part: 'condition' }),
-    span({ class: 'icon-chevron-down' }),
+    icons.chevronDown(),
     input({ part: 'needle' }),
     span({ part: 'padding' }),
-    button({ part: 'remove', title: 'delete' }, span({ class: 'icon-trash' })),
+    button({ part: 'remove', title: 'delete' }, icons.trash()),
   ]
 
   filter: Filter = passAnything
@@ -375,12 +376,12 @@ export class FilterBuilder extends WebComponent {
         onClick: this.addFilter,
         class: 'round',
       },
-      span({ class: 'icon-plus' })
+      icons.plus()
     ),
     div({ part: 'filterContainer' }),
     button(
       { part: 'reset', title: 'reset filter', onClick: this.reset },
-      span({ class: 'icon-x' })
+      icons.x()
     ),
   ]
 

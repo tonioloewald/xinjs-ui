@@ -35,6 +35,7 @@ the `<rich-text>` component).
 */
 
 import { Component as WebComponent, ElementCreator, elements } from 'xinjs'
+import { icons } from './icons'
 
 const { style, xinSlot, div, select, fragment, option, button, span } = elements
 
@@ -92,7 +93,7 @@ export function blockStyle(options = blockStyles) {
         option(caption, { value: `formatBlock,${tagType}` })
       )
     ),
-    span({ class: 'icon-chevron-down' })
+    icons.chevronDown()
   )
 }
 
@@ -113,38 +114,35 @@ export function elastic(width = '10px') {
 export function commandButton(
   title: string,
   dataCommand: string,
-  iconClass: string
+  icon: SVGElement
 ) {
-  return button(
-    { slot: 'toolbar', dataCommand, title },
-    span({ class: iconClass })
-  )
+  return button({ slot: 'toolbar', dataCommand, title }, icon)
 }
 
 const paragraphStyleWidgets = () => [
-  commandButton('left-justify', 'justifyLeft', 'icon-format_align_left'),
-  commandButton('center', 'justifyCenter', 'icon-format_align_center'),
-  commandButton('right-justify', 'justifyRight', 'icon-format_align_right'),
+  commandButton('left-justify', 'justifyLeft', icons.form()),
+  commandButton('center', 'justifyCenter', icons.formatAlignCenter()),
+  commandButton('right-justify', 'justifyRight', icons.formatAlignRight()),
   spacer(),
   commandButton(
     'bullet list',
     'insertUnorderedList',
-    'icon-format_list_bulleted'
+    icons.formatListBulleted()
   ),
   commandButton(
     'numbered list',
     'insertOrderedList',
-    'icon-format_list_numbered'
+    icons.formatListNumbered()
   ),
   spacer(),
-  commandButton('indent', 'indent', 'icon-format_indent_increase'),
-  commandButton('indent', 'outdent', 'icon-format_indent_decrease'),
+  commandButton('indent', 'indent', icons.formatIndentIncrease()),
+  commandButton('indent', 'outdent', icons.formatIndentDecrease()),
 ]
 
 const characterStyleWidgets = () => [
-  commandButton('bold', 'bold', 'icon-format_bold'),
-  commandButton('italic', 'italic', 'icon-format_italic'),
-  commandButton('underline', 'underline', 'icon-format_underlined'),
+  commandButton('bold', 'bold', icons.formatBold()),
+  commandButton('italic', 'italic', icons.formatItalic()),
+  commandButton('underline', 'underline', icons.formatUnderlined()),
 ]
 
 const minimalWidgets = () => [
@@ -213,8 +211,7 @@ export class RichText extends WebComponent {
     return this.selectedBlocks.length ? selObject.toString() : ''
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  selectionChange = (event: Event, editor: RichText): void => {}
+  selectionChange: (event: Event, editor: RichText) => void = () => {}
 
   content = [
     xinSlot({

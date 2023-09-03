@@ -9,6 +9,7 @@ import {
 } from 'xinjs'
 
 import {
+  icons,
   markdownViewer,
   MarkdownViewer,
   LiveExample,
@@ -84,10 +85,10 @@ main.append(
       img({ alt: 'bundlejs size badge', src: app.bundleUrl }),
       span({ slot: 'small' })
     ),
-    a({ class: 'iconic' }, span({ class: 'icon-github', title: 'github' }), {
+    a({ class: 'iconic', title: 'github' }, icons.github(), {
       href: app.githubUrl,
     }),
-    a({ class: 'iconic' }, span({ class: 'icon-npm', title: 'npmjs' }), {
+    a({ class: 'iconic', title: 'npmjs' }, icons.npm(), {
       href: app.npmUrl,
     })
   ),
@@ -154,7 +155,7 @@ main.append(
             ).contentVisible = false
           },
         },
-        span({ class: 'icon-chevron-left' })
+        icons.chevronLeft()
       ),
       markdownViewer({
         style: {

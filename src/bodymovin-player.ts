@@ -21,6 +21,7 @@ to work like an `<img>` element (just set its `src` attribute).
 
 ```js
 const { xinProxy } = xinjs
+const { icons } = xinjsui
 const { div, label, input, select, option, span } = xinjs.elements
 
 const rocket = preview.querySelector('bodymovin-player')
@@ -47,14 +48,14 @@ preview.append(
           }
         }
       ),
-      span({class: 'icon-chevron-down'}),
+      icons.chevronDown(),
     )
   )
 )
 ```
 ```html
-<bodymovin-player 
-  style="max-height: calc(100% - 40px); width: 100%" 
+<bodymovin-player
+  style="max-height: calc(100% - 40px); width: 100%"
   src="https://raw.githubusercontent.com/tonioloewald/xinjs-ui/main/demo/88140-rocket-livetrade.json"
 ></bodymovin-player>
 <div style="height: 40px; line-height: 40px">

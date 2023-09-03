@@ -11,7 +11,7 @@ and `css` properties.
 
 ```css
 .preview {
-  padding: 0 var(--spacing);  
+  padding: 0 var(--spacing);
 }
 
 .example {
@@ -33,14 +33,14 @@ preview.append(div({class: 'example'}, 'fiddle de dee!'))
 <h2>Example</h2>
 ```
 
-A `<live-example>` can be given a `context` object {[key: string]: any}, which is the 
+A `<live-example>` can be given a `context` object {[key: string]: any}, which is the
 set of values available in the javascript's execution context (it is wrapped in an
-async function and passed those values). By default, that context comprises `preview` 
-(the `<div>` in which the example is rendered), `xinjs` (`* from xinjs`), 
+async function and passed those values). By default, that context comprises `preview`
+(the `<div>` in which the example is rendered), `xinjs` (`* from xinjs`),
 and `xinjsui` (`* from xinjsui`).
 
-The `LiveExample` class provides the static `insertExamples(element: HTMLElement)` 
-function that will replace any sequence of 
+The `LiveExample` class provides the static `insertExamples(element: HTMLElement)`
+function that will replace any sequence of
 `pre code[class="language-html"],pre code[class="language-js"],pre code[class="language-css"]`
 elements with a `<live-example>` instance.
 */
@@ -50,8 +50,9 @@ import * as xinjsui from './index'
 import * as xinjs from 'xinjs'
 import { codeEditor, CodeEditor } from './code-editor'
 import { tabSelector, TabSelector } from './tab-selector'
+import { icons } from './icons'
 
-const { div, span, xinSlot, style, button } = elements
+const { div, xinSlot, style, button } = elements
 
 const AsyncFunction = (async () => {}).constructor
 
@@ -200,7 +201,7 @@ export class LiveExample extends WebComponent {
           class: 'transparent',
           onClick: this.copy,
         },
-        span({ class: 'icon-copy' })
+        icons.copy()
       ),
       button(
         {
@@ -209,7 +210,7 @@ export class LiveExample extends WebComponent {
           class: 'transparent',
           onClick: this.refresh,
         },
-        span({ class: 'icon-refresh' })
+        icons.refresh()
       ),
       button(
         {
@@ -219,8 +220,8 @@ export class LiveExample extends WebComponent {
           class: 'transparent',
           onClick: this.toggleMaximize,
         },
-        span({ class: 'show-if-maximized icon-minimize' }),
-        span({ class: 'hide-if-maximized icon-maximize' })
+        icons.minimize({ class: 'icon-minimize show-if-maximized' }),
+        icons.maximize({ class: 'icon-maximize show-if-minimized' })
       )
     ),
     xinSlot({ part: 'sources', hidden: true }),

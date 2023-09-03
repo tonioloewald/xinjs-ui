@@ -19,7 +19,7 @@ const sorter = makeSorter(
 As above, but sort descending:
 ```
 const sorter = makeSorter(
-  obj => [obj.propA, obj.propB], 
+  obj => [obj.propA, obj.propB],
   false
 )
 ```
@@ -27,7 +27,7 @@ const sorter = makeSorter(
 As above but propA is sorted ascending, propB descending
 ```
 const sorter = makeSorter(
-  obj => [obj.propA, obj.propB], 
+  obj => [obj.propA, obj.propB],
   [true, false]
 )
 ```
@@ -41,7 +41,7 @@ Interactive example:
 ```
 ```js
 const { select, option, div, span, ul, li } = xinjs.elements
-const { makeSorter } = xinjsui
+const { icons, makeSorter } = xinjsui
 
 const people = [
   { first: 'Juanita', last: 'Citizen', age: 25 },
@@ -84,7 +84,7 @@ function render () {
 preview.append(
   div(
     sortPicker,
-    span({class: 'icon-chevron-down'})
+    icons.chevronDown()
   ),
   list
 )

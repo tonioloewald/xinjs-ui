@@ -31,6 +31,7 @@ to work like an `<img>` element (just set its `src` attribute).
 
 ```js
 const { xinProxy } = xinjs
+const { icons } = xinjsui
 const { div, label, input, select, option, span } = xinjs.elements
 
 const rocket = preview.querySelector('bodymovin-player')
@@ -57,7 +58,7 @@ preview.append(
           }
         }
       ),
-      span({class: 'icon-chevron-down'}),
+      icons.chevronDown(),
     )
   )
 )
@@ -271,7 +272,7 @@ export class FilterPart extends Component {
     filters: {
         [key: string]: FilterMaker;
     };
-    content: HTMLSpanElement[];
+    content: (SVGElement | HTMLSpanElement)[];
     filter: Filter;
     buildFilter: () => void;
     connectedCallback(): void;
@@ -296,6 +297,10 @@ export class FilterBuilder extends Component {
     render(): void;
 }
 export const filterBuilder: ElementCreator<FilterBuilder>;
+type SVGIconMap = {
+    [key: string]: ElementCreator<SVGElement>;
+};
+export const icons: SVGIconMap;
 export class TabSelector extends Component {
     value: number;
     styleNode: HTMLStyleElement;
@@ -397,7 +402,7 @@ export function blockStyle(options?: {
 }[]): any;
 export function spacer(width?: string): HTMLSpanElement;
 export function elastic(width?: string): HTMLSpanElement;
-export function commandButton(title: string, dataCommand: string, iconClass: string): HTMLButtonElement;
+export function commandButton(title: string, dataCommand: string, icon: SVGElement): HTMLButtonElement;
 export const richTextWidgets: () => any[];
 export class RichText extends Component {
     widgets: 'none' | 'minimal' | 'default';
@@ -566,7 +571,7 @@ Interactive example:
 ```
 ```js
 const { select, option, div, span, ul, li } = xinjs.elements
-const { makeSorter } = xinjsui
+const { icons, makeSorter } = xinjsui
 
 const people = [
   { first: 'Juanita', last: 'Citizen', age: 25 },
@@ -609,7 +614,7 @@ function render () {
 preview.append(
   div(
     sortPicker,
-    span({class: 'icon-chevron-down'})
+    icons.chevronDown()
   ),
   list
 )
