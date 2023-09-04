@@ -318,11 +318,12 @@ export class TabSelector extends Component {
     render(): void;
 }
 export const tabSelector: ElementCreator<TabSelector>;
+interface ExampleContext {
+    [key: string]: any;
+}
 export class LiveExample extends Component {
-    context: {
-        [key: string]: any;
-    };
-    static insertExamples(element: HTMLElement): void;
+    context: ExampleContext;
+    static insertExamples(element: HTMLElement, context?: ExampleContext): void;
     get css(): string;
     set css(code: string);
     get html(): string;
