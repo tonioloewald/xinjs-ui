@@ -16,7 +16,7 @@ export class B3d extends Component {
     disconnectedCallback(): void;
 }
 export const b3d: ElementCreator<B3d>;
-export interface LottieConfig {
+interface LottieConfig {
     container?: HTMLElement | ShadowRoot;
     renderer: 'svg' | 'canvas' | 'html';
     loop: boolean;
@@ -194,7 +194,7 @@ is almost certainly what you want.
 To handle multi-touch gestures you will need to track the touches yourself.
 */
 export const trackDrag: (event: PointerEvent, callback: TrackerCallback, cursor?: string) => void;
-export interface ColumnOptions {
+interface ColumnOptions {
     name?: string;
     prop: string;
     width: number;
@@ -203,12 +203,12 @@ export interface ColumnOptions {
     headerCell?: (options: ColumnOptions) => HTMLElement;
     dataCell?: (options: ColumnOptions) => HTMLElement;
 }
-export interface TableData {
+interface TableData {
     columns?: ColumnOptions[] | null;
     array: any[];
     filter?: ArrayFilter | null;
 }
-export type ArrayFilter = (array: any[]) => any[];
+type ArrayFilter = (array: any[]) => any[];
 export class DataTable extends Component {
     maxVisibleRows: number;
     get value(): TableData;
@@ -262,25 +262,6 @@ interface FilterMaker {
 export const availableFilters: {
     [key: string]: FilterMaker;
 };
-interface Filter {
-    description: string;
-    test: ObjectTest;
-}
-export class FilterPart extends Component {
-    fields: {
-        name?: string | undefined;
-        prop: string;
-    }[];
-    filters: {
-        [key: string]: FilterMaker;
-    };
-    content: (SVGElement | HTMLSpanElement)[];
-    filter: Filter;
-    buildFilter: () => void;
-    connectedCallback(): void;
-    render(): void;
-}
-export const filterPart: ElementCreator<HTMLElement>;
 export class FilterBuilder extends Component {
     fields: {
         name?: string | undefined;
@@ -339,11 +320,6 @@ export class LiveExample extends Component {
     render(): void;
 }
 export const liveExample: ElementCreator<LiveExample>;
-export function makeExamplesLive(element: HTMLElement): void;
-export const MAPSTYLES: {
-    name: string;
-    url: string;
-}[];
 export class MapBox extends Component {
     coords: string;
     content: HTMLDivElement;
@@ -398,14 +374,6 @@ export class MarkdownViewer extends Component {
     render(): void;
 }
 export const markdownViewer: ElementCreator<MarkdownViewer>;
-export function blockStyle(options?: {
-    caption: string;
-    tagType: string;
-}[]): any;
-export function spacer(width?: string): HTMLSpanElement;
-export function elastic(width?: string): HTMLSpanElement;
-export function commandButton(title: string, dataCommand: string, icon: SVGElement): HTMLButtonElement;
-export const richTextWidgets: () => any[];
 export class RichText extends Component {
     widgets: 'none' | 'minimal' | 'default';
     get value(): string;
