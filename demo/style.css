@@ -157,7 +157,7 @@ select + .icon-chevron-down {
 }
 
 label > select + .icon-chevron-down {
-  margin-left: calc(var(--spacing) * -2.5);
+  margin-left: calc(var(--spacing) * -3.5);
 }
 
 input {
