@@ -46,8 +46,6 @@ elements with a `<live-example>` instance.
 */
 
 import { Component as WebComponent, ElementCreator, elements } from 'xinjs'
-import * as xinjsui from './index'
-import * as xinjs from 'xinjs'
 import { codeEditor, CodeEditor } from './code-editor'
 import { tabSelector, TabSelector } from './tab-selector'
 import { icons } from './icons'
@@ -118,10 +116,17 @@ live-example [part="editors"] {
   )
 )
 
-export class LiveExample extends WebComponent {
-  context: { [key: string]: any } = { xinjs, xinjsui }
+interface ExampleContext {
+  [key: string]: any
+}
 
-  static insertExamples(element: HTMLElement): void {
+export class LiveExample extends WebComponent {
+  context: ExampleContext = {}
+
+  static insertExamples(
+    element: HTMLElement,
+    context: ExampleContext = {}
+  ): void {
     const sources = [
       ...element.querySelectorAll(
         'pre code[class="language-html"],pre code[class="language-js"],pre code[class="language-css"]'
@@ -140,7 +145,7 @@ export class LiveExample extends WebComponent {
         exampleSources.push(sources[index + 1])
         index += 1
       }
-      const example = liveExample({ style: { margin: `1em -1em` } })
+      const example = liveExample({ style: { margin: `1em -1em` }, context })
       ;(exampleSources[0].block.parentElement as HTMLElement).insertBefore(
         example,
         exampleSources[0].block

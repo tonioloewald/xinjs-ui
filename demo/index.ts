@@ -16,7 +16,10 @@ import {
   sideNav,
   SideNav,
   sizeBreak,
-} from '../src/'
+} from '../dist/'
+
+import * as xinjs from 'xinjs'
+import * as xinjsui from '../dist/'
 
 import docs from './docs.json'
 
@@ -163,10 +166,11 @@ main.append(
           maxWidth: '44em',
           margin: 'auto',
           padding: `0 1em`,
+          overflow: 'hidden',
         },
         bindValue: 'app.currentDoc.text',
         didRender(this: MarkdownViewer) {
-          LiveExample.insertExamples(this)
+          LiveExample.insertExamples(this, { xinjs, xinjsui })
         },
       })
     )
