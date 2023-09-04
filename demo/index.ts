@@ -16,7 +16,7 @@ import {
   sideNav,
   SideNav,
   sizeBreak,
-} from '../src'
+} from '../src/'
 
 import docs from './docs.json'
 
