@@ -6,13 +6,15 @@ and can be colored using the css `fill` property.
 
 These icons are mainly sourced from [feather](https://github.com/feathericons/feather).
 
-`icons` is simply a proxy that generates an `ElementCreator` for a given icon on demand.
+`icons` is simply a proxy that generates an `ElementCreator` for a given icon on demand,
+e.g. `icons.chevronDown()` produces an `<svg>` element containing a downward-pointing chevron
+icon.
 
 ```js
 const { icons } = xinjsui
 const { div } = xinjs.elements
 
-preview.append(...Object.keys(icons).map(iconName => div(
+preview.append(...Object.keys(icons).sort().map(iconName => div(
   { class: 'tile' },
   icons[iconName](),
   div(iconName)
@@ -35,6 +37,7 @@ preview.append(...Object.keys(icons).map(iconName => div(
   display: inline-block;
   width: 160px;
   text-align: center;
+  cursor: pointer;
 }
 
 .preview .tile:hover {
@@ -49,7 +52,6 @@ preview.append(...Object.keys(icons).map(iconName => div(
   line-height: 1.5;
 }
 ```
-
 
 
 */
