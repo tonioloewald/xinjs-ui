@@ -2,18 +2,20 @@ import { Component, ElementCreator } from "xinjs";
 export function scriptTag(src: string, existingSymbolName?: string): Promise<any>;
 export function styleSheet(href: string): Promise<void>;
 export class B3d extends Component {
+    babylonReady: Promise<any>;
+    BABYLON?: any;
     styleNode: HTMLStyleElement;
     content: HTMLCanvasElement;
     constructor();
     scene: any;
     engine: any;
-    onSceneCreated?: () => void;
-    onUpdate?: () => void;
+    onSceneCreated?: (element: B3d, BABYLON: any) => void;
+    onUpdate?: (element: B3d, BABYLON: any) => void;
     onResize(): void;
     connectedCallback(): void;
     disconnectedCallback(): void;
 }
-export const b3d: import("xinjs").ElementCreator<HTMLElement>;
+export const b3d: ElementCreator<B3d>;
 export interface LottieConfig {
     container?: HTMLElement | ShadowRoot;
     renderer: 'svg' | 'canvas' | 'html';

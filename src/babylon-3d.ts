@@ -46,11 +46,12 @@ b3d.onUpdate = () => {
 ```
 
 */
-import { Component as WebComponent, elements } from 'xinjs'
+import { Component as WebComponent, ElementCreator, elements } from 'xinjs'
 import { scriptTag } from './via-tag'
 
 export class B3d extends WebComponent {
-  private babylonReady: Promise<any>
+  babylonReady: Promise<any>
+  BABYLON?: any
 
   styleNode = WebComponent.StyleNode({
     ':host': {
@@ -80,13 +81,13 @@ export class B3d extends WebComponent {
   scene: any
   engine: any
 
-  onSceneCreated?: () => void
-  onUpdate?: () => void
+  onSceneCreated?: (element: B3d, BABYLON: any) => void
+  onUpdate?: (element: B3d, BABYLON: any) => void
 
   private update = () => {
     if (this.scene) {
       if (this.onUpdate !== undefined) {
-        this.onUpdate()
+        this.onUpdate(this, this.BABYLON)
       }
       this.scene.render()
     }
@@ -104,10 +105,11 @@ export class B3d extends WebComponent {
     const { canvas } = this.parts as { canvas: HTMLCanvasElement }
 
     this.babylonReady.then((BABYLON) => {
+      this.BABYLON = BABYLON
       this.engine = new BABYLON.Engine(canvas, true)
       this.scene = new BABYLON.Scene(this.engine)
       if (this.onSceneCreated) {
-        this.onSceneCreated()
+        this.onSceneCreated(this, BABYLON)
       }
       this.engine.runRenderLoop(this.update)
     })
@@ -119,4 +121,4 @@ export class B3d extends WebComponent {
   }
 }
 
-export const b3d = B3d.elementCreator({ tag: 'b-3d' })
+export const b3d = B3d.elementCreator({ tag: 'b-3d' }) as ElementCreator<B3d>

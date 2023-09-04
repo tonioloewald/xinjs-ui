@@ -18,10 +18,6 @@ const iconData = selection.icons
     return map
   }, {})
 
-function saveAsJSON(data, outputFilePath) {
-  const jsonData = JSON.stringify(data, null, 2)
-  fs.writeFileSync(outputFilePath, jsonData, 'utf8')
-}
 const source =
   'export default ' +
   JSON.stringify(iconData, null, 2).replace(/"(\w+)":/g, '$1:') +

@@ -195,6 +195,7 @@ function $5c31145f3e970423$export$63257fda812a683f(href) {
 
 class $ef1971ff775ba547$export$1bc633d0db17d4e1 extends (0, $hgUW1$Component) {
     babylonReady;
+    BABYLON;
     styleNode = (0, $hgUW1$Component).StyleNode({
         ":host": {
             display: "block",
@@ -221,7 +222,7 @@ class $ef1971ff775ba547$export$1bc633d0db17d4e1 extends (0, $hgUW1$Component) {
     onUpdate;
     update = ()=>{
         if (this.scene) {
-            if (this.onUpdate !== undefined) this.onUpdate();
+            if (this.onUpdate !== undefined) this.onUpdate(this, this.BABYLON);
             this.scene.render();
         }
     };
@@ -232,9 +233,10 @@ class $ef1971ff775ba547$export$1bc633d0db17d4e1 extends (0, $hgUW1$Component) {
         super.connectedCallback();
         const { canvas: canvas } = this.parts;
         this.babylonReady.then((BABYLON)=>{
+            this.BABYLON = BABYLON;
             this.engine = new BABYLON.Engine(canvas, true);
             this.scene = new BABYLON.Scene(this.engine);
-            if (this.onSceneCreated) this.onSceneCreated();
+            if (this.onSceneCreated) this.onSceneCreated(this, BABYLON);
             this.engine.runRenderLoop(this.update);
         });
     }
