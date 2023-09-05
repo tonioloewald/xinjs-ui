@@ -6,7 +6,7 @@ A thin wrapper around [babylonjs](https://www.babylonjs.com/).
 A `<b-3d>` element is initialized with an `engine`, `canvas`, `scene`, and update-loop.
 
 You can access the `scene` and `engine` properties (see the example). You can also
-assign `onSceneCreated` and `onUpdate` callbacks that will be executed when the scene is
+assign `sceneCreated` and `update` callbacks that will be executed when the scene is
 first initialized and before each update, respectively.
 
 By default, this component loads `babylon.max.js` from the `babylonjs` cdn, but if
@@ -15,28 +15,26 @@ BABYLON is already defined then it will use that.
 If you want to load `gltf` content, you should load `https://cdn.babylonjs.com/loaders/babylonjs.loaders.min.js`.
 
 ```js
-const b3d = preview.querySelector('b-3d')
-const BABYLON = await b3d.babylonReady
+const { b3d } = xinjsui
 
-const camera = new BABYLON.ArcRotateCamera(
-  'camera',
-  -Math.PI / 2,
-  Math.PI / 2.5,
-  3,
-  new BABYLON.Vector3(0, 0, 0)
-)
-camera.attachControl(b3d.parts.canvas, true)
+preview.append(b3d({
+  sceneCreated(element, BABYLON) {
+    const camera = new BABYLON.ArcRotateCamera(
+      'camera',
+      -Math.PI / 2,
+      Math.PI / 2.5,
+      3,
+      new BABYLON.Vector3(0, 0, 0)
+    )
+    camera.attachControl(element.parts.canvas, true)
 
-new BABYLON.HemisphericLight('light', new BABYLON.Vector3(0.25, 1, 0.75))
-
-const box = BABYLON.MeshBuilder.CreateBox('box', {})
-
-b3d.onUpdate = () => {
-  box.rotation.y += 0.005
-}
-```
-```html
-<b-3d></b-3d>
+    new BABYLON.HemisphericLight('light', new BABYLON.Vector3(0.25, 1, 0.75))
+    BABYLON.MeshBuilder.CreateBox('box', {})
+  },
+  update(element) {
+    element.scene.getMeshByName('box').rotation.y += 0.005
+  }
+}))
 ```
 ```css
 .preview b-3d {
@@ -81,15 +79,17 @@ export class B3d extends WebComponent {
   scene: any
   engine: any
 
-  onSceneCreated?: (element: B3d, BABYLON: any) => void
-  onUpdate?: (element: B3d, BABYLON: any) => void
+  sceneCreated: (element: B3d, BABYLON: any) => void = () => {}
+  update: (element: B3d, BABYLON: any) => void = () => {}
 
-  private update = () => {
+  private _update = () => {
     if (this.scene) {
-      if (this.onUpdate !== undefined) {
-        this.onUpdate(this, this.BABYLON)
+      if (this.update !== undefined) {
+        this.update(this, this.BABYLON)
       }
-      this.scene.render()
+      if (this.scene.activeCamera !== undefined) {
+        this.scene.render()
+      }
     }
   }
 
@@ -108,16 +108,28 @@ export class B3d extends WebComponent {
       this.BABYLON = BABYLON
       this.engine = new BABYLON.Engine(canvas, true)
       this.scene = new BABYLON.Scene(this.engine)
-      if (this.onSceneCreated) {
-        this.onSceneCreated(this, BABYLON)
+      if (this.sceneCreated) {
+        this.sceneCreated(this, BABYLON)
       }
-      this.engine.runRenderLoop(this.update)
+      /*
+      if (this.scene.activeCamera === undefined) {
+        const camera = new BABYLON.ArcRotateCamera(
+          'default-camera',
+          -Math.PI / 2,
+          Math.PI / 2.5,
+          3,
+          new BABYLON.Vector3(0, 0, 0)
+        )
+        camera.attachControl(this.parts.canvas, true)
+      }
+      */
+      this.engine.runRenderLoop(this._update)
     })
   }
 
   disconnectedCallback(): void {
     super.disconnectedCallback()
-    this.engine.stopRenderLoop(this.update)
+    this.engine.stopRenderLoop(this._update)
   }
 }
 
