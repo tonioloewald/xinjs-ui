@@ -101,7 +101,7 @@ interface FilterMaker {
 */
 
 import { Component as WebComponent, ElementCreator, elements } from 'xinjs'
-import { icons } from '../src'
+import { icons } from '../src/'
 
 const { div, input, select, option, button, span, style } = elements
 
@@ -243,7 +243,7 @@ export class FilterPart extends WebComponent {
   fields = [] as Array<{ name?: string; prop: string }>
   filters = availableFilters
 
-  content = [
+  content = () => [
     select({ part: 'haystack' }),
     icons.chevronDown(),
     select({ part: 'condition' }),
