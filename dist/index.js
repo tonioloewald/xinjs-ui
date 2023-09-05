@@ -16,7 +16,7 @@ A thin wrapper around [babylonjs](https://www.babylonjs.com/).
 A `<b-3d>` element is initialized with an `engine`, `canvas`, `scene`, and update-loop.
 
 You can access the `scene` and `engine` properties (see the example). You can also
-assign `onSceneCreated` and `onUpdate` callbacks that will be executed when the scene is
+assign `sceneCreated` and `update` callbacks that will be executed when the scene is
 first initialized and before each update, respectively.
 
 By default, this component loads `babylon.max.js` from the `babylonjs` cdn, but if
@@ -25,28 +25,26 @@ BABYLON is already defined then it will use that.
 If you want to load `gltf` content, you should load `https://cdn.babylonjs.com/loaders/babylonjs.loaders.min.js`.
 
 ```js
-const b3d = preview.querySelector('b-3d')
-const BABYLON = await b3d.babylonReady
+const { b3d } = xinjsui
 
-const camera = new BABYLON.ArcRotateCamera(
-  'camera',
-  -Math.PI / 2,
-  Math.PI / 2.5,
-  3,
-  new BABYLON.Vector3(0, 0, 0)
-)
-camera.attachControl(b3d.parts.canvas, true)
+preview.append(b3d({
+  sceneCreated(element, BABYLON) {
+    const camera = new BABYLON.ArcRotateCamera(
+      'camera',
+      -Math.PI / 2,
+      Math.PI / 2.5,
+      3,
+      new BABYLON.Vector3(0, 0, 0)
+    )
+    camera.attachControl(element.parts.canvas, true)
 
-new BABYLON.HemisphericLight('light', new BABYLON.Vector3(0.25, 1, 0.75))
-
-const box = BABYLON.MeshBuilder.CreateBox('box', {})
-
-b3d.onUpdate = () => {
-  box.rotation.y += 0.005
-}
-```
-```html
-<b-3d></b-3d>
+    new BABYLON.HemisphericLight('light', new BABYLON.Vector3(0.25, 1, 0.75))
+    BABYLON.MeshBuilder.CreateBox('box', {})
+  },
+  update(element) {
+    element.scene.getMeshByName('box').rotation.y += 0.005
+  }
+}))
 ```
 ```css
 .preview b-3d {
@@ -196,12 +194,12 @@ class $ef1971ff775ba547$export$1bc633d0db17d4e1 extends (0, $hgUW1$Component) {
     }
     scene;
     engine;
-    onSceneCreated;
-    onUpdate;
-    update = ()=>{
+    sceneCreated = ()=>{};
+    update = ()=>{};
+    _update = ()=>{
         if (this.scene) {
-            if (this.onUpdate !== undefined) this.onUpdate(this, this.BABYLON);
-            this.scene.render();
+            if (this.update !== undefined) this.update(this, this.BABYLON);
+            if (this.scene.activeCamera !== undefined) this.scene.render();
         }
     };
     onResize() {
@@ -214,13 +212,24 @@ class $ef1971ff775ba547$export$1bc633d0db17d4e1 extends (0, $hgUW1$Component) {
             this.BABYLON = BABYLON;
             this.engine = new BABYLON.Engine(canvas, true);
             this.scene = new BABYLON.Scene(this.engine);
-            if (this.onSceneCreated) this.onSceneCreated(this, BABYLON);
-            this.engine.runRenderLoop(this.update);
+            if (this.sceneCreated) this.sceneCreated(this, BABYLON);
+            /*
+      if (this.scene.activeCamera === undefined) {
+        const camera = new BABYLON.ArcRotateCamera(
+          'default-camera',
+          -Math.PI / 2,
+          Math.PI / 2.5,
+          3,
+          new BABYLON.Vector3(0, 0, 0)
+        )
+        camera.attachControl(this.parts.canvas, true)
+      }
+      */ this.engine.runRenderLoop(this._update);
         });
     }
     disconnectedCallback() {
         super.disconnectedCallback();
-        this.engine.stopRenderLoop(this.update);
+        this.engine.stopRenderLoop(this._update);
     }
 }
 const $ef1971ff775ba547$export$d0bb57305ce055c9 = $ef1971ff775ba547$export$1bc633d0db17d4e1.elementCreator({
@@ -976,26 +985,26 @@ function $46dc716dd2cf5925$var$getSelectText(select) {
 class $46dc716dd2cf5925$export$b7838412d9f17b13 extends (0, $hgUW1$Component) {
     fields = [];
     filters = $46dc716dd2cf5925$export$16a138bde9d9de87;
-    content = [
-        $46dc716dd2cf5925$var$select({
-            part: "haystack"
-        }),
-        (0, $fef058b85aa29b7a$export$df03f54e09e486fa).chevronDown(),
-        $46dc716dd2cf5925$var$select({
-            part: "condition"
-        }),
-        (0, $fef058b85aa29b7a$export$df03f54e09e486fa).chevronDown(),
-        $46dc716dd2cf5925$var$input({
-            part: "needle"
-        }),
-        $46dc716dd2cf5925$var$span({
-            part: "padding"
-        }),
-        $46dc716dd2cf5925$var$button({
-            part: "remove",
-            title: "delete"
-        }, (0, $fef058b85aa29b7a$export$df03f54e09e486fa).trash())
-    ];
+    content = ()=>[
+            $46dc716dd2cf5925$var$select({
+                part: "haystack"
+            }),
+            (0, $fef058b85aa29b7a$export$df03f54e09e486fa).chevronDown(),
+            $46dc716dd2cf5925$var$select({
+                part: "condition"
+            }),
+            (0, $fef058b85aa29b7a$export$df03f54e09e486fa).chevronDown(),
+            $46dc716dd2cf5925$var$input({
+                part: "needle"
+            }),
+            $46dc716dd2cf5925$var$span({
+                part: "padding"
+            }),
+            $46dc716dd2cf5925$var$button({
+                part: "remove",
+                title: "delete"
+            }, (0, $fef058b85aa29b7a$export$df03f54e09e486fa).trash())
+        ];
     filter = $46dc716dd2cf5925$var$passAnything;
     buildFilter = ()=>{
         const { haystack: haystack, condition: condition, needle: needle } = this.parts;
@@ -2702,5 +2711,5 @@ function $5a28660a6cbe2731$export$b37fb374f2e92eb6(sortValuator, ascending = tru
 
 
 
-export {$5265d118b5240170$export$c947e3cd16175f27 as trackDrag, $5c31145f3e970423$export$c6e082819e9a0330 as scriptTag, $5c31145f3e970423$export$63257fda812a683f as styleSheet, $5a28660a6cbe2731$export$b37fb374f2e92eb6 as makeSorter, $59f50bee37676c09$export$c74d6d817c60b9e6 as BodymovinPlayer, $59f50bee37676c09$export$d75ad8f79fe096cb as bodymovinPlayer, $8a70bd76f9b7e656$export$b7127187684f7150 as CodeEditor, $8a70bd76f9b7e656$export$d89b6f4d34274146 as codeEditor, $e6e19030d0c18d6f$export$df30df7ec97b32b5 as DataTable, $e6e19030d0c18d6f$export$f71ce0a5ddbe8fa0 as dataTable, $46dc716dd2cf5925$export$16a138bde9d9de87 as availableFilters, $46dc716dd2cf5925$export$b7838412d9f17b13 as FilterPart, $46dc716dd2cf5925$export$2237595b531763d7 as filterPart, $46dc716dd2cf5925$export$afb49bb3b076029e as FilterBuilder, $46dc716dd2cf5925$export$8ca73b4108207c1f as filterBuilder, $6246d5006b5a56c3$export$7d6f3ccbb0a81c30 as MAPSTYLES, $6246d5006b5a56c3$export$f2ffec4d96a433ed as MapBox, $6246d5006b5a56c3$export$ca243e53be209efb as mapBox, $1b88c9cb596c3426$export$575eb698d362902 as MarkdownViewer, $1b88c9cb596c3426$export$305b975a891d0dfa as markdownViewer, $815deb6062b0b31b$export$94309935dd6eab19 as blockStyle, $815deb6062b0b31b$export$8cc075c801fd6817 as spacer, $815deb6062b0b31b$export$e3f8198a677f57c2 as elastic, $815deb6062b0b31b$export$74540e56d8cdd242 as commandButton, $815deb6062b0b31b$export$8ed2ffe5d58aaa75 as richTextWidgets, $815deb6062b0b31b$export$f284d8638abd8920 as RichText, $815deb6062b0b31b$export$7bcc4193ad80bf91 as richText, $b9e5aa5581e8f051$export$1a35787d6353cf6a as SideNav, $b9e5aa5581e8f051$export$938418df2b06cb50 as sideNav, $0f2017ffca44b547$export$7140c0f3c1b65d3f as SizeBreak, $0f2017ffca44b547$export$96370210d2ca0fff as sizeBreak, $6bbe441346901d5a$export$a3a7254f7f149b03 as TabSelector, $6bbe441346901d5a$export$a932f737dcd864a2 as tabSelector, $ada9b1474dc4b958$export$41199f9ac14d8c08 as LiveExample, $ada9b1474dc4b958$export$dafbe0fa988b899b as liveExample, $ada9b1474dc4b958$export$afa6494eb589c19e as makeExamplesLive, $ef1971ff775ba547$export$1bc633d0db17d4e1 as B3d, $ef1971ff775ba547$export$d0bb57305ce055c9 as b3d, $fef058b85aa29b7a$export$df03f54e09e486fa as icons};
+export {$5265d118b5240170$export$c947e3cd16175f27 as trackDrag, $5c31145f3e970423$export$c6e082819e9a0330 as scriptTag, $5c31145f3e970423$export$63257fda812a683f as styleSheet, $5a28660a6cbe2731$export$b37fb374f2e92eb6 as makeSorter, $ef1971ff775ba547$export$1bc633d0db17d4e1 as B3d, $ef1971ff775ba547$export$d0bb57305ce055c9 as b3d, $59f50bee37676c09$export$c74d6d817c60b9e6 as BodymovinPlayer, $59f50bee37676c09$export$d75ad8f79fe096cb as bodymovinPlayer, $8a70bd76f9b7e656$export$b7127187684f7150 as CodeEditor, $8a70bd76f9b7e656$export$d89b6f4d34274146 as codeEditor, $e6e19030d0c18d6f$export$df30df7ec97b32b5 as DataTable, $e6e19030d0c18d6f$export$f71ce0a5ddbe8fa0 as dataTable, $46dc716dd2cf5925$export$16a138bde9d9de87 as availableFilters, $46dc716dd2cf5925$export$b7838412d9f17b13 as FilterPart, $46dc716dd2cf5925$export$2237595b531763d7 as filterPart, $46dc716dd2cf5925$export$afb49bb3b076029e as FilterBuilder, $46dc716dd2cf5925$export$8ca73b4108207c1f as filterBuilder, $fef058b85aa29b7a$export$df03f54e09e486fa as icons, $ada9b1474dc4b958$export$41199f9ac14d8c08 as LiveExample, $ada9b1474dc4b958$export$dafbe0fa988b899b as liveExample, $ada9b1474dc4b958$export$afa6494eb589c19e as makeExamplesLive, $6246d5006b5a56c3$export$7d6f3ccbb0a81c30 as MAPSTYLES, $6246d5006b5a56c3$export$f2ffec4d96a433ed as MapBox, $6246d5006b5a56c3$export$ca243e53be209efb as mapBox, $1b88c9cb596c3426$export$575eb698d362902 as MarkdownViewer, $1b88c9cb596c3426$export$305b975a891d0dfa as markdownViewer, $815deb6062b0b31b$export$94309935dd6eab19 as blockStyle, $815deb6062b0b31b$export$8cc075c801fd6817 as spacer, $815deb6062b0b31b$export$e3f8198a677f57c2 as elastic, $815deb6062b0b31b$export$74540e56d8cdd242 as commandButton, $815deb6062b0b31b$export$8ed2ffe5d58aaa75 as richTextWidgets, $815deb6062b0b31b$export$f284d8638abd8920 as RichText, $815deb6062b0b31b$export$7bcc4193ad80bf91 as richText, $b9e5aa5581e8f051$export$1a35787d6353cf6a as SideNav, $b9e5aa5581e8f051$export$938418df2b06cb50 as sideNav, $0f2017ffca44b547$export$7140c0f3c1b65d3f as SizeBreak, $0f2017ffca44b547$export$96370210d2ca0fff as sizeBreak, $6bbe441346901d5a$export$a3a7254f7f149b03 as TabSelector, $6bbe441346901d5a$export$a932f737dcd864a2 as tabSelector};
 //# sourceMappingURL=index.js.map

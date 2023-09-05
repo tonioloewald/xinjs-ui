@@ -16,10 +16,10 @@ import {
   sideNav,
   SideNav,
   sizeBreak,
-} from '../dist/'
+} from '../src/'
 
 import * as xinjs from 'xinjs'
-import * as xinjsui from '../dist/'
+import * as xinjsui from '../src/'
 
 import docs from './docs.json'
 

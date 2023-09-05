@@ -9,8 +9,8 @@ export class B3d extends Component {
     constructor();
     scene: any;
     engine: any;
-    onSceneCreated?: (element: B3d, BABYLON: any) => void;
-    onUpdate?: (element: B3d, BABYLON: any) => void;
+    sceneCreated: (element: B3d, BABYLON: any) => void;
+    update: (element: B3d, BABYLON: any) => void;
     onResize(): void;
     connectedCallback(): void;
     disconnectedCallback(): void;
@@ -274,7 +274,7 @@ export class FilterPart extends Component {
     filters: {
         [key: string]: FilterMaker;
     };
-    content: (SVGElement | HTMLSpanElement)[];
+    content: () => (SVGElement | HTMLSpanElement)[];
     filter: Filter;
     buildFilter: () => void;
     connectedCallback(): void;
