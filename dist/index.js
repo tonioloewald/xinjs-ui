@@ -1154,7 +1154,7 @@ These icons are mainly sourced from [feather](https://github.com/feathericons/fe
 
 `icons` is simply a proxy that generates an `ElementCreator` for a given icon on demand,
 e.g. `icons.chevronDown()` produces an `<svg>` element containing a downward-pointing chevron
-icon.
+icon with the class `icon-chevron-down`.
 
 ```js
 const { icons } = xinjsui
@@ -1175,8 +1175,9 @@ preview.append(...Object.keys(icons).sort().map(iconName => div(
   overflow: hidden scroll !important;
 }
 
-.preview [class^="icon-"] {
+.preview svg {
   fill: var(--text-color);
+  height: 48px;
 }
 
 .preview .tile {
@@ -1184,6 +1185,9 @@ preview.append(...Object.keys(icons).sort().map(iconName => div(
   width: 160px;
   text-align: center;
   cursor: pointer;
+  background: #fff8;
+  padding: 10px;
+  border-radius: 5px;
 }
 
 .preview .tile:hover {
@@ -1191,14 +1195,14 @@ preview.append(...Object.keys(icons).sort().map(iconName => div(
 }
 
 .preview .tile > div {
+  font-family: Menlo, Monaco, monospace;
   whitespace: no-wrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  font-size: 80%;
+  font-size: 14px;
   line-height: 1.5;
 }
 ```
-
 
 */ 
 var $2d5b9d9e4f25abad$export$2e2bcd8739ae039 = {
