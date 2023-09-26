@@ -13,14 +13,14 @@ $parcel$export($ef1971ff775ba547$exports, "b3d", () => $ef1971ff775ba547$export$
 
 A thin wrapper around [babylonjs](https://www.babylonjs.com/).
 
-A `<b-3d>` element is initialized with an `engine`, `canvas`, `scene`, and update-loop.
+A `<b-3d>` element is initialized with an `engine`, `canvas`, `scene`, and an update-loop.
 
-You can access the `scene` and `engine` properties (see the example). You can also
-assign `sceneCreated` and `update` callbacks that will be executed when the scene is
-first initialized and before each update, respectively.
+You can access the `scene` and `engine` properties. You can also assign `sceneCreated`
+and `update` callbacks that will be executed when the scene is first initialized and
+before each update, respectively. (See the example, it does both.)
 
-By default, this component loads `babylon.max.js` from the `babylonjs` cdn, but if
-BABYLON is already defined then it will use that.
+By default, this component loads `babylon.js` from the [babylonjs CDN](https://doc.babylonjs.com/setup/frameworkPackages/CDN),
+but if BABYLON is already defined (e.g. if you've bundled it) then it will use that instead.
 
 If you want to load `gltf` content, you should load `https://cdn.babylonjs.com/loaders/babylonjs.loaders.min.js`.
 
@@ -188,7 +188,7 @@ class $ef1971ff775ba547$export$1bc633d0db17d4e1 extends (0, $hgUW1$Component) {
     constructor(){
         super();
         this.babylonReady = (async ()=>{
-            const { BABYLON: BABYLON } = await (0, $5c31145f3e970423$export$c6e082819e9a0330)("https://cdn.babylonjs.com/babylon.max.js", "BABYLON");
+            const { BABYLON: BABYLON } = await (0, $5c31145f3e970423$export$c6e082819e9a0330)("https://cdn.babylonjs.com/babylon.js", "BABYLON");
             return BABYLON;
         })();
     }

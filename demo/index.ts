@@ -23,12 +23,14 @@ import * as xinjsui from '../src/'
 
 import docs from './docs.json'
 
-console.log(
-  'welcome to %cui.xinjs.net',
-  `color: ${getComputedStyle(document.body).getPropertyValue(
-    '--brand-color'
-  )}; padding: 0 5px;`
-)
+setTimeout(() => {
+  console.log(
+    'welcome to %cui.xinjs.net',
+    `color: ${getComputedStyle(document.body).getPropertyValue(
+      '--brand-color'
+    )}; padding: 0 5px;`
+  )
+}, 100)
 
 const PROJECT = 'xinjs-ui'
 
