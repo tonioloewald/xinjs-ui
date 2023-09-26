@@ -9,10 +9,14 @@ You can access the `scene` and `engine` properties. You can also assign `sceneCr
 and `update` callbacks that will be executed when the scene is first initialized and
 before each update, respectively. (See the example, it does both.)
 
+Both `sceneCreated` and `update` may be `async`. The component will `await` `sceneCreated`
+before starting the renderLoop, but `update` is simply passed to babylon, so be careful.
+
 By default, this component loads `babylon.js` from the [babylonjs CDN](https://doc.babylonjs.com/setup/frameworkPackages/CDN),
 but if BABYLON is already defined (e.g. if you've bundled it) then it will use that instead.
 
-If you want to load `gltf` content, you should load `https://cdn.babylonjs.com/loaders/babylonjs.loaders.min.js`.
+If you need additional libraries, e.g. `https://cdn.babylonjs.com/loaders/babylonjs.loaders.min.js` for loading models
+such as `gltf` and `glb` files, you should load those in `sceneCreated`.
 
 ```js
 const { b3d } = xinjsui
@@ -47,6 +51,10 @@ preview.append(b3d({
 import { Component as WebComponent, ElementCreator, elements } from 'xinjs'
 import { scriptTag } from './via-tag'
 
+type B3dCallback =
+  | ((element: B3d, BABYLON: any) => void)
+  | ((element: B3d, BABYLON: any) => Promise<void>)
+
 export class B3d extends WebComponent {
   babylonReady: Promise<any>
   BABYLON?: any
@@ -79,8 +87,8 @@ export class B3d extends WebComponent {
   scene: any
   engine: any
 
-  sceneCreated: (element: B3d, BABYLON: any) => void = () => {}
-  update: (element: B3d, BABYLON: any) => void = () => {}
+  sceneCreated: B3dCallback = () => {}
+  update: B3dCallback = () => {}
 
   private _update = () => {
     if (this.scene) {
@@ -104,12 +112,12 @@ export class B3d extends WebComponent {
 
     const { canvas } = this.parts as { canvas: HTMLCanvasElement }
 
-    this.babylonReady.then((BABYLON) => {
+    this.babylonReady.then(async (BABYLON) => {
       this.BABYLON = BABYLON
       this.engine = new BABYLON.Engine(canvas, true)
       this.scene = new BABYLON.Scene(this.engine)
       if (this.sceneCreated) {
-        this.sceneCreated(this, BABYLON)
+        await this.sceneCreated(this, BABYLON)
       }
       /*
       if (this.scene.activeCamera === undefined) {

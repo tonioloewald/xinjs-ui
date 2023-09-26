@@ -1,6 +1,7 @@
 import { Component, ElementCreator } from "xinjs";
 export function scriptTag(src: string, existingSymbolName?: string): Promise<any>;
 export function styleSheet(href: string): Promise<void>;
+type B3dCallback = ((element: B3d, BABYLON: any) => void) | ((element: B3d, BABYLON: any) => Promise<void>);
 export class B3d extends Component {
     babylonReady: Promise<any>;
     BABYLON?: any;
@@ -9,8 +10,8 @@ export class B3d extends Component {
     constructor();
     scene: any;
     engine: any;
-    sceneCreated: (element: B3d, BABYLON: any) => void;
-    update: (element: B3d, BABYLON: any) => void;
+    sceneCreated: B3dCallback;
+    update: B3dCallback;
     onResize(): void;
     connectedCallback(): void;
     disconnectedCallback(): void;
