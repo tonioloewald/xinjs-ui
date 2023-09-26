@@ -1561,6 +1561,16 @@ You can simply wrap it around a sequence of code blocks in the DOM with the
 languages (js, html, css) as annotations or you can directly set the `js`, `html`,
 and `css` properties.
 
+```js
+// this code executes in an async function body
+// it has xinjs, xinjsui, and preview (the preview div) available as local variables
+const { div } = xinjs.elements
+preview.append(div({class: 'example'}, 'fiddle de dee!'))
+preview.append('Try editing some code and hitting refresh…')
+```
+```html
+<h2>Example</h2>
+```
 ```css
 .preview {
   padding: 0 var(--spacing);
@@ -1574,15 +1584,6 @@ and `css` properties.
   from { color: blue }
   to { color: red }
 }
-```
-```js
-// this code executes in an async function body
-// it has xinjs, xinjsui, and preview (the preview div) available as local variables
-const { div } = xinjs.elements
-preview.append(div({class: 'example'}, 'fiddle de dee!'))
-```
-```html
-<h2>Example</h2>
 ```
 
 A `<live-example>` can be given a `context` object {[key: string]: any}, which is the
@@ -2000,7 +2001,7 @@ class $ada9b1474dc4b958$export$41199f9ac14d8c08 extends (0, $hgUW1$Component) {
             }, (0, $fef058b85aa29b7a$export$df03f54e09e486fa).minimize({
                 class: "icon-minimize show-if-maximized"
             }), (0, $fef058b85aa29b7a$export$df03f54e09e486fa).maximize({
-                class: "icon-maximize show-if-minimized"
+                class: "icon-maximize hide-if-maximized"
             }))),
             $ada9b1474dc4b958$var$xinSlot({
                 part: "sources",
@@ -2036,9 +2037,14 @@ class $ada9b1474dc4b958$export$41199f9ac14d8c08 extends (0, $hgUW1$Component) {
             preview: preview,
             ...this.context
         };
-        // @ts-expect-error ts is wrong
-        const func = new $ada9b1474dc4b958$var$AsyncFunction(...Object.keys(context), this.js);
-        func(...Object.values(context)).catch((err)=>console.error(err));
+        try {
+            // @ts-expect-error ts is wrong
+            const func = new $ada9b1474dc4b958$var$AsyncFunction(...Object.keys(context), this.js);
+            func(...Object.values(context)).catch((err)=>console.error(err));
+        } catch (e) {
+            console.error(e);
+            window.alert(`Error: ${e}, the console may have more information…`);
+        }
     };
     initFromElements(elements) {
         for (const element of elements){
