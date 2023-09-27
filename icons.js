@@ -14,13 +14,23 @@ const iconData = selection.icons
     const iconName = icon.properties.name
       .replace(/_/g, '-')
       .replace(/-([a-z])/g, (_, char) => char.toLocaleUpperCase())
-    map[iconName] = icon.icon.paths.map(roundNearest)
+    const iconSpec = {
+      p: icon.icon.paths.map(roundNearest),
+    }
+    const { width, height } = icon.icon
+    if (width !== undefined && width !== 1024) {
+      iconSpec.w = width
+    }
+    if (height !== undefined && height !== 1024) {
+      iconSpec.h = height
+    }
+    map[iconName] = iconSpec
     return map
   }, {})
 
 const source =
   'export default ' +
   JSON.stringify(iconData, null, 2).replace(/"(\w+)":/g, '$1:') +
-  ' as { [key: string]: string[] }\n'
+  ' as { [key: string]: { w?: number, h?: number, p: string[] } }\n'
 
 fs.writeFileSync(outputFilePath, source, 'utf8')
