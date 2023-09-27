@@ -4,7 +4,8 @@
 A set of SVG icons that are easy-to-use. These icons are completely unstyled
 and can be colored using the css `fill` property.
 
-These icons are mainly sourced from [feather](https://github.com/feathericons/feather).
+These icons are mainly sourced from [feather](https://github.com/feathericons/feather), but
+all the icons have been processed to have integer coordinates in a `viewBox` typically scaled to 1024  &times; 1024.
 
 `icons` is simply a proxy that generates an `ElementCreator` for a given icon on demand,
 e.g. `icons.chevronDown()` produces an `<svg>` element containing a downward-pointing chevron
@@ -69,14 +70,16 @@ type SVGIconMap = { [key: string]: ElementCreator<SVGElement> }
 
 export const icons = new Proxy(iconData, {
   get(target, prop: string): ElementCreator<SVGElement> | undefined {
-    return target[prop] === undefined
+    const iconSpec = target[prop]
+    return iconSpec === undefined
       ? undefined
-      : (...parts: ElementPart[]) =>
-          svg(
+      : (...parts: ElementPart[]) => {
+          const { w, h } = Object.assign({ w: 1024, h: 1024 }, iconSpec)
+          return svg(
             {
               width: '24',
               height: '24',
-              viewBox: '0 0 1024 1024',
+              viewBox: `0 0 ${w} ${h}`,
               class:
                 'icon-' +
                 prop.replace(
@@ -85,7 +88,8 @@ export const icons = new Proxy(iconData, {
                 ),
             },
             ...parts,
-            ...target[prop].map((d: string) => path({ d }))
+            ...iconSpec.p.map((d: string) => path({ d }))
           )
+        }
   },
 }) as unknown as SVGIconMap
