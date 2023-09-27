@@ -52,14 +52,14 @@ sizer.addEventListener('touchstart', resize, 'nwse-resize')
   border: 1px solid #aaa;
 }
 
-size-break * {
+.preview size-break * {
   position: absolute;
   top: 50%;
   left: 50%;
   transform: translateX(-50%) translateY(-50%);
 }
 
-.container {
+.preview .container {
   position: relative;
   min-width: 100px;
   min-height: 40px;
@@ -68,7 +68,7 @@ size-break * {
   height: 100px;
 }
 
-.sizer {
+.preview .sizer {
   position: absolute;
   width: 20px;
   height: 20px;
@@ -120,6 +120,7 @@ export class SizeBreak extends WebComponent {
       small.hidden = true
       this.value = 'normal'
     }
+    console.log(this, this.value, normal.hidden)
   }
 
   // TODO trigger a resize event when an ancestor element

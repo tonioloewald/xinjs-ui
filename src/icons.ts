@@ -1,8 +1,17 @@
 /*!
 # icons
 
-A set of SVG icons that are easy-to-use. These icons are completely unstyled
-and can be colored using the css `fill` property.
+A library that provides `ElementCreator` functions that produce SVG icons.
+
+These icons are completely unstyled and can be colored using the css `fill` property. This will
+probably be broken out as a standalone library to allow the use of whatever icons you like
+(its source data is currently generated from an [icomoon](https://icomoon.com/app)
+`selection.json` file, but could just as easily be generated from a directory full of SVGs).
+
+The motivation behind this is to avoid dealing with tooling issues that inevitably result from
+providing custom icon fonts or stylesheets for use with code. While `import` and `require` are
+fairly well established for `javascript` and `TypeScript`, everyone seems to deal with CSS and
+image files differently.
 
 These icons are mainly sourced from [feather](https://github.com/feathericons/feather), but
 all the icons have been processed to have integer coordinates in a `viewBox` typically scaled to 1024  &times; 1024.
