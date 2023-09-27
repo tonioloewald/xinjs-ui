@@ -76,10 +76,22 @@ import iconData from './icon-data'
 const { svg, path } = svgElements
 
 type SVGIconMap = { [key: string]: ElementCreator<SVGElement> }
+type IconSpec = { p: string[]; w: number; h: number }
+
+function getIconSpec(name: string): IconSpec {
+  const data = iconData[name]
+  const p = Array.isArray(data)
+    ? data
+    : typeof data === 'string'
+    ? [data]
+    : data.p
+  const { w, h } = Object.assign({ w: 1024, h: 1024 }, data)
+  return { p, w, h }
+}
 
 export const icons = new Proxy(iconData, {
   get(target, prop: string): ElementCreator<SVGElement> | undefined {
-    const iconSpec = target[prop]
+    const iconSpec = getIconSpec(prop)
     return iconSpec === undefined
       ? undefined
       : (...parts: ElementPart[]) => {
