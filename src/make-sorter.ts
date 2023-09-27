@@ -34,19 +34,15 @@ const sorter = makeSorter(
 
 Interactive example:
 
-```css
-.preview {
-  padding: var(--spacing);
-}
-```
 ```js
 const { select, option, div, span, ul, li } = xinjs.elements
 const { icons, makeSorter } = xinjsui
 
 const people = [
-  { first: 'Juanita', last: 'Citizen', age: 25 },
+  { first: 'Frasier', last: 'Crane', age: 38 },
+  { first: 'Lilith', last: 'Crane', age: 37 },
   { first: 'Rebecca', last: 'Howe', age: 35 },
-  { first: 'Jane', last: 'Doe', age: 35 },
+  { first: 'Woody', last: 'Boyd', age: 25 },
   { first: 'Sam', last: 'Malone', age: 40 },
   { first: 'Norm', last: 'Peterson', age: 38 },
 ]
@@ -90,6 +86,17 @@ preview.append(
 )
 
 render()
+```
+```css
+.preview {
+  padding: var(--spacing);
+}
+
+.preview div {
+  position: absolute;
+  top: var(--spacing);
+  right: var(--spacing);
+}
 ```
 */
 
