@@ -8,25 +8,17 @@ probably be broken out as a standalone library to allow the use of whatever icon
 (its source data is currently generated from an [icomoon](https://icomoon.com/app)
 `selection.json` file, but could just as easily be generated from a directory full of SVGs).
 
-The motivation behind this is to avoid dealing with tooling issues that inevitably result from
-providing custom icon fonts or stylesheets for use with code. While `import` and `require` are
-fairly well established for `javascript` and `TypeScript`, everyone seems to deal with CSS and
-image files differently.
-
-These icons are mainly sourced from [feather](https://github.com/feathericons/feather), but
-all the icons have been processed to have integer coordinates in a `viewBox` typically scaled to 1024  &times; 1024.
-
 `icons` is simply a proxy that generates an `ElementCreator` for a given icon on demand,
 e.g. `icons.chevronDown()` produces an `<svg>` element containing a downward-pointing chevron
 icon with the class `icon-chevron-down`.
 
 ```js
-const { icons } = xinjsui
+const { icons, svgIcon } = xinjsui
 const { div } = xinjs.elements
 
 preview.append(...Object.keys(icons).sort().map(iconName => div(
   { class: 'tile' },
-  icons[iconName](),
+  svgIcon({icon: iconName}),
   div(iconName)
 )))
 ```
@@ -41,7 +33,6 @@ preview.append(...Object.keys(icons).sort().map(iconName => div(
 
 .preview svg {
   fill: var(--text-color);
-  height: 48px;
 }
 
 .preview .tile {
@@ -68,9 +59,37 @@ preview.append(...Object.keys(icons).sort().map(iconName => div(
 }
 ```
 
+# `<svg-icon>`
+
+This is a simple component that lets you embed icons as HTML. Check the CSS tab to see
+how it's styled.
+
+```html
+<svg-icon class="demo-2" icon="game"></svg-icon>
+```
+```css
+svg-icon.demo-2 > svg {
+  height: 96px;
+}
+```
+
+## Why?
+
+The motivation behind this is to avoid dealing with tooling issues that inevitably result from
+integrating custom icon fonts or stylesheets needed by code libraries. Importing code is simply
+easier (and as a bonus, more compact and flexible).
+
+These icons are mainly sourced from [feather](https://github.com/feathericons/feather), but
+all the icons have been processed to have integer coordinates in a `viewBox` typically scaled to 1024  &times; 1024.
+
 */
 
-import { svgElements, ElementCreator, ElementPart } from 'xinjs'
+import {
+  svgElements,
+  ElementCreator,
+  ElementPart,
+  Component as WebComponent,
+} from 'xinjs'
 import iconData from './icon-data'
 
 const { svg, path } = svgElements
@@ -98,8 +117,6 @@ export const icons = new Proxy(iconData, {
           const { w, h } = Object.assign({ w: 1024, h: 1024 }, iconSpec)
           return svg(
             {
-              width: '24',
-              height: '24',
               viewBox: `0 0 ${w} ${h}`,
               class:
                 'icon-' +
@@ -114,3 +131,20 @@ export const icons = new Proxy(iconData, {
         }
   },
 }) as unknown as SVGIconMap
+
+export class SvgIcon extends WebComponent {
+  icon = ''
+
+  constructor() {
+    super()
+
+    this.initAttributes('icon')
+  }
+
+  render(): void {
+    this.textContent = ''
+    this.append(icons[this.icon]())
+  }
+}
+
+export const svgIcon = SvgIcon.elementCreator({ tag: 'svg-icon' })
