@@ -7,9 +7,9 @@ A [mapboxgl](https://docs.mapbox.com/mapbox-gl-js/api/) wrapper.
 <!-- please don't abuse my mapbox token -->
 <map-box
   style="width: 100%; height: 100%"
-  coords="21.4389,-158.0001,9"
+  coords="14.0093606,120.995083,17"
   token="pk.eyJ1IjoicG9kcGVyc29uIiwiYSI6ImNqc2JlbWU0bjA1ZmY0YW5ycHZod3VhbWcifQ.arvqfpOqMgFYkKgQ35UScA"
-  map-style="mapbox://styles/mapbox/satellite-streets-v10"
+  map-style="mapbox://styles/mapbox/satellite-v9"
 ></map-box>
 ```
 
