@@ -13,12 +13,13 @@ its `value`.
 </rich-text>
 ```
 
-It has a `toolbar` slot (actually a xin-slot because it doesn't use the shadowDOM).
+`<rich-text>` elements have a `toolbar` slot (actually a xin-slot because it doesn't use
+the shadowDOM).
 
 If you set the `widgets` attribute to `default` or `minimal` you will get a toolbar
 for free. Or you can add your own custom widgets.
 
-A number of convenience functions available, including:
+A number of convenience functions are available, including:
 
 - `commandButton(title: string, command: string, iconClass: string)`
 - `blockStyle(options: Array<{caption: string, tagType: string}>)`
@@ -28,7 +29,7 @@ A number of convenience functions available, including:
 These each create a toolbar widget. A `blockStyle`-generated `<select>` element will
 automatically have its value changed based on the current selection.
 
-The `<rich-text>` component provides `selectedText` and `selectedBlocks` properties, allowing
+A `<rich-text>` element also has `selectedText` and `selectedBlocks` properties, allowing
 you to easily perform operations on text selections, and a `selectionChange` callback (which
 simply passes through document `selectionchange` events, but also passes a reference to
 the `<rich-text>` component).

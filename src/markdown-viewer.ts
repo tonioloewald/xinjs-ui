@@ -5,13 +5,15 @@ import { marked } from 'marked'
 # `<markdown-viewer>`
 
 Render [markdown](https://www.markdownguide.org/) anywhere, either using the `src` attribute to load
-the file asynchronously, or just put the text inside it. Powered by [marked](https://www.npmjs.com/package/marked).
+the file asynchronously, or just put the text inside it.
+
+`<markdown-viewer>` renders markdown using [marked](https://www.npmjs.com/package/marked).
 
 ```
 <markdown-viewer src="/path/to/file.md">
 ```
 
-And you can set the `<markdown-viewer>` element's `value` directly, or:
+You can wrap markdown source per the following example:
 
 ```html
 <markdown-viewer>
@@ -26,7 +28,12 @@ markdown-viewer {
 }
 ```
 
-And just set the element's `value` and it will render it for you.
+Or, just set the element's `value` and it will render it for you. You can try
+this in the console, e.g.
+
+```
+$('.preview markdown-viewer').value = 'testing\n\n## this is a test'
+```
 */
 
 export class MarkdownViewer extends Component {

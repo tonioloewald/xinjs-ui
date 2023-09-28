@@ -3,20 +3,19 @@
 
 ## scriptTag
 
-If you need to load an old school (cjs) javascript library via cdn (both mapboxgl and bodymovin are
-fine examples) then use these two functions. They return promises that resolve `globalThis` when the
-module in question has loaded and otherwise behave as much like aync `import()` as possible.
+If you need to load an old school (cjs) javascript or css library via cdn then use these two functions.
+
+`xinjs-ui` uses this library to implement the `<code-editor>`, `<bodymovin-player>`, and `<map-box>`
+elements.
+
+`scriptTag()` and `styleSheet()` return promises that resolve `globalThis` when the module in question
+has loaded and otherwise behave as much like `import()` as possible.
 
 Using `scriptTag`:
 
 ```html
-<canvas></canvas>
-```
-```css
-canvas {
-  width: 100%;
-  height: 100%;
-}
+<!-- inline styles needed because chart.js overrides stylesheet -->
+<canvas style="height: 100%; width: 100%"></canvas>
 ```
 ```js
 const { scriptTag } = xinjsui
