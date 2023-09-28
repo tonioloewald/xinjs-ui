@@ -1938,14 +1938,15 @@ A [mapboxgl](https://docs.mapbox.com/mapbox-gl-js/api/) wrapper.
 
 ```html
 <!-- please don't abuse my mapbox token -->
-<map-box 
+<map-box
   style="width: 100%; height: 100%"
   coords="21.4389,-158.0001,9"
   token="pk.eyJ1IjoicG9kcGVyc29uIiwiYSI6ImNqc2JlbWU0bjA1ZmY0YW5ycHZod3VhbWcifQ.arvqfpOqMgFYkKgQ35UScA"
+  map-style="mapbox://styles/mapbox/satellite-streets-v10"
 ></map-box>
 ```
 
-There's no need to learn new APIs or write wrappers, just access the element's `map` property 
+There's no need to learn new APIs or write wrappers, just access the element's `map` property
 and [use the standard mapbox APIs directly](https://docs.mapbox.com/).
 */ 
 
@@ -2003,7 +2004,7 @@ class $6246d5006b5a56c3$export$f2ffec4d96a433ed extends (0, $hgUW1$Component) {
     get map() {
         return this._map;
     }
-    mapStyle = $6246d5006b5a56c3$export$7d6f3ccbb0a81c30[0];
+    mapStyle = $6246d5006b5a56c3$export$7d6f3ccbb0a81c30[0].url;
     token = "";
     static mapboxCSSAvailable;
     static mapboxAvailable;
@@ -2044,7 +2045,7 @@ class $6246d5006b5a56c3$export$f2ffec4d96a433ed extends (0, $hgUW1$Component) {
             mapboxgl.accessToken = this.token;
             this._map = new mapboxgl.Map({
                 container: div,
-                style: this.mapStyle.url,
+                style: this.mapStyle,
                 zoom: zoom,
                 center: [
                     lat,

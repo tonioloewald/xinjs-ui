@@ -350,10 +350,7 @@ export class MapBox extends Component {
     coords: string;
     content: HTMLDivElement;
     get map(): any;
-    mapStyle: {
-        name: string;
-        url: string;
-    };
+    mapStyle: string;
     token: string;
     static mapboxCSSAvailable: Promise<void>;
     static mapboxAvailable?: Promise<any>;
