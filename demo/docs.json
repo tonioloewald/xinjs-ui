@@ -45,7 +45,7 @@
     "path": "src/make-sorter.ts"
   },
   {
-    "text": "# `<map-box>`\n\nA [mapboxgl](https://docs.mapbox.com/mapbox-gl-js/api/) wrapper.\n\n```html\n<!-- please don't abuse my mapbox token -->\n<map-box\n  style=\"width: 100%; height: 100%\"\n  coords=\"21.4389,-158.0001,9\"\n  token=\"pk.eyJ1IjoicG9kcGVyc29uIiwiYSI6ImNqc2JlbWU0bjA1ZmY0YW5ycHZod3VhbWcifQ.arvqfpOqMgFYkKgQ35UScA\"\n  map-style=\"mapbox://styles/mapbox/satellite-streets-v10\"\n></map-box>\n```\n\nThere's no need to learn new APIs or write wrappers, just access the element's `map` property\nand [use the standard mapbox APIs directly](https://docs.mapbox.com/).",
+    "text": "# `<map-box>`\n\nA [mapboxgl](https://docs.mapbox.com/mapbox-gl-js/api/) wrapper.\n\n```html\n<!-- please don't abuse my mapbox token -->\n<map-box\n  style=\"width: 100%; height: 100%\"\n  coords=\"14.0093606,120.995083,17\"\n  token=\"pk.eyJ1IjoicG9kcGVyc29uIiwiYSI6ImNqc2JlbWU0bjA1ZmY0YW5ycHZod3VhbWcifQ.arvqfpOqMgFYkKgQ35UScA\"\n  map-style=\"mapbox://styles/mapbox/satellite-v9\"\n></map-box>\n```\n\nThere's no need to learn new APIs or write wrappers, just access the element's `map` property\nand [use the standard mapbox APIs directly](https://docs.mapbox.com/).",
     "filename": "mapbox.ts",
     "path": "src/mapbox.ts"
   },
