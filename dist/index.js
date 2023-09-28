@@ -63,20 +63,19 @@ preview.append(b3d({
 
 ## scriptTag
 
-If you need to load an old school (cjs) javascript library via cdn (both mapboxgl and bodymovin are
-fine examples) then use these two functions. They return promises that resolve `globalThis` when the
-module in question has loaded and otherwise behave as much like aync `import()` as possible.
+If you need to load an old school (cjs) javascript or css library via cdn then use these two functions.
+
+`xinjs-ui` uses this library to implement the `<code-editor>`, `<bodymovin-player>`, and `<map-box>`
+elements.
+
+`scriptTag()` and `styleSheet()` return promises that resolve `globalThis` when the module in question
+has loaded and otherwise behave as much like `import()` as possible.
 
 Using `scriptTag`:
 
 ```html
-<canvas></canvas>
-```
-```css
-canvas {
-  width: 100%;
-  height: 100%;
-}
+<!-- inline styles needed because chart.js overrides stylesheet -->
+<canvas style="height: 100%; width: 100%"></canvas>
 ```
 ```js
 const { scriptTag } = xinjsui
@@ -1306,8 +1305,9 @@ svg-icon.demo-2 > svg {
 ## Why?
 
 The motivation behind this is to avoid dealing with tooling issues that inevitably result from
-integrating custom icon fonts or stylesheets needed by code libraries. Importing code is simply
-easier (and as a bonus, more compact and flexible).
+integrating custom icon fonts or stylesheets needed by code libraries (and an icon-font also needs
+a style-sheet. Importing code is simply easier (and as a bonus, more compact and flexible, and there's
+no question as to when the stuff is available).
 
 These icons are mainly sourced from [feather](https://github.com/feathericons/feather), but
 all the icons have been processed to have integer coordinates in a `viewBox` typically scaled to 1024  &times; 1024.
@@ -2228,12 +2228,13 @@ its `value`.
 </rich-text>
 ```
 
-It has a `toolbar` slot (actually a xin-slot because it doesn't use the shadowDOM).
+`<rich-text>` elements have a `toolbar` slot (actually a xin-slot because it doesn't use
+the shadowDOM).
 
 If you set the `widgets` attribute to `default` or `minimal` you will get a toolbar
 for free. Or you can add your own custom widgets.
 
-A number of convenience functions available, including:
+A number of convenience functions are available, including:
 
 - `commandButton(title: string, command: string, iconClass: string)`
 - `blockStyle(options: Array<{caption: string, tagType: string}>)`
@@ -2243,7 +2244,7 @@ A number of convenience functions available, including:
 These each create a toolbar widget. A `blockStyle`-generated `<select>` element will
 automatically have its value changed based on the current selection.
 
-The `<rich-text>` component provides `selectedText` and `selectedBlocks` properties, allowing
+A `<rich-text>` element also has `selectedText` and `selectedBlocks` properties, allowing
 you to easily perform operations on text selections, and a `selectionChange` callback (which
 simply passes through document `selectionchange` events, but also passes a reference to
 the `<rich-text>` component).

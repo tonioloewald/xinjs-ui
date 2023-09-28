@@ -79,8 +79,9 @@ svg-icon.demo-2 > svg {
 ## Why?
 
 The motivation behind this is to avoid dealing with tooling issues that inevitably result from
-integrating custom icon fonts or stylesheets needed by code libraries. Importing code is simply
-easier (and as a bonus, more compact and flexible).
+integrating custom icon fonts or stylesheets needed by code libraries (and an icon-font also needs
+a style-sheet. Importing code is simply easier (and as a bonus, more compact and flexible, and there's
+no question as to when the stuff is available).
 
 These icons are mainly sourced from [feather](https://github.com/feathericons/feather), but
 all the icons have been processed to have integer coordinates in a `viewBox` typically scaled to 1024  &times; 1024.
