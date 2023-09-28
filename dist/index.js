@@ -1148,6 +1148,8 @@ const $46dc716dd2cf5925$export$8ca73b4108207c1f = $46dc716dd2cf5925$export$afb49
 var $fef058b85aa29b7a$exports = {};
 
 $parcel$export($fef058b85aa29b7a$exports, "icons", () => $fef058b85aa29b7a$export$df03f54e09e486fa);
+$parcel$export($fef058b85aa29b7a$exports, "SvgIcon", () => $fef058b85aa29b7a$export$dbcb8210e8a983ed);
+$parcel$export($fef058b85aa29b7a$exports, "svgIcon", () => $fef058b85aa29b7a$export$8c90725d55a8eef);
 /*!
 # icons
 
@@ -1158,25 +1160,17 @@ probably be broken out as a standalone library to allow the use of whatever icon
 (its source data is currently generated from an [icomoon](https://icomoon.com/app)
 `selection.json` file, but could just as easily be generated from a directory full of SVGs).
 
-The motivation behind this is to avoid dealing with tooling issues that inevitably result from
-providing custom icon fonts or stylesheets for use with code. While `import` and `require` are
-fairly well established for `javascript` and `TypeScript`, everyone seems to deal with CSS and
-image files differently.
-
-These icons are mainly sourced from [feather](https://github.com/feathericons/feather), but
-all the icons have been processed to have integer coordinates in a `viewBox` typically scaled to 1024  &times; 1024.
-
 `icons` is simply a proxy that generates an `ElementCreator` for a given icon on demand,
 e.g. `icons.chevronDown()` produces an `<svg>` element containing a downward-pointing chevron
 icon with the class `icon-chevron-down`.
 
 ```js
-const { icons } = xinjsui
+const { icons, svgIcon } = xinjsui
 const { div } = xinjs.elements
 
 preview.append(...Object.keys(icons).sort().map(iconName => div(
   { class: 'tile' },
-  icons[iconName](),
+  svgIcon({icon: iconName}),
   div(iconName)
 )))
 ```
@@ -1191,7 +1185,6 @@ preview.append(...Object.keys(icons).sort().map(iconName => div(
 
 .preview svg {
   fill: var(--text-color);
-  height: 48px;
 }
 
 .preview .tile {
@@ -1217,6 +1210,29 @@ preview.append(...Object.keys(icons).sort().map(iconName => div(
   line-height: 1.5;
 }
 ```
+
+# `<svg-icon>`
+
+This is a simple component that lets you embed icons as HTML. Check the CSS tab to see
+how it's styled.
+
+```html
+<svg-icon class="demo-2" icon="game"></svg-icon>
+```
+```css
+svg-icon.demo-2 > svg {
+  height: 96px;
+}
+```
+
+## Why?
+
+The motivation behind this is to avoid dealing with tooling issues that inevitably result from
+integrating custom icon fonts or stylesheets needed by code libraries. Importing code is simply
+easier (and as a bonus, more compact and flexible).
+
+These icons are mainly sourced from [feather](https://github.com/feathericons/feather), but
+all the icons have been processed to have integer coordinates in a `viewBox` typically scaled to 1024  &times; 1024.
 
 */ 
 var $2d5b9d9e4f25abad$export$2e2bcd8739ae039 = {
@@ -1360,8 +1376,6 @@ const $fef058b85aa29b7a$export$df03f54e09e486fa = new Proxy((0, $2d5b9d9e4f25aba
                 h: 1024
             }, iconSpec);
             return $fef058b85aa29b7a$var$svg({
-                width: "24",
-                height: "24",
                 viewBox: `0 0 ${w} ${h}`,
                 class: "icon-" + prop.replace(/([a-z])([A-Z])/g, (_, a, b)=>a + "-" + b.toLocaleLowerCase())
             }, ...parts, ...iconSpec.p.map((d)=>$fef058b85aa29b7a$var$path({
@@ -1369,6 +1383,20 @@ const $fef058b85aa29b7a$export$df03f54e09e486fa = new Proxy((0, $2d5b9d9e4f25aba
                 })));
         };
     }
+});
+class $fef058b85aa29b7a$export$dbcb8210e8a983ed extends (0, $hgUW1$Component) {
+    icon = "";
+    constructor(){
+        super();
+        this.initAttributes("icon");
+    }
+    render() {
+        this.textContent = "";
+        this.append($fef058b85aa29b7a$export$df03f54e09e486fa[this.icon]());
+    }
+}
+const $fef058b85aa29b7a$export$8c90725d55a8eef = $fef058b85aa29b7a$export$dbcb8210e8a983ed.elementCreator({
+    tag: "svg-icon"
 });
 
 
@@ -2550,5 +2578,5 @@ function $5a28660a6cbe2731$export$b37fb374f2e92eb6(sortValuator, ascending = tru
 
 
 
-export {$5265d118b5240170$export$c947e3cd16175f27 as trackDrag, $5c31145f3e970423$export$c6e082819e9a0330 as scriptTag, $5c31145f3e970423$export$63257fda812a683f as styleSheet, $5a28660a6cbe2731$export$b37fb374f2e92eb6 as makeSorter, $ef1971ff775ba547$export$1bc633d0db17d4e1 as B3d, $ef1971ff775ba547$export$d0bb57305ce055c9 as b3d, $59f50bee37676c09$export$c74d6d817c60b9e6 as BodymovinPlayer, $59f50bee37676c09$export$d75ad8f79fe096cb as bodymovinPlayer, $8a70bd76f9b7e656$export$b7127187684f7150 as CodeEditor, $8a70bd76f9b7e656$export$d89b6f4d34274146 as codeEditor, $e6e19030d0c18d6f$export$df30df7ec97b32b5 as DataTable, $e6e19030d0c18d6f$export$f71ce0a5ddbe8fa0 as dataTable, $46dc716dd2cf5925$export$16a138bde9d9de87 as availableFilters, $46dc716dd2cf5925$export$b7838412d9f17b13 as FilterPart, $46dc716dd2cf5925$export$2237595b531763d7 as filterPart, $46dc716dd2cf5925$export$afb49bb3b076029e as FilterBuilder, $46dc716dd2cf5925$export$8ca73b4108207c1f as filterBuilder, $fef058b85aa29b7a$export$df03f54e09e486fa as icons, $ada9b1474dc4b958$export$41199f9ac14d8c08 as LiveExample, $ada9b1474dc4b958$export$dafbe0fa988b899b as liveExample, $ada9b1474dc4b958$export$afa6494eb589c19e as makeExamplesLive, $6246d5006b5a56c3$export$7d6f3ccbb0a81c30 as MAPSTYLES, $6246d5006b5a56c3$export$f2ffec4d96a433ed as MapBox, $6246d5006b5a56c3$export$ca243e53be209efb as mapBox, $1b88c9cb596c3426$export$575eb698d362902 as MarkdownViewer, $1b88c9cb596c3426$export$305b975a891d0dfa as markdownViewer, $815deb6062b0b31b$export$94309935dd6eab19 as blockStyle, $815deb6062b0b31b$export$8cc075c801fd6817 as spacer, $815deb6062b0b31b$export$e3f8198a677f57c2 as elastic, $815deb6062b0b31b$export$74540e56d8cdd242 as commandButton, $815deb6062b0b31b$export$8ed2ffe5d58aaa75 as richTextWidgets, $815deb6062b0b31b$export$f284d8638abd8920 as RichText, $815deb6062b0b31b$export$7bcc4193ad80bf91 as richText, $b9e5aa5581e8f051$export$1a35787d6353cf6a as SideNav, $b9e5aa5581e8f051$export$938418df2b06cb50 as sideNav, $0f2017ffca44b547$export$7140c0f3c1b65d3f as SizeBreak, $0f2017ffca44b547$export$96370210d2ca0fff as sizeBreak, $6bbe441346901d5a$export$a3a7254f7f149b03 as TabSelector, $6bbe441346901d5a$export$a932f737dcd864a2 as tabSelector};
+export {$5265d118b5240170$export$c947e3cd16175f27 as trackDrag, $5c31145f3e970423$export$c6e082819e9a0330 as scriptTag, $5c31145f3e970423$export$63257fda812a683f as styleSheet, $5a28660a6cbe2731$export$b37fb374f2e92eb6 as makeSorter, $ef1971ff775ba547$export$1bc633d0db17d4e1 as B3d, $ef1971ff775ba547$export$d0bb57305ce055c9 as b3d, $59f50bee37676c09$export$c74d6d817c60b9e6 as BodymovinPlayer, $59f50bee37676c09$export$d75ad8f79fe096cb as bodymovinPlayer, $8a70bd76f9b7e656$export$b7127187684f7150 as CodeEditor, $8a70bd76f9b7e656$export$d89b6f4d34274146 as codeEditor, $e6e19030d0c18d6f$export$df30df7ec97b32b5 as DataTable, $e6e19030d0c18d6f$export$f71ce0a5ddbe8fa0 as dataTable, $46dc716dd2cf5925$export$16a138bde9d9de87 as availableFilters, $46dc716dd2cf5925$export$b7838412d9f17b13 as FilterPart, $46dc716dd2cf5925$export$2237595b531763d7 as filterPart, $46dc716dd2cf5925$export$afb49bb3b076029e as FilterBuilder, $46dc716dd2cf5925$export$8ca73b4108207c1f as filterBuilder, $fef058b85aa29b7a$export$df03f54e09e486fa as icons, $fef058b85aa29b7a$export$dbcb8210e8a983ed as SvgIcon, $fef058b85aa29b7a$export$8c90725d55a8eef as svgIcon, $ada9b1474dc4b958$export$41199f9ac14d8c08 as LiveExample, $ada9b1474dc4b958$export$dafbe0fa988b899b as liveExample, $ada9b1474dc4b958$export$afa6494eb589c19e as makeExamplesLive, $6246d5006b5a56c3$export$7d6f3ccbb0a81c30 as MAPSTYLES, $6246d5006b5a56c3$export$f2ffec4d96a433ed as MapBox, $6246d5006b5a56c3$export$ca243e53be209efb as mapBox, $1b88c9cb596c3426$export$575eb698d362902 as MarkdownViewer, $1b88c9cb596c3426$export$305b975a891d0dfa as markdownViewer, $815deb6062b0b31b$export$94309935dd6eab19 as blockStyle, $815deb6062b0b31b$export$8cc075c801fd6817 as spacer, $815deb6062b0b31b$export$e3f8198a677f57c2 as elastic, $815deb6062b0b31b$export$74540e56d8cdd242 as commandButton, $815deb6062b0b31b$export$8ed2ffe5d58aaa75 as richTextWidgets, $815deb6062b0b31b$export$f284d8638abd8920 as RichText, $815deb6062b0b31b$export$7bcc4193ad80bf91 as richText, $b9e5aa5581e8f051$export$1a35787d6353cf6a as SideNav, $b9e5aa5581e8f051$export$938418df2b06cb50 as sideNav, $0f2017ffca44b547$export$7140c0f3c1b65d3f as SizeBreak, $0f2017ffca44b547$export$96370210d2ca0fff as sizeBreak, $6bbe441346901d5a$export$a3a7254f7f149b03 as TabSelector, $6bbe441346901d5a$export$a932f737dcd864a2 as tabSelector};
 //# sourceMappingURL=index.js.map

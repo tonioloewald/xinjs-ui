@@ -304,6 +304,12 @@ type SVGIconMap = {
     [key: string]: ElementCreator<SVGElement>;
 };
 export const icons: SVGIconMap;
+export class SvgIcon extends Component {
+    icon: string;
+    constructor();
+    render(): void;
+}
+export const svgIcon: ElementCreator<HTMLElement>;
 export class TabSelector extends Component {
     value: number;
     styleNode: HTMLStyleElement;
