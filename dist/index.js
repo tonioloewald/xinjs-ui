@@ -11,7 +11,7 @@ $parcel$export($ef1971ff775ba547$exports, "b3d", () => $ef1971ff775ba547$export$
 /*!
 # `<b-3d>`
 
-A thin wrapper around [babylonjs](https://www.babylonjs.com/).
+A [babylonjs](https://www.babylonjs.com/) wrapper.
 
 A `<b-3d>` element is initialized with an `engine`, `canvas`, `scene`, and an update-loop.
 
@@ -23,7 +23,7 @@ Both `sceneCreated` and `update` may be `async`. The component will `await` `sce
 before starting the renderLoop, but `update` is simply passed to babylon, so be careful.
 
 By default, this component loads `babylon.js` from the [babylonjs CDN](https://doc.babylonjs.com/setup/frameworkPackages/CDN),
-but if BABYLON is already defined (e.g. if you've bundled it) then it will use that instead.
+but if `BABYLON` is already defined (e.g. if you've bundled it) then it will use that instead.
 
 If you need additional libraries, e.g. `https://cdn.babylonjs.com/loaders/babylonjs.loaders.min.js` for loading models
 such as `gltf` and `glb` files, you should load those in `sceneCreated`.
@@ -245,8 +245,81 @@ var $59f50bee37676c09$exports = {};
 
 $parcel$export($59f50bee37676c09$exports, "BodymovinPlayer", () => $59f50bee37676c09$export$c74d6d817c60b9e6);
 $parcel$export($59f50bee37676c09$exports, "bodymovinPlayer", () => $59f50bee37676c09$export$d75ad8f79fe096cb);
-// https://lottiefiles.github.io/lottie-docs/advanced_interactions/
+/*!
+# `<bodymovin-player>`
 
+A [lottie](https://airbnb.io/lottie/#/web) (a.k.a. **bodymovin**) player.
+
+It's designed to work like an `<img>` element (just set its `src` attribute).
+
+```js
+const { xinProxy } = xinjs
+const { icons } = xinjsui
+const { div, label, input, select, option, span } = xinjs.elements
+
+const rocket = preview.querySelector('bodymovin-player')
+preview.append(
+  div(
+    { class: 'panel' },
+    label(
+      'speed',
+      input({ type: 'range', min: -1, max: 1, step: 0.1, value: 0, onInput(event) {
+        const speed = Math.pow(5, Number(event.target.value))
+        rocket.animation.setSpeed(speed)
+        event.target.nextSibling.textContent = (speed * 100).toFixed(0) + '%'
+      } }),
+      span('100%', {style: { textAlign: 'right', width: '40px'}})
+    ),
+    label(
+      'direction',
+      select(
+        option('Forwards', {value: 1, selected: true}),
+        option('Backwards', {value: -1}),
+        {
+          onChange(event) {
+            rocket.animation.setDirection(event.target.value)
+          }
+        }
+      ),
+      icons.chevronDown(),
+    )
+  )
+)
+```
+```html
+<bodymovin-player
+  style="max-height: calc(100% - 40px); width: 100%"
+  src="https://raw.githubusercontent.com/tonioloewald/xinjs-ui/main/demo/88140-rocket-livetrade.json"
+></bodymovin-player>
+<div style="height: 40px; line-height: 40px">
+  Animation by <a target="_blank" href="https://lottiefiles.com/dvskjbicfc">chiến lê hồng</a>
+</div>
+```
+```css
+.preview {
+  padding: var(--spacing);
+  text-align: center;
+}
+
+.preview .panel {
+  position: absolute;
+  left: 10px;
+  bottom: 10px;
+  padding: 10px;
+  border-radius: 5px;
+  background: white;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.25);
+  display: flex;
+  flex-direction: column;
+}
+```
+
+You can also directly set its `json` property to the content of a `lottie.json` file.
+
+And of course just access the element's `animation` property to [use the bodymovin API](https://airbnb.io/lottie/#/web).
+
+Also see the [documentation for advanced interactions](https://lottiefiles.github.io/lottie-docs/advanced_interactions/)
+*/ 
 
 class $59f50bee37676c09$export$c74d6d817c60b9e6 extends (0, $hgUW1$Component) {
     content = null;
@@ -315,7 +388,9 @@ $parcel$export($8a70bd76f9b7e656$exports, "codeEditor", () => $8a70bd76f9b7e656$
 /*!
 # `<code-editor>`
 
-Sometimes, it's nice to be able to just toss a code-editor in a web-page. `<code-editor>` is a thin wrapper around the [ACE Editor](https://ace.c9.io/). 
+An [ACE Editor](https://ace.c9.io/) wrapper.
+
+Sometimes, it's nice to be able to just toss a code-editor in a web-page.
 
 `<code-editor>`'s `value` is the code it contains. Its `mode` attribute sets the language, and you can further configure
 the ACE editor instance via its `options` property.
@@ -1151,14 +1226,17 @@ $parcel$export($fef058b85aa29b7a$exports, "icons", () => $fef058b85aa29b7a$expor
 $parcel$export($fef058b85aa29b7a$exports, "SvgIcon", () => $fef058b85aa29b7a$export$dbcb8210e8a983ed);
 $parcel$export($fef058b85aa29b7a$exports, "svgIcon", () => $fef058b85aa29b7a$export$8c90725d55a8eef);
 /*!
-# icons
+# icons & `<svg-icon>`
 
-A library that provides `ElementCreator` functions that produce SVG icons.
+A library that provides `ElementCreator` functions that produce SVG icons. It leverages `xinjs`'s
+`svgElements` proxy.
 
 These icons are completely unstyled and can be colored using the css `fill` property. This will
 probably be broken out as a standalone library to allow the use of whatever icons you like
 (its source data is currently generated from an [icomoon](https://icomoon.com/app)
 `selection.json` file, but could just as easily be generated from a directory full of SVGs).
+
+## icons
 
 `icons` is simply a proxy that generates an `ElementCreator` for a given icon on demand,
 e.g. `icons.chevronDown()` produces an `<svg>` element containing a downward-pointing chevron
@@ -1211,9 +1289,9 @@ preview.append(...Object.keys(icons).sort().map(iconName => div(
 }
 ```
 
-# `<svg-icon>`
+## `<svg-icon>`
 
-This is a simple component that lets you embed icons as HTML. Check the CSS tab to see
+`<svg-icon>` is a simple component that lets you embed icons as HTML. Check the CSS tab to see
 how it's styled.
 
 ```html

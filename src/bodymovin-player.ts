@@ -1,23 +1,9 @@
-// https://lottiefiles.github.io/lottie-docs/advanced_interactions/
-
-import { Component as WebComponent, ElementCreator } from 'xinjs'
-import { scriptTag } from './via-tag'
-
-export interface LottieConfig {
-  container?: HTMLElement | ShadowRoot
-  renderer: 'svg' | 'canvas' | 'html'
-  loop: boolean
-  autoplay: boolean
-  animationData?: string
-  path?: string
-  [key: string]: any
-}
-
 /*!
 # `<bodymovin-player>`
 
-A wrapper for AirBnb's bodymovin, a.k.a. [lottie](https://airbnb.io/lottie/#/web), player. It's designed
-to work like an `<img>` element (just set its `src` attribute).
+A [lottie](https://airbnb.io/lottie/#/web) (a.k.a. **bodymovin**) player.
+
+It's designed to work like an `<img>` element (just set its `src` attribute).
 
 ```js
 const { xinProxy } = xinjs
@@ -84,7 +70,22 @@ preview.append(
 You can also directly set its `json` property to the content of a `lottie.json` file.
 
 And of course just access the element's `animation` property to [use the bodymovin API](https://airbnb.io/lottie/#/web).
+
+Also see the [documentation for advanced interactions](https://lottiefiles.github.io/lottie-docs/advanced_interactions/)
 */
+
+import { Component as WebComponent, ElementCreator } from 'xinjs'
+import { scriptTag } from './via-tag'
+
+export interface LottieConfig {
+  container?: HTMLElement | ShadowRoot
+  renderer: 'svg' | 'canvas' | 'html'
+  loop: boolean
+  autoplay: boolean
+  animationData?: string
+  path?: string
+  [key: string]: any
+}
 
 export class BodymovinPlayer extends WebComponent {
   content = null

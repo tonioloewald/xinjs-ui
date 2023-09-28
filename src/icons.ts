@@ -1,12 +1,15 @@
 /*!
-# icons
+# icons & `<svg-icon>`
 
-A library that provides `ElementCreator` functions that produce SVG icons.
+A library that provides `ElementCreator` functions that produce SVG icons. It leverages `xinjs`'s
+`svgElements` proxy.
 
 These icons are completely unstyled and can be colored using the css `fill` property. This will
 probably be broken out as a standalone library to allow the use of whatever icons you like
 (its source data is currently generated from an [icomoon](https://icomoon.com/app)
 `selection.json` file, but could just as easily be generated from a directory full of SVGs).
+
+## icons
 
 `icons` is simply a proxy that generates an `ElementCreator` for a given icon on demand,
 e.g. `icons.chevronDown()` produces an `<svg>` element containing a downward-pointing chevron
@@ -59,9 +62,9 @@ preview.append(...Object.keys(icons).sort().map(iconName => div(
 }
 ```
 
-# `<svg-icon>`
+## `<svg-icon>`
 
-This is a simple component that lets you embed icons as HTML. Check the CSS tab to see
+`<svg-icon>` is a simple component that lets you embed icons as HTML. Check the CSS tab to see
 how it's styled.
 
 ```html
