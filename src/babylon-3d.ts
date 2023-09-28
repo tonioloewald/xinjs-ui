@@ -1,7 +1,7 @@
 /*!
 # `<b-3d>`
 
-A thin wrapper around [babylonjs](https://www.babylonjs.com/).
+A [babylonjs](https://www.babylonjs.com/) wrapper.
 
 A `<b-3d>` element is initialized with an `engine`, `canvas`, `scene`, and an update-loop.
 
@@ -13,7 +13,7 @@ Both `sceneCreated` and `update` may be `async`. The component will `await` `sce
 before starting the renderLoop, but `update` is simply passed to babylon, so be careful.
 
 By default, this component loads `babylon.js` from the [babylonjs CDN](https://doc.babylonjs.com/setup/frameworkPackages/CDN),
-but if BABYLON is already defined (e.g. if you've bundled it) then it will use that instead.
+but if `BABYLON` is already defined (e.g. if you've bundled it) then it will use that instead.
 
 If you need additional libraries, e.g. `https://cdn.babylonjs.com/loaders/babylonjs.loaders.min.js` for loading models
 such as `gltf` and `glb` files, you should load those in `sceneCreated`.
