@@ -1,3 +1,4 @@
+export * from './ab-test'
 export * from './babylon-3d'
 export * from './bodymovin-player'
 export * from './code-editor'
