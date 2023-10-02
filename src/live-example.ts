@@ -1,9 +1,11 @@
 /*!
-# `<live-example>`
+# example
 
-`<live-example>` makes it easy to insert interactive code examples in a web page.
+`<xin-example>` makes it easy to insert interactive code examples in a web page.
 It's effectively a super lightweight fiddle based on the `b8rjs`'s `fiddle` component
-(which I miss dearly). (You're probably looking at it right now.)
+(which I miss dearly).
+
+*You're probably looking at it right now.*
 
 You can simply wrap it around a sequence of code blocks in the DOM with the
 languages (js, html, css) as annotations or you can directly set the `js`, `html`,
@@ -34,7 +36,7 @@ preview.append('Try editing some code and hitting refresh…')
 }
 ```
 
-A `<live-example>` can be given a `context` object {[key: string]: any}, which is the
+A `<xin-example>` can be given a `context` object {[key: string]: any}, which is the
 set of values available in the javascript's execution context (it is wrapped in an
 async function and passed those values). By default, that context comprises `preview`
 (the `<div>` in which the example is rendered), `xinjs` (`* from xinjs`),
@@ -43,7 +45,7 @@ and `xinjsui` (`* from xinjsui`).
 The `LiveExample` class provides the static `insertExamples(element: HTMLElement)`
 function that will replace any sequence of
 `pre code[class="language-html"],pre code[class="language-js"],pre code[class="language-css"]`
-elements with a `<live-example>` instance.
+elements with a `<xin-example>` instance.
 */
 
 import { Component as WebComponent, ElementCreator, elements } from 'xinjs'
@@ -64,22 +66,22 @@ const codeStyle = {
 
 document.head.append(
   style(
-    { id: 'live-example' },
+    { id: 'xin-example' },
     `:root {
-  --live-example-height: 400px;
+  --xin-example-height: 400px;
 }
 
-live-example {
-  --live-example-preview-height: calc(var(--live-example-height) * 0.5);
-  --live-example-editor-height: calc(var(--live-example-height) * 0.5);
+xin-example {
+  --xin-example-preview-height: calc(var(--xin-example-height) * 0.5);
+  --xin-example-editor-height: calc(var(--xin-example-height) * 0.5);
   position: relative;
   display: flex;
   flex-direction: column;
-  height: var(--live-example-height);
+  height: var(--xin-example-height);
   background: var(--background);
 }
 
-live-example.-maximize {
+xin-example.-maximize {
   position: fixed;
   left: 0;
   top: 0;
@@ -88,18 +90,18 @@ live-example.-maximize {
   margin: 0 !important;
 }
 
-live-example.-maximize .hide-if-maximized,
-live-example:not(.-maximize) .show-if-maximized {
+xin-example.-maximize .hide-if-maximized,
+xin-example:not(.-maximize) .show-if-maximized {
   display: none;
 }
 
-live-example [part="example"] {
-  flex: 1 1 var(--live-example-preview-height);
-  height: var(--live-example-preview-height);
+xin-example [part="example"] {
+  flex: 1 1 var(--xin-example-preview-height);
+  height: var(--xin-example-preview-height);
   position: relative;
 }
 
-live-example .preview {
+xin-example .preview {
   height: 100%;
   position: relative;
   overflow: hidden;
@@ -108,9 +110,9 @@ live-example .preview {
   <rect x="4" width="4" height="4" /><rect y="4" width="4" height="4" /></svg>');
 }
 
-live-example [part="editors"] {
-  flex: 1 1 var(--live-example-editor-height);
-  height: var(--live-example-editor-height);
+xin-example [part="editors"] {
+  flex: 1 1 var(--xin-example-editor-height);
+  height: var(--xin-example-editor-height);
   position: relative;
 }
 `
@@ -314,7 +316,7 @@ export class LiveExample extends WebComponent {
 }
 
 export const liveExample = LiveExample.elementCreator({
-  tag: 'live-example',
+  tag: 'xin-example',
 }) as ElementCreator<LiveExample>
 
 export function makeExamplesLive(element: HTMLElement) {

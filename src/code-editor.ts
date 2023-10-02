@@ -1,19 +1,19 @@
 /*!
-# `<code-editor>`
+# code
 
 An [ACE Editor](https://ace.c9.io/) wrapper.
 
 Sometimes, it's nice to be able to just toss a code-editor in a web-page.
 
-`<code-editor>`'s `value` is the code it contains. Its `mode` attribute sets the language, and you can further configure
+`<xin-code>`'s `value` is the code it contains. Its `mode` attribute sets the language, and you can further configure
 the ACE editor instance via its `options` property.
 
 ```html
-<code-editor style="width: 100%; height: 100%" mode="css">
+<xin-code style="width: 100%; height: 100%" mode="css">
 body {
   box-sizing: border-box;
 }
-</code-editor>
+</xin-code>
 ```
 */
 
@@ -121,5 +121,5 @@ export class CodeEditor extends WebComponent {
 }
 
 export const codeEditor = CodeEditor.elementCreator({
-  tag: 'code-editor',
+  tag: 'xin-code',
 }) as ElementCreator<CodeEditor>

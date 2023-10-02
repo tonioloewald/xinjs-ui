@@ -4,6 +4,8 @@
 const fs = require('fs')
 const path = require('path')
 
+const TRIM_REGEX = /^#+ |`/g
+
 function findMarkdownFiles(dirs, ignore) {
   let markdownFiles = []
 
@@ -23,19 +25,22 @@ function findMarkdownFiles(dirs, ignore) {
         traverseDirectory(filePath, ignore)
       } else if (path.extname(file) === '.md') {
         const content = fs.readFileSync(filePath, 'utf8')
-        const markdownFile = {
+        markdownFiles.push({
           text: content,
+          title: content.split('\n')[0].replace(TRIM_REGEX, ''),
           filename: file,
           path: filePath,
-        }
-        markdownFiles.push(markdownFile)
+        })
       } else if (['.ts', '.js', '.css'].includes(path.extname(file))) {
         const content = fs.readFileSync(filePath, 'utf8')
+        let title = path.basename(file)
         const docs = content.match(/\/\*![\s\S]+?\*\//g) || []
         if (docs.length) {
           const markdown = docs.map((s) => s.substring(3, s.length - 2).trim())
+          const text = markdown.join('\n\n')
           markdownFiles.push({
-            text: markdown.join('\n\n'),
+            text,
+            title: text.split('\n')[0].replace(TRIM_REGEX, ''),
             filename: file,
             path: filePath,
           })

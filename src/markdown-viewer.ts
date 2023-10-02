@@ -1,48 +1,104 @@
-import { Component, ElementCreator } from 'xinjs'
+import { Component, ElementCreator, xin } from 'xinjs'
 import { marked } from 'marked'
 
 /*!
-# `<markdown-viewer>`
+# markdown
 
-Render [markdown](https://www.markdownguide.org/) anywhere, either using the `src` attribute to load
-the file asynchronously, or just put the text inside it.
+`<xin-md>` renders [markdown](https://www.markdownguide.org/) anywhere, either using the
+`src` attribute to load the file asynchronously, or rendering the text inside it.
 
-`<markdown-viewer>` renders markdown using [marked](https://www.npmjs.com/package/marked).
+`<xin-md>` renders markdown using [marked](https://www.npmjs.com/package/marked).
 
 ```
-<markdown-viewer src="/path/to/file.md">
+<xin-md src="/path/to/file.md">
 ```
 
 You can wrap markdown source per the following example:
 
 ```html
-<markdown-viewer>
+<xin-md>
 ## hello
 world
-</markdown-viewer>
+</xin-md>
 ```
 ```css
-markdown-viewer {
+xin-md {
   display: block;
   padding: var(--spacing);
 }
 ```
 
+Note that, by default, `<xin-md>` will use its `textContent` (not its `innerHTML`) as its source.
+
 Or, just set the element's `value` and it will render it for you. You can try
 this in the console, e.g.
 
 ```
-$('.preview markdown-viewer').value = 'testing\n\n## this is a test'
+$('.preview xin-md').value = 'testing\n\n## this is a test'
+```
+
+`<xin-md>` also (optionally) allows the embedding of inline HTML elements without blocking markdown
+rendering, so that you can embed specific elements while retaining markdown. You need to explicitly set
+the `elements` property, and for markdown rendering not to be blocked, the html elements need to
+start on a new line and not be indented. E.g.
+
+```html
+<xin-md elements>
+<form>
+## this is a form
+<label>
+fill in this field.
+**It's important!**
+<input>
+</label>
+</form>
+</xin-md>
+```
+
+In this case `<xin-md>` uses its `innerHTML` and not its `textContent`.
+
+`<xin-md>` also supports **template** values. You need to provide data to the element in the form
+of `context` (an arbitrary object, or a JSON string), and then embed the template text using
+handlebars-style doubled curly braces, e.g. `{{path.to.value}}`.
+
+If no value is found, the original text is passed through.
+
+Finally, note that template substitution occurs *before* markdown transformation, which means you can
+pass context data through to HTML elements.
+
+```html
+<xin-md
+  elements
+  context='{"title": "template example", "foo": {"bar": 17}, "nested": "*work*: {{foo.bar}}"}'
+>
+## {{title}}
+
+The magic number is <input type="number" value={{foo.bar}}>
+
+Oh, and nested templates {{nested}}.
+</xin-md>
 ```
 */
+
+function populate(basePath: string, source: string): string {
+  return source.replace(/\{\{([^}]+)\}\}/g, (original, prop) => {
+    const value = (xin as any)[
+      `${basePath}${prop.startsWith('[') ? prop : '.' + prop}`
+    ]
+    return value === undefined ? original : populate(basePath, String(value))
+  })
+}
 
 export class MarkdownViewer extends Component {
   src = ''
   value = ''
   content = null
+  elements = false
+  context: { [key: string]: any } = {}
+
   constructor() {
     super()
-    this.initAttributes('src')
+    this.initAttributes('src', 'elements', 'context')
   }
   connectedCallback(): void {
     super.connectedCallback()
@@ -52,20 +108,54 @@ export class MarkdownViewer extends Component {
         this.value = await request.text()
       })()
     } else if (this.value === '') {
-      this.value = this.textContent != null ? this.textContent : ''
+      if (this.elements) {
+        this.value = this.innerHTML
+      } else {
+        this.value = this.textContent != null ? this.textContent : ''
+      }
     }
   }
   didRender: (() => void) | (() => Promise<void>) = (): void => {}
   render() {
     super.render()
-    this.innerHTML = marked(typeof this.value === 'string' ? this.value : '', {
-      mangle: false,
-      headerIds: false,
-    })
+
+    xin[this.instanceId] =
+      typeof this.context === 'string' ? JSON.parse(this.context) : this.context
+
+    const source = populate(this.instanceId, this.value)
+    if (this.elements) {
+      const chunks = source
+        .split('\n')
+        .reduce((chunks: string[], line: string) => {
+          if (line.startsWith('<') || chunks.length === 0) {
+            chunks.push(line)
+          } else {
+            const lastChunk = chunks[chunks.length - 1]
+            if (!lastChunk.startsWith('<') || !lastChunk.endsWith('>')) {
+              chunks[chunks.length - 1] += '\n' + line
+            } else {
+              chunks.push(line)
+            }
+          }
+          return chunks
+        }, [] as string[])
+      this.innerHTML = chunks
+        .map((chunk) =>
+          chunk.startsWith('<') && chunk.endsWith('>')
+            ? chunk
+            : marked(chunk, { mangle: false, headerIds: false })
+        )
+        .join('')
+    } else {
+      this.innerHTML = marked(source, {
+        mangle: false,
+        headerIds: false,
+      })
+    }
     this.didRender()
   }
 }
 
 export const markdownViewer = MarkdownViewer.elementCreator({
-  tag: 'markdown-viewer',
+  tag: 'xin-md',
 }) as ElementCreator<MarkdownViewer>

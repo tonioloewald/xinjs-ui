@@ -121,14 +121,14 @@ main.append(
       template(
         a({
           class: 'doc-link',
-          bindText: '^.filename',
+          bindText: '^.title',
           bindCurrent: 'app.currentDoc.filename',
           bindDocLink: '^.filename',
           onClick(event: Event) {
             const a = event.target as HTMLAnchorElement
             const doc = getListItem(event.target as HTMLElement)
             const nav = (event.target as HTMLElement).closest(
-              'side-nav'
+              'xin-sidebar'
             ) as SideNav
             nav.contentVisible = true
             const { href } = a
@@ -156,7 +156,7 @@ main.append(
           },
           onClick(event: Event) {
             ;(
-              (event.target as HTMLElement).closest('side-nav') as SideNav
+              (event.target as HTMLElement).closest('xin-sidebar') as SideNav
             ).contentVisible = false
           },
         },

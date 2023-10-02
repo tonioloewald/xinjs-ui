@@ -1,6 +1,6 @@
 # xinjs-ui
 
-[ui.xinjs.net live demo](https://ui.xinjs.net) [xinjs](https://xinjs.net) [discord](https://discord.gg/ramJ9rgky5) [github](https://github.com/tonioloewald/xinjs-ui#readme) [npm](https://www.npmjs.com/package/xinjs-ui) <size-break min-width="500"><img alt="bundlejs" src="https://deno.bundlejs.com/?q=xinjs-ui&badge="></size-break>
+[ui.xinjs.net live demo](https://ui.xinjs.net) [xinjs](https://xinjs.net) [discord](https://discord.gg/ramJ9rgky5) [github](https://github.com/tonioloewald/xinjs-ui#readme) [npm](https://www.npmjs.com/package/xinjs-ui) <xin-sizebreak min-width="500"><img alt="bundlejs" src="https://deno.bundlejs.com/?q=xinjs-ui&badge="></xin-sizebreak>
 
 Copyright ©2023 Tonio Loewald
 
@@ -53,10 +53,10 @@ here is some markdown
 Assuming you import the module somewhere, the HTML will work as well.
 
 ```
-<markdown-viewer>
+<xin-md>
 ## hello world
 here is some markdown
-</markdown-viewer>
+</xin-md>
 ```
 
 The big difference with using the `markdownViewer()` function is that the `xinjs` `Component`

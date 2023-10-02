@@ -1,11 +1,11 @@
 /*!
-# `<side-nav>`
+# sidebar
 
 The default layout for iOS / iPadOS apps is to hide the sidebar when displaying content on small
 screens, and display the sidebar when space is available (with the user able to explicitly hide
-the sidebar if so desired). `<side-nav>` provides this functionality.
+the sidebar if so desired). `<xin-sidebar>` provides this functionality.
 
-`<side-nav>` is used to handle the layout of the documentation tab panel.
+`<xin-sidebar>` is used to handle the layout of the documentation tab panel.
 */
 
 import {
@@ -76,7 +76,7 @@ export class SideNav extends WebComponent {
 
     this.compact = parent.offsetWidth < this.minSize
     if (!this.compact) {
-      content.classList.add('-side-nav-visible')
+      content.classList.add('-xin-sidebar-visible')
       this.style.setProperty('--nav-width', `${this.navSize}px`)
       this.style.setProperty(
         '--content-width',
@@ -84,7 +84,7 @@ export class SideNav extends WebComponent {
       )
       this.style.setProperty('--margin', '0')
     } else {
-      content.classList.remove('-side-nav-visible')
+      content.classList.remove('-xin-sidebar-visible')
       this.style.setProperty('--nav-width', '50%')
       this.style.setProperty('--content-width', '50%')
 
@@ -123,5 +123,5 @@ export class SideNav extends WebComponent {
 }
 
 export const sideNav = SideNav.elementCreator({
-  tag: 'side-nav',
+  tag: 'xin-sidebar',
 }) as ElementCreator<SideNav>

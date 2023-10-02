@@ -1,9 +1,9 @@
 /*!
-# `<b-3d>`
+# 3d
 
 A [babylonjs](https://www.babylonjs.com/) wrapper.
 
-A `<b-3d>` element is initialized with an `engine`, `canvas`, `scene`, and an update-loop.
+A `<xin-3d>` element is initialized with an `engine`, `canvas`, `scene`, and an update-loop.
 
 You can access the `scene` and `engine` properties. You can also assign `sceneCreated`
 and `update` callbacks that will be executed when the scene is first initialized and
@@ -41,7 +41,7 @@ preview.append(b3d({
 }))
 ```
 ```css
-.preview b-3d {
+.preview xin-3d {
   width: 100%;
   height: 100%;
 }
@@ -141,4 +141,4 @@ export class B3d extends WebComponent {
   }
 }
 
-export const b3d = B3d.elementCreator({ tag: 'b-3d' }) as ElementCreator<B3d>
+export const b3d = B3d.elementCreator({ tag: 'xin-3d' }) as ElementCreator<B3d>

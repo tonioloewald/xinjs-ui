@@ -17,8 +17,8 @@
   --h1-scale: 2;
   --h2-scale: 1.5;
   --h3-scale: 1.25;
-  --tab-selector-selected-color: var(--brand-color);
-  --tab-selector-bar-color: var(--brand-text-color);
+  --xin-tabs-selected-color: var(--brand-color);
+  --xin-tabs-bar-color: var(--brand-text-color);
   --touch-size: 32px;
 
   --header-height: calc(
@@ -100,7 +100,7 @@ main {
   overflow: hidden;
 }
 
-main > side-nav {
+main > xin-sidebar {
   height: calc(100vh - var(--header-height));
 }
 
@@ -263,7 +263,7 @@ code {
   --text-color: var(--brand-color);
 }
 
-.-side-nav-visible .close-content {
+.-xin-sidebar-visible .close-content {
   display: none;
 }
 
@@ -294,7 +294,7 @@ code {
   color: var(--text-color);
 }
 
-side-nav:not([compact]) .show-within-compact {
+xin-sidebar:not([compact]) .show-within-compact {
   display: none;
 }
 
@@ -303,10 +303,10 @@ side-nav:not([compact]) .show-within-compact {
   --text-color: var(--brand-text-color);
 }
 
-rich-text [part='toolbar'] {
+xin-word [part='toolbar'] {
   --text-color: var(--brand-color);
 }
-rich-text [part='doc'] {
+xin-word [part='doc'] {
   padding: 20px;
   box-shadow: none !important;
   border-top: 0.25px solid var(--brand-color);
@@ -327,7 +327,7 @@ rich-text [part='doc'] {
   opacity: 0.75;
 }
 
-live-example {
+xin-example {
   margin: var(--spacing) 0;
 }
 

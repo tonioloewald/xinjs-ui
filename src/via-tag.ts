@@ -5,7 +5,7 @@
 
 If you need to load an old school (cjs) javascript or css library via cdn then use these two functions.
 
-`xinjs-ui` uses this library to implement the `<code-editor>`, `<bodymovin-player>`, and `<map-box>`
+`xinjs-ui` uses this library to implement the `<xin-code>`, `<xin-lottie>`, and `<xin-map>`
 elements.
 
 `scriptTag()` and `styleSheet()` return promises that resolve `globalThis` when the module in question
@@ -59,11 +59,11 @@ as possible.
 
 As an aside:
 
-`<bodymovin-player>` is implemented in such a way that if you've preloaded the module
+`<xin-lottie>` is implemented in such a way that if you've preloaded the module
 (e.g. via a script tag or packaging) it won't load it again, which affords offline
 use.
 
-There's no point for `<map-box>` since it won't work without connectivity anyway.
+There's no point for `<xin-map>` since it won't work without connectivity anyway.
 
 ## styleSheet
 

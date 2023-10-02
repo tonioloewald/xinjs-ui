@@ -1,19 +1,19 @@
 /*!
-# `<rich-text>`
+# word (rich text editor)
 
-A simple and easily extensible `document.execCommand` WYSIWYG editor with some conveniences.
+`<xin-word>` is a simple and easily extensible `document.execCommand` WYSIWYG editor with some conveniences.
 
 By default, it treats its initial contents as its document, but you can also set (and get)
 its `value`.
 
 ```html
-<rich-text widgets="minimal">
+<xin-word widgets="minimal">
 <h3>Heading</h3>
 <p>And some <b>text</b></p>
-</rich-text>
+</xin-word>
 ```
 
-`<rich-text>` elements have a `toolbar` slot (actually a xin-slot because it doesn't use
+`<xin-word>` elements have a `toolbar` slot (actually a xin-slot because it doesn't use
 the shadowDOM).
 
 If you set the `widgets` attribute to `default` or `minimal` you will get a toolbar
@@ -29,10 +29,10 @@ A number of convenience functions are available, including:
 These each create a toolbar widget. A `blockStyle`-generated `<select>` element will
 automatically have its value changed based on the current selection.
 
-A `<rich-text>` element also has `selectedText` and `selectedBlocks` properties, allowing
+A `<xin-word>` element also has `selectedText` and `selectedBlocks` properties, allowing
 you to easily perform operations on text selections, and a `selectionChange` callback (which
 simply passes through document `selectionchange` events, but also passes a reference to
-the `<rich-text>` component).
+the `<xin-word>` component).
 */
 
 import { Component as WebComponent, ElementCreator, elements } from 'xinjs'
@@ -42,13 +42,13 @@ const { style, xinSlot, div, select, fragment, option, button, span } = elements
 
 document.head.append(
   style(
-    { id: 'rich-text' },
-    `rich-text {
+    { id: 'xin-word' },
+    `xin-word {
   display: flex;
   flex-direction: column;
   height: 100%;
 }
-rich-text [part="toolbar"] {
+xin-word [part="toolbar"] {
   padding: 4px;
   display: flex;
   gap: 0px;
@@ -319,5 +319,5 @@ export class RichText extends WebComponent {
 }
 
 export const richText = RichText.elementCreator({
-  tag: 'rich-text',
+  tag: 'xin-word',
 }) as ElementCreator<RichText>
