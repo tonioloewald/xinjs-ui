@@ -1,5 +1,5 @@
 /*!
-# `<filter-builder>`
+# filter
 
 Automatically creates `ArrayFilter` functions `(a: any[]) => any[]` based on the query you build using its
 macOS Finder-inspired interface, using an easily customizable / extensible collection of `Filter` objects.
@@ -66,14 +66,14 @@ preview.append(filter, table)
   flex-direction: column;
 }
 
-.preview data-table {
+.preview xin-table {
   flex: 1 1 auto;
 }
 ```
 
 ## availableFilters
 
-`<filter-builder>` has a default set of `FilterMaker` objects which it uses to construct filter function.
+`<xin-filter>` has a default set of `FilterMaker` objects which it uses to construct filter function.
 In the example above, the default collection of filters is reduced to `contains`, `equals`, `after`, and `isTrue`.
 
 The full collection includes:
@@ -107,7 +107,7 @@ const { div, input, select, option, button, span, style } = elements
 
 document.head.append(
   style(
-    { id: 'filter-builder' },
+    { id: 'xin-filter' },
     `filter-part {
   display: flex;
 }
@@ -123,22 +123,22 @@ filter-part [hidden]+[part="padding"] {
   flex: 1 1 auto;
 }
 
-filter-builder {
+xin-filter {
   width: 100%;
   height: auto;
   display: flex;
   align-items: center;
 }
 
-filter-builder [part="filterContainer"] {
+xin-filter [part="filterContainer"] {
   display: flex;
   flex-direction: column;
   align-items: stretch;
   flex: 1 1 auto;
 }
 
-filter-builder [part="add"],
-filter-builder [part="reset"] {
+xin-filter [part="add"],
+xin-filter [part="reset"] {
   --button-size: var(--touch-size, 32px);
   border-radius: 999px;
   height: var(--button-size);
@@ -430,5 +430,5 @@ export class FilterBuilder extends WebComponent {
 }
 
 export const filterBuilder = FilterBuilder.elementCreator({
-  tag: 'filter-builder',
+  tag: 'xin-filter',
 }) as ElementCreator<FilterBuilder>

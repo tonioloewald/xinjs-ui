@@ -1,5 +1,5 @@
 /*!
-# icons & `<svg-icon>`
+# icons
 
 A library that provides `ElementCreator` functions that produce SVG icons. It leverages `xinjs`'s
 `svgElements` proxy.
@@ -62,16 +62,16 @@ preview.append(...Object.keys(icons).sort().map(iconName => div(
 }
 ```
 
-## `<svg-icon>`
+## `<xin-icon>`
 
-`<svg-icon>` is a simple component that lets you embed icons as HTML. Check the CSS tab to see
+`<xin-icon>` is a simple component that lets you embed icons as HTML. Check the CSS tab to see
 how it's styled.
 
 ```html
-<svg-icon class="demo-2" icon="game"></svg-icon>
+<xin-icon class="demo-2" icon="game"></xin-icon>
 ```
 ```css
-svg-icon.demo-2 > svg {
+xin-icon.demo-2 > svg {
   height: 96px;
 }
 ```
@@ -151,4 +151,4 @@ export class SvgIcon extends WebComponent {
   }
 }
 
-export const svgIcon = SvgIcon.elementCreator({ tag: 'svg-icon' })
+export const svgIcon = SvgIcon.elementCreator({ tag: 'xin-icon' })

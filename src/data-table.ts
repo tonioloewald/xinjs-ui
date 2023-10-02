@@ -1,5 +1,5 @@
 /*!
-# `<data-table>`
+# table
 
 A virtual data-table, configurable via a `columns` array (which will automatically be generated if not provided),
 that displays gigantic tables with fixed headers (and live column-resizing) using a minimum of resources and cpu.
@@ -50,22 +50,22 @@ preview.append(dataTable({ array: emojiData, columns }))
   background: transparent;
 }
 
-.preview data-table {
+.preview xin-table {
   height: 100%;
 }
 ```
 
-You can set the `<data-table>`'s `array`, `columns`, and `filter` properties directly, or set its `value` to:
+You can set the `<xin-table>`'s `array`, `columns`, and `filter` properties directly, or set its `value` to:
 
 ```
-{ 
-  array: any[], 
-  columns: ColumnOptions[] | null, 
-  filter?: ArrayFilter 
+{
+  array: any[],
+  columns: ColumnOptions[] | null,
+  filter?: ArrayFilter
 }
 ```
 
-If you set the `<data-table>`'s `rowHeight` to `0` it will render all its elements (i.e. not be virtual). This is
+If you set the `<xin-table>`'s `rowHeight` to `0` it will render all its elements (i.e. not be virtual). This is
 useful for smaller tables, or tables with variable row-heights.
 */
 
@@ -412,5 +412,5 @@ export class DataTable extends WebComponent {
 }
 
 export const dataTable = DataTable.elementCreator({
-  tag: 'data-table',
+  tag: 'xin-table',
 }) as ElementCreator<DataTable>

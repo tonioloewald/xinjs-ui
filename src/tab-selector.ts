@@ -1,7 +1,7 @@
 /*!
-# `<tab-selector>`
+# tabs
 
-`<tab-selector>` creates a `tabpanel` for its children, creating a `tab` for each based on its
+`<xin-tabs>` creates a `tabpanel` for its children, creating a `tab` for each based on its
 `name` attribute.
 
 ```js
@@ -10,13 +10,13 @@
 })
 
 const { div, button } = xinjs.elements
-const tabSelector = preview.querySelector('tab-selector')
+const tabSelector = preview.querySelector('xin-tabs')
 
 let bodycount = 0
 preview.querySelector('.add').addEventListener('click', () => {
   const name = `new tab ${++bodycount}`
   const body = div(
-    {name}, 
+    {name},
     name,
     button('Remove Me', { onClick() { tabSelector.removeTabBody(body) }})
   )
@@ -24,20 +24,20 @@ preview.querySelector('.add').addEventListener('click', () => {
 })
 ```
 ```html
-<tab-selector>
+<xin-tabs>
   <div name="first">first body</div>
   <div name="second">second body</div>
   <div name="third">third body</div>
   <button class="add" slot="after-tabs">
     <span class="icon-plus"></span>
   </button>
-</tab-selector>
+</xin-tabs>
 ```
 ```css
-tab-selector {
+xin-tabs {
     height: 100%;
   }
-  
+
   div[name] {
     padding: 20px;
     text-align: center;
@@ -47,12 +47,12 @@ tab-selector {
 ```
 
 
-The `<tab-selector>`s `value` is the index of its active body.
+The `<xin-tabs>`s `value` is the index of its active body.
 
-A `<tab-selector>` has `addTabBody(body: HTMLElement, select?: boolean)` and 
+A `<xin-tabs>` has `addTabBody(body: HTMLElement, select?: boolean)` and
 `removeTabBody(body: number | HTMLElement)` methods for updating its content.
 
-If you want 
+If you want
 */
 
 import {
@@ -105,16 +105,16 @@ export class TabSelector extends WebComponent {
       cursor: 'default',
     },
     ':host .tabs > [aria-selected="true"]': {
-      color: vars.tabSelectorSelectedColor,
+      color: vars.xinTabsSelectedColor,
     },
     ':host .border': {
-      background: 'var(--tab-selector-bar-color, #ccc)',
+      background: 'var(--xin-tabs-bar-color, #ccc)',
     },
     ':host .border > .selected': {
       content: ' ',
       width: 0,
-      height: 'var(--tab-selector-bar-height, 2px)',
-      background: vars.tabSelectorSelectedColor,
+      height: 'var(--xin-tabs-bar-height, 2px)',
+      background: vars.xinTabsSelectedColor,
       transition: 'ease-out 0.2s',
     },
   })
@@ -240,5 +240,5 @@ export class TabSelector extends WebComponent {
 }
 
 export const tabSelector = TabSelector.elementCreator({
-  tag: 'tab-selector',
+  tag: 'xin-tabs',
 }) as ElementCreator<TabSelector>

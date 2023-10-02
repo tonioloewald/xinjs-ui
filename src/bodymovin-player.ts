@@ -1,5 +1,5 @@
 /*!
-# `<bodymovin-player>`
+# lottie
 
 A [lottie](https://airbnb.io/lottie/#/web) (a.k.a. **bodymovin**) player.
 
@@ -10,7 +10,7 @@ const { xinProxy } = xinjs
 const { icons } = xinjsui
 const { div, label, input, select, option, span } = xinjs.elements
 
-const rocket = preview.querySelector('bodymovin-player')
+const rocket = preview.querySelector('xin-lottie')
 preview.append(
   div(
     { class: 'panel' },
@@ -40,10 +40,10 @@ preview.append(
 )
 ```
 ```html
-<bodymovin-player
+<xin-lottie
   style="max-height: calc(100% - 40px); width: 100%"
   src="https://raw.githubusercontent.com/tonioloewald/xinjs-ui/main/demo/88140-rocket-livetrade.json"
-></bodymovin-player>
+></xin-lottie>
 <div style="height: 40px; line-height: 40px">
   Animation by <a target="_blank" href="https://lottiefiles.com/dvskjbicfc">chiến lê hồng</a>
 </div>
@@ -143,7 +143,7 @@ export class BodymovinPlayer extends WebComponent {
       this.config.path = this.src
     } else {
       console.log(
-        '%c<bodymovin-player>%c expected either %cjson%c (animation data) or %csrc% c(url) but found neither.',
+        '%c<xin-lottie>%c expected either %cjson%c (animation data) or %csrc% c(url) but found neither.',
         'color: #44f; background: #fff; padding: 0 5px',
         'color: default',
         'color: #44f; background: #fff; padding: 0 5px',
@@ -176,5 +176,5 @@ export class BodymovinPlayer extends WebComponent {
 }
 
 export const bodymovinPlayer = BodymovinPlayer.elementCreator({
-  tag: 'bodymovin-player',
+  tag: 'xin-lottie',
 }) as ElementCreator<BodymovinPlayer>

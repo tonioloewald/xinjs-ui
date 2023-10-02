@@ -9,11 +9,11 @@ var $ef1971ff775ba547$exports = {};
 $parcel$export($ef1971ff775ba547$exports, "B3d", () => $ef1971ff775ba547$export$1bc633d0db17d4e1);
 $parcel$export($ef1971ff775ba547$exports, "b3d", () => $ef1971ff775ba547$export$d0bb57305ce055c9);
 /*!
-# `<b-3d>`
+# 3d
 
 A [babylonjs](https://www.babylonjs.com/) wrapper.
 
-A `<b-3d>` element is initialized with an `engine`, `canvas`, `scene`, and an update-loop.
+A `<xin-3d>` element is initialized with an `engine`, `canvas`, `scene`, and an update-loop.
 
 You can access the `scene` and `engine` properties. You can also assign `sceneCreated`
 and `update` callbacks that will be executed when the scene is first initialized and
@@ -51,7 +51,7 @@ preview.append(b3d({
 }))
 ```
 ```css
-.preview b-3d {
+.preview xin-3d {
   width: 100%;
   height: 100%;
 }
@@ -65,7 +65,7 @@ preview.append(b3d({
 
 If you need to load an old school (cjs) javascript or css library via cdn then use these two functions.
 
-`xinjs-ui` uses this library to implement the `<code-editor>`, `<bodymovin-player>`, and `<map-box>`
+`xinjs-ui` uses this library to implement the `<xin-code>`, `<xin-lottie>`, and `<xin-map>`
 elements.
 
 `scriptTag()` and `styleSheet()` return promises that resolve `globalThis` when the module in question
@@ -119,11 +119,11 @@ as possible.
 
 As an aside:
 
-`<bodymovin-player>` is implemented in such a way that if you've preloaded the module
+`<xin-lottie>` is implemented in such a way that if you've preloaded the module
 (e.g. via a script tag or packaging) it won't load it again, which affords offline
 use.
 
-There's no point for `<map-box>` since it won't work without connectivity anyway.
+There's no point for `<xin-map>` since it won't work without connectivity anyway.
 
 ## styleSheet
 
@@ -236,7 +236,7 @@ class $ef1971ff775ba547$export$1bc633d0db17d4e1 extends (0, $hgUW1$Component) {
     }
 }
 const $ef1971ff775ba547$export$d0bb57305ce055c9 = $ef1971ff775ba547$export$1bc633d0db17d4e1.elementCreator({
-    tag: "b-3d"
+    tag: "xin-3d"
 });
 
 
@@ -245,7 +245,7 @@ var $59f50bee37676c09$exports = {};
 $parcel$export($59f50bee37676c09$exports, "BodymovinPlayer", () => $59f50bee37676c09$export$c74d6d817c60b9e6);
 $parcel$export($59f50bee37676c09$exports, "bodymovinPlayer", () => $59f50bee37676c09$export$d75ad8f79fe096cb);
 /*!
-# `<bodymovin-player>`
+# lottie
 
 A [lottie](https://airbnb.io/lottie/#/web) (a.k.a. **bodymovin**) player.
 
@@ -256,7 +256,7 @@ const { xinProxy } = xinjs
 const { icons } = xinjsui
 const { div, label, input, select, option, span } = xinjs.elements
 
-const rocket = preview.querySelector('bodymovin-player')
+const rocket = preview.querySelector('xin-lottie')
 preview.append(
   div(
     { class: 'panel' },
@@ -286,10 +286,10 @@ preview.append(
 )
 ```
 ```html
-<bodymovin-player
+<xin-lottie
   style="max-height: calc(100% - 40px); width: 100%"
   src="https://raw.githubusercontent.com/tonioloewald/xinjs-ui/main/demo/88140-rocket-livetrade.json"
-></bodymovin-player>
+></xin-lottie>
 <div style="height: 40px; line-height: 40px">
   Animation by <a target="_blank" href="https://lottiefiles.com/dvskjbicfc">chiến lê hồng</a>
 </div>
@@ -359,7 +359,7 @@ class $59f50bee37676c09$export$c74d6d817c60b9e6 extends (0, $hgUW1$Component) {
         } else if (this.src !== "") {
             delete this.config.animationData;
             this.config.path = this.src;
-        } else console.log("%c<bodymovin-player>%c expected either %cjson%c (animation data) or %csrc% c(url) but found neither.", "color: #44f; background: #fff; padding: 0 5px", "color: default", "color: #44f; background: #fff; padding: 0 5px", "color: default", "color: #44f; background: #fff; padding: 0 5px", "color: default");
+        } else console.log("%c<xin-lottie>%c expected either %cjson%c (animation data) or %csrc% c(url) but found neither.", "color: #44f; background: #fff; padding: 0 5px", "color: default", "color: #44f; background: #fff; padding: 0 5px", "color: default", "color: #44f; background: #fff; padding: 0 5px", "color: default");
         if (this.animation) {
             this.animation.destroy();
             const root = this.shadowRoot;
@@ -376,7 +376,7 @@ class $59f50bee37676c09$export$c74d6d817c60b9e6 extends (0, $hgUW1$Component) {
     }
 }
 const $59f50bee37676c09$export$d75ad8f79fe096cb = $59f50bee37676c09$export$c74d6d817c60b9e6.elementCreator({
-    tag: "bodymovin-player"
+    tag: "xin-lottie"
 });
 
 
@@ -385,21 +385,21 @@ var $8a70bd76f9b7e656$exports = {};
 $parcel$export($8a70bd76f9b7e656$exports, "CodeEditor", () => $8a70bd76f9b7e656$export$b7127187684f7150);
 $parcel$export($8a70bd76f9b7e656$exports, "codeEditor", () => $8a70bd76f9b7e656$export$d89b6f4d34274146);
 /*!
-# `<code-editor>`
+# code
 
 An [ACE Editor](https://ace.c9.io/) wrapper.
 
 Sometimes, it's nice to be able to just toss a code-editor in a web-page.
 
-`<code-editor>`'s `value` is the code it contains. Its `mode` attribute sets the language, and you can further configure
+`<xin-code>`'s `value` is the code it contains. Its `mode` attribute sets the language, and you can further configure
 the ACE editor instance via its `options` property.
 
 ```html
-<code-editor style="width: 100%; height: 100%" mode="css">
+<xin-code style="width: 100%; height: 100%" mode="css">
 body {
   box-sizing: border-box;
 }
-</code-editor>
+</xin-code>
 ```
 */ 
 
@@ -468,7 +468,7 @@ class $8a70bd76f9b7e656$export$b7127187684f7150 extends (0, $hgUW1$Component) {
     }
 }
 const $8a70bd76f9b7e656$export$d89b6f4d34274146 = $8a70bd76f9b7e656$export$b7127187684f7150.elementCreator({
-    tag: "code-editor"
+    tag: "xin-code"
 });
 
 
@@ -477,7 +477,7 @@ var $e6e19030d0c18d6f$exports = {};
 $parcel$export($e6e19030d0c18d6f$exports, "DataTable", () => $e6e19030d0c18d6f$export$df30df7ec97b32b5);
 $parcel$export($e6e19030d0c18d6f$exports, "dataTable", () => $e6e19030d0c18d6f$export$f71ce0a5ddbe8fa0);
 /*!
-# `<data-table>`
+# table
 
 A virtual data-table, configurable via a `columns` array (which will automatically be generated if not provided),
 that displays gigantic tables with fixed headers (and live column-resizing) using a minimum of resources and cpu.
@@ -528,22 +528,22 @@ preview.append(dataTable({ array: emojiData, columns }))
   background: transparent;
 }
 
-.preview data-table {
+.preview xin-table {
   height: 100%;
 }
 ```
 
-You can set the `<data-table>`'s `array`, `columns`, and `filter` properties directly, or set its `value` to:
+You can set the `<xin-table>`'s `array`, `columns`, and `filter` properties directly, or set its `value` to:
 
 ```
-{ 
-  array: any[], 
-  columns: ColumnOptions[] | null, 
-  filter?: ArrayFilter 
+{
+  array: any[],
+  columns: ColumnOptions[] | null,
+  filter?: ArrayFilter
 }
 ```
 
-If you set the `<data-table>`'s `rowHeight` to `0` it will render all its elements (i.e. not be virtual). This is
+If you set the `<xin-table>`'s `rowHeight` to `0` it will render all its elements (i.e. not be virtual). This is
 useful for smaller tables, or tables with variable row-heights.
 */ 
 
@@ -835,7 +835,7 @@ class $e6e19030d0c18d6f$export$df30df7ec97b32b5 extends (0, $hgUW1$Component) {
     }
 }
 const $e6e19030d0c18d6f$export$f71ce0a5ddbe8fa0 = $e6e19030d0c18d6f$export$df30df7ec97b32b5.elementCreator({
-    tag: "data-table"
+    tag: "xin-table"
 });
 
 
@@ -847,7 +847,7 @@ $parcel$export($46dc716dd2cf5925$exports, "filterPart", () => $46dc716dd2cf5925$
 $parcel$export($46dc716dd2cf5925$exports, "FilterBuilder", () => $46dc716dd2cf5925$export$afb49bb3b076029e);
 $parcel$export($46dc716dd2cf5925$exports, "filterBuilder", () => $46dc716dd2cf5925$export$8ca73b4108207c1f);
 /*!
-# `<filter-builder>`
+# filter
 
 Automatically creates `ArrayFilter` functions `(a: any[]) => any[]` based on the query you build using its
 macOS Finder-inspired interface, using an easily customizable / extensible collection of `Filter` objects.
@@ -914,14 +914,14 @@ preview.append(filter, table)
   flex-direction: column;
 }
 
-.preview data-table {
+.preview xin-table {
   flex: 1 1 auto;
 }
 ```
 
 ## availableFilters
 
-`<filter-builder>` has a default set of `FilterMaker` objects which it uses to construct filter function.
+`<xin-filter>` has a default set of `FilterMaker` objects which it uses to construct filter function.
 In the example above, the default collection of filters is reduced to `contains`, `equals`, `after`, and `isTrue`.
 
 The full collection includes:
@@ -950,7 +950,7 @@ interface FilterMaker {
 
 const { div: $46dc716dd2cf5925$var$div, input: $46dc716dd2cf5925$var$input, select: $46dc716dd2cf5925$var$select, option: $46dc716dd2cf5925$var$option, button: $46dc716dd2cf5925$var$button, span: $46dc716dd2cf5925$var$span, style: $46dc716dd2cf5925$var$style } = (0, $hgUW1$elements);
 document.head.append($46dc716dd2cf5925$var$style({
-    id: "filter-builder"
+    id: "xin-filter"
 }, `filter-part {
   display: flex;
 }
@@ -966,22 +966,22 @@ filter-part [hidden]+[part="padding"] {
   flex: 1 1 auto;
 }
 
-filter-builder {
+xin-filter {
   width: 100%;
   height: auto;
   display: flex;
   align-items: center;
 }
 
-filter-builder [part="filterContainer"] {
+xin-filter [part="filterContainer"] {
   display: flex;
   flex-direction: column;
   align-items: stretch;
   flex: 1 1 auto;
 }
 
-filter-builder [part="add"],
-filter-builder [part="reset"] {
+xin-filter [part="add"],
+xin-filter [part="reset"] {
   --button-size: var(--touch-size, 32px);
   border-radius: 999px;
   height: var(--button-size);
@@ -1215,7 +1215,7 @@ class $46dc716dd2cf5925$export$afb49bb3b076029e extends (0, $hgUW1$Component) {
     }
 }
 const $46dc716dd2cf5925$export$8ca73b4108207c1f = $46dc716dd2cf5925$export$afb49bb3b076029e.elementCreator({
-    tag: "filter-builder"
+    tag: "xin-filter"
 });
 
 
@@ -1225,7 +1225,7 @@ $parcel$export($fef058b85aa29b7a$exports, "icons", () => $fef058b85aa29b7a$expor
 $parcel$export($fef058b85aa29b7a$exports, "SvgIcon", () => $fef058b85aa29b7a$export$dbcb8210e8a983ed);
 $parcel$export($fef058b85aa29b7a$exports, "svgIcon", () => $fef058b85aa29b7a$export$8c90725d55a8eef);
 /*!
-# icons & `<svg-icon>`
+# icons
 
 A library that provides `ElementCreator` functions that produce SVG icons. It leverages `xinjs`'s
 `svgElements` proxy.
@@ -1288,16 +1288,16 @@ preview.append(...Object.keys(icons).sort().map(iconName => div(
 }
 ```
 
-## `<svg-icon>`
+## `<xin-icon>`
 
-`<svg-icon>` is a simple component that lets you embed icons as HTML. Check the CSS tab to see
+`<xin-icon>` is a simple component that lets you embed icons as HTML. Check the CSS tab to see
 how it's styled.
 
 ```html
-<svg-icon class="demo-2" icon="game"></svg-icon>
+<xin-icon class="demo-2" icon="game"></xin-icon>
 ```
 ```css
-svg-icon.demo-2 > svg {
+xin-icon.demo-2 > svg {
   height: 96px;
 }
 ```
@@ -1474,7 +1474,7 @@ class $fef058b85aa29b7a$export$dbcb8210e8a983ed extends (0, $hgUW1$Component) {
     }
 }
 const $fef058b85aa29b7a$export$8c90725d55a8eef = $fef058b85aa29b7a$export$dbcb8210e8a983ed.elementCreator({
-    tag: "svg-icon"
+    tag: "xin-icon"
 });
 
 
@@ -1484,11 +1484,13 @@ $parcel$export($ada9b1474dc4b958$exports, "LiveExample", () => $ada9b1474dc4b958
 $parcel$export($ada9b1474dc4b958$exports, "liveExample", () => $ada9b1474dc4b958$export$dafbe0fa988b899b);
 $parcel$export($ada9b1474dc4b958$exports, "makeExamplesLive", () => $ada9b1474dc4b958$export$afa6494eb589c19e);
 /*!
-# `<live-example>`
+# example
 
-`<live-example>` makes it easy to insert interactive code examples in a web page.
+`<xin-example>` makes it easy to insert interactive code examples in a web page.
 It's effectively a super lightweight fiddle based on the `b8rjs`'s `fiddle` component
-(which I miss dearly). (You're probably looking at it right now.)
+(which I miss dearly).
+
+*You're probably looking at it right now.*
 
 You can simply wrap it around a sequence of code blocks in the DOM with the
 languages (js, html, css) as annotations or you can directly set the `js`, `html`,
@@ -1519,7 +1521,7 @@ preview.append('Try editing some code and hitting refresh…')
 }
 ```
 
-A `<live-example>` can be given a `context` object {[key: string]: any}, which is the
+A `<xin-example>` can be given a `context` object {[key: string]: any}, which is the
 set of values available in the javascript's execution context (it is wrapped in an
 async function and passed those values). By default, that context comprises `preview`
 (the `<div>` in which the example is rendered), `xinjs` (`* from xinjs`),
@@ -1528,7 +1530,7 @@ and `xinjsui` (`* from xinjsui`).
 The `LiveExample` class provides the static `insertExamples(element: HTMLElement)`
 function that will replace any sequence of
 `pre code[class="language-html"],pre code[class="language-js"],pre code[class="language-css"]`
-elements with a `<live-example>` instance.
+elements with a `<xin-example>` instance.
 */ 
 
 var $6bbe441346901d5a$exports = {};
@@ -1536,9 +1538,9 @@ var $6bbe441346901d5a$exports = {};
 $parcel$export($6bbe441346901d5a$exports, "TabSelector", () => $6bbe441346901d5a$export$a3a7254f7f149b03);
 $parcel$export($6bbe441346901d5a$exports, "tabSelector", () => $6bbe441346901d5a$export$a932f737dcd864a2);
 /*!
-# `<tab-selector>`
+# tabs
 
-`<tab-selector>` creates a `tabpanel` for its children, creating a `tab` for each based on its
+`<xin-tabs>` creates a `tabpanel` for its children, creating a `tab` for each based on its
 `name` attribute.
 
 ```js
@@ -1547,13 +1549,13 @@ $parcel$export($6bbe441346901d5a$exports, "tabSelector", () => $6bbe441346901d5a
 })
 
 const { div, button } = xinjs.elements
-const tabSelector = preview.querySelector('tab-selector')
+const tabSelector = preview.querySelector('xin-tabs')
 
 let bodycount = 0
 preview.querySelector('.add').addEventListener('click', () => {
   const name = `new tab ${++bodycount}`
   const body = div(
-    {name}, 
+    {name},
     name,
     button('Remove Me', { onClick() { tabSelector.removeTabBody(body) }})
   )
@@ -1561,20 +1563,20 @@ preview.querySelector('.add').addEventListener('click', () => {
 })
 ```
 ```html
-<tab-selector>
+<xin-tabs>
   <div name="first">first body</div>
   <div name="second">second body</div>
   <div name="third">third body</div>
   <button class="add" slot="after-tabs">
     <span class="icon-plus"></span>
   </button>
-</tab-selector>
+</xin-tabs>
 ```
 ```css
-tab-selector {
+xin-tabs {
     height: 100%;
   }
-  
+
   div[name] {
     padding: 20px;
     text-align: center;
@@ -1584,12 +1586,12 @@ tab-selector {
 ```
 
 
-The `<tab-selector>`s `value` is the index of its active body.
+The `<xin-tabs>`s `value` is the index of its active body.
 
-A `<tab-selector>` has `addTabBody(body: HTMLElement, select?: boolean)` and 
+A `<xin-tabs>` has `addTabBody(body: HTMLElement, select?: boolean)` and
 `removeTabBody(body: number | HTMLElement)` methods for updating its content.
 
-If you want 
+If you want
 */ 
 const { div: $6bbe441346901d5a$var$div, slot: $6bbe441346901d5a$var$slot } = (0, $hgUW1$elements);
 class $6bbe441346901d5a$export$a3a7254f7f149b03 extends (0, $hgUW1$Component) {
@@ -1632,16 +1634,16 @@ class $6bbe441346901d5a$export$a3a7254f7f149b03 extends (0, $hgUW1$Component) {
             cursor: "default"
         },
         ':host .tabs > [aria-selected="true"]': {
-            color: (0, $hgUW1$vars).tabSelectorSelectedColor
+            color: (0, $hgUW1$vars).xinTabsSelectedColor
         },
         ":host .border": {
-            background: "var(--tab-selector-bar-color, #ccc)"
+            background: "var(--xin-tabs-bar-color, #ccc)"
         },
         ":host .border > .selected": {
             content: " ",
             width: 0,
-            height: "var(--tab-selector-bar-height, 2px)",
-            background: (0, $hgUW1$vars).tabSelectorSelectedColor,
+            height: "var(--xin-tabs-bar-height, 2px)",
+            background: (0, $hgUW1$vars).xinTabsSelectedColor,
             transition: "ease-out 0.2s"
         }
     });
@@ -1768,7 +1770,7 @@ class $6bbe441346901d5a$export$a3a7254f7f149b03 extends (0, $hgUW1$Component) {
     }
 }
 const $6bbe441346901d5a$export$a932f737dcd864a2 = $6bbe441346901d5a$export$a3a7254f7f149b03.elementCreator({
-    tag: "tab-selector"
+    tag: "xin-tabs"
 });
 
 
@@ -1782,22 +1784,22 @@ const $ada9b1474dc4b958$var$codeStyle = {
     }
 };
 document.head.append($ada9b1474dc4b958$var$style({
-    id: "live-example"
+    id: "xin-example"
 }, `:root {
-  --live-example-height: 400px;
+  --xin-example-height: 400px;
 }
 
-live-example {
-  --live-example-preview-height: calc(var(--live-example-height) * 0.5);
-  --live-example-editor-height: calc(var(--live-example-height) * 0.5);
+xin-example {
+  --xin-example-preview-height: calc(var(--xin-example-height) * 0.5);
+  --xin-example-editor-height: calc(var(--xin-example-height) * 0.5);
   position: relative;
   display: flex;
   flex-direction: column;
-  height: var(--live-example-height);
+  height: var(--xin-example-height);
   background: var(--background);
 }
 
-live-example.-maximize {
+xin-example.-maximize {
   position: fixed;
   left: 0;
   top: 0;
@@ -1806,18 +1808,18 @@ live-example.-maximize {
   margin: 0 !important;
 }
 
-live-example.-maximize .hide-if-maximized,
-live-example:not(.-maximize) .show-if-maximized {
+xin-example.-maximize .hide-if-maximized,
+xin-example:not(.-maximize) .show-if-maximized {
   display: none;
 }
 
-live-example [part="example"] {
-  flex: 1 1 var(--live-example-preview-height);
-  height: var(--live-example-preview-height);
+xin-example [part="example"] {
+  flex: 1 1 var(--xin-example-preview-height);
+  height: var(--xin-example-preview-height);
   position: relative;
 }
 
-live-example .preview {
+xin-example .preview {
   height: 100%;
   position: relative;
   overflow: hidden;
@@ -1826,9 +1828,9 @@ live-example .preview {
   <rect x="4" width="4" height="4" /><rect y="4" width="4" height="4" /></svg>');
 }
 
-live-example [part="editors"] {
-  flex: 1 1 var(--live-example-editor-height);
-  height: var(--live-example-editor-height);
+xin-example [part="editors"] {
+  flex: 1 1 var(--xin-example-editor-height);
+  height: var(--xin-example-editor-height);
   position: relative;
 }
 `));
@@ -2006,7 +2008,7 @@ class $ada9b1474dc4b958$export$41199f9ac14d8c08 extends (0, $hgUW1$Component) {
     }
 }
 const $ada9b1474dc4b958$export$dafbe0fa988b899b = $ada9b1474dc4b958$export$41199f9ac14d8c08.elementCreator({
-    tag: "live-example"
+    tag: "xin-example"
 });
 function $ada9b1474dc4b958$export$afa6494eb589c19e(element) {
     const preElements = [
@@ -2038,18 +2040,18 @@ $parcel$export($6246d5006b5a56c3$exports, "MAPSTYLES", () => $6246d5006b5a56c3$e
 $parcel$export($6246d5006b5a56c3$exports, "MapBox", () => $6246d5006b5a56c3$export$f2ffec4d96a433ed);
 $parcel$export($6246d5006b5a56c3$exports, "mapBox", () => $6246d5006b5a56c3$export$ca243e53be209efb);
 /*!
-# `<map-box>`
+# map
 
 A [mapboxgl](https://docs.mapbox.com/mapbox-gl-js/api/) wrapper.
 
 ```html
 <!-- please don't abuse my mapbox token -->
-<map-box
+<xin-map
   style="width: 100%; height: 100%"
   coords="14.0093606,120.995083,17"
   token="pk.eyJ1IjoicG9kcGVyc29uIiwiYSI6ImNqc2JlbWU0bjA1ZmY0YW5ycHZod3VhbWcifQ.arvqfpOqMgFYkKgQ35UScA"
   map-style="mapbox://styles/mapbox/satellite-v9"
-></map-box>
+></xin-map>
 ```
 
 There's no need to learn new APIs or write wrappers, just access the element's `map` property
@@ -2163,7 +2165,7 @@ class $6246d5006b5a56c3$export$f2ffec4d96a433ed extends (0, $hgUW1$Component) {
     }
 }
 const $6246d5006b5a56c3$export$ca243e53be209efb = $6246d5006b5a56c3$export$f2ffec4d96a433ed.elementCreator({
-    tag: "map-box"
+    tag: "xin-map"
 });
 
 
@@ -2173,13 +2175,98 @@ $parcel$export($1b88c9cb596c3426$exports, "MarkdownViewer", () => $1b88c9cb596c3
 $parcel$export($1b88c9cb596c3426$exports, "markdownViewer", () => $1b88c9cb596c3426$export$305b975a891d0dfa);
 
 
+/*!
+# markdown
+
+`<xin-md>` renders [markdown](https://www.markdownguide.org/) anywhere, either using the
+`src` attribute to load the file asynchronously, or rendering the text inside it.
+
+`<xin-md>` renders markdown using [marked](https://www.npmjs.com/package/marked).
+
+```
+<xin-md src="/path/to/file.md">
+```
+
+You can wrap markdown source per the following example:
+
+```html
+<xin-md>
+## hello
+world
+</xin-md>
+```
+```css
+xin-md {
+  display: block;
+  padding: var(--spacing);
+}
+```
+
+Note that, by default, `<xin-md>` will use its `textContent` (not its `innerHTML`) as its source.
+
+Or, just set the element's `value` and it will render it for you. You can try
+this in the console, e.g.
+
+```
+$('.preview xin-md').value = 'testing\n\n## this is a test'
+```
+
+`<xin-md>` also (optionally) allows the embedding of inline HTML elements without blocking markdown
+rendering, so that you can embed specific elements while retaining markdown. You need to explicitly set
+the `elements` property, and for markdown rendering not to be blocked, the html elements need to
+start on a new line and not be indented. E.g.
+
+```html
+<xin-md elements>
+<form>
+## this is a form
+<label>
+fill in this field.
+**It's important!**
+<input>
+</label>
+</form>
+</xin-md>
+```
+
+In this case `<xin-md>` uses its `innerHTML` and not its `textContent`.
+
+`<xin-md>` also supports **template** values. You need to provide data to the element in the form
+of `context` (an arbitrary object, or a JSON string), and then embed the template text using
+handlebars-style doubled curly braces, e.g. `{{path.to.value}}`.
+
+If no value is found, the original text is passed through.
+
+Finally, note that template substitution occurs *before* markdown transformation, which means you can
+pass context data through to HTML elements.
+
+```html
+<xin-md
+  elements
+  context='{"title": "template example", "foo": {"bar": 17}, "nested": "*work*: {{foo.bar}}"}'
+>
+## {{title}}
+
+The magic number is <input type="number" value={{foo.bar}}>
+
+Oh, and nested templates {{nested}}.
+</xin-md>
+```
+*/ function $1b88c9cb596c3426$var$populate(basePath, source) {
+    return source.replace(/\{\{([^}]+)\}\}/g, (original, prop)=>{
+        const value = (0, $hgUW1$xin)[`${basePath}${prop.startsWith("[") ? prop : "." + prop}`];
+        return value === undefined ? original : $1b88c9cb596c3426$var$populate(basePath, String(value));
+    });
+}
 class $1b88c9cb596c3426$export$575eb698d362902 extends (0, $hgUW1$Component) {
     src = "";
     value = "";
     content = null;
+    elements = false;
+    context = {};
     constructor(){
         super();
-        this.initAttributes("src");
+        this.initAttributes("src", "elements", "context");
     }
     connectedCallback() {
         super.connectedCallback();
@@ -2187,12 +2274,31 @@ class $1b88c9cb596c3426$export$575eb698d362902 extends (0, $hgUW1$Component) {
             const request = await fetch(this.src);
             this.value = await request.text();
         })();
-        else if (this.value === "") this.value = this.textContent != null ? this.textContent : "";
+        else if (this.value === "") {
+            if (this.elements) this.value = this.innerHTML;
+            else this.value = this.textContent != null ? this.textContent : "";
+        }
     }
     didRender = ()=>{};
     render() {
         super.render();
-        this.innerHTML = (0, $hgUW1$marked)(typeof this.value === "string" ? this.value : "", {
+        (0, $hgUW1$xin)[this.instanceId] = typeof this.context === "string" ? JSON.parse(this.context) : this.context;
+        const source = $1b88c9cb596c3426$var$populate(this.instanceId, this.value);
+        if (this.elements) {
+            const chunks = source.split("\n").reduce((chunks, line)=>{
+                if (line.startsWith("<") || chunks.length === 0) chunks.push(line);
+                else {
+                    const lastChunk = chunks[chunks.length - 1];
+                    if (!lastChunk.startsWith("<") || !lastChunk.endsWith(">")) chunks[chunks.length - 1] += "\n" + line;
+                    else chunks.push(line);
+                }
+                return chunks;
+            }, []);
+            this.innerHTML = chunks.map((chunk)=>chunk.startsWith("<") && chunk.endsWith(">") ? chunk : (0, $hgUW1$marked)(chunk, {
+                    mangle: false,
+                    headerIds: false
+                })).join("");
+        } else this.innerHTML = (0, $hgUW1$marked)(source, {
             mangle: false,
             headerIds: false
         });
@@ -2200,7 +2306,7 @@ class $1b88c9cb596c3426$export$575eb698d362902 extends (0, $hgUW1$Component) {
     }
 }
 const $1b88c9cb596c3426$export$305b975a891d0dfa = $1b88c9cb596c3426$export$575eb698d362902.elementCreator({
-    tag: "markdown-viewer"
+    tag: "xin-md"
 });
 
 
@@ -2214,21 +2320,21 @@ $parcel$export($815deb6062b0b31b$exports, "richTextWidgets", () => $815deb6062b0
 $parcel$export($815deb6062b0b31b$exports, "RichText", () => $815deb6062b0b31b$export$f284d8638abd8920);
 $parcel$export($815deb6062b0b31b$exports, "richText", () => $815deb6062b0b31b$export$7bcc4193ad80bf91);
 /*!
-# `<rich-text>`
+# word (rich text editor)
 
-A simple and easily extensible `document.execCommand` WYSIWYG editor with some conveniences.
+`<xin-word>` is a simple and easily extensible `document.execCommand` WYSIWYG editor with some conveniences.
 
 By default, it treats its initial contents as its document, but you can also set (and get)
 its `value`.
 
 ```html
-<rich-text widgets="minimal">
+<xin-word widgets="minimal">
 <h3>Heading</h3>
 <p>And some <b>text</b></p>
-</rich-text>
+</xin-word>
 ```
 
-`<rich-text>` elements have a `toolbar` slot (actually a xin-slot because it doesn't use
+`<xin-word>` elements have a `toolbar` slot (actually a xin-slot because it doesn't use
 the shadowDOM).
 
 If you set the `widgets` attribute to `default` or `minimal` you will get a toolbar
@@ -2244,21 +2350,21 @@ A number of convenience functions are available, including:
 These each create a toolbar widget. A `blockStyle`-generated `<select>` element will
 automatically have its value changed based on the current selection.
 
-A `<rich-text>` element also has `selectedText` and `selectedBlocks` properties, allowing
+A `<xin-word>` element also has `selectedText` and `selectedBlocks` properties, allowing
 you to easily perform operations on text selections, and a `selectionChange` callback (which
 simply passes through document `selectionchange` events, but also passes a reference to
-the `<rich-text>` component).
+the `<xin-word>` component).
 */ 
 
 const { style: $815deb6062b0b31b$var$style, xinSlot: $815deb6062b0b31b$var$xinSlot, div: $815deb6062b0b31b$var$div, select: $815deb6062b0b31b$var$select, fragment: $815deb6062b0b31b$var$fragment, option: $815deb6062b0b31b$var$option, button: $815deb6062b0b31b$var$button, span: $815deb6062b0b31b$var$span } = (0, $hgUW1$elements);
 document.head.append($815deb6062b0b31b$var$style({
-    id: "rich-text"
-}, `rich-text {
+    id: "xin-word"
+}, `xin-word {
   display: flex;
   flex-direction: column;
   height: 100%;
 }
-rich-text [part="toolbar"] {
+xin-word [part="toolbar"] {
   padding: 4px;
   display: flex;
   gap: 0px;
@@ -2468,7 +2574,7 @@ class $815deb6062b0b31b$export$f284d8638abd8920 extends (0, $hgUW1$Component) {
     }
 }
 const $815deb6062b0b31b$export$7bcc4193ad80bf91 = $815deb6062b0b31b$export$f284d8638abd8920.elementCreator({
-    tag: "rich-text"
+    tag: "xin-word"
 });
 
 
@@ -2477,13 +2583,13 @@ var $b9e5aa5581e8f051$exports = {};
 $parcel$export($b9e5aa5581e8f051$exports, "SideNav", () => $b9e5aa5581e8f051$export$1a35787d6353cf6a);
 $parcel$export($b9e5aa5581e8f051$exports, "sideNav", () => $b9e5aa5581e8f051$export$938418df2b06cb50);
 /*!
-# `<side-nav>`
+# sidebar
 
 The default layout for iOS / iPadOS apps is to hide the sidebar when displaying content on small
 screens, and display the sidebar when space is available (with the user able to explicitly hide
-the sidebar if so desired). `<side-nav>` provides this functionality.
+the sidebar if so desired). `<xin-sidebar>` provides this functionality.
 
-`<side-nav>` is used to handle the layout of the documentation tab panel.
+`<xin-sidebar>` is used to handle the layout of the documentation tab panel.
 */ 
 const { slot: $b9e5aa5581e8f051$var$slot } = (0, $hgUW1$elements);
 class $b9e5aa5581e8f051$export$1a35787d6353cf6a extends (0, $hgUW1$Component) {
@@ -2539,12 +2645,12 @@ class $b9e5aa5581e8f051$export$1a35787d6353cf6a extends (0, $hgUW1$Component) {
         const parent = this.offsetParent;
         this.compact = parent.offsetWidth < this.minSize;
         if (!this.compact) {
-            content.classList.add("-side-nav-visible");
+            content.classList.add("-xin-sidebar-visible");
             this.style.setProperty("--nav-width", `${this.navSize}px`);
             this.style.setProperty("--content-width", `calc(100% - ${this.navSize}px)`);
             this.style.setProperty("--margin", "0");
         } else {
-            content.classList.remove("-side-nav-visible");
+            content.classList.remove("-xin-sidebar-visible");
             this.style.setProperty("--nav-width", "50%");
             this.style.setProperty("--content-width", "50%");
             if (this.contentVisible) this.style.setProperty("--margin", "0 0 0 -100%");
@@ -2575,7 +2681,7 @@ class $b9e5aa5581e8f051$export$1a35787d6353cf6a extends (0, $hgUW1$Component) {
     }
 }
 const $b9e5aa5581e8f051$export$938418df2b06cb50 = $b9e5aa5581e8f051$export$1a35787d6353cf6a.elementCreator({
-    tag: "side-nav"
+    tag: "xin-sidebar"
 });
 
 
@@ -2635,7 +2741,7 @@ class $0f2017ffca44b547$export$7140c0f3c1b65d3f extends (0, $hgUW1$Component) {
     }
 }
 const $0f2017ffca44b547$export$96370210d2ca0fff = $0f2017ffca44b547$export$7140c0f3c1b65d3f.elementCreator({
-    tag: "size-break"
+    tag: "xin-sizebreak"
 });
 
 
@@ -2657,5 +2763,5 @@ function $5a28660a6cbe2731$export$b37fb374f2e92eb6(sortValuator, ascending = tru
 
 
 
-export {$5265d118b5240170$export$c947e3cd16175f27 as trackDrag, $5c31145f3e970423$export$c6e082819e9a0330 as scriptTag, $5c31145f3e970423$export$63257fda812a683f as styleSheet, $5a28660a6cbe2731$export$b37fb374f2e92eb6 as makeSorter, $ef1971ff775ba547$export$1bc633d0db17d4e1 as B3d, $ef1971ff775ba547$export$d0bb57305ce055c9 as b3d, $59f50bee37676c09$export$c74d6d817c60b9e6 as BodymovinPlayer, $59f50bee37676c09$export$d75ad8f79fe096cb as bodymovinPlayer, $8a70bd76f9b7e656$export$b7127187684f7150 as CodeEditor, $8a70bd76f9b7e656$export$d89b6f4d34274146 as codeEditor, $e6e19030d0c18d6f$export$df30df7ec97b32b5 as DataTable, $e6e19030d0c18d6f$export$f71ce0a5ddbe8fa0 as dataTable, $46dc716dd2cf5925$export$16a138bde9d9de87 as availableFilters, $46dc716dd2cf5925$export$b7838412d9f17b13 as FilterPart, $46dc716dd2cf5925$export$2237595b531763d7 as filterPart, $46dc716dd2cf5925$export$afb49bb3b076029e as FilterBuilder, $46dc716dd2cf5925$export$8ca73b4108207c1f as filterBuilder, $fef058b85aa29b7a$export$df03f54e09e486fa as icons, $fef058b85aa29b7a$export$dbcb8210e8a983ed as SvgIcon, $fef058b85aa29b7a$export$8c90725d55a8eef as svgIcon, $ada9b1474dc4b958$export$41199f9ac14d8c08 as LiveExample, $ada9b1474dc4b958$export$dafbe0fa988b899b as liveExample, $ada9b1474dc4b958$export$afa6494eb589c19e as makeExamplesLive, $6246d5006b5a56c3$export$7d6f3ccbb0a81c30 as MAPSTYLES, $6246d5006b5a56c3$export$f2ffec4d96a433ed as MapBox, $6246d5006b5a56c3$export$ca243e53be209efb as mapBox, $1b88c9cb596c3426$export$575eb698d362902 as MarkdownViewer, $1b88c9cb596c3426$export$305b975a891d0dfa as markdownViewer, $815deb6062b0b31b$export$94309935dd6eab19 as blockStyle, $815deb6062b0b31b$export$8cc075c801fd6817 as spacer, $815deb6062b0b31b$export$e3f8198a677f57c2 as elastic, $815deb6062b0b31b$export$74540e56d8cdd242 as commandButton, $815deb6062b0b31b$export$8ed2ffe5d58aaa75 as richTextWidgets, $815deb6062b0b31b$export$f284d8638abd8920 as RichText, $815deb6062b0b31b$export$7bcc4193ad80bf91 as richText, $b9e5aa5581e8f051$export$1a35787d6353cf6a as SideNav, $b9e5aa5581e8f051$export$938418df2b06cb50 as sideNav, $0f2017ffca44b547$export$7140c0f3c1b65d3f as SizeBreak, $0f2017ffca44b547$export$96370210d2ca0fff as sizeBreak, $6bbe441346901d5a$export$a3a7254f7f149b03 as TabSelector, $6bbe441346901d5a$export$a932f737dcd864a2 as tabSelector};
+export {$5265d118b5240170$export$c947e3cd16175f27 as trackDrag, $5c31145f3e970423$export$c6e082819e9a0330 as scriptTag, $5c31145f3e970423$export$63257fda812a683f as styleSheet, $5a28660a6cbe2731$export$b37fb374f2e92eb6 as makeSorter, $ef1971ff775ba547$export$1bc633d0db17d4e1 as B3d, $ef1971ff775ba547$export$d0bb57305ce055c9 as b3d, $fef058b85aa29b7a$export$df03f54e09e486fa as icons, $fef058b85aa29b7a$export$dbcb8210e8a983ed as SvgIcon, $fef058b85aa29b7a$export$8c90725d55a8eef as svgIcon, $6246d5006b5a56c3$export$7d6f3ccbb0a81c30 as MAPSTYLES, $6246d5006b5a56c3$export$f2ffec4d96a433ed as MapBox, $6246d5006b5a56c3$export$ca243e53be209efb as mapBox, $59f50bee37676c09$export$c74d6d817c60b9e6 as BodymovinPlayer, $59f50bee37676c09$export$d75ad8f79fe096cb as bodymovinPlayer, $8a70bd76f9b7e656$export$b7127187684f7150 as CodeEditor, $8a70bd76f9b7e656$export$d89b6f4d34274146 as codeEditor, $e6e19030d0c18d6f$export$df30df7ec97b32b5 as DataTable, $e6e19030d0c18d6f$export$f71ce0a5ddbe8fa0 as dataTable, $46dc716dd2cf5925$export$16a138bde9d9de87 as availableFilters, $46dc716dd2cf5925$export$b7838412d9f17b13 as FilterPart, $46dc716dd2cf5925$export$2237595b531763d7 as filterPart, $46dc716dd2cf5925$export$afb49bb3b076029e as FilterBuilder, $46dc716dd2cf5925$export$8ca73b4108207c1f as filterBuilder, $ada9b1474dc4b958$export$41199f9ac14d8c08 as LiveExample, $ada9b1474dc4b958$export$dafbe0fa988b899b as liveExample, $ada9b1474dc4b958$export$afa6494eb589c19e as makeExamplesLive, $1b88c9cb596c3426$export$575eb698d362902 as MarkdownViewer, $1b88c9cb596c3426$export$305b975a891d0dfa as markdownViewer, $815deb6062b0b31b$export$94309935dd6eab19 as blockStyle, $815deb6062b0b31b$export$8cc075c801fd6817 as spacer, $815deb6062b0b31b$export$e3f8198a677f57c2 as elastic, $815deb6062b0b31b$export$74540e56d8cdd242 as commandButton, $815deb6062b0b31b$export$8ed2ffe5d58aaa75 as richTextWidgets, $815deb6062b0b31b$export$f284d8638abd8920 as RichText, $815deb6062b0b31b$export$7bcc4193ad80bf91 as richText, $b9e5aa5581e8f051$export$1a35787d6353cf6a as SideNav, $b9e5aa5581e8f051$export$938418df2b06cb50 as sideNav, $0f2017ffca44b547$export$7140c0f3c1b65d3f as SizeBreak, $0f2017ffca44b547$export$96370210d2ca0fff as sizeBreak, $6bbe441346901d5a$export$a3a7254f7f149b03 as TabSelector, $6bbe441346901d5a$export$a932f737dcd864a2 as tabSelector};
 //# sourceMappingURL=index.js.map

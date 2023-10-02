@@ -60,7 +60,7 @@ type TrackerCallback = (dx: number, dy: number, event: any) => true | undefined;
 # trackDrag
 
 Sometimes you want to track a mouse-drag or touch-drag operation without messing around.
-This is how the resizeable columns in `<data-table>` work.
+This is how the resizeable columns in `<xin-table>` work.
 
 Just call `trackDrag(event, (dx, dy, event) => { ... })` and you'll get updates on corresponding events until
 you return `true` from the event-handler (or, in the case of `touch` events, the last `touch` ends).
@@ -294,44 +294,14 @@ export class MapBox extends Component {
     render(): void;
 }
 export const mapBox: ElementCreator<MapBox>;
-/*!
-# `<markdown-viewer>`
-
-Render [markdown](https://www.markdownguide.org/) anywhere, either using the `src` attribute to load
-the file asynchronously, or just put the text inside it.
-
-`<markdown-viewer>` renders markdown using [marked](https://www.npmjs.com/package/marked).
-
-```
-<markdown-viewer src="/path/to/file.md">
-```
-
-You can wrap markdown source per the following example:
-
-```html
-<markdown-viewer>
-## hello
-world
-</markdown-viewer>
-```
-```css
-markdown-viewer {
-  display: block;
-  padding: var(--spacing);
-}
-```
-
-Or, just set the element's `value` and it will render it for you. You can try
-this in the console, e.g.
-
-```
-$('.preview markdown-viewer').value = 'testing\n\n## this is a test'
-```
-*/
 export class MarkdownViewer extends Component {
     src: string;
     value: string;
     content: null;
+    elements: boolean;
+    context: {
+        [key: string]: any;
+    };
     constructor();
     connectedCallback(): void;
     didRender: (() => void) | (() => Promise<void>);
@@ -380,13 +350,13 @@ export class SideNav extends Component {
 }
 export const sideNav: ElementCreator<SideNav>;
 /*!
-# `<size-break>`
+# size-break
 
 While we wait for enough browsers to implement [container-queries](https://www.w3.org/TR/css-contain-3/),
 and in any event when you simply want to do different things at different sizes (e.g. in the project I'm
-working on right now, a row of buttons turns into a menu at narrow widths) there's `<size-break>`.
+working on right now, a row of buttons turns into a menu at narrow widths) there's `<xin-sizebreak>`.
 
-Note that the sizes referred to are of the `<size-break>`'s `.offsetParent`, and it watches for
+Note that the sizes referred to are of the `<xin-sizebreak>`'s `.offsetParent`, and it watches for
 the window's `resize` events and its own (via `ResizeObserver`).
 
 ```js
@@ -410,10 +380,10 @@ sizer.addEventListener('touchstart', resize, 'nwse-resize')
 ```
 ```html
 <div class="container">
-  <size-break min-width="150" min-height="80">
+  <xin-sizebreak min-width="150" min-height="80">
     <h1>BIG!</h1>
     <i slot="small">little</i>
-  </size-break>
+  </xin-sizebreak>
   <div class="sizer"></div>
 </div>
 ```
@@ -422,14 +392,14 @@ sizer.addEventListener('touchstart', resize, 'nwse-resize')
   touch-action: none;
 }
 
-.preview size-break {
+.preview xin-sizebreak {
   width: 100%;
   height: 100%;
   background: #fff8;
   border: 1px solid #aaa;
 }
 
-.preview size-break * {
+.preview xin-sizebreak * {
   position: absolute;
   top: 50%;
   left: 50%;
@@ -456,7 +426,7 @@ sizer.addEventListener('touchstart', resize, 'nwse-resize')
 }
 ```
 
-`<size-break>` supports both `min-width` and/or `min-height`, and you can of course target only one
+`<xin-sizebreak>` supports both `min-width` and/or `min-height`, and you can of course target only one
 of the slots if you like. The demo site uses them to hide the [bundlejs](https://bundlejs.com/) badge when
 space is tight.
 */
