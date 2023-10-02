@@ -1,4 +1,17 @@
 import { Component, ElementCreator } from "xinjs";
+export class AbTest extends Component {
+    static set conditions(context: {
+        [key: string]: any;
+    });
+    condition: string;
+    not: boolean;
+    static instances: Set<AbTest>;
+    constructor();
+    connectedCallback(): void;
+    disconnectedCallback(): void;
+    render(): void;
+}
+export const abTest: import("xinjs").ElementCreator<HTMLElement>;
 export function scriptTag(src: string, existingSymbolName?: string): Promise<any>;
 export function styleSheet(href: string): Promise<void>;
 type B3dCallback = ((element: B3d, BABYLON: any) => void) | ((element: B3d, BABYLON: any) => Promise<void>);
