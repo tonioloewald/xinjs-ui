@@ -128,7 +128,7 @@ main.append(
             const a = event.target as HTMLAnchorElement
             const doc = getListItem(event.target as HTMLElement)
             const nav = (event.target as HTMLElement).closest(
-              'xin-sidebar'
+              'xin-sidenav'
             ) as SideNav
             nav.contentVisible = true
             const { href } = a
