@@ -7,10 +7,6 @@ It's effectively a super lightweight fiddle based on the `b8rjs`'s `fiddle` comp
 
 *You're probably looking at it right now.*
 
-You can simply wrap it around a sequence of code blocks in the DOM with the
-languages (js, html, css) as annotations or you can directly set the `js`, `html`,
-and `css` properties.
-
 ```js
 // this code executes in an async function body
 // it has xinjs, xinjsui, and preview (the preview div) available as local variables
@@ -35,6 +31,12 @@ preview.append('Try editing some code and hitting refresh…')
   to { color: red }
 }
 ```
+
+You can simply wrap it around a sequence of code blocks in the DOM with the
+languages (js, html, css) as annotations or you can directly set the `js`, `html`,
+and `css` properties.
+
+## context
 
 A `<xin-example>` can be given a `context` object {[key: string]: any}, which is the
 set of values available in the javascript's execution context (it is wrapped in an

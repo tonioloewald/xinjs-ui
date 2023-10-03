@@ -253,6 +253,7 @@ export class SvgIcon extends Component {
 export const svgIcon: ElementCreator<HTMLElement>;
 export class TabSelector extends Component {
     value: number;
+    static makeTab(tabs: TabSelector, tabBody: HTMLElement, bodyId: string): HTMLElement;
     styleNode: HTMLStyleElement;
     content: (HTMLSlotElement | HTMLDivElement)[];
     constructor();
@@ -350,7 +351,7 @@ export const richText: ElementCreator<RichText>;
 export class SideNav extends Component {
     minSize: number;
     navSize: number;
-    compact: boolean;
+    get compact(): boolean;
     content: HTMLSlotElement[];
     get contentVisible(): boolean;
     set contentVisible(visible: boolean);
@@ -464,31 +465,6 @@ I'm always confusing myself when writing sort functions, so I wrote `makeSorter(
 insanely simple and just works™. It makes writing an array sort callback for anything
 other than an array of numbers or strings easier.
 
-To create a sort callback that sorts by propA then propB (if propA is tied):
-```
-const sorter = makeSorter(
-  obj => [obj.propA, obj.propB]
-)
-```
-
-As above, but sort descending:
-```
-const sorter = makeSorter(
-  obj => [obj.propA, obj.propB],
-  false
-)
-```
-
-As above but propA is sorted ascending, propB descending
-```
-const sorter = makeSorter(
-  obj => [obj.propA, obj.propB],
-  [true, false]
-)
-```
-
-Interactive example:
-
 ```js
 const { select, option, div, span, ul, li } = xinjs.elements
 const { icons, makeSorter } = xinjsui
@@ -552,6 +528,32 @@ render()
   top: var(--spacing);
   right: var(--spacing);
 }
+```
+
+## Details
+
+To create a sort callback that sorts by propA then propB (if propA is tied):
+
+```
+const sorter = makeSorter(
+  obj => [obj.propA, obj.propB]
+)
+```
+
+As above, but sort descending:
+```
+const sorter = makeSorter(
+  obj => [obj.propA, obj.propB],
+  false
+)
+```
+
+As above but propA is sorted ascending, propB descending
+```
+const sorter = makeSorter(
+  obj => [obj.propA, obj.propB],
+  [true, false]
+)
 ```
 */
 export function makeSorter<T>(sortValuator: SortValuator<T>, ascending?: boolean | boolean[]): SortCallback<T>;

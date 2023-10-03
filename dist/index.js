@@ -11,13 +11,7 @@ $parcel$export($86ec44903a84f851$exports, "abTest", () => $86ec44903a84f851$expo
 /*!
 # ab-test
 
-`<xin-ab>` provides a simple method for implementing ab-testing.
-
-1. Set `AbTest.conditions` to anything you like.
-2. Use `<xin-ab>` elements to display conditional content.
-
-If the value referenced by `condition` is `false` then the content
-of `<xin-ab>` will be hidden (this is reversed if `not` is set).
+`<xin-ab>` provides a simple method for implementing A|B-testing.
 
 ```js
 const { AbTest } = xinjsui
@@ -42,6 +36,28 @@ AbTest.conditions = {
   <p>Visible if conditions.testC !== false (50/50 chance)</p>
 </xin-ab>
 ```
+```css
+.preview {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  align-items: flex-start;
+}
+.preview p {
+  background: #44c;
+  color: white;
+  display: block;
+  border-radius: 99px;
+  padding: 4px 10px;
+  margin: 0;
+}
+```
+
+1. Set `AbTest.conditions` to anything you like.
+2. Use `<xin-ab>` elements to display conditional content.
+
+If the value referenced by `condition` is `false` then the content
+of `<xin-ab>` will be hidden (this is reversed if `not` is set).
 */ 
 const { abTestConditions: $86ec44903a84f851$var$abTestConditions } = (0, $hgUW1$xinProxy)({
     abTestConditions: {}
@@ -90,18 +106,7 @@ A [babylonjs](https://www.babylonjs.com/) wrapper.
 
 A `<xin-3d>` element is initialized with an `engine`, `canvas`, `scene`, and an update-loop.
 
-You can access the `scene` and `engine` properties. You can also assign `sceneCreated`
-and `update` callbacks that will be executed when the scene is first initialized and
-before each update, respectively. (See the example, it does both.)
 
-Both `sceneCreated` and `update` may be `async`. The component will `await` `sceneCreated`
-before starting the renderLoop, but `update` is simply passed to babylon, so be careful.
-
-By default, this component loads `babylon.js` from the [babylonjs CDN](https://doc.babylonjs.com/setup/frameworkPackages/CDN),
-but if `BABYLON` is already defined (e.g. if you've bundled it) then it will use that instead.
-
-If you need additional libraries, e.g. `https://cdn.babylonjs.com/loaders/babylonjs.loaders.min.js` for loading models
-such as `gltf` and `glb` files, you should load those in `sceneCreated`.
 
 ```js
 const { b3d } = xinjsui
@@ -131,6 +136,19 @@ preview.append(b3d({
   height: 100%;
 }
 ```
+
+You can access the `scene` and `engine` properties. You can also assign `sceneCreated`
+and `update` callbacks that will be executed when the scene is first initialized and
+before each update, respectively. (See the example, it does both.)
+
+Both `sceneCreated` and `update` may be `async`. The component will `await` `sceneCreated`
+before starting the renderLoop, but `update` is simply passed to babylon, so be careful.
+
+By default, this component loads `babylon.js` from the [babylonjs CDN](https://doc.babylonjs.com/setup/frameworkPackages/CDN),
+but if `BABYLON` is already defined (e.g. if you've bundled it) then it will use that instead.
+
+If you need additional libraries, e.g. `https://cdn.babylonjs.com/loaders/babylonjs.loaders.min.js` for loading models
+such as `gltf` and `glb` files, you should load those in `sceneCreated`.
 
 */ 
 /*!
@@ -1305,11 +1323,6 @@ $parcel$export($fef058b85aa29b7a$exports, "svgIcon", () => $fef058b85aa29b7a$exp
 A library that provides `ElementCreator` functions that produce SVG icons. It leverages `xinjs`'s
 `svgElements` proxy.
 
-These icons are completely unstyled and can be colored using the css `fill` property. This will
-probably be broken out as a standalone library to allow the use of whatever icons you like
-(its source data is currently generated from an [icomoon](https://icomoon.com/app)
-`selection.json` file, but could just as easily be generated from a directory full of SVGs).
-
 ## icons
 
 `icons` is simply a proxy that generates an `ElementCreator` for a given icon on demand,
@@ -1362,6 +1375,11 @@ preview.append(...Object.keys(icons).sort().map(iconName => div(
   line-height: 1.5;
 }
 ```
+
+These icons are completely unstyled and can be colored using the css `fill` property. This will
+probably be broken out as a standalone library to allow the use of whatever icons you like
+(its source data is currently generated from an [icomoon](https://icomoon.com/app)
+`selection.json` file, but could just as easily be generated from a directory full of SVGs).
 
 ## `<xin-icon>`
 
@@ -1567,10 +1585,6 @@ It's effectively a super lightweight fiddle based on the `b8rjs`'s `fiddle` comp
 
 *You're probably looking at it right now.*
 
-You can simply wrap it around a sequence of code blocks in the DOM with the
-languages (js, html, css) as annotations or you can directly set the `js`, `html`,
-and `css` properties.
-
 ```js
 // this code executes in an async function body
 // it has xinjs, xinjsui, and preview (the preview div) available as local variables
@@ -1595,6 +1609,12 @@ preview.append('Try editing some code and hitting refresh…')
   to { color: red }
 }
 ```
+
+You can simply wrap it around a sequence of code blocks in the DOM with the
+languages (js, html, css) as annotations or you can directly set the `js`, `html`,
+and `css` properties.
+
+## context
 
 A `<xin-example>` can be given a `context` object {[key: string]: any}, which is the
 set of values available in the javascript's execution context (it is wrapped in an
@@ -1630,9 +1650,8 @@ let bodycount = 0
 preview.querySelector('.add').addEventListener('click', () => {
   const name = `new tab ${++bodycount}`
   const body = div(
-    {name},
+    {name, dataClose: true},
     name,
-    button('Remove Me', { onClick() { tabSelector.removeTabBody(body) }})
   )
   tabSelector.addTabBody(body, true)
 })
@@ -1640,19 +1659,19 @@ preview.querySelector('.add').addEventListener('click', () => {
 ```html
 <xin-tabs>
   <div name="first">first body</div>
-  <div name="second">second body</div>
+  <div name="second" data-close>second body</div>
   <div name="third">third body</div>
   <button class="add" slot="after-tabs">
-    <span class="icon-plus"></span>
+    <xin-icon icon="plus"></xin-icon>
   </button>
 </xin-tabs>
 ```
 ```css
-xin-tabs {
+  .preview xin-tabs {
     height: 100%;
   }
 
-  div[name] {
+  .preview div[name] {
     padding: 20px;
     text-align: center;
     height: 100%;
@@ -1660,17 +1679,27 @@ xin-tabs {
   }
 ```
 
-
 The `<xin-tabs>`s `value` is the index of its active body.
 
 A `<xin-tabs>` has `addTabBody(body: HTMLElement, select?: boolean)` and
 `removeTabBody(body: number | HTMLElement)` methods for updating its content.
-
-If you want
 */ 
-const { div: $6bbe441346901d5a$var$div, slot: $6bbe441346901d5a$var$slot } = (0, $hgUW1$elements);
+
+const { div: $6bbe441346901d5a$var$div, slot: $6bbe441346901d5a$var$slot, span: $6bbe441346901d5a$var$span, button: $6bbe441346901d5a$var$button } = (0, $hgUW1$elements);
 class $6bbe441346901d5a$export$a3a7254f7f149b03 extends (0, $hgUW1$Component) {
     value = 0;
+    static makeTab(tabs, tabBody, bodyId) {
+        const name = tabBody.getAttribute("name");
+        const tab = $6bbe441346901d5a$var$div($6bbe441346901d5a$var$span(name), {
+            tabindex: 0,
+            role: "tab",
+            ariaControls: bodyId
+        }, tabBody.hasAttribute("data-close") ? $6bbe441346901d5a$var$button({
+            title: "close",
+            class: "close"
+        }, (0, $fef058b85aa29b7a$export$df03f54e09e486fa).x()) : {});
+        return tab;
+    }
     styleNode = (0, $hgUW1$Component).StyleNode({
         ":host": {
             display: "flex",
@@ -1706,10 +1735,13 @@ class $6bbe441346901d5a$export$a3a7254f7f149b03 extends (0, $hgUW1$Component) {
         },
         ":host .tabs > div": {
             padding: `${(0, $hgUW1$vars).spacing50} ${(0, $hgUW1$vars).spacing}`,
-            cursor: "default"
+            cursor: "default",
+            display: "flex",
+            alignItems: "baseline"
         },
         ':host .tabs > [aria-selected="true"]': {
-            color: (0, $hgUW1$vars).xinTabsSelectedColor
+            "--text-color": (0, $hgUW1$vars).xinTabsSelectedColor,
+            color: (0, $hgUW1$vars).textColor
         },
         ":host .border": {
             background: "var(--xin-tabs-bar-color, #ccc)"
@@ -1720,6 +1752,17 @@ class $6bbe441346901d5a$export$a3a7254f7f149b03 extends (0, $hgUW1$Component) {
             height: "var(--xin-tabs-bar-height, 2px)",
             background: (0, $hgUW1$vars).xinTabsSelectedColor,
             transition: "ease-out 0.2s"
+        },
+        ":host button.close": {
+            fill: (0, $hgUW1$vars).textColor,
+            border: 0,
+            background: "transparent",
+            textAlign: "center",
+            marginLeft: (0, $hgUW1$vars).spacing50,
+            padding: 0
+        },
+        ":host button.close > svg": {
+            height: "12px"
         }
     });
     content = [
@@ -1795,10 +1838,13 @@ class $6bbe441346901d5a$export$a3a7254f7f149b03 extends (0, $hgUW1$Component) {
     pickTab = (event)=>{
         const { tabs: tabs } = this.parts;
         const target = event.target;
+        const isCloseEvent = target.closest("button.close") !== null;
+        const tab = target.closest(".tabs > div");
         const tabIndex = [
             ...tabs.children
-        ].indexOf(target);
-        if (tabIndex > -1) this.value = tabIndex;
+        ].indexOf(tab);
+        if (isCloseEvent) this.removeTabBody(this.bodies[tabIndex]);
+        else if (tabIndex > -1) this.value = tabIndex;
     };
     setupTabs = ()=>{
         const { tabs: tabs } = this.parts;
@@ -1809,14 +1855,10 @@ class $6bbe441346901d5a$export$a3a7254f7f149b03 extends (0, $hgUW1$Component) {
         if (this.value >= tabBodies.length) this.value = tabBodies.length - 1;
         for(const index in tabBodies){
             const tabBody = tabBodies[index];
-            const name = tabBody.getAttribute("name");
             const bodyId = `${this.instanceId}-${index}`;
             tabBody.id = bodyId;
-            tabs.append($6bbe441346901d5a$var$div(name, {
-                tabindex: 0,
-                role: "tab",
-                ariaControls: bodyId
-            }));
+            const tab = $6bbe441346901d5a$export$a3a7254f7f149b03.makeTab(this, tabBody, bodyId);
+            tabs.append(tab);
         }
     };
     connectedCallback() {
@@ -2253,16 +2295,10 @@ $parcel$export($1b88c9cb596c3426$exports, "markdownViewer", () => $1b88c9cb596c3
 /*!
 # markdown
 
-`<xin-md>` renders [markdown](https://www.markdownguide.org/) anywhere, either using the
-`src` attribute to load the file asynchronously, or rendering the text inside it.
-
 `<xin-md>` renders markdown using [marked](https://www.npmjs.com/package/marked).
 
-```
-<xin-md src="/path/to/file.md">
-```
-
-You can wrap markdown source per the following example:
+`<xin-md>` renders [markdown](https://www.markdownguide.org/) anywhere, either using the
+`src` attribute to load the file asynchronously, or rendering the text inside it.
 
 ```html
 <xin-md>
@@ -2279,12 +2315,25 @@ xin-md {
 
 Note that, by default, `<xin-md>` will use its `textContent` (not its `innerHTML`) as its source.
 
+## rendering markdown from a url
+
+Again, like an `<img>` tag, you can simply set a `<xin-md>`'s `src` attribute to a URL pointing
+to markdown source and it will load it asynchronously and render it.
+
+```
+<xin-md src="/path/to/file.md">
+```
+
+## setting its `value`
+
 Or, just set the element's `value` and it will render it for you. You can try
 this in the console, e.g.
 
 ```
 $('.preview xin-md').value = 'testing\n\n## this is a test'
 ```
+
+## elements
 
 `<xin-md>` also (optionally) allows the embedding of inline HTML elements without blocking markdown
 rendering, so that you can embed specific elements while retaining markdown. You need to explicitly set
@@ -2294,7 +2343,7 @@ start on a new line and not be indented. E.g.
 ```html
 <xin-md elements>
 <form>
-## this is a form
+### this is a form
 <label>
 fill in this field.
 **It's important!**
@@ -2305,6 +2354,8 @@ fill in this field.
 ```
 
 In this case `<xin-md>` uses its `innerHTML` and not its `textContent`.
+
+## context and template variables
 
 `<xin-md>` also supports **template** values. You need to provide data to the element in the form
 of `context` (an arbitrary object, or a JSON string), and then embed the template text using
@@ -2399,9 +2450,6 @@ $parcel$export($815deb6062b0b31b$exports, "richText", () => $815deb6062b0b31b$ex
 
 `<xin-word>` is a simple and easily extensible `document.execCommand` WYSIWYG editor with some conveniences.
 
-By default, it treats its initial contents as its document, but you can also set (and get)
-its `value`.
-
 ```html
 <xin-word widgets="minimal">
 <h3>Heading</h3>
@@ -2409,13 +2457,20 @@ its `value`.
 </xin-word>
 ```
 
+By default, `<xin-word>` treats its initial contents as its document, but you can also set (and get)
+its `value`.
+
+## toolbar
+
 `<xin-word>` elements have a `toolbar` slot (actually a xin-slot because it doesn't use
 the shadowDOM).
 
 If you set the `widgets` attribute to `default` or `minimal` you will get a toolbar
 for free. Or you can add your own custom widgets.
 
-A number of convenience functions are available, including:
+## helper functions
+
+A number of helper functions are available, including:
 
 - `commandButton(title: string, command: string, iconClass: string)`
 - `blockStyle(options: Array<{caption: string, tagType: string}>)`
@@ -2424,6 +2479,8 @@ A number of convenience functions are available, including:
 
 These each create a toolbar widget. A `blockStyle`-generated `<select>` element will
 automatically have its value changed based on the current selection.
+
+## properties
 
 A `<xin-word>` element also has `selectedText` and `selectedBlocks` properties, allowing
 you to easily perform operations on text selections, and a `selectionChange` callback (which
@@ -2662,15 +2719,21 @@ $parcel$export($b9e5aa5581e8f051$exports, "sideNav", () => $b9e5aa5581e8f051$exp
 
 The default layout for iOS / iPadOS apps is to hide the sidebar when displaying content on small
 screens, and display the sidebar when space is available (with the user able to explicitly hide
-the sidebar if so desired). `<xin-sidebar>` provides this functionality.
+the sidebar if so desired). `<xin-sidenav>` provides this functionality.
 
-`<xin-sidebar>` is used to handle the layout of the documentation tab panel.
+`<xin-sidenav>` is used to handle the layout of the documentation tab panel.
+
+`<xin-sidenav>`'s behavior is controlled by two attributes, `minSize` is the point at which it will toggle between showing the navigation
+sidebar and content, while `navSize` is the width of the sidebar. You can interrogate its `compact` property to find out if it's
+currently in `compact` form.
 */ 
 const { slot: $b9e5aa5581e8f051$var$slot } = (0, $hgUW1$elements);
 class $b9e5aa5581e8f051$export$1a35787d6353cf6a extends (0, $hgUW1$Component) {
     minSize = 800;
     navSize = 200;
-    compact = false;
+    get compact() {
+        return this.offsetParent ? this.offsetParent.offsetWidth < this.minSize : false;
+    }
     content = [
         $b9e5aa5581e8f051$var$slot({
             name: "nav"
@@ -2717,8 +2780,6 @@ class $b9e5aa5581e8f051$export$1a35787d6353cf6a extends (0, $hgUW1$Component) {
             this.style.setProperty("--content-width", "0%");
             return;
         }
-        const parent = this.offsetParent;
-        this.compact = parent.offsetWidth < this.minSize;
         if (!this.compact) {
             content.classList.add("-xin-sidebar-visible");
             this.style.setProperty("--nav-width", `${this.navSize}px`);
@@ -2756,7 +2817,7 @@ class $b9e5aa5581e8f051$export$1a35787d6353cf6a extends (0, $hgUW1$Component) {
     }
 }
 const $b9e5aa5581e8f051$export$938418df2b06cb50 = $b9e5aa5581e8f051$export$1a35787d6353cf6a.elementCreator({
-    tag: "xin-sidebar"
+    tag: "xin-sidenav"
 });
 
 
@@ -2802,7 +2863,6 @@ class $0f2017ffca44b547$export$7140c0f3c1b65d3f extends (0, $hgUW1$Component) {
             small.hidden = true;
             this.value = "normal";
         }
-        console.log(this, this.value, normal.hidden);
     };
     // TODO trigger a resize event when an ancestor element
     // is inserted or moved into the DOM.

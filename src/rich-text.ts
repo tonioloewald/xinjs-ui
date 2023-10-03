@@ -3,9 +3,6 @@
 
 `<xin-word>` is a simple and easily extensible `document.execCommand` WYSIWYG editor with some conveniences.
 
-By default, it treats its initial contents as its document, but you can also set (and get)
-its `value`.
-
 ```html
 <xin-word widgets="minimal">
 <h3>Heading</h3>
@@ -13,13 +10,20 @@ its `value`.
 </xin-word>
 ```
 
+By default, `<xin-word>` treats its initial contents as its document, but you can also set (and get)
+its `value`.
+
+## toolbar
+
 `<xin-word>` elements have a `toolbar` slot (actually a xin-slot because it doesn't use
 the shadowDOM).
 
 If you set the `widgets` attribute to `default` or `minimal` you will get a toolbar
 for free. Or you can add your own custom widgets.
 
-A number of convenience functions are available, including:
+## helper functions
+
+A number of helper functions are available, including:
 
 - `commandButton(title: string, command: string, iconClass: string)`
 - `blockStyle(options: Array<{caption: string, tagType: string}>)`
@@ -28,6 +32,8 @@ A number of convenience functions are available, including:
 
 These each create a toolbar widget. A `blockStyle`-generated `<select>` element will
 automatically have its value changed based on the current selection.
+
+## properties
 
 A `<xin-word>` element also has `selectedText` and `selectedBlocks` properties, allowing
 you to easily perform operations on text selections, and a `selectionChange` callback (which

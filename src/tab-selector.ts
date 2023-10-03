@@ -16,9 +16,8 @@ let bodycount = 0
 preview.querySelector('.add').addEventListener('click', () => {
   const name = `new tab ${++bodycount}`
   const body = div(
-    {name},
+    {name, dataClose: true},
     name,
-    button('Remove Me', { onClick() { tabSelector.removeTabBody(body) }})
   )
   tabSelector.addTabBody(body, true)
 })
@@ -26,19 +25,19 @@ preview.querySelector('.add').addEventListener('click', () => {
 ```html
 <xin-tabs>
   <div name="first">first body</div>
-  <div name="second">second body</div>
+  <div name="second" data-close>second body</div>
   <div name="third">third body</div>
   <button class="add" slot="after-tabs">
-    <span class="icon-plus"></span>
+    <xin-icon icon="plus"></xin-icon>
   </button>
 </xin-tabs>
 ```
 ```css
-xin-tabs {
+  .preview xin-tabs {
     height: 100%;
   }
 
-  div[name] {
+  .preview div[name] {
     padding: 20px;
     text-align: center;
     height: 100%;
@@ -46,13 +45,10 @@ xin-tabs {
   }
 ```
 
-
 The `<xin-tabs>`s `value` is the index of its active body.
 
 A `<xin-tabs>` has `addTabBody(body: HTMLElement, select?: boolean)` and
 `removeTabBody(body: number | HTMLElement)` methods for updating its content.
-
-If you want
 */
 
 import {
@@ -62,10 +58,38 @@ import {
   vars,
 } from 'xinjs'
 
-const { div, slot } = elements
+import { icons } from '../src'
+
+const { div, slot, span, button } = elements
 
 export class TabSelector extends WebComponent {
   value = 0
+
+  static makeTab(
+    tabs: TabSelector,
+    tabBody: HTMLElement,
+    bodyId: string
+  ): HTMLElement {
+    const name = tabBody.getAttribute('name') as string
+    const tab = div(
+      span(name),
+      {
+        tabindex: 0,
+        role: 'tab',
+        ariaControls: bodyId,
+      },
+      tabBody.hasAttribute('data-close')
+        ? button(
+            {
+              title: 'close',
+              class: 'close',
+            },
+            icons.x()
+          )
+        : {}
+    )
+    return tab
+  }
 
   styleNode = WebComponent.StyleNode({
     ':host': {
@@ -103,9 +127,12 @@ export class TabSelector extends WebComponent {
     ':host .tabs > div': {
       padding: `${vars.spacing50} ${vars.spacing}`,
       cursor: 'default',
+      display: 'flex',
+      alignItems: 'baseline',
     },
     ':host .tabs > [aria-selected="true"]': {
-      color: vars.xinTabsSelectedColor,
+      '--text-color': vars.xinTabsSelectedColor,
+      color: vars.textColor,
     },
     ':host .border': {
       background: 'var(--xin-tabs-bar-color, #ccc)',
@@ -116,6 +143,17 @@ export class TabSelector extends WebComponent {
       height: 'var(--xin-tabs-bar-height, 2px)',
       background: vars.xinTabsSelectedColor,
       transition: 'ease-out 0.2s',
+    },
+    ':host button.close': {
+      fill: vars.textColor,
+      border: 0,
+      background: 'transparent',
+      textAlign: 'center',
+      marginLeft: vars.spacing50,
+      padding: 0,
+    },
+    ':host button.close > svg': {
+      height: '12px',
     },
   })
 
@@ -151,7 +189,7 @@ export class TabSelector extends WebComponent {
     this.queueRender()
   }
 
-  removeTabBody(body: HTMLElement) {
+  removeTabBody(body: HTMLElement): void {
     body.remove()
     this.setupTabs()
     this.queueRender()
@@ -188,9 +226,15 @@ export class TabSelector extends WebComponent {
   pickTab = (event: Event): void => {
     const { tabs } = this.parts
     const target = event.target as HTMLElement
-    const tabIndex = [...tabs.children].indexOf(target)
-    if (tabIndex > -1) {
-      this.value = tabIndex
+    const isCloseEvent = target.closest('button.close') !== null
+    const tab = target.closest('.tabs > div') as HTMLElement
+    const tabIndex = [...tabs.children].indexOf(tab)
+    if (isCloseEvent) {
+      this.removeTabBody(this.bodies[tabIndex] as HTMLElement)
+    } else {
+      if (tabIndex > -1) {
+        this.value = tabIndex
+      }
     }
   }
 
@@ -204,11 +248,11 @@ export class TabSelector extends WebComponent {
       this.value = tabBodies.length - 1
     }
     for (const index in tabBodies) {
-      const tabBody = tabBodies[index]
-      const name = tabBody.getAttribute('name') as string
+      const tabBody = tabBodies[index] as HTMLElement
       const bodyId = `${this.instanceId}-${index}`
       tabBody.id = bodyId
-      tabs.append(div(name, { tabindex: 0, role: 'tab', ariaControls: bodyId }))
+      const tab = TabSelector.makeTab(this, tabBody, bodyId)
+      tabs.append(tab)
     }
   }
 

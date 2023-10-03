@@ -4,11 +4,6 @@
 A library that provides `ElementCreator` functions that produce SVG icons. It leverages `xinjs`'s
 `svgElements` proxy.
 
-These icons are completely unstyled and can be colored using the css `fill` property. This will
-probably be broken out as a standalone library to allow the use of whatever icons you like
-(its source data is currently generated from an [icomoon](https://icomoon.com/app)
-`selection.json` file, but could just as easily be generated from a directory full of SVGs).
-
 ## icons
 
 `icons` is simply a proxy that generates an `ElementCreator` for a given icon on demand,
@@ -61,6 +56,11 @@ preview.append(...Object.keys(icons).sort().map(iconName => div(
   line-height: 1.5;
 }
 ```
+
+These icons are completely unstyled and can be colored using the css `fill` property. This will
+probably be broken out as a standalone library to allow the use of whatever icons you like
+(its source data is currently generated from an [icomoon](https://icomoon.com/app)
+`selection.json` file, but could just as easily be generated from a directory full of SVGs).
 
 ## `<xin-icon>`
 
