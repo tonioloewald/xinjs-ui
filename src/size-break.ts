@@ -120,7 +120,6 @@ export class SizeBreak extends WebComponent {
       small.hidden = true
       this.value = 'normal'
     }
-    console.log(this, this.value, normal.hidden)
   }
 
   // TODO trigger a resize event when an ancestor element

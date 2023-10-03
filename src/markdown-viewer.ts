@@ -4,16 +4,10 @@ import { marked } from 'marked'
 /*!
 # markdown
 
-`<xin-md>` renders [markdown](https://www.markdownguide.org/) anywhere, either using the
-`src` attribute to load the file asynchronously, or rendering the text inside it.
-
 `<xin-md>` renders markdown using [marked](https://www.npmjs.com/package/marked).
 
-```
-<xin-md src="/path/to/file.md">
-```
-
-You can wrap markdown source per the following example:
+`<xin-md>` renders [markdown](https://www.markdownguide.org/) anywhere, either using the
+`src` attribute to load the file asynchronously, or rendering the text inside it.
 
 ```html
 <xin-md>
@@ -30,12 +24,25 @@ xin-md {
 
 Note that, by default, `<xin-md>` will use its `textContent` (not its `innerHTML`) as its source.
 
+## rendering markdown from a url
+
+Again, like an `<img>` tag, you can simply set a `<xin-md>`'s `src` attribute to a URL pointing
+to markdown source and it will load it asynchronously and render it.
+
+```
+<xin-md src="/path/to/file.md">
+```
+
+## setting its `value`
+
 Or, just set the element's `value` and it will render it for you. You can try
 this in the console, e.g.
 
 ```
 $('.preview xin-md').value = 'testing\n\n## this is a test'
 ```
+
+## elements
 
 `<xin-md>` also (optionally) allows the embedding of inline HTML elements without blocking markdown
 rendering, so that you can embed specific elements while retaining markdown. You need to explicitly set
@@ -45,7 +52,7 @@ start on a new line and not be indented. E.g.
 ```html
 <xin-md elements>
 <form>
-## this is a form
+### this is a form
 <label>
 fill in this field.
 **It's important!**
@@ -56,6 +63,8 @@ fill in this field.
 ```
 
 In this case `<xin-md>` uses its `innerHTML` and not its `textContent`.
+
+## context and template variables
 
 `<xin-md>` also supports **template** values. You need to provide data to the element in the form
 of `context` (an arbitrary object, or a JSON string), and then embed the template text using

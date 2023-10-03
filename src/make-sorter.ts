@@ -9,31 +9,6 @@ I'm always confusing myself when writing sort functions, so I wrote `makeSorter(
 insanely simple and just works™. It makes writing an array sort callback for anything
 other than an array of numbers or strings easier.
 
-To create a sort callback that sorts by propA then propB (if propA is tied):
-```
-const sorter = makeSorter(
-  obj => [obj.propA, obj.propB]
-)
-```
-
-As above, but sort descending:
-```
-const sorter = makeSorter(
-  obj => [obj.propA, obj.propB],
-  false
-)
-```
-
-As above but propA is sorted ascending, propB descending
-```
-const sorter = makeSorter(
-  obj => [obj.propA, obj.propB],
-  [true, false]
-)
-```
-
-Interactive example:
-
 ```js
 const { select, option, div, span, ul, li } = xinjs.elements
 const { icons, makeSorter } = xinjsui
@@ -97,6 +72,32 @@ render()
   top: var(--spacing);
   right: var(--spacing);
 }
+```
+
+## Details
+
+To create a sort callback that sorts by propA then propB (if propA is tied):
+
+```
+const sorter = makeSorter(
+  obj => [obj.propA, obj.propB]
+)
+```
+
+As above, but sort descending:
+```
+const sorter = makeSorter(
+  obj => [obj.propA, obj.propB],
+  false
+)
+```
+
+As above but propA is sorted ascending, propB descending
+```
+const sorter = makeSorter(
+  obj => [obj.propA, obj.propB],
+  [true, false]
+)
 ```
 */
 

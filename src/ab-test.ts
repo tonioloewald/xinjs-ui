@@ -1,13 +1,7 @@
 /*!
 # ab-test
 
-`<xin-ab>` provides a simple method for implementing ab-testing.
-
-1. Set `AbTest.conditions` to anything you like.
-2. Use `<xin-ab>` elements to display conditional content.
-
-If the value referenced by `condition` is `false` then the content
-of `<xin-ab>` will be hidden (this is reversed if `not` is set).
+`<xin-ab>` provides a simple method for implementing A|B-testing.
 
 ```js
 const { AbTest } = xinjsui
@@ -32,6 +26,28 @@ AbTest.conditions = {
   <p>Visible if conditions.testC !== false (50/50 chance)</p>
 </xin-ab>
 ```
+```css
+.preview {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  align-items: flex-start;
+}
+.preview p {
+  background: #44c;
+  color: white;
+  display: block;
+  border-radius: 99px;
+  padding: 4px 10px;
+  margin: 0;
+}
+```
+
+1. Set `AbTest.conditions` to anything you like.
+2. Use `<xin-ab>` elements to display conditional content.
+
+If the value referenced by `condition` is `false` then the content
+of `<xin-ab>` will be hidden (this is reversed if `not` is set).
 */
 
 import { Component as XinComponent, xinProxy } from 'xinjs'
