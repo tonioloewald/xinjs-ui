@@ -102,6 +102,10 @@ main.append(
       name: 'Documentation',
       navSize: 200,
       minSize: 600,
+      style: {
+        flex: '1 1 auto',
+        overflow: 'hidden',
+      },
     },
     div(
       {
