@@ -7,36 +7,58 @@ validation.
 ```html
 <xin-form>
   <h3 slot="header">Example Form</h3>
-  <xin-field caption="String" key="string"></xin-field>
+  <xin-field caption="Required field" key="required"></xin-field>
+  <xin-field caption="Optional field" optional key="optional"></xin-field>
+  <xin-field caption="Date" key="date" type="date"></xin-field>
   <xin-field caption="Number" key="number" type="number"></xin-field>
   <xin-field caption="Range" key="range" type="range"></xin-field>
+  <xin-field caption="Do you agree?" key="boolean" type="checkbox"></xin-field>
   <span slot="footer">Bottom of Form</span>
 </xin-form>
 ```
 ```css
+.preview xin-form {
+  height: 100%;
+}
+
+.preview ::part(header), .preview ::part(footer) {
+  background: var(--brand-color);
+  --text-color: var(--brand-text-color);
+  padding: calc(var(--spacing) * 0.5) var(--spacing);
+}
+
+.preview h3, .preview h4 {
+  margin: 0;
+  padding: 0;
+}
+
 .preview ::part(content) {
-  display: flex;
-  flex-direction: column;
   padding: var(--spacing);
   gap: var(--spacing);
+  background: #e8e8e8;
 }
 
 .preview label {
   display: flex;
-  align-items: flex-start;
-  flex-direction: column;
+  gap: var(--spacing);
+}
+
+.preview label [part="caption"] {
+  flex: 0 0 150px;
+  text-align: right;
 }
 ```
 */
 
 import { Component as XinComponent, ElementCreator, elements } from 'xinjs'
 
-const { form, xinSlot, label, input } = elements
+const { form, slot, xinSlot, label, input } = elements
 
 export class XinField extends XinComponent {
   caption = ''
   key = ''
-  type = ''
+  type: '' | 'checkbox' | 'number' | 'range' | 'date' = ''
+  optional = false
 
   content = label(
     xinSlot({ part: 'caption', name: 'caption' }),
@@ -45,7 +67,7 @@ export class XinField extends XinComponent {
 
   constructor() {
     super()
-    this.initAttributes('caption', 'key', 'type')
+    this.initAttributes('caption', 'key', 'type', 'optional')
   }
 
   handleChange = () => {
@@ -55,7 +77,17 @@ export class XinField extends XinComponent {
     }
     const form = this.closest('xin-form') as XinForm
     if (form && this.key !== '') {
-      form.value[this.key] = input.value
+      switch (this.type) {
+        case 'checkbox':
+          form.value[this.key] = input.checked
+          break
+        case 'number':
+        case 'range':
+          form.value[this.key] = Number(input.value)
+          break
+        default:
+          form.value[this.key] = input.value
+      }
     }
   }
 
@@ -74,11 +106,12 @@ export class XinField extends XinComponent {
       caption: HTMLElement
     }
     if (caption.children.length === 0) {
-      caption.append(this.caption)
+      caption.append(this.caption !== '' ? this.caption : this.key)
     }
     if (this.type !== '') {
       input.type = this.type
     }
+    input.required = !this.optional
   }
 }
 
@@ -86,11 +119,36 @@ export class XinForm extends XinComponent {
   context = {} as { [key: string]: any }
   value = {} as { [key: string]: any }
 
-  content = form(
-    xinSlot({ part: 'head', name: 'head' }),
-    xinSlot({ part: 'content' }),
-    xinSlot({ part: 'footer', name: 'footer' })
-  )
+  styleNode?: HTMLStyleElement | undefined = XinComponent.StyleNode({
+    ':host': {
+      display: 'flex',
+      flexDirection: 'column',
+    },
+    ':host::part(header), :host::part(footer)': {
+      display: 'flex',
+    },
+    ':host::part(content)': {
+      display: 'flex',
+      flexDirection: 'column',
+      overflow: 'hidden auto',
+      height: '100%',
+      width: '100%',
+      position: 'relative',
+      boxSizing: 'border-box',
+    },
+    ':host form': {
+      display: 'block',
+      flex: '1 1 auto',
+      position: 'relative',
+      overflow: 'hidden',
+    },
+  })
+
+  content = [
+    slot({ part: 'header', name: 'header' }),
+    form(slot({ part: 'content' })),
+    slot({ part: 'footer', name: 'footer' }),
+  ]
 }
 
 export const xinField = XinField.elementCreator({
