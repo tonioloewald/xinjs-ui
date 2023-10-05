@@ -67,8 +67,13 @@ probably be broken out as a standalone library to allow the use of whatever icon
 `<xin-icon>` is a simple component that lets you embed icons as HTML. Check the CSS tab to see
 how it's styled.
 
+`<xin-icon>` supports two attributes:
+
+- `icon` is the name of the icon
+- `color` is the fill color (if you don't want to style it using CSS)
+
 ```html
-<xin-icon class="demo-2" icon="game"></xin-icon>
+<xin-icon class="demo-2" icon="game" color="var(--brand-color)"></xin-icon>
 ```
 ```css
 xin-icon.demo-2 > svg {
@@ -138,16 +143,21 @@ export const icons = new Proxy(iconData, {
 
 export class SvgIcon extends WebComponent {
   icon = ''
+  color = ''
 
   constructor() {
     super()
 
-    this.initAttributes('icon')
+    this.initAttributes('icon', 'color')
   }
 
   render(): void {
     this.textContent = ''
-    this.append(icons[this.icon]())
+    this.append(
+      this.color !== ''
+        ? icons[this.icon]({ style: { fill: this.color } })
+        : icons[this.icon]()
+    )
   }
 }
 
