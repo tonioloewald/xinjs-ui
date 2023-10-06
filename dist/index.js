@@ -1312,6 +1312,206 @@ const $46dc716dd2cf5925$export$8ca73b4108207c1f = $46dc716dd2cf5925$export$afb49
 });
 
 
+var $f78058ae816e78a2$exports = {};
+
+$parcel$export($f78058ae816e78a2$exports, "XinField", () => $f78058ae816e78a2$export$f0aa272ac8112266);
+$parcel$export($f78058ae816e78a2$exports, "XinForm", () => $f78058ae816e78a2$export$470ae7cc5ec6d2a);
+$parcel$export($f78058ae816e78a2$exports, "xinField", () => $f78058ae816e78a2$export$1e17fa265ee93a1d);
+$parcel$export($f78058ae816e78a2$exports, "xinForm", () => $f78058ae816e78a2$export$ab08039c332a0d0e);
+/*!
+# forms
+
+`<xin-form>` and `<xin-field>` can be used to quickly create forms complete with
+validation.
+
+```js
+const xinForm = preview.querySelector('xin-form')
+preview.querySelector('.submit').addEventListener('click', () => {
+  xinForm.submit()
+})
+```
+```html
+<xin-form>
+  <h3 slot="header">Example Form</h3>
+  <xin-field caption="Required field" key="required"></xin-field>
+  <xin-field caption="Optional field" optional key="optional"></xin-field>
+  <xin-field caption="Zip Code" placeholder="12345 or 12345-6789" key="zipcode" pattern="\d{5}(-\d{4})?"></xin-field>
+  <xin-field caption="Date" key="date" type="date"></xin-field>
+  <xin-field caption="Number" key="number" type="number"></xin-field>
+  <xin-field caption="Range" key="range" type="range"></xin-field>
+  <xin-field caption="Do you agree?" key="boolean" type="checkbox"></xin-field>
+  <div>
+    <button type="reset">Reset</button><button class="submit">Submit</button>
+  </div>
+  <span slot="footer">Bottom of Form</span>
+</xin-form>
+```
+```css
+.preview xin-form {
+  height: 100%;
+}
+
+.preview ::part(header), .preview ::part(footer) {
+  background: var(--brand-color);
+  --text-color: var(--brand-text-color);
+  padding: calc(var(--spacing) * 0.5) var(--spacing);
+}
+
+.preview h3, .preview h4 {
+  margin: 0;
+  padding: 0;
+}
+
+.preview ::part(content) {
+  padding: var(--spacing);
+  gap: var(--spacing);
+  background: #e8e8e8;
+}
+
+.preview label {
+  display: flex;
+  gap: var(--spacing);
+}
+
+.preview label [part="caption"] {
+  flex: 0 0 150px;
+  text-align: right;
+}
+
+.preview input:invalid {
+  box-shadow: inset 0 0 2px red;
+}
+
+.preview label:has(input:invalid:required)::after {
+  content: 'this field is required'
+}
+```
+*/ 
+const { form: $f78058ae816e78a2$var$form, slot: $f78058ae816e78a2$var$slot, xinSlot: $f78058ae816e78a2$var$xinSlot, label: $f78058ae816e78a2$var$label, input: $f78058ae816e78a2$var$input } = (0, $hgUW1$elements);
+function $f78058ae816e78a2$var$attr(element, name, value) {
+    if (value === true) element.setAttribute(name, "");
+    else if (value !== "" && value !== false) element.setAttribute(name, value);
+    else element.removeAttribute(name);
+}
+class $f78058ae816e78a2$export$f0aa272ac8112266 extends (0, $hgUW1$Component) {
+    caption = "";
+    key = "";
+    type = "";
+    optional = false;
+    pattern = "";
+    placeholder = "";
+    content = $f78058ae816e78a2$var$label($f78058ae816e78a2$var$xinSlot({
+        part: "caption",
+        name: "caption"
+    }), $f78058ae816e78a2$var$input({
+        part: "input"
+    }));
+    constructor(){
+        super();
+        this.initAttributes("caption", "key", "type", "optional", "pattern", "placeholder");
+    }
+    handleChange = ()=>{
+        const { input: input } = this.parts;
+        const form = this.closest("xin-form");
+        if (form && this.key !== "") switch(this.type){
+            case "checkbox":
+                form.value[this.key] = input.checked;
+                break;
+            case "number":
+            case "range":
+                form.value[this.key] = Number(input.value);
+                break;
+            default:
+                form.value[this.key] = input.value;
+        }
+    };
+    connectedCallback() {
+        super.connectedCallback();
+        const { input: input } = this.parts;
+        input.addEventListener("change", this.handleChange);
+    }
+    render() {
+        const { input: input, caption: caption } = this.parts;
+        if (caption.children.length === 0) caption.append(this.caption !== "" ? this.caption : this.key);
+        $f78058ae816e78a2$var$attr(input, "placeholder", this.placeholder);
+        $f78058ae816e78a2$var$attr(input, "type", this.type);
+        $f78058ae816e78a2$var$attr(input, "pattern", this.pattern);
+        $f78058ae816e78a2$var$attr(input, "required", !this.optional);
+    }
+}
+class $f78058ae816e78a2$export$470ae7cc5ec6d2a extends (0, $hgUW1$Component) {
+    context = {};
+    value = {};
+    styleNode = (0, $hgUW1$Component).StyleNode({
+        ":host": {
+            display: "flex",
+            flexDirection: "column"
+        },
+        ":host::part(header), :host::part(footer)": {
+            display: "flex"
+        },
+        ":host::part(content)": {
+            display: "flex",
+            flexDirection: "column",
+            overflow: "hidden auto",
+            height: "100%",
+            width: "100%",
+            position: "relative",
+            boxSizing: "border-box"
+        },
+        ":host form": {
+            display: "block",
+            flex: "1 1 auto",
+            position: "relative",
+            overflow: "hidden"
+        }
+    });
+    content = [
+        $f78058ae816e78a2$var$slot({
+            part: "header",
+            name: "header"
+        }),
+        $f78058ae816e78a2$var$form({
+            part: "form"
+        }, $f78058ae816e78a2$var$slot({
+            part: "content"
+        })),
+        $f78058ae816e78a2$var$slot({
+            part: "footer",
+            name: "footer"
+        })
+    ];
+    submit() {
+        this.parts.form.dispatchEvent(new Event("submit"));
+    }
+    handleSubmit = (event)=>{
+        const widgets = [
+            ...this.querySelectorAll("*")
+        ].filter((widget)=>widget.required !== undefined);
+        const invalid = widgets.find((widget)=>!widget.reportValidity());
+        event.preventDefault();
+        event.stopPropagation();
+        this.onSubmit(this.value, invalid !== undefined);
+    };
+    onSubmit = (value, isValid)=>{
+        console.log("override onSubmit to handle this data", {
+            value: value,
+            isValid: isValid
+        });
+    };
+    connectedCallback() {
+        super.connectedCallback();
+        this.parts.form.addEventListener("submit", this.handleSubmit);
+    }
+}
+const $f78058ae816e78a2$export$1e17fa265ee93a1d = $f78058ae816e78a2$export$f0aa272ac8112266.elementCreator({
+    tag: "xin-field"
+});
+const $f78058ae816e78a2$export$ab08039c332a0d0e = $f78058ae816e78a2$export$470ae7cc5ec6d2a.elementCreator({
+    tag: "xin-form"
+});
+
+
 var $fef058b85aa29b7a$exports = {};
 
 $parcel$export($fef058b85aa29b7a$exports, "icons", () => $fef058b85aa29b7a$export$df03f54e09e486fa);
@@ -1386,8 +1586,13 @@ probably be broken out as a standalone library to allow the use of whatever icon
 `<xin-icon>` is a simple component that lets you embed icons as HTML. Check the CSS tab to see
 how it's styled.
 
+`<xin-icon>` supports two attributes:
+
+- `icon` is the name of the icon
+- `color` is the fill color (if you don't want to style it using CSS)
+
 ```html
-<xin-icon class="demo-2" icon="game"></xin-icon>
+<xin-icon class="demo-2" icon="game" color="var(--brand-color)"></xin-icon>
 ```
 ```css
 xin-icon.demo-2 > svg {
@@ -1557,13 +1762,18 @@ const $fef058b85aa29b7a$export$df03f54e09e486fa = new Proxy((0, $2d5b9d9e4f25aba
 });
 class $fef058b85aa29b7a$export$dbcb8210e8a983ed extends (0, $hgUW1$Component) {
     icon = "";
+    color = "";
     constructor(){
         super();
-        this.initAttributes("icon");
+        this.initAttributes("icon", "color");
     }
     render() {
         this.textContent = "";
-        this.append($fef058b85aa29b7a$export$df03f54e09e486fa[this.icon]());
+        this.append(this.color !== "" ? $fef058b85aa29b7a$export$df03f54e09e486fa[this.icon]({
+            style: {
+                fill: this.color
+            }
+        }) : $fef058b85aa29b7a$export$df03f54e09e486fa[this.icon]());
     }
 }
 const $fef058b85aa29b7a$export$8c90725d55a8eef = $fef058b85aa29b7a$export$dbcb8210e8a983ed.elementCreator({
@@ -2898,5 +3108,5 @@ function $5a28660a6cbe2731$export$b37fb374f2e92eb6(sortValuator, ascending = tru
 
 
 
-export {$5265d118b5240170$export$c947e3cd16175f27 as trackDrag, $5c31145f3e970423$export$c6e082819e9a0330 as scriptTag, $5c31145f3e970423$export$63257fda812a683f as styleSheet, $5a28660a6cbe2731$export$b37fb374f2e92eb6 as makeSorter, $ef1971ff775ba547$export$1bc633d0db17d4e1 as B3d, $ef1971ff775ba547$export$d0bb57305ce055c9 as b3d, $fef058b85aa29b7a$export$df03f54e09e486fa as icons, $fef058b85aa29b7a$export$dbcb8210e8a983ed as SvgIcon, $fef058b85aa29b7a$export$8c90725d55a8eef as svgIcon, $6246d5006b5a56c3$export$7d6f3ccbb0a81c30 as MAPSTYLES, $6246d5006b5a56c3$export$f2ffec4d96a433ed as MapBox, $6246d5006b5a56c3$export$ca243e53be209efb as mapBox, $59f50bee37676c09$export$c74d6d817c60b9e6 as BodymovinPlayer, $59f50bee37676c09$export$d75ad8f79fe096cb as bodymovinPlayer, $8a70bd76f9b7e656$export$b7127187684f7150 as CodeEditor, $8a70bd76f9b7e656$export$d89b6f4d34274146 as codeEditor, $e6e19030d0c18d6f$export$df30df7ec97b32b5 as DataTable, $e6e19030d0c18d6f$export$f71ce0a5ddbe8fa0 as dataTable, $46dc716dd2cf5925$export$16a138bde9d9de87 as availableFilters, $46dc716dd2cf5925$export$b7838412d9f17b13 as FilterPart, $46dc716dd2cf5925$export$2237595b531763d7 as filterPart, $46dc716dd2cf5925$export$afb49bb3b076029e as FilterBuilder, $46dc716dd2cf5925$export$8ca73b4108207c1f as filterBuilder, $ada9b1474dc4b958$export$41199f9ac14d8c08 as LiveExample, $ada9b1474dc4b958$export$dafbe0fa988b899b as liveExample, $ada9b1474dc4b958$export$afa6494eb589c19e as makeExamplesLive, $1b88c9cb596c3426$export$575eb698d362902 as MarkdownViewer, $1b88c9cb596c3426$export$305b975a891d0dfa as markdownViewer, $815deb6062b0b31b$export$94309935dd6eab19 as blockStyle, $815deb6062b0b31b$export$8cc075c801fd6817 as spacer, $815deb6062b0b31b$export$e3f8198a677f57c2 as elastic, $815deb6062b0b31b$export$74540e56d8cdd242 as commandButton, $815deb6062b0b31b$export$8ed2ffe5d58aaa75 as richTextWidgets, $815deb6062b0b31b$export$f284d8638abd8920 as RichText, $815deb6062b0b31b$export$7bcc4193ad80bf91 as richText, $b9e5aa5581e8f051$export$1a35787d6353cf6a as SideNav, $b9e5aa5581e8f051$export$938418df2b06cb50 as sideNav, $0f2017ffca44b547$export$7140c0f3c1b65d3f as SizeBreak, $0f2017ffca44b547$export$96370210d2ca0fff as sizeBreak, $6bbe441346901d5a$export$a3a7254f7f149b03 as TabSelector, $6bbe441346901d5a$export$a932f737dcd864a2 as tabSelector, $86ec44903a84f851$export$6aacb15d82c1f62a as AbTest, $86ec44903a84f851$export$f3d50d6cab4ec980 as abTest};
+export {$5265d118b5240170$export$c947e3cd16175f27 as trackDrag, $5c31145f3e970423$export$c6e082819e9a0330 as scriptTag, $5c31145f3e970423$export$63257fda812a683f as styleSheet, $5a28660a6cbe2731$export$b37fb374f2e92eb6 as makeSorter, $ef1971ff775ba547$export$1bc633d0db17d4e1 as B3d, $ef1971ff775ba547$export$d0bb57305ce055c9 as b3d, $fef058b85aa29b7a$export$df03f54e09e486fa as icons, $fef058b85aa29b7a$export$dbcb8210e8a983ed as SvgIcon, $fef058b85aa29b7a$export$8c90725d55a8eef as svgIcon, $6246d5006b5a56c3$export$7d6f3ccbb0a81c30 as MAPSTYLES, $6246d5006b5a56c3$export$f2ffec4d96a433ed as MapBox, $6246d5006b5a56c3$export$ca243e53be209efb as mapBox, $59f50bee37676c09$export$c74d6d817c60b9e6 as BodymovinPlayer, $59f50bee37676c09$export$d75ad8f79fe096cb as bodymovinPlayer, $8a70bd76f9b7e656$export$b7127187684f7150 as CodeEditor, $8a70bd76f9b7e656$export$d89b6f4d34274146 as codeEditor, $e6e19030d0c18d6f$export$df30df7ec97b32b5 as DataTable, $e6e19030d0c18d6f$export$f71ce0a5ddbe8fa0 as dataTable, $46dc716dd2cf5925$export$16a138bde9d9de87 as availableFilters, $46dc716dd2cf5925$export$b7838412d9f17b13 as FilterPart, $46dc716dd2cf5925$export$2237595b531763d7 as filterPart, $46dc716dd2cf5925$export$afb49bb3b076029e as FilterBuilder, $46dc716dd2cf5925$export$8ca73b4108207c1f as filterBuilder, $ada9b1474dc4b958$export$41199f9ac14d8c08 as LiveExample, $ada9b1474dc4b958$export$dafbe0fa988b899b as liveExample, $ada9b1474dc4b958$export$afa6494eb589c19e as makeExamplesLive, $1b88c9cb596c3426$export$575eb698d362902 as MarkdownViewer, $1b88c9cb596c3426$export$305b975a891d0dfa as markdownViewer, $815deb6062b0b31b$export$94309935dd6eab19 as blockStyle, $815deb6062b0b31b$export$8cc075c801fd6817 as spacer, $815deb6062b0b31b$export$e3f8198a677f57c2 as elastic, $815deb6062b0b31b$export$74540e56d8cdd242 as commandButton, $815deb6062b0b31b$export$8ed2ffe5d58aaa75 as richTextWidgets, $815deb6062b0b31b$export$f284d8638abd8920 as RichText, $815deb6062b0b31b$export$7bcc4193ad80bf91 as richText, $b9e5aa5581e8f051$export$1a35787d6353cf6a as SideNav, $b9e5aa5581e8f051$export$938418df2b06cb50 as sideNav, $0f2017ffca44b547$export$7140c0f3c1b65d3f as SizeBreak, $0f2017ffca44b547$export$96370210d2ca0fff as sizeBreak, $6bbe441346901d5a$export$a3a7254f7f149b03 as TabSelector, $6bbe441346901d5a$export$a932f737dcd864a2 as tabSelector, $86ec44903a84f851$export$6aacb15d82c1f62a as AbTest, $86ec44903a84f851$export$f3d50d6cab4ec980 as abTest, $f78058ae816e78a2$export$f0aa272ac8112266 as XinField, $f78058ae816e78a2$export$470ae7cc5ec6d2a as XinForm, $f78058ae816e78a2$export$1e17fa265ee93a1d as xinField, $f78058ae816e78a2$export$ab08039c332a0d0e as xinForm};
 //# sourceMappingURL=index.js.map

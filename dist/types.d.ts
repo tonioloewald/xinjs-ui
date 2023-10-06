@@ -241,12 +241,44 @@ export class FilterBuilder extends Component {
     render(): void;
 }
 export const filterBuilder: ElementCreator<FilterBuilder>;
+export class XinField extends Component {
+    caption: string;
+    key: string;
+    type: '' | 'checkbox' | 'number' | 'range' | 'date';
+    optional: boolean;
+    pattern: string;
+    placeholder: string;
+    content: HTMLLabelElement;
+    constructor();
+    handleChange: () => void;
+    connectedCallback(): void;
+    render(): void;
+}
+export class XinForm extends Component {
+    context: {
+        [key: string]: any;
+    };
+    value: {
+        [key: string]: any;
+    };
+    styleNode: HTMLStyleElement;
+    content: (HTMLSlotElement | HTMLFormElement)[];
+    submit(): void;
+    handleSubmit: (event: SubmitEvent) => void;
+    onSubmit: (value: {
+        [key: string]: any;
+    }, isValid: boolean) => void;
+    connectedCallback(): void;
+}
+export const xinField: ElementCreator<XinField>;
+export const xinForm: ElementCreator<XinForm>;
 type SVGIconMap = {
     [key: string]: ElementCreator<SVGElement>;
 };
 export const icons: SVGIconMap;
 export class SvgIcon extends Component {
     icon: string;
+    color: string;
     constructor();
     render(): void;
 }
