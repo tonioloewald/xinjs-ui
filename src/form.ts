@@ -4,15 +4,25 @@
 `<xin-form>` and `<xin-field>` can be used to quickly create forms complete with
 validation.
 
+```js
+const xinForm = preview.querySelector('xin-form')
+preview.querySelector('.submit').addEventListener('click', () => {
+  xinForm.submit()
+})
+```
 ```html
 <xin-form>
   <h3 slot="header">Example Form</h3>
   <xin-field caption="Required field" key="required"></xin-field>
   <xin-field caption="Optional field" optional key="optional"></xin-field>
+  <xin-field caption="Zip Code" placeholder="12345 or 12345-6789" key="zipcode" pattern="\d{5}(-\d{4})?"></xin-field>
   <xin-field caption="Date" key="date" type="date"></xin-field>
   <xin-field caption="Number" key="number" type="number"></xin-field>
   <xin-field caption="Range" key="range" type="range"></xin-field>
   <xin-field caption="Do you agree?" key="boolean" type="checkbox"></xin-field>
+  <div>
+    <button type="reset">Reset</button><button class="submit">Submit</button>
+  </div>
   <span slot="footer">Bottom of Form</span>
 </xin-form>
 ```
@@ -47,6 +57,14 @@ validation.
   flex: 0 0 150px;
   text-align: right;
 }
+
+.preview input:invalid {
+  box-shadow: inset 0 0 2px red;
+}
+
+.preview label:has(input:invalid:required)::after {
+  content: 'this field is required'
+}
 ```
 */
 
@@ -54,11 +72,23 @@ import { Component as XinComponent, ElementCreator, elements } from 'xinjs'
 
 const { form, slot, xinSlot, label, input } = elements
 
+function attr(element: HTMLElement, name: string, value: any): void {
+  if (value === true) {
+    element.setAttribute(name, '')
+  } else if (value !== '' && value !== false) {
+    element.setAttribute(name, value)
+  } else {
+    element.removeAttribute(name)
+  }
+}
+
 export class XinField extends XinComponent {
   caption = ''
   key = ''
   type: '' | 'checkbox' | 'number' | 'range' | 'date' = ''
   optional = false
+  pattern = ''
+  placeholder = ''
 
   content = label(
     xinSlot({ part: 'caption', name: 'caption' }),
@@ -67,7 +97,14 @@ export class XinField extends XinComponent {
 
   constructor() {
     super()
-    this.initAttributes('caption', 'key', 'type', 'optional')
+    this.initAttributes(
+      'caption',
+      'key',
+      'type',
+      'optional',
+      'pattern',
+      'placeholder'
+    )
   }
 
   handleChange = () => {
@@ -108,10 +145,10 @@ export class XinField extends XinComponent {
     if (caption.children.length === 0) {
       caption.append(this.caption !== '' ? this.caption : this.key)
     }
-    if (this.type !== '') {
-      input.type = this.type
-    }
-    input.required = !this.optional
+    attr(input, 'placeholder', this.placeholder)
+    attr(input, 'type', this.type)
+    attr(input, 'pattern', this.pattern)
+    attr(input, 'required', !this.optional)
   }
 }
 
@@ -119,7 +156,7 @@ export class XinForm extends XinComponent {
   context = {} as { [key: string]: any }
   value = {} as { [key: string]: any }
 
-  styleNode?: HTMLStyleElement | undefined = XinComponent.StyleNode({
+  styleNode = XinComponent.StyleNode({
     ':host': {
       display: 'flex',
       flexDirection: 'column',
@@ -146,9 +183,32 @@ export class XinForm extends XinComponent {
 
   content = [
     slot({ part: 'header', name: 'header' }),
-    form(slot({ part: 'content' })),
+    form({ part: 'form' }, slot({ part: 'content' })),
     slot({ part: 'footer', name: 'footer' }),
   ]
+
+  submit() {
+    this.parts.form.dispatchEvent(new Event('submit'))
+  }
+
+  handleSubmit = (event: SubmitEvent) => {
+    const widgets = (
+      [...this.querySelectorAll('*')] as HTMLInputElement[]
+    ).filter((widget) => widget.required !== undefined)
+    const invalid = widgets.find((widget) => !widget.reportValidity())
+    event.preventDefault()
+    event.stopPropagation()
+    this.onSubmit(this.value, invalid !== undefined)
+  }
+
+  onSubmit = (value: { [key: string]: any }, isValid: boolean): void => {
+    console.log('override onSubmit to handle this data', { value, isValid })
+  }
+
+  connectedCallback(): void {
+    super.connectedCallback()
+    this.parts.form.addEventListener('submit', this.handleSubmit)
+  }
 }
 
 export const xinField = XinField.elementCreator({

@@ -167,6 +167,10 @@ input {
   border-radius: calc(var(--spacing) * 0.5);
 }
 
+input[type='number'] {
+  padding-right: calc(var(--spacing) * 0.5);
+}
+
 :focus {
   box-shadow: inset 0 0 0 2px var(--focus-color);
 }
