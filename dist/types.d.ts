@@ -261,6 +261,7 @@ export class XinForm extends Component {
     value: {
         [key: string]: any;
     };
+    get isValid(): boolean;
     styleNode: HTMLStyleElement;
     content: (HTMLSlotElement | HTMLFormElement)[];
     submit(): void;
