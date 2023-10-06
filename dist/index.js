@@ -1322,7 +1322,7 @@ $parcel$export($f78058ae816e78a2$exports, "xinForm", () => $f78058ae816e78a2$exp
 # forms
 
 `<xin-form>` and `<xin-field>` can be used to quickly create forms complete with
-validation.
+[client-side validation](https://developer.mozilla.org/en-US/docs/Learn/Forms/Form_validation#built-in_form_validation_examples).
 
 ```js
 const xinForm = preview.querySelector('xin-form')
@@ -1332,18 +1332,15 @@ preview.querySelector('.submit').addEventListener('click', () => {
 ```
 ```html
 <xin-form>
-  <h3 slot="header">Example Form</h3>
+  <h3 slot="header">Example Form Header</h3>
   <xin-field caption="Required field" key="required"></xin-field>
-  <xin-field caption="Optional field" optional key="optional"></xin-field>
+  <xin-field optional key="optional"><i>Optional</i> Field</xin-field>
   <xin-field caption="Zip Code" placeholder="12345 or 12345-6789" key="zipcode" pattern="\d{5}(-\d{4})?"></xin-field>
   <xin-field caption="Date" key="date" type="date"></xin-field>
   <xin-field caption="Number" key="number" type="number"></xin-field>
   <xin-field caption="Range" key="range" type="range"></xin-field>
-  <xin-field caption="Do you agree?" key="boolean" type="checkbox"></xin-field>
-  <div>
-    <button type="reset">Reset</button><button class="submit">Submit</button>
-  </div>
-  <span slot="footer">Bottom of Form</span>
+  <xin-field key="boolean" type="checkbox">😃 <b>Agreed?!</b></xin-field>
+  <button slot="footer" class="submit">Submit</button>
 </xin-form>
 ```
 ```css
@@ -1352,8 +1349,9 @@ preview.querySelector('.submit').addEventListener('click', () => {
 }
 
 .preview ::part(header), .preview ::part(footer) {
-  background: var(--brand-color);
   --text-color: var(--brand-text-color);
+  background: var(--brand-color);
+  justify-content: center;
   padding: calc(var(--spacing) * 0.5) var(--spacing);
 }
 
@@ -1383,9 +1381,34 @@ preview.querySelector('.submit').addEventListener('click', () => {
 }
 
 .preview label:has(input:invalid:required)::after {
-  content: 'this field is required'
+  content: '* required'
 }
 ```
+
+## `<xin-form>`
+
+`<xin-form>` prevents the default form behavior when a `submit` event is triggered and instead validates the
+form contents (generating feedback if desired) and calls its `onSubmit(value: {[key: string]: any}, isValid: boolean): void`
+method.
+
+`<xin-form>` instances have `value` and `isValid` properties you can access any time. Note that `isValid` is computed
+and triggers form validation.
+
+`<xin-form>` has `header` and `footer` `<slot>`s in addition to default `<slot>`, which is tucked inside a `<form>` element.
+
+## `<xin-field>`
+
+`<xin-field>` is a simple web-component with no shadowDOM that combines an `<input>` field wrapped with a `<label>`. Any
+content of the custom-element will become the `caption` or you can simply set the `caption` attribute.
+
+`<xin-field>` supports the following attributes:
+
+- `caption` labels the field
+- `key` determines the form property the field will populate
+- `type` determines the data-type: '' | 'checkbox' | 'number' | 'range' | 'date'
+- `optional` turns off the `required` attribute (fields are required by default)
+- `pattern` is an (optional) regex pattern
+- `placeholder` is an (optional) placeholder
 */ 
 const { form: $f78058ae816e78a2$var$form, slot: $f78058ae816e78a2$var$slot, xinSlot: $f78058ae816e78a2$var$xinSlot, label: $f78058ae816e78a2$var$label, input: $f78058ae816e78a2$var$input } = (0, $hgUW1$elements);
 function $f78058ae816e78a2$var$attr(element, name, value) {
@@ -1401,8 +1424,7 @@ class $f78058ae816e78a2$export$f0aa272ac8112266 extends (0, $hgUW1$Component) {
     pattern = "";
     placeholder = "";
     content = $f78058ae816e78a2$var$label($f78058ae816e78a2$var$xinSlot({
-        part: "caption",
-        name: "caption"
+        part: "caption"
     }), $f78058ae816e78a2$var$input({
         part: "input"
     }));
@@ -1432,7 +1454,7 @@ class $f78058ae816e78a2$export$f0aa272ac8112266 extends (0, $hgUW1$Component) {
     }
     render() {
         const { input: input, caption: caption } = this.parts;
-        if (caption.children.length === 0) caption.append(this.caption !== "" ? this.caption : this.key);
+        if (caption.textContent?.trim() === "") caption.append(this.caption !== "" ? this.caption : this.key);
         $f78058ae816e78a2$var$attr(input, "placeholder", this.placeholder);
         $f78058ae816e78a2$var$attr(input, "type", this.type);
         $f78058ae816e78a2$var$attr(input, "pattern", this.pattern);
@@ -1442,6 +1464,12 @@ class $f78058ae816e78a2$export$f0aa272ac8112266 extends (0, $hgUW1$Component) {
 class $f78058ae816e78a2$export$470ae7cc5ec6d2a extends (0, $hgUW1$Component) {
     context = {};
     value = {};
+    get isValid() {
+        const widgets = [
+            ...this.querySelectorAll("*")
+        ].filter((widget)=>widget.required !== undefined);
+        return widgets.find((widget)=>!widget.reportValidity()) === undefined;
+    }
     styleNode = (0, $hgUW1$Component).StyleNode({
         ":host": {
             display: "flex",
@@ -1485,13 +1513,9 @@ class $f78058ae816e78a2$export$470ae7cc5ec6d2a extends (0, $hgUW1$Component) {
         this.parts.form.dispatchEvent(new Event("submit"));
     }
     handleSubmit = (event)=>{
-        const widgets = [
-            ...this.querySelectorAll("*")
-        ].filter((widget)=>widget.required !== undefined);
-        const invalid = widgets.find((widget)=>!widget.reportValidity());
         event.preventDefault();
         event.stopPropagation();
-        this.onSubmit(this.value, invalid !== undefined);
+        this.onSubmit(this.value, this.isValid);
     };
     onSubmit = (value, isValid)=>{
         console.log("override onSubmit to handle this data", {
