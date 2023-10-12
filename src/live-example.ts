@@ -90,6 +90,8 @@ xin-example.-maximize {
   height: 100vh;
   width: 100vw;
   margin: 0 !important;
+  /* FIXME: kludge */
+  z-index: 1000;
 }
 
 xin-example.-maximize .hide-if-maximized,
