@@ -130,6 +130,10 @@ export const trackDrag = (
         dx = touch.clientX - origX
         dy = touch.clientY - origY
       }
+      if (event.type === 'touchmove') {
+        event.stopPropagation()
+        event.preventDefault()
+      }
       if (callback(dx, dy, event) === true || touch === undefined) {
         target.removeEventListener('touchmove', wrappedCallback)
         target.removeEventListener('touchend', wrappedCallback)
@@ -137,7 +141,7 @@ export const trackDrag = (
       }
     }
 
-    target.addEventListener('touchmove', wrappedCallback, PASSIVE)
+    target.addEventListener('touchmove', wrappedCallback)
     target.addEventListener('touchend', wrappedCallback, PASSIVE)
     target.addEventListener('touchcancel', wrappedCallback, PASSIVE)
   }
