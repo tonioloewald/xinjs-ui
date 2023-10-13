@@ -758,13 +758,17 @@ const $5265d118b5240170$export$c947e3cd16175f27 = (event, callback, cursor = "mo
                 dx = touch.clientX - origX;
                 dy = touch.clientY - origY;
             }
+            if (event.type === "touchmove") {
+                event.stopPropagation();
+                event.preventDefault();
+            }
             if (callback(dx, dy, event) === true || touch === undefined) {
                 target.removeEventListener("touchmove", wrappedCallback);
                 target.removeEventListener("touchend", wrappedCallback);
                 target.removeEventListener("touchcancel", wrappedCallback);
             }
         };
-        target.addEventListener("touchmove", wrappedCallback, $5265d118b5240170$var$PASSIVE);
+        target.addEventListener("touchmove", wrappedCallback);
         target.addEventListener("touchend", wrappedCallback, $5265d118b5240170$var$PASSIVE);
         target.addEventListener("touchcancel", wrappedCallback, $5265d118b5240170$var$PASSIVE);
     }
