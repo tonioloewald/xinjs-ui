@@ -69,73 +69,8 @@ export class CodeEditor extends Component {
 }
 export const codeEditor: ElementCreator<CodeEditor>;
 type TrackerCallback = (dx: number, dy: number, event: any) => true | undefined;
-/*!
-# trackDrag
-
-Sometimes you want to track a mouse-drag or touch-drag operation without messing around.
-This is how the resizeable columns in `<xin-table>` work.
-
-Just call `trackDrag(event, (dx, dy, event) => { ... })` and you'll get updates on corresponding events until
-you return `true` from the event-handler (or, in the case of `touch` events, the last `touch` ends).
-For mouse events, a "tracker" element is thrown up in front of everything for the event.
-
-```html
-<p>
-  Try dragging the squares…<br>
-  (You can drag them separately with multi-touch!)
-</p>
-<div class="draggable" style="top: 20px; left: 40px; background: #f008"></div>
-<div class="draggable" style="left: 40%; bottom: 30%; background: #0f08"></div>
-<div class="draggable" style="bottom: 30px; right: 10px; background: #00f8"></div>
-```
-```css
-.preview {
-  touch-action: none;
-}
-
-.draggable {
-  content: ' ';
-  position: absolute;
-  width: 50px;
-  height: 50px;
-  cursor: move;
-}
-
-.preview p {
-  position: absolute;
-  left: 50%;
-  top: 50%;
-  transform: translateX(-50%) translateY(-50%);
-}
-```
-```js
-const { trackDrag } = xinjsui
-
-function dragItem(event) {
-  const draggable = event.target
-  if (draggable.classList.contains('draggable')) {
-    const x = draggable.offsetLeft
-    const y = draggable.offsetTop
-    trackDrag(event, (dx, dy, event) => {
-      draggable.style.left = (x + dx) + 'px'
-      draggable.style.top = (y + dy) + 'px'
-      draggable.style.bottom = 'auto'
-      draggable.style.right = 'auto'
-      return event.type === 'mouseup'
-    })
-  }
-}
-
-preview.addEventListener('mousedown', dragItem )
-preview.addEventListener('touchstart', dragItem, { passive: true } )
-```
-
-For `touch` events, `dx` and `dy` are based on tracking `event.changedTouches[0]` which
-is almost certainly what you want.
-
-To handle multi-touch gestures you will need to track the touches yourself.
-*/
 export const trackDrag: (event: PointerEvent, callback: TrackerCallback, cursor?: string) => void;
+export const findHighestZ: (selector?: string) => number;
 export interface ColumnOptions {
     name?: string;
     prop: string;
@@ -241,6 +176,15 @@ export class FilterBuilder extends Component {
     render(): void;
 }
 export const filterBuilder: ElementCreator<FilterBuilder>;
+export class XinFloat extends Component {
+    drag: boolean;
+    content: HTMLSlotElement;
+    styleNode: HTMLStyleElement;
+    constructor();
+    reposition: (event: Event) => void;
+    connectedCallback(): void;
+}
+export const xinFloat: import("xinjs").ElementCreator<HTMLElement>;
 export class XinField extends Component {
     caption: string;
     key: string;

@@ -67,7 +67,25 @@ For `touch` events, `dx` and `dy` are based on tracking `event.changedTouches[0]
 is almost certainly what you want.
 
 To handle multi-touch gestures you will need to track the touches yourself.
+
+## `findHighestZ()`
+
+`findHighestZ()` is a utility function for finding the highest z-index of any element
+in the DOM.
 */
+const TRACKER = elements.div({
+  style: {
+    content: ' ',
+    position: 'fixed',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+  },
+})
+
+const PASSIVE = { passive: true }
+
 export const trackDrag = (
   event: PointerEvent,
   callback: TrackerCallback,
@@ -79,30 +97,22 @@ export const trackDrag = (
     const origX = event.clientX
     const origY = event.clientY
 
-    const tracker = elements.div({
-      style: {
-        content: ' ',
-        position: 'fixed',
-        top: 0,
-        left: 0,
-        right: 0,
-        bottom: 0,
-        cursor,
-      },
-    })
-
-    document.body.append(tracker)
+    TRACKER.style.cursor = cursor
+    TRACKER.style.zIndex = String(findHighestZ() + 1)
+    document.body.append(TRACKER)
 
     const wrappedCallback = (event: any) => {
       const dx = event.clientX - origX
       const dy = event.clientY - origY
       if (callback(dx, dy, event) === true) {
-        tracker.remove()
+        TRACKER.removeEventListener('mousemove', wrappedCallback)
+        TRACKER.removeEventListener('mouseup', wrappedCallback)
+        TRACKER.remove()
       }
     }
 
-    tracker.addEventListener('mousemove', wrappedCallback, { passive: true })
-    tracker.addEventListener('mouseup', wrappedCallback, { passive: true })
+    TRACKER.addEventListener('mousemove', wrappedCallback, PASSIVE)
+    TRACKER.addEventListener('mouseup', wrappedCallback, PASSIVE)
   } else if (event instanceof TouchEvent) {
     const touch = event.changedTouches[0]
     const touchId = touch.identifier
@@ -127,8 +137,15 @@ export const trackDrag = (
       }
     }
 
-    target.addEventListener('touchmove', wrappedCallback, { passive: true })
-    target.addEventListener('touchend', wrappedCallback, { passive: true })
-    target.addEventListener('touchcancel', wrappedCallback, { passive: true })
+    target.addEventListener('touchmove', wrappedCallback, PASSIVE)
+    target.addEventListener('touchend', wrappedCallback, PASSIVE)
+    target.addEventListener('touchcancel', wrappedCallback, PASSIVE)
   }
 }
+
+export const findHighestZ = (selector = 'body *'): number =>
+  [...document.querySelectorAll(selector)]
+    .map((elt) => parseFloat(getComputedStyle(elt).zIndex))
+    .reduce((z, highest = Number.MIN_SAFE_INTEGER) =>
+      isNaN(z) || Number(z) < highest ? highest : Number(z)
+    )
