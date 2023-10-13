@@ -78,7 +78,7 @@ xin-example {
   --xin-example-editor-height: calc(var(--xin-example-height) * 0.5);
   position: relative;
   display: flex;
-  flex-direction: column;
+  flex-direction: column-reverse;
   height: var(--xin-example-height);
   background: var(--background);
 }
@@ -91,7 +91,7 @@ xin-example.-maximize {
   width: 100vw;
   margin: 0 !important;
   /* FIXME: kludge */
-  z-index: 1000;
+  z-index: 10;
 }
 
 xin-example.-maximize .hide-if-maximized,
@@ -200,7 +200,6 @@ export class LiveExample extends WebComponent {
   }
 
   content = () => [
-    div({ part: 'example' }, style({ part: 'style' })),
     tabSelector(
       { part: 'editors' },
       codeEditor({ name: 'js', mode: 'javascript', part: 'js', ...codeStyle }),
@@ -236,6 +235,7 @@ export class LiveExample extends WebComponent {
         icons.maximize({ class: 'icon-maximize hide-if-maximized' })
       )
     ),
+    div({ part: 'example' }, style({ part: 'style' })),
     xinSlot({ part: 'sources', hidden: true }),
   ]
 

@@ -640,34 +640,108 @@ If you set the `<xin-table>`'s `rowHeight` to `0` it will render all its element
 useful for smaller tables, or tables with variable row-heights.
 */ 
 
+/*!
+# trackDrag
+
+Sometimes you want to track a mouse-drag or touch-drag operation without messing around.
+This is how the resizeable columns in `<xin-table>` work.
+
+Just call `trackDrag(event, (dx, dy, event) => { ... })` and you'll get updates on corresponding events until
+you return `true` from the event-handler (or, in the case of `touch` events, the last `touch` ends).
+For mouse events, a "tracker" element is thrown up in front of everything for the event.
+
+```html
+<p>
+  Try dragging the squares…<br>
+  (You can drag them separately with multi-touch!)
+</p>
+<div class="draggable" style="top: 20px; left: 40px; background: #f008"></div>
+<div class="draggable" style="left: 40%; bottom: 30%; background: #0f08"></div>
+<div class="draggable" style="bottom: 30px; right: 10px; background: #00f8"></div>
+```
+```css
+.preview {
+  touch-action: none;
+}
+
+.draggable {
+  content: ' ';
+  position: absolute;
+  width: 50px;
+  height: 50px;
+  cursor: move;
+}
+
+.preview p {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translateX(-50%) translateY(-50%);
+}
+```
+```js
+const { trackDrag } = xinjsui
+
+function dragItem(event) {
+  const draggable = event.target
+  if (draggable.classList.contains('draggable')) {
+    const x = draggable.offsetLeft
+    const y = draggable.offsetTop
+    trackDrag(event, (dx, dy, event) => {
+      draggable.style.left = (x + dx) + 'px'
+      draggable.style.top = (y + dy) + 'px'
+      draggable.style.bottom = 'auto'
+      draggable.style.right = 'auto'
+      return event.type === 'mouseup'
+    })
+  }
+}
+
+preview.addEventListener('mousedown', dragItem )
+preview.addEventListener('touchstart', dragItem, { passive: true } )
+```
+
+For `touch` events, `dx` and `dy` are based on tracking `event.changedTouches[0]` which
+is almost certainly what you want.
+
+To handle multi-touch gestures you will need to track the touches yourself.
+
+## `findHighestZ()`
+
+`findHighestZ()` is a utility function for finding the highest z-index of any element
+in the DOM.
+*/ const $5265d118b5240170$var$TRACKER = (0, $hgUW1$elements).div({
+    style: {
+        content: " ",
+        position: "fixed",
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0
+    }
+});
+const $5265d118b5240170$var$PASSIVE = {
+    passive: true
+};
 const $5265d118b5240170$export$c947e3cd16175f27 = (event, callback, cursor = "move")=>{
     const isTouchEvent = event.type.startsWith("touch");
     if (!isTouchEvent) {
         const origX = event.clientX;
         const origY = event.clientY;
-        const tracker = (0, $hgUW1$elements).div({
-            style: {
-                content: " ",
-                position: "fixed",
-                top: 0,
-                left: 0,
-                right: 0,
-                bottom: 0,
-                cursor: cursor
-            }
-        });
-        document.body.append(tracker);
+        $5265d118b5240170$var$TRACKER.style.cursor = cursor;
+        $5265d118b5240170$var$TRACKER.style.zIndex = String($5265d118b5240170$export$f3caf27c1d0ebf0c() + 1);
+        document.body.append($5265d118b5240170$var$TRACKER);
         const wrappedCallback = (event)=>{
             const dx = event.clientX - origX;
             const dy = event.clientY - origY;
-            if (callback(dx, dy, event) === true) tracker.remove();
+            if (callback(dx, dy, event) === true) {
+                $5265d118b5240170$var$TRACKER.removeEventListener("mousemove", wrappedCallback);
+                $5265d118b5240170$var$TRACKER.removeEventListener("mouseup", wrappedCallback);
+                $5265d118b5240170$var$TRACKER.remove();
+            }
         };
-        tracker.addEventListener("mousemove", wrappedCallback, {
-            passive: true
-        });
-        tracker.addEventListener("mouseup", wrappedCallback, {
-            passive: true
-        });
+        $5265d118b5240170$var$TRACKER.addEventListener("mousemove", wrappedCallback, $5265d118b5240170$var$PASSIVE);
+        $5265d118b5240170$var$TRACKER.addEventListener("mouseup", wrappedCallback, $5265d118b5240170$var$PASSIVE);
     } else if (event instanceof TouchEvent) {
         const touch = event.changedTouches[0];
         const touchId = touch.identifier;
@@ -690,17 +764,14 @@ const $5265d118b5240170$export$c947e3cd16175f27 = (event, callback, cursor = "mo
                 target.removeEventListener("touchcancel", wrappedCallback);
             }
         };
-        target.addEventListener("touchmove", wrappedCallback, {
-            passive: true
-        });
-        target.addEventListener("touchend", wrappedCallback, {
-            passive: true
-        });
-        target.addEventListener("touchcancel", wrappedCallback, {
-            passive: true
-        });
+        target.addEventListener("touchmove", wrappedCallback, $5265d118b5240170$var$PASSIVE);
+        target.addEventListener("touchend", wrappedCallback, $5265d118b5240170$var$PASSIVE);
+        target.addEventListener("touchcancel", wrappedCallback, $5265d118b5240170$var$PASSIVE);
     }
 };
+const $5265d118b5240170$export$f3caf27c1d0ebf0c = (selector = "body *")=>[
+        ...document.querySelectorAll(selector)
+    ].map((elt)=>parseFloat(getComputedStyle(elt).zIndex)).reduce((z, highest = Number.MIN_SAFE_INTEGER)=>isNaN(z) || Number(z) < highest ? highest : Number(z));
 
 
 function $e6e19030d0c18d6f$var$defaultWidth(array, prop, charWidth) {
@@ -1309,6 +1380,123 @@ class $46dc716dd2cf5925$export$afb49bb3b076029e extends (0, $hgUW1$Component) {
 }
 const $46dc716dd2cf5925$export$8ca73b4108207c1f = $46dc716dd2cf5925$export$afb49bb3b076029e.elementCreator({
     tag: "xin-filter"
+});
+
+
+var $ddbe66d066773fc1$exports = {};
+
+$parcel$export($ddbe66d066773fc1$exports, "XinFloat", () => $ddbe66d066773fc1$export$dfef4eaf9958ab9d);
+$parcel$export($ddbe66d066773fc1$exports, "xinFloat", () => $ddbe66d066773fc1$export$aeb0f03cef938121);
+/*!
+# float
+
+A floating, potentially draggable user interface element.
+
+```html
+<xin-float class="float" drag>
+  <h4>Drag Me</h4>
+  <div class="no-drag balloon">🎈</div>
+  <footer style="font-size: 75%">neunundneunzig pixel-ballon</footer>
+</xin-float>
+
+<xin-float class="float" style="top: 50px; right: 20px;" drag>
+  <h4>Drag Me</h4>
+  <div class="no-drag balloon">🎈</div>
+  <footer style="font-size: 75%">neunundneunzig pixel-ballon</footer>
+</xin-float>
+
+<xin-float class="float" style="bottom: 20px; left: 50px;" drag>
+  <h4>Drag Me</h4>
+  <div class="no-drag balloon">🎈</div>
+  <footer style="font-size: 75%">neunundneunzig pixel-ballon</footer>
+</xin-float>
+```
+```css
+.preview .float {
+  width: 220px;
+  height: 180px;
+  padding: 0;
+  gap: 5px;
+  display: flex;
+  flex-direction: column;
+  border-radius: 5px;
+  background: #fff8;
+  box-shadow: 2px 10px 20px #0004;
+  overflow: hidden;
+  cursor: move;
+}
+
+.preview h4 {
+  margin: 0;
+  padding: 5px 10px;
+  color: white;
+  background: red;
+}
+
+.preview .balloon {
+  cursor: default;
+  flex: 1 1 auto;
+  font-size: 99px;
+  line-height: 120px;
+  text-align: center;
+  height: auto;
+  overflow: hidden;
+}
+
+.preview footer {
+  text-align: center;
+  background: #f008;
+  color: white;
+```
+
+Note that the `<xin-float>` element has absolutely minimal styling. It's up to you to provide a drop
+shadow and background and so on.
+
+To make a `<xin-float>` element draggable, simply set its `drag` attribute.
+
+To prevent dragging for an interior element (e.g. if you want a floating palette with buttons or input fields)
+just add the `no-drag` class to an element or its container.
+*/ 
+
+const { slot: $ddbe66d066773fc1$var$slot } = (0, $hgUW1$elements);
+class $ddbe66d066773fc1$export$dfef4eaf9958ab9d extends (0, $hgUW1$Component) {
+    drag = false;
+    content = $ddbe66d066773fc1$var$slot();
+    styleNode = (0, $hgUW1$Component).StyleNode({
+        ":host": {
+            display: "block",
+            position: "fixed"
+        }
+    });
+    constructor(){
+        super();
+        this.initAttributes("drag");
+    }
+    reposition = (event)=>{
+        const target = event.target;
+        if (target?.closest(".no-drag")) return;
+        if (this.drag) {
+            this.style.zIndex = String((0, $5265d118b5240170$export$f3caf27c1d0ebf0c)() + 1);
+            const x = this.offsetLeft;
+            const y = this.offsetTop;
+            (0, $5265d118b5240170$export$c947e3cd16175f27)(event, (dx, dy, pointerEvent)=>{
+                this.style.left = `${x + dx}px`;
+                this.style.top = `${y + dy}px`;
+                this.style.right = "";
+                this.style.bottom = "";
+                if (pointerEvent.type === "mouseup") return true;
+            });
+        }
+    };
+    connectedCallback() {
+        super.connectedCallback();
+        this.addEventListener("touchstart", this.reposition);
+        this.addEventListener("mousedown", this.reposition);
+        this.style.zIndex = String((0, $5265d118b5240170$export$f3caf27c1d0ebf0c)() + 1);
+    }
+}
+const $ddbe66d066773fc1$export$aeb0f03cef938121 = $ddbe66d066773fc1$export$dfef4eaf9958ab9d.elementCreator({
+    tag: "xin-float"
 });
 
 
@@ -2145,7 +2333,7 @@ xin-example {
   --xin-example-editor-height: calc(var(--xin-example-height) * 0.5);
   position: relative;
   display: flex;
-  flex-direction: column;
+  flex-direction: column-reverse;
   height: var(--xin-example-height);
   background: var(--background);
 }
@@ -2158,7 +2346,7 @@ xin-example.-maximize {
   width: 100vw;
   margin: 0 !important;
   /* FIXME: kludge */
-  z-index: 1000;
+  z-index: 10;
 }
 
 xin-example.-maximize .hide-if-maximized,
@@ -2248,11 +2436,6 @@ class $ada9b1474dc4b958$export$41199f9ac14d8c08 extends (0, $hgUW1$Component) {
         this.parts.js.value = code;
     }
     content = ()=>[
-            $ada9b1474dc4b958$var$div({
-                part: "example"
-            }, $ada9b1474dc4b958$var$style({
-                part: "style"
-            })),
             (0, $6bbe441346901d5a$export$a932f737dcd864a2)({
                 part: "editors"
             }, (0, $8a70bd76f9b7e656$export$d89b6f4d34274146)({
@@ -2291,6 +2474,11 @@ class $ada9b1474dc4b958$export$41199f9ac14d8c08 extends (0, $hgUW1$Component) {
             }), (0, $fef058b85aa29b7a$export$df03f54e09e486fa).maximize({
                 class: "icon-maximize hide-if-maximized"
             }))),
+            $ada9b1474dc4b958$var$div({
+                part: "example"
+            }, $ada9b1474dc4b958$var$style({
+                part: "style"
+            })),
             $ada9b1474dc4b958$var$xinSlot({
                 part: "sources",
                 hidden: true
@@ -3134,5 +3322,5 @@ function $5a28660a6cbe2731$export$b37fb374f2e92eb6(sortValuator, ascending = tru
 
 
 
-export {$5265d118b5240170$export$c947e3cd16175f27 as trackDrag, $5c31145f3e970423$export$c6e082819e9a0330 as scriptTag, $5c31145f3e970423$export$63257fda812a683f as styleSheet, $5a28660a6cbe2731$export$b37fb374f2e92eb6 as makeSorter, $ef1971ff775ba547$export$1bc633d0db17d4e1 as B3d, $ef1971ff775ba547$export$d0bb57305ce055c9 as b3d, $fef058b85aa29b7a$export$df03f54e09e486fa as icons, $fef058b85aa29b7a$export$dbcb8210e8a983ed as SvgIcon, $fef058b85aa29b7a$export$8c90725d55a8eef as svgIcon, $6246d5006b5a56c3$export$7d6f3ccbb0a81c30 as MAPSTYLES, $6246d5006b5a56c3$export$f2ffec4d96a433ed as MapBox, $6246d5006b5a56c3$export$ca243e53be209efb as mapBox, $59f50bee37676c09$export$c74d6d817c60b9e6 as BodymovinPlayer, $59f50bee37676c09$export$d75ad8f79fe096cb as bodymovinPlayer, $8a70bd76f9b7e656$export$b7127187684f7150 as CodeEditor, $8a70bd76f9b7e656$export$d89b6f4d34274146 as codeEditor, $e6e19030d0c18d6f$export$df30df7ec97b32b5 as DataTable, $e6e19030d0c18d6f$export$f71ce0a5ddbe8fa0 as dataTable, $46dc716dd2cf5925$export$16a138bde9d9de87 as availableFilters, $46dc716dd2cf5925$export$b7838412d9f17b13 as FilterPart, $46dc716dd2cf5925$export$2237595b531763d7 as filterPart, $46dc716dd2cf5925$export$afb49bb3b076029e as FilterBuilder, $46dc716dd2cf5925$export$8ca73b4108207c1f as filterBuilder, $ada9b1474dc4b958$export$41199f9ac14d8c08 as LiveExample, $ada9b1474dc4b958$export$dafbe0fa988b899b as liveExample, $ada9b1474dc4b958$export$afa6494eb589c19e as makeExamplesLive, $1b88c9cb596c3426$export$575eb698d362902 as MarkdownViewer, $1b88c9cb596c3426$export$305b975a891d0dfa as markdownViewer, $815deb6062b0b31b$export$94309935dd6eab19 as blockStyle, $815deb6062b0b31b$export$8cc075c801fd6817 as spacer, $815deb6062b0b31b$export$e3f8198a677f57c2 as elastic, $815deb6062b0b31b$export$74540e56d8cdd242 as commandButton, $815deb6062b0b31b$export$8ed2ffe5d58aaa75 as richTextWidgets, $815deb6062b0b31b$export$f284d8638abd8920 as RichText, $815deb6062b0b31b$export$7bcc4193ad80bf91 as richText, $b9e5aa5581e8f051$export$1a35787d6353cf6a as SideNav, $b9e5aa5581e8f051$export$938418df2b06cb50 as sideNav, $0f2017ffca44b547$export$7140c0f3c1b65d3f as SizeBreak, $0f2017ffca44b547$export$96370210d2ca0fff as sizeBreak, $6bbe441346901d5a$export$a3a7254f7f149b03 as TabSelector, $6bbe441346901d5a$export$a932f737dcd864a2 as tabSelector, $86ec44903a84f851$export$6aacb15d82c1f62a as AbTest, $86ec44903a84f851$export$f3d50d6cab4ec980 as abTest, $f78058ae816e78a2$export$f0aa272ac8112266 as XinField, $f78058ae816e78a2$export$470ae7cc5ec6d2a as XinForm, $f78058ae816e78a2$export$1e17fa265ee93a1d as xinField, $f78058ae816e78a2$export$ab08039c332a0d0e as xinForm};
+export {$5265d118b5240170$export$c947e3cd16175f27 as trackDrag, $5265d118b5240170$export$f3caf27c1d0ebf0c as findHighestZ, $5c31145f3e970423$export$c6e082819e9a0330 as scriptTag, $5c31145f3e970423$export$63257fda812a683f as styleSheet, $5a28660a6cbe2731$export$b37fb374f2e92eb6 as makeSorter, $86ec44903a84f851$export$6aacb15d82c1f62a as AbTest, $86ec44903a84f851$export$f3d50d6cab4ec980 as abTest, $ef1971ff775ba547$export$1bc633d0db17d4e1 as B3d, $ef1971ff775ba547$export$d0bb57305ce055c9 as b3d, $59f50bee37676c09$export$c74d6d817c60b9e6 as BodymovinPlayer, $59f50bee37676c09$export$d75ad8f79fe096cb as bodymovinPlayer, $8a70bd76f9b7e656$export$b7127187684f7150 as CodeEditor, $8a70bd76f9b7e656$export$d89b6f4d34274146 as codeEditor, $e6e19030d0c18d6f$export$df30df7ec97b32b5 as DataTable, $e6e19030d0c18d6f$export$f71ce0a5ddbe8fa0 as dataTable, $46dc716dd2cf5925$export$16a138bde9d9de87 as availableFilters, $46dc716dd2cf5925$export$b7838412d9f17b13 as FilterPart, $46dc716dd2cf5925$export$2237595b531763d7 as filterPart, $46dc716dd2cf5925$export$afb49bb3b076029e as FilterBuilder, $46dc716dd2cf5925$export$8ca73b4108207c1f as filterBuilder, $ddbe66d066773fc1$export$dfef4eaf9958ab9d as XinFloat, $ddbe66d066773fc1$export$aeb0f03cef938121 as xinFloat, $f78058ae816e78a2$export$f0aa272ac8112266 as XinField, $f78058ae816e78a2$export$470ae7cc5ec6d2a as XinForm, $f78058ae816e78a2$export$1e17fa265ee93a1d as xinField, $f78058ae816e78a2$export$ab08039c332a0d0e as xinForm, $fef058b85aa29b7a$export$df03f54e09e486fa as icons, $fef058b85aa29b7a$export$dbcb8210e8a983ed as SvgIcon, $fef058b85aa29b7a$export$8c90725d55a8eef as svgIcon, $ada9b1474dc4b958$export$41199f9ac14d8c08 as LiveExample, $ada9b1474dc4b958$export$dafbe0fa988b899b as liveExample, $ada9b1474dc4b958$export$afa6494eb589c19e as makeExamplesLive, $6246d5006b5a56c3$export$7d6f3ccbb0a81c30 as MAPSTYLES, $6246d5006b5a56c3$export$f2ffec4d96a433ed as MapBox, $6246d5006b5a56c3$export$ca243e53be209efb as mapBox, $1b88c9cb596c3426$export$575eb698d362902 as MarkdownViewer, $1b88c9cb596c3426$export$305b975a891d0dfa as markdownViewer, $815deb6062b0b31b$export$94309935dd6eab19 as blockStyle, $815deb6062b0b31b$export$8cc075c801fd6817 as spacer, $815deb6062b0b31b$export$e3f8198a677f57c2 as elastic, $815deb6062b0b31b$export$74540e56d8cdd242 as commandButton, $815deb6062b0b31b$export$8ed2ffe5d58aaa75 as richTextWidgets, $815deb6062b0b31b$export$f284d8638abd8920 as RichText, $815deb6062b0b31b$export$7bcc4193ad80bf91 as richText, $b9e5aa5581e8f051$export$1a35787d6353cf6a as SideNav, $b9e5aa5581e8f051$export$938418df2b06cb50 as sideNav, $0f2017ffca44b547$export$7140c0f3c1b65d3f as SizeBreak, $0f2017ffca44b547$export$96370210d2ca0fff as sizeBreak, $6bbe441346901d5a$export$a3a7254f7f149b03 as TabSelector, $6bbe441346901d5a$export$a932f737dcd864a2 as tabSelector};
 //# sourceMappingURL=index.js.map
