@@ -143,11 +143,12 @@ interface Filter {
     description: string;
     test: ObjectTest;
 }
+type Fields = Array<{
+    name?: string;
+    prop: string;
+}>;
 export class FilterPart extends Component {
-    fields: {
-        name?: string | undefined;
-        prop: string;
-    }[];
+    fields: Fields;
     filters: {
         [key: string]: FilterMaker;
     };
@@ -159,10 +160,8 @@ export class FilterPart extends Component {
 }
 export const filterPart: ElementCreator<HTMLElement>;
 export class FilterBuilder extends Component {
-    fields: {
-        name?: string | undefined;
-        prop: string;
-    }[];
+    get fields(): Fields;
+    set fields(_fields: Fields);
     filter: _ArrayFilter1;
     description: string;
     addFilter: () => void;
