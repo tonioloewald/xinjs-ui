@@ -112,10 +112,11 @@ document.head.append(
   display: flex;
 }
 
-xin-filter-part 'svg[class^="icon-"]': {
-  height: vars.fontSize,
-  verticalAlign: 'middle',
-  fill: vars.textColor,
+xin-filter-part svg[class^="icon-"]: {
+  height: var(--font-size, 16px);
+  verticalAlign: middle;
+  fill: var(--text-color);
+  pointer-event: none;
 },
 
 xin-filter-part [part="needle"] {
@@ -249,6 +250,9 @@ type Fields = Array<{ name?: string; prop: string }>
 export class FilterPart extends WebComponent {
   fields: Fields = []
   filters = availableFilters
+  haystack = '*'
+  condition = ''
+  needle = ''
 
   content = () => [
     select({ part: 'haystack' }),
@@ -262,13 +266,20 @@ export class FilterPart extends WebComponent {
 
   filter: Filter = passAnything
 
+  constructor() {
+    super()
+    this.initAttributes('haystack', 'condition', 'needle')
+  }
+
   buildFilter = (/* event: Event */) => {
     const { haystack, condition, needle } = this.parts as {
       haystack: HTMLSelectElement
       condition: HTMLSelectElement
       needle: HTMLInputElement
     }
-    const [, negative, key] = condition.value.match(/^(~)?(.+)/) as string[]
+
+    const negative = condition.value.startsWith('~')
+    const key = negative ? condition.value.slice(1) : condition.value
     const filter = this.filters[key] as FilterMaker
     needle.hidden = filter.needsValue === false
 
@@ -280,17 +291,15 @@ export class FilterPart extends WebComponent {
     let test
 
     if (field !== '') {
-      test =
-        negative === '~'
-          ? (obj: any) => !baseTest(obj[field])
-          : (obj: any) => baseTest(obj[field])
+      test = negative
+        ? (obj: any) => !baseTest(obj[field])
+        : (obj: any) => baseTest(obj[field])
     } else {
-      test =
-        negative === '~'
-          ? (obj: any) =>
-              Object.values(obj).find((v) => !baseTest(v)) !== undefined
-          : (obj: any) =>
-              Object.values(obj).find((v) => baseTest(v)) !== undefined
+      test = negative
+        ? (obj: any) =>
+            Object.values(obj).find((v) => !baseTest(v)) !== undefined
+        : (obj: any) =>
+            Object.values(obj).find((v) => baseTest(v)) !== undefined
     }
 
     const matchValue = filter.needsValue !== false ? ` "${needle.value}"` : ''
@@ -304,6 +313,17 @@ export class FilterPart extends WebComponent {
     }
 
     this.parentElement?.dispatchEvent(new Event('change'))
+  }
+
+  get query(): string {
+    const { haystack, condition, needle } = this.parts as {
+      haystack: HTMLSelectElement
+      condition: HTMLSelectElement
+      needle: HTMLInputElement
+    }
+    return needle.hidden
+      ? `${haystack.value}=${condition.value}`
+      : `${haystack.value}=${condition.value}:${needle.value}`
   }
 
   connectedCallback() {
@@ -333,14 +353,15 @@ export class FilterPart extends WebComponent {
   render() {
     super.render()
 
-    const { haystack, condition } = this.parts as {
+    const { haystack, condition, needle } = this.parts as {
       haystack: HTMLSelectElement
       condition: HTMLSelectElement
+      needle: HTMLInputElement
     }
 
     haystack.textContent = ''
     haystack.append(
-      option('any field', { value: '' }),
+      option('any field', { value: '*' }),
       ...this.fields.map((field) => {
         const caption = field.name || field.prop
         return option(`${caption}`, { value: field.prop })
@@ -359,10 +380,24 @@ export class FilterPart extends WebComponent {
       })
       .flat()
     condition.append(...conditions)
+
+    console.log(this.haystack)
+    if (this.haystack !== '') {
+      haystack.value = this.haystack
+    }
+    if (this.condition !== '') {
+      condition.value = this.condition
+    }
+    if (this.needle !== '') {
+      needle.value = this.needle
+    }
+    this.buildFilter()
   }
 }
 
-export const filterPart = FilterPart.elementCreator({ tag: 'xin-filter-part' })
+export const filterPart = FilterPart.elementCreator({
+  tag: 'xin-filter-part',
+}) as ElementCreator<FilterPart>
 
 export class FilterBuilder extends WebComponent {
   private _fields: Fields = []
@@ -374,6 +409,26 @@ export class FilterBuilder extends WebComponent {
   set fields(_fields: Fields) {
     this._fields = _fields
     this.queueRender()
+  }
+
+  get query(): string {
+    const { filterContainer } = this.parts
+    const filterParts = [...filterContainer.children] as FilterPart[]
+    return filterParts.map((p) => p.query).join('&')
+  }
+
+  set query(querySpec: string) {
+    const { fields, filters } = this
+    const { filterContainer } = this.parts
+    const queryParts = querySpec.split('&')
+    filterContainer.textContent = ''
+    for (const queryPart of queryParts) {
+      const [haystack, remainder] = queryPart.split('=')
+      const [condition, needle] = remainder.split(':', 2)
+      filterContainer.append(
+        filterPart({ fields, filters, haystack, condition, needle })
+      )
+    }
   }
 
   filter: ArrayFilter = passThru
