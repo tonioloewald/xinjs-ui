@@ -1119,16 +1119,22 @@ interface FilterMaker {
 const { div: $46dc716dd2cf5925$var$div, input: $46dc716dd2cf5925$var$input, select: $46dc716dd2cf5925$var$select, option: $46dc716dd2cf5925$var$option, button: $46dc716dd2cf5925$var$button, span: $46dc716dd2cf5925$var$span, style: $46dc716dd2cf5925$var$style } = (0, $hgUW1$elements);
 document.head.append($46dc716dd2cf5925$var$style({
     id: "xin-filter"
-}, `filter-part {
+}, `xin-filter-part {
   display: flex;
 }
 
-filter-part [part="needle"] {
+xin-filter-part 'svg[class^="icon-"]': {
+  height: vars.fontSize,
+  verticalAlign: 'middle',
+  fill: vars.textColor,
+},
+
+xin-filter-part [part="needle"] {
   flex: 1 1 auto;
   width: 80px;
 }
 
-filter-part [hidden]+[part="padding"] {
+xin-filter-part [hidden]+[part="padding"] {
   display: block;
   content: ' ';
   flex: 1 1 auto;
@@ -1315,10 +1321,17 @@ class $46dc716dd2cf5925$export$b7838412d9f17b13 extends (0, $hgUW1$Component) {
     }
 }
 const $46dc716dd2cf5925$export$2237595b531763d7 = $46dc716dd2cf5925$export$b7838412d9f17b13.elementCreator({
-    tag: "filter-part"
+    tag: "xin-filter-part"
 });
 class $46dc716dd2cf5925$export$afb49bb3b076029e extends (0, $hgUW1$Component) {
-    fields = [];
+    _fields = [];
+    get fields() {
+        return this._fields;
+    }
+    set fields(_fields) {
+        this._fields = _fields;
+        this.queueRender();
+    }
     filter = $46dc716dd2cf5925$var$passThru;
     description = $46dc716dd2cf5925$var$NULL_FILTER_DESCRIPTION;
     addFilter = ()=>{

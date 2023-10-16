@@ -108,16 +108,22 @@ const { div, input, select, option, button, span, style } = elements
 document.head.append(
   style(
     { id: 'xin-filter' },
-    `filter-part {
+    `xin-filter-part {
   display: flex;
 }
 
-filter-part [part="needle"] {
+xin-filter-part 'svg[class^="icon-"]': {
+  height: vars.fontSize,
+  verticalAlign: 'middle',
+  fill: vars.textColor,
+},
+
+xin-filter-part [part="needle"] {
   flex: 1 1 auto;
   width: 80px;
 }
 
-filter-part [hidden]+[part="padding"] {
+xin-filter-part [hidden]+[part="padding"] {
   display: block;
   content: ' ';
   flex: 1 1 auto;
@@ -239,8 +245,9 @@ function getSelectText(select: HTMLSelectElement): string {
   return select.options[select.selectedIndex].text
 }
 
+type Fields = Array<{ name?: string; prop: string }>
 export class FilterPart extends WebComponent {
-  fields = [] as Array<{ name?: string; prop: string }>
+  fields: Fields = []
   filters = availableFilters
 
   content = () => [
@@ -355,10 +362,20 @@ export class FilterPart extends WebComponent {
   }
 }
 
-export const filterPart = FilterPart.elementCreator({ tag: 'filter-part' })
+export const filterPart = FilterPart.elementCreator({ tag: 'xin-filter-part' })
 
 export class FilterBuilder extends WebComponent {
-  fields = [] as Array<{ name?: string; prop: string }>
+  private _fields: Fields = []
+
+  get fields(): Fields {
+    return this._fields
+  }
+
+  set fields(_fields: Fields) {
+    this._fields = _fields
+    this.queueRender()
+  }
+
   filter: ArrayFilter = passThru
   description = NULL_FILTER_DESCRIPTION
 
