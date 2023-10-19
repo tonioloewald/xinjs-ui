@@ -152,16 +152,23 @@ export class FilterPart extends Component {
     filters: {
         [key: string]: FilterMaker;
     };
+    haystack: string;
+    condition: string;
+    needle: string;
     content: () => (SVGElement | HTMLSpanElement)[];
     filter: Filter;
+    constructor();
     buildFilter: () => void;
+    get query(): string;
     connectedCallback(): void;
     render(): void;
 }
-export const filterPart: ElementCreator<HTMLElement>;
+export const filterPart: ElementCreator<FilterPart>;
 export class FilterBuilder extends Component {
     get fields(): Fields;
     set fields(_fields: Fields);
+    get query(): string;
+    set query(querySpec: string);
     filter: _ArrayFilter1;
     description: string;
     addFilter: () => void;
@@ -327,7 +334,7 @@ export const richText: ElementCreator<RichText>;
 export class SideNav extends Component {
     minSize: number;
     navSize: number;
-    get compact(): boolean;
+    compact: boolean;
     content: HTMLSlotElement[];
     get contentVisible(): boolean;
     set contentVisible(visible: boolean);

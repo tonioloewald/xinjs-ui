@@ -1123,10 +1123,11 @@ document.head.append($46dc716dd2cf5925$var$style({
   display: flex;
 }
 
-xin-filter-part 'svg[class^="icon-"]': {
-  height: vars.fontSize,
-  verticalAlign: 'middle',
-  fill: vars.textColor,
+xin-filter-part svg[class^="icon-"]: {
+  height: var(--font-size, 16px);
+  verticalAlign: middle;
+  fill: var(--text-color);
+  pointer-event: none;
 },
 
 xin-filter-part [part="needle"] {
@@ -1237,6 +1238,9 @@ function $46dc716dd2cf5925$var$getSelectText(select) {
 class $46dc716dd2cf5925$export$b7838412d9f17b13 extends (0, $hgUW1$Component) {
     fields = [];
     filters = $46dc716dd2cf5925$export$16a138bde9d9de87;
+    haystack = "*";
+    condition = "";
+    needle = "";
     content = ()=>[
             $46dc716dd2cf5925$var$select({
                 part: "haystack"
@@ -1258,16 +1262,21 @@ class $46dc716dd2cf5925$export$b7838412d9f17b13 extends (0, $hgUW1$Component) {
             }, (0, $fef058b85aa29b7a$export$df03f54e09e486fa).trash())
         ];
     filter = $46dc716dd2cf5925$var$passAnything;
+    constructor(){
+        super();
+        this.initAttributes("haystack", "condition", "needle");
+    }
     buildFilter = ()=>{
         const { haystack: haystack, condition: condition, needle: needle } = this.parts;
-        const [, negative, key] = condition.value.match(/^(~)?(.+)/);
+        const negative = condition.value.startsWith("~");
+        const key = negative ? condition.value.slice(1) : condition.value;
         const filter = this.filters[key];
         needle.hidden = filter.needsValue === false;
         const baseTest = filter.needsValue === false ? filter.makeTest(undefined) : filter.makeTest(needle.value);
         const field = haystack.value;
         let test;
-        if (field !== "") test = negative === "~" ? (obj)=>!baseTest(obj[field]) : (obj)=>baseTest(obj[field]);
-        else test = negative === "~" ? (obj)=>Object.values(obj).find((v)=>!baseTest(v)) !== undefined : (obj)=>Object.values(obj).find((v)=>baseTest(v)) !== undefined;
+        if (field !== "") test = negative ? (obj)=>!baseTest(obj[field]) : (obj)=>baseTest(obj[field]);
+        else test = negative ? (obj)=>Object.values(obj).find((v)=>!baseTest(v)) !== undefined : (obj)=>Object.values(obj).find((v)=>baseTest(v)) !== undefined;
         const matchValue = filter.needsValue !== false ? ` "${needle.value}"` : "";
         const description = `${$46dc716dd2cf5925$var$getSelectText(haystack)} ${$46dc716dd2cf5925$var$getSelectText(condition)}${matchValue}`;
         this.filter = {
@@ -1276,6 +1285,10 @@ class $46dc716dd2cf5925$export$b7838412d9f17b13 extends (0, $hgUW1$Component) {
         };
         this.parentElement?.dispatchEvent(new Event("change"));
     };
+    get query() {
+        const { haystack: haystack, condition: condition, needle: needle } = this.parts;
+        return needle.hidden ? `${haystack.value}=${condition.value}` : `${haystack.value}=${condition.value}:${needle.value}`;
+    }
     connectedCallback() {
         super.connectedCallback();
         const { haystack: haystack, condition: condition, needle: needle, remove: remove } = this.parts;
@@ -1293,10 +1306,10 @@ class $46dc716dd2cf5925$export$b7838412d9f17b13 extends (0, $hgUW1$Component) {
     }
     render() {
         super.render();
-        const { haystack: haystack, condition: condition } = this.parts;
+        const { haystack: haystack, condition: condition, needle: needle } = this.parts;
         haystack.textContent = "";
         haystack.append($46dc716dd2cf5925$var$option("any field", {
-            value: ""
+            value: "*"
         }), ...this.fields.map((field)=>{
             const caption = field.name || field.prop;
             return $46dc716dd2cf5925$var$option(`${caption}`, {
@@ -1318,6 +1331,11 @@ class $46dc716dd2cf5925$export$b7838412d9f17b13 extends (0, $hgUW1$Component) {
             });
         }).flat();
         condition.append(...conditions);
+        console.log(this.haystack);
+        if (this.haystack !== "") haystack.value = this.haystack;
+        if (this.condition !== "") condition.value = this.condition;
+        if (this.needle !== "") needle.value = this.needle;
+        this.buildFilter();
     }
 }
 const $46dc716dd2cf5925$export$2237595b531763d7 = $46dc716dd2cf5925$export$b7838412d9f17b13.elementCreator({
@@ -1331,6 +1349,30 @@ class $46dc716dd2cf5925$export$afb49bb3b076029e extends (0, $hgUW1$Component) {
     set fields(_fields) {
         this._fields = _fields;
         this.queueRender();
+    }
+    get query() {
+        const { filterContainer: filterContainer } = this.parts;
+        const filterParts = [
+            ...filterContainer.children
+        ];
+        return filterParts.map((p)=>p.query).join("&");
+    }
+    set query(querySpec) {
+        const { fields: fields, filters: filters } = this;
+        const { filterContainer: filterContainer } = this.parts;
+        const queryParts = querySpec.split("&");
+        filterContainer.textContent = "";
+        for (const queryPart of queryParts){
+            const [haystack, remainder] = queryPart.split("=");
+            const [condition, needle] = remainder.split(":", 2);
+            filterContainer.append($46dc716dd2cf5925$export$2237595b531763d7({
+                fields: fields,
+                filters: filters,
+                haystack: haystack,
+                condition: condition,
+                needle: needle
+            }));
+        }
     }
     filter = $46dc716dd2cf5925$var$passThru;
     description = $46dc716dd2cf5925$var$NULL_FILTER_DESCRIPTION;
@@ -3172,9 +3214,7 @@ const { slot: $b9e5aa5581e8f051$var$slot } = (0, $hgUW1$elements);
 class $b9e5aa5581e8f051$export$1a35787d6353cf6a extends (0, $hgUW1$Component) {
     minSize = 800;
     navSize = 200;
-    get compact() {
-        return this.offsetParent ? this.offsetParent.offsetWidth < this.minSize : false;
-    }
+    compact = false;
     content = [
         $b9e5aa5581e8f051$var$slot({
             name: "nav"
@@ -3212,7 +3252,9 @@ class $b9e5aa5581e8f051$export$1a35787d6353cf6a extends (0, $hgUW1$Component) {
     });
     onResize = ()=>{
         const { content: content } = this.parts;
-        if (this.offsetParent === null) return;
+        const parent = this.offsetParent;
+        if (parent === null) return;
+        this.compact = parent.offsetWidth < this.minSize;
         const empty = [
             ...this.childNodes
         ].find((node)=>node instanceof Element ? node.getAttribute("slot") !== "nav" : true) === undefined;
@@ -3222,12 +3264,12 @@ class $b9e5aa5581e8f051$export$1a35787d6353cf6a extends (0, $hgUW1$Component) {
             return;
         }
         if (!this.compact) {
-            content.classList.add("-xin-sidebar-visible");
+            content.classList.add("-xin-sidenav-visible");
             this.style.setProperty("--nav-width", `${this.navSize}px`);
             this.style.setProperty("--content-width", `calc(100% - ${this.navSize}px)`);
             this.style.setProperty("--margin", "0");
         } else {
-            content.classList.remove("-xin-sidebar-visible");
+            content.classList.remove("-xin-sidenav-visible");
             this.style.setProperty("--nav-width", "50%");
             this.style.setProperty("--content-width", "50%");
             if (this.contentVisible) this.style.setProperty("--margin", "0 0 0 -100%");
