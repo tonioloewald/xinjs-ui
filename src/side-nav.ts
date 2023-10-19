@@ -24,11 +24,7 @@ const { slot } = elements
 export class SideNav extends WebComponent {
   minSize = 800
   navSize = 200
-  get compact(): boolean {
-    return this.offsetParent
-      ? (this.offsetParent as HTMLElement).offsetWidth < this.minSize
-      : false
-  }
+  compact = false
 
   content = [slot({ name: 'nav' }), slot({ part: 'content' })]
 
@@ -66,9 +62,12 @@ export class SideNav extends WebComponent {
 
   onResize = () => {
     const { content } = this.parts
-    if (this.offsetParent === null) {
+    const parent = this.offsetParent as HTMLElement | null
+    if (parent === null) {
       return
     }
+
+    this.compact = parent.offsetWidth < this.minSize
 
     const empty =
       [...this.childNodes].find((node) =>
@@ -81,7 +80,7 @@ export class SideNav extends WebComponent {
     }
 
     if (!this.compact) {
-      content.classList.add('-xin-sidebar-visible')
+      content.classList.add('-xin-sidenav-visible')
       this.style.setProperty('--nav-width', `${this.navSize}px`)
       this.style.setProperty(
         '--content-width',
@@ -89,7 +88,7 @@ export class SideNav extends WebComponent {
       )
       this.style.setProperty('--margin', '0')
     } else {
-      content.classList.remove('-xin-sidebar-visible')
+      content.classList.remove('-xin-sidenav-visible')
       this.style.setProperty('--nav-width', '50%')
       this.style.setProperty('--content-width', '50%')
 

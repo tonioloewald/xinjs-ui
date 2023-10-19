@@ -160,7 +160,7 @@ main.append(
           },
           onClick(event: Event) {
             ;(
-              (event.target as HTMLElement).closest('xin-sidebar') as SideNav
+              (event.target as HTMLElement).closest('xin-sidenav') as SideNav
             ).contentVisible = false
           },
         },
