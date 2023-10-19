@@ -100,7 +100,7 @@ main {
   overflow: hidden;
 }
 
-main > xin-sidebar {
+main > xin-sidenav {
   height: calc(100vh - var(--header-height));
 }
 
@@ -267,7 +267,7 @@ code {
   --text-color: var(--brand-color);
 }
 
-.-xin-sidebar-visible .close-content {
+.-xin-sidenav-visible .close-content {
   display: none;
 }
 
@@ -298,7 +298,7 @@ code {
   color: var(--text-color);
 }
 
-xin-sidebar:not([compact]) .show-within-compact {
+xin-sidenav:not([compact]) .show-within-compact {
   display: none;
 }
 
