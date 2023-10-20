@@ -7,39 +7,48 @@ It's designed to work like an `<img>` element (just set its `src` attribute).
 
 ```js
 const { xinProxy } = xinjs
-const { icons, xinFloat } = xinjsui
+const { icons, popFloat } = xinjsui
 const { h4, label, input, select, option, span } = xinjs.elements
 
 const rocket = preview.querySelector('xin-lottie')
-preview.append(
-  xinFloat(
-    { class: 'panel', drag: true },
-    h4('Player Controls'),
-    label(
-      { class: 'no-drag' },
-      'speed',
-      input({ type: 'range', min: -1, max: 1, step: 0.1, value: 0, onInput(event) {
-        const speed = Math.pow(5, Number(event.target.value))
-        rocket.animation.setSpeed(speed)
-        event.target.nextSibling.textContent = (speed * 100).toFixed(0) + '%'
-      } }),
-      span('100%', {style: { textAlign: 'right', width: '40px'}})
-    ),
-    label(
-      { class: 'no-drag' },
-      'direction',
-      select(
-        option('Forwards', {value: 1, selected: true}),
-        option('Backwards', {value: -1}),
-        {
-          onChange(event) {
-            rocket.animation.setDirection(event.target.value)
-          }
-        }
-      ),
-      icons.chevronDown(),
-    )
-  )
+setTimeout(
+  () => {
+ preview.append(
+   popFloat({
+     content: [
+       { class: 'panel', drag: true },
+       h4('Player Controls'),
+       label(
+         { class: 'no-drag' },
+         'speed',
+         input({ type: 'range', min: -1, max: 1, step: 0.1, value: 0, onInput(event) {
+           const speed = Math.pow(5, Number(event.target.value))
+           rocket.animation.setSpeed(speed)
+           event.target.nextSibling.textContent = (speed * 100).toFixed(0) + '%'
+         } }),
+         span('100%', {style: { textAlign: 'right', width: '40px'}})
+       ),
+       label(
+         { class: 'no-drag' },
+         'direction',
+         select(
+           option('Forwards', {value: 1, selected: true}),
+           option('Backwards', {value: -1}),
+           {
+             onChange(event) {
+               rocket.animation.setDirection(event.target.value)
+             }
+           }
+         ),
+         icons.chevronDown(),
+       )
+     ],
+     target: rocket,
+     position: 'n'
+   })
+ )
+  },
+  500
 )
 ```
 ```html
@@ -58,8 +67,6 @@ preview.append(
 }
 
 .preview .panel {
-  left: 20px;
-  bottom: 20px;
   padding: 10px;
   border-radius: 5px;
   gap: 5px;
