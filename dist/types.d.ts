@@ -1,4 +1,4 @@
-import { Component, ElementCreator } from "xinjs";
+import { Component, ElementCreator, ElementPart } from "xinjs";
 export class AbTest extends Component {
     static set conditions(context: {
         [key: string]: any;
@@ -190,7 +190,7 @@ export class XinFloat extends Component {
     reposition: (event: Event) => void;
     connectedCallback(): void;
 }
-export const xinFloat: import("xinjs").ElementCreator<HTMLElement>;
+export const xinFloat: ElementCreator<XinFloat>;
 export class XinField extends Component {
     caption: string;
     key: string;
@@ -305,6 +305,14 @@ export class MarkdownViewer extends Component {
     render(): void;
 }
 export const markdownViewer: ElementCreator<MarkdownViewer>;
+export type FloatPosition = 'n' | 's' | 'e' | 'w' | 'ne' | 'nw' | 'se' | 'sw' | 'auto';
+export interface PopFloatOptions {
+    content: HTMLElement | ElementPart[];
+    target: HTMLElement;
+    position?: FloatPosition;
+}
+export const popFloat: (options: PopFloatOptions) => XinFloat;
+export const positionFloat: (element: HTMLElement, target: HTMLElement, position?: FloatPosition) => void;
 export function blockStyle(options?: {
     caption: string;
     tagType: string;
