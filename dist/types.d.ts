@@ -234,6 +234,14 @@ export class SvgIcon extends Component {
     render(): void;
 }
 export const svgIcon: ElementCreator<HTMLElement>;
+export type FloatPosition = 'n' | 's' | 'e' | 'w' | 'ne' | 'nw' | 'se' | 'sw' | 'auto';
+export interface PopFloatOptions {
+    content: HTMLElement | ElementPart[];
+    target: HTMLElement;
+    position?: FloatPosition;
+}
+export const popFloat: (options: PopFloatOptions) => XinFloat;
+export const positionFloat: (element: HTMLElement, target: HTMLElement, position?: FloatPosition) => void;
 export class TabSelector extends Component {
     value: number;
     static makeTab(tabs: TabSelector, tabBody: HTMLElement, bodyId: string): HTMLElement;
@@ -262,10 +270,13 @@ export class LiveExample extends Component {
     set html(code: string);
     get js(): string;
     set js(code: string);
+    resizeCodeEditors: (event: PointerEvent) => void;
     content: () => any[];
     connectedCallback(): void;
     copy: () => void;
     toggleMaximize: () => void;
+    toggleMaximizeCode: () => void;
+    toggleCodeEditors: () => void;
     refresh: () => void;
     initFromElements(elements: HTMLElement[]): void;
     showDefaultTab(): void;
@@ -305,14 +316,6 @@ export class MarkdownViewer extends Component {
     render(): void;
 }
 export const markdownViewer: ElementCreator<MarkdownViewer>;
-export type FloatPosition = 'n' | 's' | 'e' | 'w' | 'ne' | 'nw' | 'se' | 'sw' | 'auto';
-export interface PopFloatOptions {
-    content: HTMLElement | ElementPart[];
-    target: HTMLElement;
-    position?: FloatPosition;
-}
-export const popFloat: (options: PopFloatOptions) => XinFloat;
-export const positionFloat: (element: HTMLElement, target: HTMLElement, position?: FloatPosition) => void;
 export function blockStyle(options?: {
     caption: string;
     tagType: string;

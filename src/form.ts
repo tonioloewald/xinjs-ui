@@ -29,8 +29,7 @@ preview.querySelector('.submit').addEventListener('click', () => {
 }
 
 .preview ::part(header), .preview ::part(footer) {
-  --text-color: var(--brand-text-color);
-  background: var(--brand-color);
+  background: #ddd;
   justify-content: center;
   padding: calc(var(--spacing) * 0.5) var(--spacing);
 }

@@ -81,7 +81,6 @@ export class XinFloat extends WebComponent {
 
   styleNode = WebComponent.StyleNode({
     ':host': {
-      display: 'block',
       position: 'fixed',
     },
   })

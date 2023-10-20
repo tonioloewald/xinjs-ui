@@ -383,7 +383,7 @@ setTimeout(
        )
      ],
      target: rocket,
-     position: 'n'
+     position: 'w'
    })
  )
   },
@@ -392,7 +392,7 @@ setTimeout(
 ```
 ```html
 <xin-lottie
-  style="max-height: 100%; width: 100%"
+  style="height: 100%; max-width: 100%"
   src="https://raw.githubusercontent.com/tonioloewald/xinjs-ui/main/demo/88140-rocket-livetrade.json"
 ></xin-lottie>
 <div class="caption">
@@ -1549,7 +1549,6 @@ class $ddbe66d066773fc1$export$dfef4eaf9958ab9d extends (0, $hgUW1$Component) {
     content = $ddbe66d066773fc1$var$slot();
     styleNode = (0, $hgUW1$Component).StyleNode({
         ":host": {
-            display: "block",
             position: "fixed"
         }
     });
@@ -1622,8 +1621,7 @@ preview.querySelector('.submit').addEventListener('click', () => {
 }
 
 .preview ::part(header), .preview ::part(footer) {
-  --text-color: var(--brand-text-color);
-  background: var(--brand-color);
+  background: #ddd;
   justify-content: center;
   padding: calc(var(--spacing) * 0.5) var(--spacing);
 }
@@ -1909,6 +1907,7 @@ all the icons have been processed to have integer coordinates in a `viewBox` typ
 
 */ 
 var $2d5b9d9e4f25abad$export$2e2bcd8739ae039 = {
+    resize: "M175 102l271 271c20 20 20 52 0 72s-52 20-72 0l-271-271v184c0 28-23 51-51 51s-51-23-51-51v-307c0-7 1-14 4-20s6-12 11-17c0-0 0-0 0-0 5-5 10-8 17-11 6-3 13-4 20-4h307c28 0 51 23 51 51s-23 51-51 51h-184zM849 922l-271-271c-20-20-20-52 0-72s52-20 72 0l271 271v-184c0-28 23-51 51-51s51 23 51 51v307c0 28-23 51-51 51h-307c-28 0-51-23-51-51s23-51 51-51h184z",
     copy: "M469 341c-35 0-67 14-90 38s-38 55-38 90v384c0 35 14 67 38 90s55 38 90 38h384c35 0 67-14 90-38s38-55 38-90v-384c0-35-14-67-38-90s-55-38-90-38zM469 427h384c12 0 22 5 30 13s13 18 13 30v384c0 12-5 22-13 30s-18 13-30 13h-384c-12 0-22-5-30-13s-13-18-13-30v-384c0-12 5-22 13-30s18-13 30-13zM213 597h-43c-12 0-22-5-30-13s-13-18-13-30v-384c0-12 5-22 13-30s18-13 30-13h384c12 0 22 5 30 13s13 18 13 30v43c0 24 19 43 43 43s43-19 43-43v-43c0-35-14-67-38-90s-55-38-90-38h-384c-35 0-67 14-90 38s-38 55-38 90v384c0 35 14 67 38 90s55 38 90 38h43c24 0 43-19 43-43s-19-43-43-43z",
     formatAlignCenter: "M128 128h768v86h-768v-86zM298 298h428v86h-428v-86zM128 554v-84h768v84h-768zM128 896v-86h768v86h-768zM298 640h428v86h-428v-86z",
     formatAlignLeft: "M128 128h768v86h-768v-86zM128 896v-86h768v86h-768zM128 554v-84h768v84h-768zM640 298v86h-512v-86h512zM640 640v86h-512v-86h512z",
@@ -2134,6 +2133,175 @@ function that will replace any sequence of
 `pre code[class="language-html"],pre code[class="language-js"],pre code[class="language-css"]`
 elements with a `<xin-example>` instance.
 */ 
+
+var $52362c0fb5690a1b$exports = {};
+
+$parcel$export($52362c0fb5690a1b$exports, "popFloat", () => $52362c0fb5690a1b$export$81725bf7d66575d3);
+$parcel$export($52362c0fb5690a1b$exports, "positionFloat", () => $52362c0fb5690a1b$export$90a23b8db6abf910);
+/*!
+# popFloat
+
+There are so many cases in user-interfaces where it's useful to pop-up a floating
+user interface element that a simple and reliable way of doing this seems like
+a good idea.
+
+The problem with many such approaches is that they assume a highly specific
+use-case (e.g. popup menu or combo box) and while meeting the creator's intended
+purpose admirably, turn out to have some annoying limitation that prevents them
+handling the specific case at hand.
+
+```js
+const { popFloat, positionFloat } = xinjsui
+const { button } = xinjs.elements
+const grid = preview.querySelector('.grid')
+
+grid.addEventListener('click', (event) => {
+  const { target } = event
+  const float = preview.querySelector('xin-float')
+  if (float === null) {
+    // create and position a float
+    preview.append(
+      popFloat({
+        content: [
+          'hello, I am a float',
+          button('close me', {
+            onClick(event){
+              event.target.closest('xin-float').remove()
+            }
+          })
+        ],
+        target,
+        position: target.dataset.float
+      })
+    )
+  } else {
+    // position an existing float
+    positionFloat(float, target, target.dataset.float)
+  }
+})
+```
+```html
+<h2>Pop Float Demo</h2>
+<div class="grid">
+  <button data-float="nw">nw</button>
+  <button data-float="n">n</button>
+  <button data-float="ne">ne</button>
+  <button data-float="w">w</button>
+  <button data-float="auto">auto</button>
+  <button data-float="e">e</button>
+  <button data-float="sw">sw</button>
+  <button data-float="s">s</button>
+  <button data-float="se">se</button>
+</div>
+```
+```css
+.preview .grid {
+  display: grid;
+  grid-template-columns: 80px 80px 80px;
+}
+
+.preview xin-float {
+  display: flex;
+  flex-direction: column;
+  border-radius: 5px;
+  padding: 10px;
+  background: white;
+  box-shadow: 2px 10px 5px #0004;
+}
+```
+
+## popFloat
+
+```
+export interface PopFloatOptions {
+  content: HTMLElement | ElementPart[]
+  target: HTMLElement
+  position?: FloatPosition
+}
+
+export const popFloat = (options: PopFloatOptions): XinFloat
+```
+
+Create a `<xin-float>` with the content provided, positioned as specified (or automatically).
+
+## positionFloat
+
+```
+export const positionFloat = (
+  element: HTMLElement,
+  target: HTMLElement,
+  position?: FloatPosition
+): void
+```
+
+This allows you to, for example, provide a global menu that can be used on any element
+instead of needing to have a whole instance of the menu wrapped around every instance
+of the thing you want the menu to affect (a common anti-pattern of front-end frameworks).
+
+## FloatPosition
+
+```
+export type FloatPosition =
+| 'n'
+| 's'
+| 'e'
+| 'w'
+| 'ne'
+| 'nw'
+| 'se'
+| 'sw'
+| 'auto'
+```
+
+*/ 
+
+const $52362c0fb5690a1b$export$81725bf7d66575d3 = (options)=>{
+    const { content: content, target: target, position: position } = options;
+    const float = Array.isArray(content) ? (0, $ddbe66d066773fc1$export$aeb0f03cef938121)(...content) : (0, $ddbe66d066773fc1$export$aeb0f03cef938121)(content);
+    $52362c0fb5690a1b$export$90a23b8db6abf910(float, target, position);
+    document.body.append(float);
+    return float;
+};
+const $52362c0fb5690a1b$export$90a23b8db6abf910 = (element, target, position)=>{
+    {
+        const { position: position, zIndex: zIndex } = getComputedStyle(element);
+        if (position !== "fixed") element.style.position = "fixed";
+        const highestZ = (0, $5265d118b5240170$export$f3caf27c1d0ebf0c)();
+        if (Number(zIndex) < highestZ) element.style.zIndex = String(highestZ + 1);
+    }
+    const { left: left, top: top, width: width, height: height } = target.getBoundingClientRect();
+    const cx = left + width * 0.5;
+    const cy = top + height * 0.5;
+    const w = window.innerWidth;
+    const h = window.innerHeight;
+    if (position === "auto" || position === undefined) position = (cy < h * 0.5 ? "s" : "n") + (cx < w * 0.5 ? "e" : "w");
+    element.style.top = element.style.left = element.style.right = element.style.bottom = element.style.transform = "";
+    if (position.length === 2) {
+        if (position.includes("n")) element.style.bottom = (h - top).toFixed(2) + "px";
+        else if (position.includes("s")) element.style.top = (top + height).toFixed(2) + "px";
+        if (position.includes("e")) element.style.left = left.toFixed(2) + "px";
+        else if (position.includes("w")) element.style.right = (w - left - width).toFixed(2) + "px";
+        element.style.transform = "";
+    } else if (position === "n") {
+        element.style.bottom = (h - top).toFixed(2) + "px";
+        element.style.left = cx.toFixed(2) + "px";
+        element.style.transform = "translateX(-50%)";
+    } else if (position === "s") {
+        element.style.top = (top + height).toFixed(2) + "px";
+        element.style.left = cx.toFixed(2) + "px";
+        element.style.transform = "translateX(-50%)";
+    } else if (position === "e") {
+        element.style.left = (left + width).toFixed(2) + "px";
+        element.style.top = cy.toFixed(2) + "px";
+        element.style.transform = "translateY(-50%)";
+    } else if (position === "w") {
+        element.style.right = (w - left).toFixed(2) + "px";
+        element.style.top = cy.toFixed(2) + "px";
+        element.style.transform = "translateY(-50%)";
+    }
+};
+
+
 
 var $6bbe441346901d5a$exports = {};
 
@@ -2399,7 +2567,8 @@ const $6bbe441346901d5a$export$a932f737dcd864a2 = $6bbe441346901d5a$export$a3a72
 
 
 
-const { div: $ada9b1474dc4b958$var$div, xinSlot: $ada9b1474dc4b958$var$xinSlot, style: $ada9b1474dc4b958$var$style, button: $ada9b1474dc4b958$var$button } = (0, $hgUW1$elements);
+
+const { div: $ada9b1474dc4b958$var$div, xinSlot: $ada9b1474dc4b958$var$xinSlot, style: $ada9b1474dc4b958$var$style, button: $ada9b1474dc4b958$var$button, h4: $ada9b1474dc4b958$var$h4 } = (0, $hgUW1$elements);
 const $ada9b1474dc4b958$var$AsyncFunction = (async ()=>{}).constructor;
 const $ada9b1474dc4b958$var$codeStyle = {
     style: {
@@ -2410,12 +2579,11 @@ const $ada9b1474dc4b958$var$codeStyle = {
 document.head.append($ada9b1474dc4b958$var$style({
     id: "xin-example"
 }, `:root {
-  --xin-example-height: 400px;
+  --xin-example-height: 250px;
 }
 
 xin-example {
   --xin-example-preview-height: calc(var(--xin-example-height) * 0.5);
-  --xin-example-editor-height: calc(var(--xin-example-height) * 0.5);
   position: relative;
   display: flex;
   flex-direction: column-reverse;
@@ -2430,6 +2598,9 @@ xin-example.-maximize {
   height: 100vh;
   width: 100vw;
   margin: 0 !important;
+}
+
+.-maximize {
   /* FIXME: kludge */
   z-index: 10;
 }
@@ -2455,9 +2626,72 @@ xin-example .preview {
 }
 
 xin-example [part="editors"] {
-  flex: 1 1 var(--xin-example-editor-height);
-  height: var(--xin-example-editor-height);
+  flex: 1 1 200px;
+  height: 100%;
   position: relative;
+}
+
+xin-example .example-widgets {
+  position: absolute;
+  right: 5px;
+  top: 5px;
+  background: #fff4;
+  border-radius: 5px;
+}
+
+xin-example .code-editors {
+  border-radius: 4px;
+  overflow: hidden;
+  background: white;
+  width: 400px;
+  maxWidth: 100vw;
+  height: 200px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.25);
+}
+
+xin-example .code-editors.-maximize {
+  position: fixed;
+  top: 0 !important;
+  left: 0 !important;
+  width: 100vw !important;
+  height: 100vh !important;
+  transform: none !important;
+}
+.code-editors.-maximize .hide-if-code-maximized,
+.code-editors:not(.-maximize) .show-if-code-maximized {
+  display: none;
+}
+
+xin-example .code-editors > h4 {
+  padding: 5px;
+  margin: 0;
+  text-align: center;
+  background: var(--brand-color, darkgrey);
+  color: var(--brand-text-color, white);
+}
+
+xin-example .code-editors > .sizer {
+  content: '+';
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  opacity: 0.3;
+  z-index: 9;
+}
+
+xin-example button.transparent,
+xin-example .sizer {
+  width: 32px;
+  height: 32px;
+  line-height: 32px;
+  text-align: center;
+  padding: 0;
+  margin: 0;
+}
+
+
+xin-example .code-editors > .sizer:hover {
+  opacity: 0.6
 }
 `));
 class $ada9b1474dc4b958$export$41199f9ac14d8c08 extends (0, $hgUW1$Component) {
@@ -2520,8 +2754,29 @@ class $ada9b1474dc4b958$export$41199f9ac14d8c08 extends (0, $hgUW1$Component) {
     set js(code) {
         this.parts.js.value = code;
     }
+    resizeCodeEditors = (event)=>{
+        const { codeEditors: codeEditors } = this.parts;
+        const w = codeEditors.offsetWidth;
+        const h = codeEditors.offsetHeight;
+        (0, $5265d118b5240170$export$c947e3cd16175f27)(event, (dx, dy, event)=>{
+            codeEditors.style.width = Math.max(200, w + dx) + "px";
+            codeEditors.style.height = Math.max(100, h + dy) + "px";
+            if (event.type === "mouseup") return true;
+        });
+    };
     content = ()=>[
-            (0, $6bbe441346901d5a$export$a932f737dcd864a2)({
+            $ada9b1474dc4b958$var$div({
+                part: "example"
+            }, $ada9b1474dc4b958$var$style({
+                part: "style"
+            })),
+            (0, $ddbe66d066773fc1$export$aeb0f03cef938121)({
+                class: "code-editors",
+                part: "codeEditors",
+                drag: true,
+                hidden: true
+            }, $ada9b1474dc4b958$var$h4("Code"), (0, $6bbe441346901d5a$export$a932f737dcd864a2)({
+                class: "no-drag",
                 part: "editors"
             }, (0, $8a70bd76f9b7e656$export$d89b6f4d34274146)({
                 name: "js",
@@ -2551,7 +2806,27 @@ class $ada9b1474dc4b958$export$41199f9ac14d8c08 extends (0, $hgUW1$Component) {
             }, (0, $fef058b85aa29b7a$export$df03f54e09e486fa).refresh()), $ada9b1474dc4b958$var$button({
                 part: "maximize",
                 slot: "after-tabs",
-                title: "maximize",
+                title: "maximize code",
+                class: "transparent",
+                onClick: this.toggleMaximizeCode
+            }, (0, $fef058b85aa29b7a$export$df03f54e09e486fa).minimize({
+                class: "icon-minimize show-if-code-maximized"
+            }), (0, $fef058b85aa29b7a$export$df03f54e09e486fa).maximize({
+                class: "icon-maximize hide-if-code-maximized"
+            }))), $ada9b1474dc4b958$var$div({
+                class: "sizer no-drag",
+                onMousedown: this.resizeCodeEditors,
+                onTouchstart: this.resizeCodeEditors
+            }, (0, $fef058b85aa29b7a$export$df03f54e09e486fa).resize())),
+            $ada9b1474dc4b958$var$div({
+                class: "example-widgets"
+            }, $ada9b1474dc4b958$var$button({
+                title: "view code",
+                class: "transparent",
+                onClick: this.toggleCodeEditors
+            }, (0, $fef058b85aa29b7a$export$df03f54e09e486fa).code()), $ada9b1474dc4b958$var$button({
+                part: "maximize",
+                title: "maximize preview",
                 class: "transparent",
                 onClick: this.toggleMaximize
             }, (0, $fef058b85aa29b7a$export$df03f54e09e486fa).minimize({
@@ -2559,11 +2834,6 @@ class $ada9b1474dc4b958$export$41199f9ac14d8c08 extends (0, $hgUW1$Component) {
             }), (0, $fef058b85aa29b7a$export$df03f54e09e486fa).maximize({
                 class: "icon-maximize hide-if-maximized"
             }))),
-            $ada9b1474dc4b958$var$div({
-                part: "example"
-            }, $ada9b1474dc4b958$var$style({
-                part: "style"
-            })),
             $ada9b1474dc4b958$var$xinSlot({
                 part: "sources",
                 hidden: true
@@ -2585,6 +2855,23 @@ class $ada9b1474dc4b958$export$41199f9ac14d8c08 extends (0, $hgUW1$Component) {
     toggleMaximize = ()=>{
         this.classList.toggle("-maximize");
     };
+    toggleMaximizeCode = ()=>{
+        this.parts.codeEditors.classList.toggle("-maximize");
+    };
+    toggleCodeEditors = ()=>{
+        const { codeEditors: codeEditors } = this.parts;
+        const visible = codeEditors.hidden;
+        if (visible) {
+            codeEditors.style.width = this.offsetWidth + "px";
+            (0, $52362c0fb5690a1b$export$90a23b8db6abf910)(codeEditors, this, "se");
+            if (this.classList.contains("-maximize")) {
+                codeEditors.style.top = "";
+                codeEditors.style.height = "40%";
+                codeEditors.style.bottom = "0";
+            }
+        }
+        codeEditors.hidden = !visible;
+    };
     refresh = ()=>{
         const { example: example, style: style } = this.parts;
         const preview = $ada9b1474dc4b958$var$div({
@@ -2599,7 +2886,7 @@ class $ada9b1474dc4b958$export$41199f9ac14d8c08 extends (0, $hgUW1$Component) {
             ...this.context
         };
         try {
-            // @ts-expect-error ts is wrong
+            // @ts-expect-error ts is wrong and it makes me so mad
             const func = new $ada9b1474dc4b958$var$AsyncFunction(...Object.keys(context), this.js);
             func(...Object.values(context)).catch((err)=>console.error(err));
         } catch (e) {
@@ -2944,172 +3231,6 @@ const $1b88c9cb596c3426$export$305b975a891d0dfa = $1b88c9cb596c3426$export$575eb
     tag: "xin-md"
 });
 
-
-var $52362c0fb5690a1b$exports = {};
-
-$parcel$export($52362c0fb5690a1b$exports, "popFloat", () => $52362c0fb5690a1b$export$81725bf7d66575d3);
-$parcel$export($52362c0fb5690a1b$exports, "positionFloat", () => $52362c0fb5690a1b$export$90a23b8db6abf910);
-/*!
-# popFloat
-
-There are so many cases in user-interfaces where it's useful to pop-up a floating
-user interface element that a simple and reliable way of doing this seems like
-a good idea.
-
-The problem with many such approaches is that they assume a highly specific
-use-case (e.g. popup menu or combo box) and while meeting the creator's intended
-purpose admirably, turn out to have some annoying limitation that prevents them
-handling the specific case at hand.
-
-```js
-const { popFloat, positionFloat } = xinjsui
-const { button } = xinjs.elements
-const grid = preview.querySelector('.grid')
-
-grid.addEventListener('click', (event) => {
-  const { target } = event
-  const float = preview.querySelector('xin-float')
-  if (float === null) {
-    // create and position a float
-    preview.append(
-      popFloat({
-        content: [
-          'hello, I am a float',
-          button('close me', {
-            onClick(event){
-              event.target.closest('xin-float').remove()
-            }
-          })
-        ],
-        target,
-        position: target.dataset.float
-      })
-    )
-  } else {
-    // position an existing float
-    positionFloat(float, target, target.dataset.float)
-  }
-})
-```
-```html
-<h2>Pop Float Demo</h2>
-<div class="grid">
-  <button data-float="nw">nw</button>
-  <button data-float="n">n</button>
-  <button data-float="ne">ne</button>
-  <button data-float="w">w</button>
-  <button data-float="auto">auto</button>
-  <button data-float="e">e</button>
-  <button data-float="sw">sw</button>
-  <button data-float="s">s</button>
-  <button data-float="se">se</button>
-</div>
-```
-```css
-.preview .grid {
-  display: grid;
-  grid-template-columns: 80px 80px 80px;
-}
-
-.preview xin-float {
-  display: flex;
-  flex-direction: column;
-  border-radius: 5px;
-  padding: 10px;
-  background: white;
-  box-shadow: 2px 10px 5px #0004;
-}
-```
-
-## popFloat
-
-```
-export interface PopFloatOptions {
-  content: HTMLElement | ElementPart[]
-  target: HTMLElement
-  position?: FloatPosition
-}
-
-export const popFloat = (options: PopFloatOptions): XinFloat
-```
-
-Create a `<xin-float>` with the content provided, positioned as specified (or automatically).
-
-## positionFloat
-
-```
-export const positionFloat = (
-  element: HTMLElement,
-  target: HTMLElement,
-  position?: FloatPosition
-): void
-```
-
-This allows you to, for example, provide a global menu that can be used on any element
-instead of needing to have a whole instance of the menu wrapped around every instance
-of the thing you want the menu to affect (a common anti-pattern of front-end frameworks).
-
-## FloatPosition
-
-```
-export type FloatPosition =
-| 'n'
-| 's'
-| 'e'
-| 'w'
-| 'ne'
-| 'nw'
-| 'se'
-| 'sw'
-| 'auto'
-```
-
-*/ 
-const $52362c0fb5690a1b$export$81725bf7d66575d3 = (options)=>{
-    const { content: content, target: target, position: position } = options;
-    const floatStyle = {};
-    const float = Array.isArray(content) ? (0, $ddbe66d066773fc1$export$aeb0f03cef938121)({
-        style: floatStyle
-    }, ...content) : (0, $ddbe66d066773fc1$export$aeb0f03cef938121)({
-        style: floatStyle
-    }, content);
-    $52362c0fb5690a1b$export$90a23b8db6abf910(float, target, position);
-    document.body.append(float);
-    return float;
-};
-const $52362c0fb5690a1b$export$90a23b8db6abf910 = (element, target, position)=>{
-    if (getComputedStyle(element).position !== "fixed") element.style.position = "fixed";
-    const { left: left, top: top, width: width, height: height } = target.getBoundingClientRect();
-    const cx = left + width * 0.5;
-    const cy = top + height * 0.5;
-    const w = window.innerWidth;
-    const h = window.innerHeight;
-    if (position === "auto" || position === undefined) position = (cy < h * 0.5 ? "s" : "n") + (cx < w * 0.5 ? "e" : "w");
-    element.style.top = element.style.left = element.style.right = element.style.bottom = element.style.transform = "";
-    if (position.length === 2) {
-        if (position.includes("n")) element.style.bottom = (h - top).toFixed(2) + "px";
-        else if (position.includes("s")) element.style.top = (top + height).toFixed(2) + "px";
-        if (position.includes("e")) element.style.left = left.toFixed(2) + "px";
-        else if (position.includes("w")) element.style.right = (w - left - width).toFixed(2) + "px";
-        element.style.transform = "";
-    } else if (position === "n") {
-        element.style.bottom = (h - top).toFixed(2) + "px";
-        element.style.left = cx.toFixed(2) + "px";
-        element.style.transform = "translateX(-50%)";
-    } else if (position === "s") {
-        element.style.top = (top + height).toFixed(2) + "px";
-        element.style.left = cx.toFixed(2) + "px";
-        element.style.transform = "translateX(-50%)";
-    } else if (position === "e") {
-        element.style.left = (left + width).toFixed(2) + "px";
-        element.style.top = cy.toFixed(2) + "px";
-        element.style.transform = "translateY(-50%)";
-    } else if (position === "w") {
-        element.style.right = (w - left).toFixed(2) + "px";
-        element.style.top = cy.toFixed(2) + "px";
-        element.style.transform = "translateY(-50%)";
-    }
-};
 
 
 var $815deb6062b0b31b$exports = {};
