@@ -3,8 +3,12 @@
 
 There are so many cases in user-interfaces where it's useful to pop-up a floating
 user interface element that a simple and reliable way of doing this seems like
-a good idea. The problem with most such approaches is that the assume a highly specific
-use-case and then fail to meet your actual requirements in a pinch.
+a good idea.
+
+The problem with many such approaches is that they assume a highly specific
+use-case (e.g. popup menu or combo box) and while meeting the creator's intended
+purpose admirably, turn out to have some annoying limitation that prevents them
+handling the specific case at hand.
 
 ```js
 const { popFloat, positionFloat } = xinjsui
