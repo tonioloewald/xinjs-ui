@@ -69,7 +69,7 @@ To prevent dragging for an interior element (e.g. if you want a floating palette
 just add the `no-drag` class to an element or its container.
 */
 
-import { Component as WebComponent, elements } from 'xinjs'
+import { Component as WebComponent, elements, ElementCreator } from 'xinjs'
 import { trackDrag, findHighestZ } from './track-drag'
 
 const { slot } = elements
@@ -110,8 +110,8 @@ export class XinFloat extends WebComponent {
         ): true | undefined => {
           this.style.left = `${x + dx}px`
           this.style.top = `${y + dy}px`
-          this.style.right = ''
-          this.style.bottom = ''
+          this.style.right = 'auto'
+          this.style.bottom = 'auto'
           if (pointerEvent.type === 'mouseup') {
             return true
           }
@@ -129,4 +129,6 @@ export class XinFloat extends WebComponent {
   }
 }
 
-export const xinFloat = XinFloat.elementCreator({ tag: 'xin-float' })
+export const xinFloat = XinFloat.elementCreator({
+  tag: 'xin-float',
+}) as ElementCreator<XinFloat>

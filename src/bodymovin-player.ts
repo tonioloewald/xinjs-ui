@@ -7,14 +7,16 @@ It's designed to work like an `<img>` element (just set its `src` attribute).
 
 ```js
 const { xinProxy } = xinjs
-const { icons } = xinjsui
-const { div, label, input, select, option, span } = xinjs.elements
+const { icons, xinFloat } = xinjsui
+const { h4, label, input, select, option, span } = xinjs.elements
 
 const rocket = preview.querySelector('xin-lottie')
 preview.append(
-  div(
-    { class: 'panel' },
+  xinFloat(
+    { class: 'panel', drag: true },
+    h4('Player Controls'),
     label(
+      { class: 'no-drag' },
       'speed',
       input({ type: 'range', min: -1, max: 1, step: 0.1, value: 0, onInput(event) {
         const speed = Math.pow(5, Number(event.target.value))
@@ -24,6 +26,7 @@ preview.append(
       span('100%', {style: { textAlign: 'right', width: '40px'}})
     ),
     label(
+      { class: 'no-drag' },
       'direction',
       select(
         option('Forwards', {value: 1, selected: true}),
@@ -41,10 +44,10 @@ preview.append(
 ```
 ```html
 <xin-lottie
-  style="max-height: calc(100% - 40px); width: 100%"
+  style="max-height: 100%; width: 100%"
   src="https://raw.githubusercontent.com/tonioloewald/xinjs-ui/main/demo/88140-rocket-livetrade.json"
 ></xin-lottie>
-<div style="height: 40px; line-height: 40px">
+<div class="caption">
   Animation by <a target="_blank" href="https://lottiefiles.com/dvskjbicfc">chiến lê hồng</a>
 </div>
 ```
@@ -55,15 +58,31 @@ preview.append(
 }
 
 .preview .panel {
-  position: absolute;
-  left: 10px;
-  bottom: 10px;
+  left: 20px;
+  bottom: 20px;
   padding: 10px;
   border-radius: 5px;
+  gap: 5px;
   background: white;
   box-shadow: 0 2px 8px rgba(0,0,0,0.25);
   display: flex;
   flex-direction: column;
+  overflow: hidden;
+}
+
+.preview .caption {
+  position: absolute;
+  right: 5px;
+  bottom: 5px;
+}
+
+.preview h4 {
+  margin: 0;
+  text-align: center;
+  background: var(--brand-color);
+  color: white;
+  padding: 5px;
+  margin: -10px -10px 0 -10px;
 }
 ```
 
