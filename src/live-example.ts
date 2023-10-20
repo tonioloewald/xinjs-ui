@@ -51,11 +51,14 @@ elements with a `<xin-example>` instance.
 */
 
 import { Component as WebComponent, ElementCreator, elements } from 'xinjs'
+import { xinFloat } from './float'
+import { positionFloat } from './pop-float'
 import { codeEditor, CodeEditor } from './code-editor'
 import { tabSelector, TabSelector } from './tab-selector'
+import { trackDrag } from './track-drag'
 import { icons } from './icons'
 
-const { div, xinSlot, style, button } = elements
+const { div, xinSlot, style, button, h4 } = elements
 
 const AsyncFunction = (async () => {}).constructor
 
@@ -70,12 +73,11 @@ document.head.append(
   style(
     { id: 'xin-example' },
     `:root {
-  --xin-example-height: 400px;
+  --xin-example-height: 250px;
 }
 
 xin-example {
   --xin-example-preview-height: calc(var(--xin-example-height) * 0.5);
-  --xin-example-editor-height: calc(var(--xin-example-height) * 0.5);
   position: relative;
   display: flex;
   flex-direction: column-reverse;
@@ -90,6 +92,9 @@ xin-example.-maximize {
   height: 100vh;
   width: 100vw;
   margin: 0 !important;
+}
+
+.-maximize {
   /* FIXME: kludge */
   z-index: 10;
 }
@@ -115,9 +120,72 @@ xin-example .preview {
 }
 
 xin-example [part="editors"] {
-  flex: 1 1 var(--xin-example-editor-height);
-  height: var(--xin-example-editor-height);
+  flex: 1 1 200px;
+  height: 100%;
   position: relative;
+}
+
+xin-example .example-widgets {
+  position: absolute;
+  right: 5px;
+  top: 5px;
+  background: #fff4;
+  border-radius: 5px;
+}
+
+xin-example .code-editors {
+  border-radius: 4px;
+  overflow: hidden;
+  background: white;
+  width: 400px;
+  maxWidth: 100vw;
+  height: 200px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.25);
+}
+
+xin-example .code-editors.-maximize {
+  position: fixed;
+  top: 0 !important;
+  left: 0 !important;
+  width: 100vw !important;
+  height: 100vh !important;
+  transform: none !important;
+}
+.code-editors.-maximize .hide-if-code-maximized,
+.code-editors:not(.-maximize) .show-if-code-maximized {
+  display: none;
+}
+
+xin-example .code-editors > h4 {
+  padding: 5px;
+  margin: 0;
+  text-align: center;
+  background: var(--brand-color, darkgrey);
+  color: var(--brand-text-color, white);
+}
+
+xin-example .code-editors > .sizer {
+  content: '+';
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  opacity: 0.3;
+  z-index: 9;
+}
+
+xin-example button.transparent,
+xin-example .sizer {
+  width: 32px;
+  height: 32px;
+  line-height: 32px;
+  text-align: center;
+  padding: 0;
+  margin: 0;
+}
+
+
+xin-example .code-editors > .sizer:hover {
+  opacity: 0.6
 }
 `
   )
@@ -199,35 +267,93 @@ export class LiveExample extends WebComponent {
     ;(this.parts.js as CodeEditor).value = code
   }
 
+  resizeCodeEditors = (event: PointerEvent) => {
+    const { codeEditors } = this.parts
+    const w = codeEditors.offsetWidth
+    const h = codeEditors.offsetHeight
+
+    trackDrag(event, (dx: number, dy: number, event: any): true | undefined => {
+      codeEditors.style.width = Math.max(200, w + dx) + 'px'
+      codeEditors.style.height = Math.max(100, h + dy) + 'px'
+      if (event.type === 'mouseup') {
+        return true
+      }
+    })
+  }
+
   content = () => [
-    tabSelector(
-      { part: 'editors' },
-      codeEditor({ name: 'js', mode: 'javascript', part: 'js', ...codeStyle }),
-      codeEditor({ name: 'html', mode: 'html', part: 'html', ...codeStyle }),
-      codeEditor({ name: 'css', mode: 'css', part: 'css', ...codeStyle }),
-      button(
-        {
-          slot: 'after-tabs',
-          title: 'copy as markdown',
-          class: 'transparent',
-          onClick: this.copy,
-        },
-        icons.copy()
+    div({ part: 'example' }, style({ part: 'style' })),
+    xinFloat(
+      {
+        class: 'code-editors',
+        part: 'codeEditors',
+        drag: true,
+        hidden: true,
+      },
+      h4('Code'),
+      tabSelector(
+        { class: 'no-drag', part: 'editors' },
+        codeEditor({
+          name: 'js',
+          mode: 'javascript',
+          part: 'js',
+          ...codeStyle,
+        }),
+        codeEditor({ name: 'html', mode: 'html', part: 'html', ...codeStyle }),
+        codeEditor({ name: 'css', mode: 'css', part: 'css', ...codeStyle }),
+        button(
+          {
+            slot: 'after-tabs',
+            title: 'copy as markdown',
+            class: 'transparent',
+            onClick: this.copy,
+          },
+          icons.copy()
+        ),
+        button(
+          {
+            slot: 'after-tabs',
+            title: 'reload',
+            class: 'transparent',
+            onClick: this.refresh,
+          },
+          icons.refresh()
+        ),
+        button(
+          {
+            part: 'maximize',
+            slot: 'after-tabs',
+            title: 'maximize code',
+            class: 'transparent',
+            onClick: this.toggleMaximizeCode,
+          },
+          icons.minimize({ class: 'icon-minimize show-if-code-maximized' }),
+          icons.maximize({ class: 'icon-maximize hide-if-code-maximized' })
+        )
       ),
+      div(
+        {
+          class: 'sizer no-drag',
+          onMousedown: this.resizeCodeEditors,
+          onTouchstart: this.resizeCodeEditors,
+        },
+        icons.resize()
+      )
+    ),
+    div(
+      { class: 'example-widgets' },
       button(
         {
-          slot: 'after-tabs',
-          title: 'reload',
+          title: 'view code',
           class: 'transparent',
-          onClick: this.refresh,
+          onClick: this.toggleCodeEditors,
         },
-        icons.refresh()
+        icons.code()
       ),
       button(
         {
           part: 'maximize',
-          slot: 'after-tabs',
-          title: 'maximize',
+          title: 'maximize preview',
           class: 'transparent',
           onClick: this.toggleMaximize,
         },
@@ -235,7 +361,6 @@ export class LiveExample extends WebComponent {
         icons.maximize({ class: 'icon-maximize hide-if-maximized' })
       )
     ),
-    div({ part: 'example' }, style({ part: 'style' })),
     xinSlot({ part: 'sources', hidden: true }),
   ]
 
@@ -258,6 +383,25 @@ export class LiveExample extends WebComponent {
     this.classList.toggle('-maximize')
   }
 
+  toggleMaximizeCode = () => {
+    this.parts.codeEditors.classList.toggle('-maximize')
+  }
+
+  toggleCodeEditors = () => {
+    const { codeEditors } = this.parts
+    const visible = codeEditors.hidden
+    if (visible) {
+      codeEditors.style.width = this.offsetWidth + 'px'
+      positionFloat(codeEditors, this, 'se')
+      if (this.classList.contains('-maximize')) {
+        codeEditors.style.top = ''
+        codeEditors.style.height = '40%'
+        codeEditors.style.bottom = '0'
+      }
+    }
+    codeEditors.hidden = !visible
+  }
+
   refresh = () => {
     const { example, style } = this.parts as {
       style: HTMLStyleElement
@@ -275,7 +419,7 @@ export class LiveExample extends WebComponent {
 
     const context = { preview, ...this.context }
     try {
-      // @ts-expect-error ts is wrong
+      // @ts-expect-error ts is wrong and it makes me so mad
       const func = new AsyncFunction(...Object.keys(context), this.js)
       func(...Object.values(context)).catch((err: Error) => console.error(err))
     } catch (e) {

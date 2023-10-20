@@ -115,8 +115,9 @@ export type FloatPosition =
 
 */
 
-import { ElementPart, XinStyleRule } from 'xinjs'
+import { ElementPart } from 'xinjs'
 import { xinFloat, XinFloat } from './float'
+import { findHighestZ } from './track-drag'
 
 export type FloatPosition =
   | 'n'
@@ -137,10 +138,9 @@ export interface PopFloatOptions {
 
 export const popFloat = (options: PopFloatOptions): XinFloat => {
   const { content, target, position } = options
-  const floatStyle: XinStyleRule = {}
   const float = Array.isArray(content)
-    ? xinFloat({ style: floatStyle }, ...content)
-    : xinFloat({ style: floatStyle }, content)
+    ? xinFloat(...content)
+    : xinFloat(content)
 
   positionFloat(float, target, position)
   document.body.append(float)
@@ -152,8 +152,15 @@ export const positionFloat = (
   target: HTMLElement,
   position?: FloatPosition
 ): void => {
-  if (getComputedStyle(element).position !== 'fixed') {
-    element.style.position = 'fixed'
+  {
+    const { position, zIndex } = getComputedStyle(element)
+    if (position !== 'fixed') {
+      element.style.position = 'fixed'
+    }
+    const highestZ = findHighestZ()
+    if (Number(zIndex) < highestZ) {
+      element.style.zIndex = String(highestZ + 1)
+    }
   }
   const { left, top, width, height } = target.getBoundingClientRect()
   const cx = left + width * 0.5

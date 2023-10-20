@@ -44,7 +44,7 @@ setTimeout(
        )
      ],
      target: rocket,
-     position: 'n'
+     position: 'w'
    })
  )
   },
@@ -53,7 +53,7 @@ setTimeout(
 ```
 ```html
 <xin-lottie
-  style="max-height: 100%; width: 100%"
+  style="height: 100%; max-width: 100%"
   src="https://raw.githubusercontent.com/tonioloewald/xinjs-ui/main/demo/88140-rocket-livetrade.json"
 ></xin-lottie>
 <div class="caption">
