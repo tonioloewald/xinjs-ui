@@ -2663,8 +2663,11 @@ xin-example .code-editors {
   maxWidth: 100vw;
   height: 200px;
   box-shadow: 0 2px 8px rgba(0,0,0,0.25);
-  display: flex;
   flex-direction: column;
+}
+
+xin-example .code-editors:not([hidden]) { 
+  display: flex;
 }
 
 xin-example .code-editors.-maximize {
@@ -2686,6 +2689,7 @@ xin-example .code-editors > h4 {
   text-align: center;
   background: var(--code-editors-bar-bg);
   color: var(--code-editors-bar-color);
+  cursor: move;
 }
 
 xin-example .code-editors > .sizer {
@@ -2707,6 +2711,9 @@ xin-example .sizer {
   margin: 0;
 }
 
+xin-example .sizer {
+  cursor: nwse-resize;
+}
 
 xin-example .code-editors > .sizer:hover {
   opacity: 0.6
@@ -2784,7 +2791,7 @@ class $ada9b1474dc4b958$export$41199f9ac14d8c08 extends (0, $hgUW1$Component) {
             codeEditors.style.width = Math.max(200, w + dx) + "px";
             codeEditors.style.height = Math.max(100, h + dy) + "px";
             if (event.type === "mouseup") return true;
-        });
+        }, "nwse-resize");
     };
     content = ()=>[
             $ada9b1474dc4b958$var$div({
