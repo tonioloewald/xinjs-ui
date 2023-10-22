@@ -50,7 +50,12 @@ function that will replace any sequence of
 elements with a `<xin-example>` instance.
 */
 
-import { Component as WebComponent, ElementCreator, elements } from 'xinjs'
+import {
+  Component as WebComponent,
+  ElementCreator,
+  elements,
+  vars,
+} from 'xinjs'
 import { xinFloat } from './float'
 import { positionFloat } from './pop-float'
 import { codeEditor, CodeEditor } from './code-editor'
@@ -73,16 +78,25 @@ document.head.append(
   style(
     { id: 'xin-example' },
     `:root {
-  --xin-example-height: 250px;
+  --xin-example-height: 320px;
 }
 
 xin-example {
   --xin-example-preview-height: calc(var(--xin-example-height) * 0.5);
+  --code-editors-bar-bg: #777;
+  --code-editors-bar-color: #eee;
+  --widget-bg: #fffc;
+  --widget-color: #000;
   position: relative;
   display: flex;
   flex-direction: column-reverse;
   height: var(--xin-example-height);
   background: var(--background);
+  box-sizing: border-box;
+}
+
+xin-example:not(.-maximize) {
+  border: 2px solid #0002;
 }
 
 xin-example.-maximize {
@@ -127,10 +141,14 @@ xin-example [part="editors"] {
 
 xin-example .example-widgets {
   position: absolute;
-  right: 5px;
-  top: 5px;
-  background: #fff4;
+  right: 0;
+  top: 0;
+  background: var(--widget-bg);
   border-radius: 5px;
+}
+
+xin-example .example-widgets svg { 
+  fill: var(--widget-color);
 }
 
 xin-example .code-editors {
@@ -160,8 +178,8 @@ xin-example .code-editors > h4 {
   padding: 5px;
   margin: 0;
   text-align: center;
-  background: var(--brand-color, darkgrey);
-  color: var(--brand-text-color, white);
+  background: var(--code-editors-bar-bg);
+  color: var(--code-editors-bar-color);
 }
 
 xin-example .code-editors > .sizer {
@@ -271,6 +289,10 @@ export class LiveExample extends WebComponent {
     const { codeEditors } = this.parts
     const w = codeEditors.offsetWidth
     const h = codeEditors.offsetHeight
+    codeEditors.style.left = codeEditors.offsetLeft + 'px'
+    codeEditors.style.top = codeEditors.offsetTop + 'px'
+    codeEditors.style.bottom = ''
+    codeEditors.style.right = ''
 
     trackDrag(event, (dx: number, dy: number, event: any): true | undefined => {
       codeEditors.style.width = Math.max(200, w + dx) + 'px'
@@ -291,6 +313,22 @@ export class LiveExample extends WebComponent {
         hidden: true,
       },
       h4('Code'),
+      button(
+        {
+          class: 'transparent no-drag',
+          style: {
+            position: 'absolute',
+            top: 0,
+            right: 0,
+          },
+          onClick: this.toggleCodeEditors,
+        },
+        icons.x({
+          style: {
+            fill: vars.codeEditorsBarColor,
+          },
+        })
+      ),
       tabSelector(
         { class: 'no-drag', part: 'editors' },
         codeEditor({
@@ -391,13 +429,11 @@ export class LiveExample extends WebComponent {
     const { codeEditors } = this.parts
     const visible = codeEditors.hidden
     if (visible) {
-      codeEditors.style.width = this.offsetWidth + 'px'
+      const previewRect = this.getBoundingClientRect()
+      codeEditors.style.width = previewRect.width + 'px'
+      codeEditors.style.height = previewRect.height * 0.5 + 'px'
       positionFloat(codeEditors, this, 'se')
-      if (this.classList.contains('-maximize')) {
-        codeEditors.style.top = ''
-        codeEditors.style.height = '40%'
-        codeEditors.style.bottom = '0'
-      }
+      codeEditors.style.top = previewRect.top + previewRect.height * 0.5 + 'px'
     }
     codeEditors.hidden = !visible
   }

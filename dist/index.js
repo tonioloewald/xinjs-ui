@@ -2543,6 +2543,9 @@ class $6bbe441346901d5a$export$a3a7254f7f149b03 extends (0, $hgUW1$Component) {
         tabs.addEventListener("keydown", this.keyTab);
         this.setupTabs();
     }
+    onResize() {
+        this.queueRender();
+    }
     render() {
         const { tabs: tabs, selected: selected } = this.parts;
         const tabBodies = this.bodies;
@@ -2579,16 +2582,25 @@ const $ada9b1474dc4b958$var$codeStyle = {
 document.head.append($ada9b1474dc4b958$var$style({
     id: "xin-example"
 }, `:root {
-  --xin-example-height: 250px;
+  --xin-example-height: 320px;
 }
 
 xin-example {
   --xin-example-preview-height: calc(var(--xin-example-height) * 0.5);
+  --code-editors-bar-bg: #777;
+  --code-editors-bar-color: #eee;
+  --widget-bg: #fffc;
+  --widget-color: #000;
   position: relative;
   display: flex;
   flex-direction: column-reverse;
   height: var(--xin-example-height);
   background: var(--background);
+  box-sizing: border-box;
+}
+
+xin-example:not(.-maximize) {
+  border: 2px solid #0002;
 }
 
 xin-example.-maximize {
@@ -2633,10 +2645,14 @@ xin-example [part="editors"] {
 
 xin-example .example-widgets {
   position: absolute;
-  right: 5px;
-  top: 5px;
-  background: #fff4;
+  right: 0;
+  top: 0;
+  background: var(--widget-bg);
   border-radius: 5px;
+}
+
+xin-example .example-widgets svg { 
+  fill: var(--widget-color);
 }
 
 xin-example .code-editors {
@@ -2666,8 +2682,8 @@ xin-example .code-editors > h4 {
   padding: 5px;
   margin: 0;
   text-align: center;
-  background: var(--brand-color, darkgrey);
-  color: var(--brand-text-color, white);
+  background: var(--code-editors-bar-bg);
+  color: var(--code-editors-bar-color);
 }
 
 xin-example .code-editors > .sizer {
@@ -2758,6 +2774,10 @@ class $ada9b1474dc4b958$export$41199f9ac14d8c08 extends (0, $hgUW1$Component) {
         const { codeEditors: codeEditors } = this.parts;
         const w = codeEditors.offsetWidth;
         const h = codeEditors.offsetHeight;
+        codeEditors.style.left = codeEditors.offsetLeft + "px";
+        codeEditors.style.top = codeEditors.offsetTop + "px";
+        codeEditors.style.bottom = "";
+        codeEditors.style.right = "";
         (0, $5265d118b5240170$export$c947e3cd16175f27)(event, (dx, dy, event)=>{
             codeEditors.style.width = Math.max(200, w + dx) + "px";
             codeEditors.style.height = Math.max(100, h + dy) + "px";
@@ -2775,7 +2795,19 @@ class $ada9b1474dc4b958$export$41199f9ac14d8c08 extends (0, $hgUW1$Component) {
                 part: "codeEditors",
                 drag: true,
                 hidden: true
-            }, $ada9b1474dc4b958$var$h4("Code"), (0, $6bbe441346901d5a$export$a932f737dcd864a2)({
+            }, $ada9b1474dc4b958$var$h4("Code"), $ada9b1474dc4b958$var$button({
+                class: "transparent no-drag",
+                style: {
+                    position: "absolute",
+                    top: 0,
+                    right: 0
+                },
+                onClick: this.toggleCodeEditors
+            }, (0, $fef058b85aa29b7a$export$df03f54e09e486fa).x({
+                style: {
+                    fill: (0, $hgUW1$vars).codeEditorsBarColor
+                }
+            })), (0, $6bbe441346901d5a$export$a932f737dcd864a2)({
                 class: "no-drag",
                 part: "editors"
             }, (0, $8a70bd76f9b7e656$export$d89b6f4d34274146)({
@@ -2862,13 +2894,11 @@ class $ada9b1474dc4b958$export$41199f9ac14d8c08 extends (0, $hgUW1$Component) {
         const { codeEditors: codeEditors } = this.parts;
         const visible = codeEditors.hidden;
         if (visible) {
-            codeEditors.style.width = this.offsetWidth + "px";
+            const previewRect = this.getBoundingClientRect();
+            codeEditors.style.width = previewRect.width + "px";
+            codeEditors.style.height = previewRect.height * 0.5 + "px";
             (0, $52362c0fb5690a1b$export$90a23b8db6abf910)(codeEditors, this, "se");
-            if (this.classList.contains("-maximize")) {
-                codeEditors.style.top = "";
-                codeEditors.style.height = "40%";
-                codeEditors.style.bottom = "0";
-            }
+            codeEditors.style.top = previewRect.top + previewRect.height * 0.5 + "px";
         }
         codeEditors.hidden = !visible;
     };
@@ -3695,5 +3725,5 @@ function $5a28660a6cbe2731$export$b37fb374f2e92eb6(sortValuator, ascending = tru
 
 
 
-export {$5265d118b5240170$export$c947e3cd16175f27 as trackDrag, $5265d118b5240170$export$f3caf27c1d0ebf0c as findHighestZ, $5c31145f3e970423$export$c6e082819e9a0330 as scriptTag, $5c31145f3e970423$export$63257fda812a683f as styleSheet, $5a28660a6cbe2731$export$b37fb374f2e92eb6 as makeSorter, $86ec44903a84f851$export$6aacb15d82c1f62a as AbTest, $86ec44903a84f851$export$f3d50d6cab4ec980 as abTest, $ef1971ff775ba547$export$1bc633d0db17d4e1 as B3d, $ef1971ff775ba547$export$d0bb57305ce055c9 as b3d, $59f50bee37676c09$export$c74d6d817c60b9e6 as BodymovinPlayer, $59f50bee37676c09$export$d75ad8f79fe096cb as bodymovinPlayer, $8a70bd76f9b7e656$export$b7127187684f7150 as CodeEditor, $8a70bd76f9b7e656$export$d89b6f4d34274146 as codeEditor, $e6e19030d0c18d6f$export$df30df7ec97b32b5 as DataTable, $e6e19030d0c18d6f$export$f71ce0a5ddbe8fa0 as dataTable, $46dc716dd2cf5925$export$16a138bde9d9de87 as availableFilters, $46dc716dd2cf5925$export$b7838412d9f17b13 as FilterPart, $46dc716dd2cf5925$export$2237595b531763d7 as filterPart, $46dc716dd2cf5925$export$afb49bb3b076029e as FilterBuilder, $46dc716dd2cf5925$export$8ca73b4108207c1f as filterBuilder, $ddbe66d066773fc1$export$dfef4eaf9958ab9d as XinFloat, $ddbe66d066773fc1$export$aeb0f03cef938121 as xinFloat, $f78058ae816e78a2$export$f0aa272ac8112266 as XinField, $f78058ae816e78a2$export$470ae7cc5ec6d2a as XinForm, $f78058ae816e78a2$export$1e17fa265ee93a1d as xinField, $f78058ae816e78a2$export$ab08039c332a0d0e as xinForm, $fef058b85aa29b7a$export$df03f54e09e486fa as icons, $fef058b85aa29b7a$export$dbcb8210e8a983ed as SvgIcon, $fef058b85aa29b7a$export$8c90725d55a8eef as svgIcon, $ada9b1474dc4b958$export$41199f9ac14d8c08 as LiveExample, $ada9b1474dc4b958$export$dafbe0fa988b899b as liveExample, $ada9b1474dc4b958$export$afa6494eb589c19e as makeExamplesLive, $6246d5006b5a56c3$export$7d6f3ccbb0a81c30 as MAPSTYLES, $6246d5006b5a56c3$export$f2ffec4d96a433ed as MapBox, $6246d5006b5a56c3$export$ca243e53be209efb as mapBox, $1b88c9cb596c3426$export$575eb698d362902 as MarkdownViewer, $1b88c9cb596c3426$export$305b975a891d0dfa as markdownViewer, $815deb6062b0b31b$export$94309935dd6eab19 as blockStyle, $815deb6062b0b31b$export$8cc075c801fd6817 as spacer, $815deb6062b0b31b$export$e3f8198a677f57c2 as elastic, $815deb6062b0b31b$export$74540e56d8cdd242 as commandButton, $815deb6062b0b31b$export$8ed2ffe5d58aaa75 as richTextWidgets, $815deb6062b0b31b$export$f284d8638abd8920 as RichText, $815deb6062b0b31b$export$7bcc4193ad80bf91 as richText, $b9e5aa5581e8f051$export$1a35787d6353cf6a as SideNav, $b9e5aa5581e8f051$export$938418df2b06cb50 as sideNav, $0f2017ffca44b547$export$7140c0f3c1b65d3f as SizeBreak, $0f2017ffca44b547$export$96370210d2ca0fff as sizeBreak, $6bbe441346901d5a$export$a3a7254f7f149b03 as TabSelector, $6bbe441346901d5a$export$a932f737dcd864a2 as tabSelector, $52362c0fb5690a1b$export$81725bf7d66575d3 as popFloat, $52362c0fb5690a1b$export$90a23b8db6abf910 as positionFloat};
+export {$5265d118b5240170$export$c947e3cd16175f27 as trackDrag, $5265d118b5240170$export$f3caf27c1d0ebf0c as findHighestZ, $5c31145f3e970423$export$c6e082819e9a0330 as scriptTag, $5c31145f3e970423$export$63257fda812a683f as styleSheet, $5a28660a6cbe2731$export$b37fb374f2e92eb6 as makeSorter, $86ec44903a84f851$export$6aacb15d82c1f62a as AbTest, $86ec44903a84f851$export$f3d50d6cab4ec980 as abTest, $ef1971ff775ba547$export$1bc633d0db17d4e1 as B3d, $ef1971ff775ba547$export$d0bb57305ce055c9 as b3d, $59f50bee37676c09$export$c74d6d817c60b9e6 as BodymovinPlayer, $59f50bee37676c09$export$d75ad8f79fe096cb as bodymovinPlayer, $8a70bd76f9b7e656$export$b7127187684f7150 as CodeEditor, $8a70bd76f9b7e656$export$d89b6f4d34274146 as codeEditor, $e6e19030d0c18d6f$export$df30df7ec97b32b5 as DataTable, $e6e19030d0c18d6f$export$f71ce0a5ddbe8fa0 as dataTable, $46dc716dd2cf5925$export$16a138bde9d9de87 as availableFilters, $46dc716dd2cf5925$export$b7838412d9f17b13 as FilterPart, $46dc716dd2cf5925$export$2237595b531763d7 as filterPart, $46dc716dd2cf5925$export$afb49bb3b076029e as FilterBuilder, $46dc716dd2cf5925$export$8ca73b4108207c1f as filterBuilder, $ddbe66d066773fc1$export$dfef4eaf9958ab9d as XinFloat, $ddbe66d066773fc1$export$aeb0f03cef938121 as xinFloat, $f78058ae816e78a2$export$f0aa272ac8112266 as XinField, $f78058ae816e78a2$export$470ae7cc5ec6d2a as XinForm, $f78058ae816e78a2$export$1e17fa265ee93a1d as xinField, $f78058ae816e78a2$export$ab08039c332a0d0e as xinForm, $fef058b85aa29b7a$export$df03f54e09e486fa as icons, $fef058b85aa29b7a$export$dbcb8210e8a983ed as SvgIcon, $fef058b85aa29b7a$export$8c90725d55a8eef as svgIcon, $ada9b1474dc4b958$export$41199f9ac14d8c08 as LiveExample, $ada9b1474dc4b958$export$dafbe0fa988b899b as liveExample, $ada9b1474dc4b958$export$afa6494eb589c19e as makeExamplesLive, $6246d5006b5a56c3$export$7d6f3ccbb0a81c30 as MAPSTYLES, $6246d5006b5a56c3$export$f2ffec4d96a433ed as MapBox, $6246d5006b5a56c3$export$ca243e53be209efb as mapBox, $1b88c9cb596c3426$export$575eb698d362902 as MarkdownViewer, $1b88c9cb596c3426$export$305b975a891d0dfa as markdownViewer, $52362c0fb5690a1b$export$81725bf7d66575d3 as popFloat, $52362c0fb5690a1b$export$90a23b8db6abf910 as positionFloat, $815deb6062b0b31b$export$94309935dd6eab19 as blockStyle, $815deb6062b0b31b$export$8cc075c801fd6817 as spacer, $815deb6062b0b31b$export$e3f8198a677f57c2 as elastic, $815deb6062b0b31b$export$74540e56d8cdd242 as commandButton, $815deb6062b0b31b$export$8ed2ffe5d58aaa75 as richTextWidgets, $815deb6062b0b31b$export$f284d8638abd8920 as RichText, $815deb6062b0b31b$export$7bcc4193ad80bf91 as richText, $b9e5aa5581e8f051$export$1a35787d6353cf6a as SideNav, $b9e5aa5581e8f051$export$938418df2b06cb50 as sideNav, $0f2017ffca44b547$export$7140c0f3c1b65d3f as SizeBreak, $0f2017ffca44b547$export$96370210d2ca0fff as sizeBreak, $6bbe441346901d5a$export$a3a7254f7f149b03 as TabSelector, $6bbe441346901d5a$export$a932f737dcd864a2 as tabSelector};
 //# sourceMappingURL=index.js.map

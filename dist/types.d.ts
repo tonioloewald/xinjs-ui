@@ -255,6 +255,7 @@ export class TabSelector extends Component {
     pickTab: (event: Event) => void;
     setupTabs: () => void;
     connectedCallback(): void;
+    onResize(): void;
     render(): void;
 }
 export const tabSelector: ElementCreator<TabSelector>;

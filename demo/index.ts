@@ -68,7 +68,10 @@ bindings.current = {
   },
 }
 
-Object.assign(globalThis, { app, xin, bindings, elements, vars, touch })
+setTimeout(() => {
+  // provide globals for experimentation, but prevent them from masking compile bugs
+  Object.assign(globalThis, { app, xin, bindings, elements, vars, touch })
+}, 1000)
 
 const main = document.querySelector('main') as HTMLElement
 
