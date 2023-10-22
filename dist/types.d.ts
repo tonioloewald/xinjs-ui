@@ -393,7 +393,7 @@ sizer.addEventListener('touchstart', resize, 'nwse-resize')
     <h1>BIG!</h1>
     <i slot="small">little</i>
   </xin-sizebreak>
-  <div class="sizer"></div>
+  <xin-icon class="sizer" icon="resize"></xin-icon>
 </div>
 ```
 ```css
@@ -419,19 +419,26 @@ sizer.addEventListener('touchstart', resize, 'nwse-resize')
   position: relative;
   min-width: 100px;
   min-height: 40px;
-  max-height: 200px;
+  max-height: 100%;
   width: 400px;
   height: 100px;
 }
 
 .preview .sizer {
   position: absolute;
-  width: 20px;
-  height: 20px;
-  background: #0003;
+  width: 24px;
+  height: 24px;
+  line-height: 24px;
+  text-align: center;
+  background: #0002;
   bottom: 0;
   right: 0;
   cursor: nwse-resize;
+  opacity: 0.5;
+}
+
+.preview .sizer:hover {
+  opacity: 1.0;
 }
 ```
 

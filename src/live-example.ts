@@ -159,6 +159,8 @@ xin-example .code-editors {
   maxWidth: 100vw;
   height: 200px;
   box-shadow: 0 2px 8px rgba(0,0,0,0.25);
+  display: flex;
+  flex-direction: column;
 }
 
 xin-example .code-editors.-maximize {
