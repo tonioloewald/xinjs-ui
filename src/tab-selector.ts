@@ -264,6 +264,10 @@ export class TabSelector extends WebComponent {
     this.setupTabs()
   }
 
+  onResize(): void {
+    this.queueRender()
+  }
+
   render(): void {
     const { tabs, selected } = this.parts
     const tabBodies = this.bodies
