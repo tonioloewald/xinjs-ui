@@ -90,6 +90,7 @@ setTimeout(
   color: white;
   padding: 5px;
   margin: -10px -10px 0 -10px;
+  cursor: move;
 }
 ```
 
