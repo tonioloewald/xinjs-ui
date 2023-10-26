@@ -71,6 +71,7 @@ export const codeEditor: ElementCreator<CodeEditor>;
 type TrackerCallback = (dx: number, dy: number, event: any) => true | undefined;
 export const trackDrag: (event: PointerEvent, callback: TrackerCallback, cursor?: string) => void;
 export const findHighestZ: (selector?: string) => number;
+export const bringToFront: (element: HTMLElement, selector?: string) => void;
 export interface ColumnOptions {
     name?: string;
     prop: string;
@@ -234,14 +235,6 @@ export class SvgIcon extends Component {
     render(): void;
 }
 export const svgIcon: ElementCreator<HTMLElement>;
-export type FloatPosition = 'n' | 's' | 'e' | 'w' | 'ne' | 'nw' | 'se' | 'sw' | 'auto';
-export interface PopFloatOptions {
-    content: HTMLElement | ElementPart[];
-    target: HTMLElement;
-    position?: FloatPosition;
-}
-export const popFloat: (options: PopFloatOptions) => XinFloat;
-export const positionFloat: (element: HTMLElement, target: HTMLElement, position?: FloatPosition) => void;
 export class TabSelector extends Component {
     value: number;
     static makeTab(tabs: TabSelector, tabBody: HTMLElement, bodyId: string): HTMLElement;
@@ -263,6 +256,7 @@ interface ExampleContext {
     [key: string]: any;
 }
 export class LiveExample extends Component {
+    prettier: boolean;
     context: ExampleContext;
     static insertExamples(element: HTMLElement, context?: ExampleContext): void;
     get css(): string;
@@ -317,6 +311,14 @@ export class MarkdownViewer extends Component {
     render(): void;
 }
 export const markdownViewer: ElementCreator<MarkdownViewer>;
+export type FloatPosition = 'n' | 's' | 'e' | 'w' | 'ne' | 'nw' | 'se' | 'sw' | 'auto';
+export interface PopFloatOptions {
+    content: HTMLElement | ElementPart[];
+    target: HTMLElement;
+    position?: FloatPosition;
+}
+export const popFloat: (options: PopFloatOptions) => XinFloat;
+export const positionFloat: (element: HTMLElement, target: HTMLElement, position?: FloatPosition) => void;
 export function blockStyle(options?: {
     caption: string;
     tagType: string;

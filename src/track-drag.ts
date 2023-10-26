@@ -68,10 +68,15 @@ is almost certainly what you want.
 
 To handle multi-touch gestures you will need to track the touches yourself.
 
-## `findHighestZ()`
+## bringToFront
 
-`findHighestZ()` is a utility function for finding the highest z-index of any element
-in the DOM.
+`bringToFront(element: HTMLElement, selector = 'body *')`  gives the element the highest
+`z-index` of any element matching the selector (which is passed to findHighestZ).
+
+## findHighestZ
+
+`findHighestZ(selector = 'body *'): number` returns the the highest `z-index` of any element
+matching `selector`.
 */
 const TRACKER = elements.div({
   style: {
@@ -98,7 +103,7 @@ export const trackDrag = (
     const origY = event.clientY
 
     TRACKER.style.cursor = cursor
-    TRACKER.style.zIndex = String(findHighestZ() + 1)
+    bringToFront(TRACKER)
     document.body.append(TRACKER)
 
     const wrappedCallback = (event: any) => {
@@ -153,3 +158,10 @@ export const findHighestZ = (selector = 'body *'): number =>
     .reduce((z, highest = Number.MIN_SAFE_INTEGER) =>
       isNaN(z) || Number(z) < highest ? highest : Number(z)
     )
+
+export const bringToFront = (
+  element: HTMLElement,
+  selector = 'body *'
+): void => {
+  element.style.zIndex = String(findHighestZ(selector) + 1)
+}

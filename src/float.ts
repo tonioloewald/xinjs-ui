@@ -70,7 +70,7 @@ just add the `no-drag` class to an element or its container.
 */
 
 import { Component as WebComponent, elements, ElementCreator } from 'xinjs'
-import { trackDrag, findHighestZ } from './track-drag'
+import { trackDrag, bringToFront } from './track-drag'
 
 const { slot } = elements
 
@@ -96,7 +96,7 @@ export class XinFloat extends WebComponent {
       return
     }
     if (this.drag) {
-      this.style.zIndex = String(findHighestZ() + 1)
+      bringToFront(this)
       const x = this.offsetLeft
       const y = this.offsetTop
 
@@ -124,7 +124,7 @@ export class XinFloat extends WebComponent {
 
     this.addEventListener('touchstart', this.reposition)
     this.addEventListener('mousedown', this.reposition)
-    this.style.zIndex = String(findHighestZ() + 1)
+    bringToFront(this)
   }
 }
 

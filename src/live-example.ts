@@ -57,10 +57,9 @@ import {
   vars,
 } from 'xinjs'
 import { xinFloat } from './float'
-import { positionFloat } from './pop-float'
 import { codeEditor, CodeEditor } from './code-editor'
 import { tabSelector, TabSelector } from './tab-selector'
-import { trackDrag } from './track-drag'
+import { trackDrag, bringToFront } from './track-drag'
 import { icons } from './icons'
 
 const { div, xinSlot, style, button, h4 } = elements
@@ -147,7 +146,7 @@ xin-example .example-widgets {
   border-radius: 5px;
 }
 
-xin-example .example-widgets svg { 
+xin-example .example-widgets svg {
   fill: var(--widget-color);
 }
 
@@ -162,7 +161,7 @@ xin-example .code-editors {
   flex-direction: column;
 }
 
-xin-example .code-editors:not([hidden]) { 
+xin-example .code-editors:not([hidden]) {
   display: flex;
 }
 
@@ -223,6 +222,7 @@ interface ExampleContext {
 }
 
 export class LiveExample extends WebComponent {
+  prettier = false
   context: ExampleContext = {}
 
   static insertExamples(
@@ -380,6 +380,15 @@ export class LiveExample extends WebComponent {
           },
           icons.minimize({ class: 'icon-minimize show-if-code-maximized' }),
           icons.maximize({ class: 'icon-maximize hide-if-code-maximized' })
+        ),
+        button(
+          {
+            part: 'more',
+            slot: 'after-tabs',
+            title: 'code menu',
+            class: 'transparent',
+          },
+          icons.moreVertical()
         )
       ),
       div(
@@ -395,7 +404,7 @@ export class LiveExample extends WebComponent {
       { class: 'example-widgets' },
       button(
         {
-          title: 'view code',
+          title: 'view/edit code',
           class: 'transparent',
           onClick: this.toggleCodeEditors,
         },
@@ -442,11 +451,11 @@ export class LiveExample extends WebComponent {
     const { codeEditors } = this.parts
     const visible = codeEditors.hidden
     if (visible) {
-      const previewRect = this.getBoundingClientRect()
-      codeEditors.style.width = previewRect.width + 'px'
-      codeEditors.style.height = previewRect.height * 0.5 + 'px'
-      positionFloat(codeEditors, this, 'se')
-      codeEditors.style.top = previewRect.top + previewRect.height * 0.5 + 'px'
+      codeEditors.style.width = '100%'
+      codeEditors.style.height = '50%'
+      codeEditors.style.top = '50%'
+      codeEditors.style.left = '0'
+      bringToFront(codeEditors)
     }
     codeEditors.hidden = !visible
   }

@@ -429,6 +429,7 @@ setTimeout(
   color: white;
   padding: 5px;
   margin: -10px -10px 0 -10px;
+  cursor: move;
 }
 ```
 
@@ -732,10 +733,15 @@ is almost certainly what you want.
 
 To handle multi-touch gestures you will need to track the touches yourself.
 
-## `findHighestZ()`
+## bringToFront
 
-`findHighestZ()` is a utility function for finding the highest z-index of any element
-in the DOM.
+`bringToFront(element: HTMLElement, selector = 'body *')`  gives the element the highest
+`z-index` of any element matching the selector (which is passed to findHighestZ).
+
+## findHighestZ
+
+`findHighestZ(selector = 'body *'): number` returns the the highest `z-index` of any element
+matching `selector`.
 */ const $5265d118b5240170$var$TRACKER = (0, $hgUW1$elements).div({
     style: {
         content: " ",
@@ -755,7 +761,7 @@ const $5265d118b5240170$export$c947e3cd16175f27 = (event, callback, cursor = "mo
         const origX = event.clientX;
         const origY = event.clientY;
         $5265d118b5240170$var$TRACKER.style.cursor = cursor;
-        $5265d118b5240170$var$TRACKER.style.zIndex = String($5265d118b5240170$export$f3caf27c1d0ebf0c() + 1);
+        $5265d118b5240170$export$1937b0002823d405($5265d118b5240170$var$TRACKER);
         document.body.append($5265d118b5240170$var$TRACKER);
         const wrappedCallback = (event)=>{
             const dx = event.clientX - origX;
@@ -802,6 +808,9 @@ const $5265d118b5240170$export$c947e3cd16175f27 = (event, callback, cursor = "mo
 const $5265d118b5240170$export$f3caf27c1d0ebf0c = (selector = "body *")=>[
         ...document.querySelectorAll(selector)
     ].map((elt)=>parseFloat(getComputedStyle(elt).zIndex)).reduce((z, highest = Number.MIN_SAFE_INTEGER)=>isNaN(z) || Number(z) < highest ? highest : Number(z));
+const $5265d118b5240170$export$1937b0002823d405 = (element, selector = "body *")=>{
+    element.style.zIndex = String($5265d118b5240170$export$f3caf27c1d0ebf0c(selector) + 1);
+};
 
 
 function $e6e19030d0c18d6f$var$defaultWidth(array, prop, charWidth) {
@@ -1560,7 +1569,7 @@ class $ddbe66d066773fc1$export$dfef4eaf9958ab9d extends (0, $hgUW1$Component) {
         const target = event.target;
         if (target?.closest(".no-drag")) return;
         if (this.drag) {
-            this.style.zIndex = String((0, $5265d118b5240170$export$f3caf27c1d0ebf0c)() + 1);
+            (0, $5265d118b5240170$export$1937b0002823d405)(this);
             const x = this.offsetLeft;
             const y = this.offsetTop;
             (0, $5265d118b5240170$export$c947e3cd16175f27)(event, (dx, dy, pointerEvent)=>{
@@ -1576,7 +1585,7 @@ class $ddbe66d066773fc1$export$dfef4eaf9958ab9d extends (0, $hgUW1$Component) {
         super.connectedCallback();
         this.addEventListener("touchstart", this.reposition);
         this.addEventListener("mousedown", this.reposition);
-        this.style.zIndex = String((0, $5265d118b5240170$export$f3caf27c1d0ebf0c)() + 1);
+        (0, $5265d118b5240170$export$1937b0002823d405)(this);
     }
 }
 const $ddbe66d066773fc1$export$aeb0f03cef938121 = $ddbe66d066773fc1$export$dfef4eaf9958ab9d.elementCreator({
@@ -2134,174 +2143,6 @@ function that will replace any sequence of
 elements with a `<xin-example>` instance.
 */ 
 
-var $52362c0fb5690a1b$exports = {};
-
-$parcel$export($52362c0fb5690a1b$exports, "popFloat", () => $52362c0fb5690a1b$export$81725bf7d66575d3);
-$parcel$export($52362c0fb5690a1b$exports, "positionFloat", () => $52362c0fb5690a1b$export$90a23b8db6abf910);
-/*!
-# popFloat
-
-There are so many cases in user-interfaces where it's useful to pop-up a floating
-user interface element that a simple and reliable way of doing this seems like
-a good idea.
-
-The problem with many such approaches is that they assume a highly specific
-use-case (e.g. popup menu or combo box) and while meeting the creator's intended
-purpose admirably, turn out to have some annoying limitation that prevents them
-handling the specific case at hand.
-
-```js
-const { popFloat, positionFloat } = xinjsui
-const { button } = xinjs.elements
-const grid = preview.querySelector('.grid')
-
-grid.addEventListener('click', (event) => {
-  const { target } = event
-  const float = preview.querySelector('xin-float')
-  if (float === null) {
-    // create and position a float
-    preview.append(
-      popFloat({
-        content: [
-          'hello, I am a float',
-          button('close me', {
-            onClick(event){
-              event.target.closest('xin-float').remove()
-            }
-          })
-        ],
-        target,
-        position: target.dataset.float
-      })
-    )
-  } else {
-    // position an existing float
-    positionFloat(float, target, target.dataset.float)
-  }
-})
-```
-```html
-<h2>Pop Float Demo</h2>
-<div class="grid">
-  <button data-float="nw">nw</button>
-  <button data-float="n">n</button>
-  <button data-float="ne">ne</button>
-  <button data-float="w">w</button>
-  <button data-float="auto">auto</button>
-  <button data-float="e">e</button>
-  <button data-float="sw">sw</button>
-  <button data-float="s">s</button>
-  <button data-float="se">se</button>
-</div>
-```
-```css
-.preview .grid {
-  display: grid;
-  grid-template-columns: 80px 80px 80px;
-}
-
-.preview xin-float {
-  display: flex;
-  flex-direction: column;
-  border-radius: 5px;
-  padding: 10px;
-  background: white;
-  box-shadow: 2px 10px 5px #0004;
-}
-```
-
-## popFloat
-
-```
-export interface PopFloatOptions {
-  content: HTMLElement | ElementPart[]
-  target: HTMLElement
-  position?: FloatPosition
-}
-
-export const popFloat = (options: PopFloatOptions): XinFloat
-```
-
-Create a `<xin-float>` with the content provided, positioned as specified (or automatically).
-
-## positionFloat
-
-```
-export const positionFloat = (
-  element: HTMLElement,
-  target: HTMLElement,
-  position?: FloatPosition
-): void
-```
-
-This allows you to, for example, provide a global menu that can be used on any element
-instead of needing to have a whole instance of the menu wrapped around every instance
-of the thing you want the menu to affect (a common anti-pattern of front-end frameworks).
-
-## FloatPosition
-
-```
-export type FloatPosition =
-| 'n'
-| 's'
-| 'e'
-| 'w'
-| 'ne'
-| 'nw'
-| 'se'
-| 'sw'
-| 'auto'
-```
-
-*/ 
-
-const $52362c0fb5690a1b$export$81725bf7d66575d3 = (options)=>{
-    const { content: content, target: target, position: position } = options;
-    const float = Array.isArray(content) ? (0, $ddbe66d066773fc1$export$aeb0f03cef938121)(...content) : (0, $ddbe66d066773fc1$export$aeb0f03cef938121)(content);
-    $52362c0fb5690a1b$export$90a23b8db6abf910(float, target, position);
-    document.body.append(float);
-    return float;
-};
-const $52362c0fb5690a1b$export$90a23b8db6abf910 = (element, target, position)=>{
-    {
-        const { position: position, zIndex: zIndex } = getComputedStyle(element);
-        if (position !== "fixed") element.style.position = "fixed";
-        const highestZ = (0, $5265d118b5240170$export$f3caf27c1d0ebf0c)();
-        if (Number(zIndex) < highestZ) element.style.zIndex = String(highestZ + 1);
-    }
-    const { left: left, top: top, width: width, height: height } = target.getBoundingClientRect();
-    const cx = left + width * 0.5;
-    const cy = top + height * 0.5;
-    const w = window.innerWidth;
-    const h = window.innerHeight;
-    if (position === "auto" || position === undefined) position = (cy < h * 0.5 ? "s" : "n") + (cx < w * 0.5 ? "e" : "w");
-    element.style.top = element.style.left = element.style.right = element.style.bottom = element.style.transform = "";
-    if (position.length === 2) {
-        if (position.includes("n")) element.style.bottom = (h - top).toFixed(2) + "px";
-        else if (position.includes("s")) element.style.top = (top + height).toFixed(2) + "px";
-        if (position.includes("e")) element.style.left = left.toFixed(2) + "px";
-        else if (position.includes("w")) element.style.right = (w - left - width).toFixed(2) + "px";
-        element.style.transform = "";
-    } else if (position === "n") {
-        element.style.bottom = (h - top).toFixed(2) + "px";
-        element.style.left = cx.toFixed(2) + "px";
-        element.style.transform = "translateX(-50%)";
-    } else if (position === "s") {
-        element.style.top = (top + height).toFixed(2) + "px";
-        element.style.left = cx.toFixed(2) + "px";
-        element.style.transform = "translateX(-50%)";
-    } else if (position === "e") {
-        element.style.left = (left + width).toFixed(2) + "px";
-        element.style.top = cy.toFixed(2) + "px";
-        element.style.transform = "translateY(-50%)";
-    } else if (position === "w") {
-        element.style.right = (w - left).toFixed(2) + "px";
-        element.style.top = cy.toFixed(2) + "px";
-        element.style.transform = "translateY(-50%)";
-    }
-};
-
-
 
 var $6bbe441346901d5a$exports = {};
 
@@ -2651,7 +2492,7 @@ xin-example .example-widgets {
   border-radius: 5px;
 }
 
-xin-example .example-widgets svg { 
+xin-example .example-widgets svg {
   fill: var(--widget-color);
 }
 
@@ -2666,7 +2507,7 @@ xin-example .code-editors {
   flex-direction: column;
 }
 
-xin-example .code-editors:not([hidden]) { 
+xin-example .code-editors:not([hidden]) {
   display: flex;
 }
 
@@ -2720,6 +2561,7 @@ xin-example .code-editors > .sizer:hover {
 }
 `));
 class $ada9b1474dc4b958$export$41199f9ac14d8c08 extends (0, $hgUW1$Component) {
+    prettier = false;
     context = {};
     static insertExamples(element, context = {}) {
         const sources = [
@@ -2854,7 +2696,12 @@ class $ada9b1474dc4b958$export$41199f9ac14d8c08 extends (0, $hgUW1$Component) {
                 class: "icon-minimize show-if-code-maximized"
             }), (0, $fef058b85aa29b7a$export$df03f54e09e486fa).maximize({
                 class: "icon-maximize hide-if-code-maximized"
-            }))), $ada9b1474dc4b958$var$div({
+            })), $ada9b1474dc4b958$var$button({
+                part: "more",
+                slot: "after-tabs",
+                title: "code menu",
+                class: "transparent"
+            }, (0, $fef058b85aa29b7a$export$df03f54e09e486fa).moreVertical())), $ada9b1474dc4b958$var$div({
                 class: "sizer no-drag",
                 onMousedown: this.resizeCodeEditors,
                 onTouchstart: this.resizeCodeEditors
@@ -2862,7 +2709,7 @@ class $ada9b1474dc4b958$export$41199f9ac14d8c08 extends (0, $hgUW1$Component) {
             $ada9b1474dc4b958$var$div({
                 class: "example-widgets"
             }, $ada9b1474dc4b958$var$button({
-                title: "view code",
+                title: "view/edit code",
                 class: "transparent",
                 onClick: this.toggleCodeEditors
             }, (0, $fef058b85aa29b7a$export$df03f54e09e486fa).code()), $ada9b1474dc4b958$var$button({
@@ -2903,11 +2750,11 @@ class $ada9b1474dc4b958$export$41199f9ac14d8c08 extends (0, $hgUW1$Component) {
         const { codeEditors: codeEditors } = this.parts;
         const visible = codeEditors.hidden;
         if (visible) {
-            const previewRect = this.getBoundingClientRect();
-            codeEditors.style.width = previewRect.width + "px";
-            codeEditors.style.height = previewRect.height * 0.5 + "px";
-            (0, $52362c0fb5690a1b$export$90a23b8db6abf910)(codeEditors, this, "se");
-            codeEditors.style.top = previewRect.top + previewRect.height * 0.5 + "px";
+            codeEditors.style.width = "100%";
+            codeEditors.style.height = "50%";
+            codeEditors.style.top = "50%";
+            codeEditors.style.left = "0";
+            (0, $5265d118b5240170$export$1937b0002823d405)(codeEditors);
         }
         codeEditors.hidden = !visible;
     };
@@ -3270,6 +3117,172 @@ const $1b88c9cb596c3426$export$305b975a891d0dfa = $1b88c9cb596c3426$export$575eb
     tag: "xin-md"
 });
 
+
+var $52362c0fb5690a1b$exports = {};
+
+$parcel$export($52362c0fb5690a1b$exports, "popFloat", () => $52362c0fb5690a1b$export$81725bf7d66575d3);
+$parcel$export($52362c0fb5690a1b$exports, "positionFloat", () => $52362c0fb5690a1b$export$90a23b8db6abf910);
+/*!
+# popFloat
+
+There are so many cases in user-interfaces where it's useful to pop-up a floating
+user interface element that a simple and reliable way of doing this seems like
+a good idea.
+
+The problem with many such approaches is that they assume a highly specific
+use-case (e.g. popup menu or combo box) and while meeting the creator's intended
+purpose admirably, turn out to have some annoying limitation that prevents them
+handling the specific case at hand.
+
+```js
+const { popFloat, positionFloat } = xinjsui
+const { button } = xinjs.elements
+const grid = preview.querySelector('.grid')
+
+grid.addEventListener('click', (event) => {
+  const { target } = event
+  const float = preview.querySelector('xin-float')
+  if (float === null) {
+    // create and position a float
+    preview.append(
+      popFloat({
+        content: [
+          'hello, I am a float',
+          button('close me', {
+            onClick(event){
+              event.target.closest('xin-float').remove()
+            }
+          })
+        ],
+        target,
+        position: target.dataset.float
+      })
+    )
+  } else {
+    // position an existing float
+    positionFloat(float, target, target.dataset.float)
+  }
+})
+```
+```html
+<h2>Pop Float Demo</h2>
+<div class="grid">
+  <button data-float="nw">nw</button>
+  <button data-float="n">n</button>
+  <button data-float="ne">ne</button>
+  <button data-float="w">w</button>
+  <button data-float="auto">auto</button>
+  <button data-float="e">e</button>
+  <button data-float="sw">sw</button>
+  <button data-float="s">s</button>
+  <button data-float="se">se</button>
+</div>
+```
+```css
+.preview .grid {
+  display: grid;
+  grid-template-columns: 80px 80px 80px;
+}
+
+.preview xin-float {
+  display: flex;
+  flex-direction: column;
+  border-radius: 5px;
+  padding: 10px;
+  background: white;
+  box-shadow: 2px 10px 5px #0004;
+}
+```
+
+## popFloat
+
+```
+export interface PopFloatOptions {
+  content: HTMLElement | ElementPart[]
+  target: HTMLElement
+  position?: FloatPosition
+}
+
+export const popFloat = (options: PopFloatOptions): XinFloat
+```
+
+Create a `<xin-float>` with the content provided, positioned as specified (or automatically).
+
+## positionFloat
+
+```
+export const positionFloat = (
+  element: HTMLElement,
+  target: HTMLElement,
+  position?: FloatPosition
+): void
+```
+
+This allows you to, for example, provide a global menu that can be used on any element
+instead of needing to have a whole instance of the menu wrapped around every instance
+of the thing you want the menu to affect (a common anti-pattern of front-end frameworks).
+
+## FloatPosition
+
+```
+export type FloatPosition =
+| 'n'
+| 's'
+| 'e'
+| 'w'
+| 'ne'
+| 'nw'
+| 'se'
+| 'sw'
+| 'auto'
+```
+
+*/ 
+
+const $52362c0fb5690a1b$export$81725bf7d66575d3 = (options)=>{
+    const { content: content, target: target, position: position } = options;
+    const float = Array.isArray(content) ? (0, $ddbe66d066773fc1$export$aeb0f03cef938121)(...content) : (0, $ddbe66d066773fc1$export$aeb0f03cef938121)(content);
+    $52362c0fb5690a1b$export$90a23b8db6abf910(float, target, position);
+    document.body.append(float);
+    return float;
+};
+const $52362c0fb5690a1b$export$90a23b8db6abf910 = (element, target, position)=>{
+    {
+        const { position: position } = getComputedStyle(element);
+        if (position !== "fixed") element.style.position = "fixed";
+        (0, $5265d118b5240170$export$1937b0002823d405)(element);
+    }
+    const { left: left, top: top, width: width, height: height } = target.getBoundingClientRect();
+    const cx = left + width * 0.5;
+    const cy = top + height * 0.5;
+    const w = window.innerWidth;
+    const h = window.innerHeight;
+    if (position === "auto" || position === undefined) position = (cy < h * 0.5 ? "s" : "n") + (cx < w * 0.5 ? "e" : "w");
+    element.style.top = element.style.left = element.style.right = element.style.bottom = element.style.transform = "";
+    if (position.length === 2) {
+        if (position.includes("n")) element.style.bottom = (h - top).toFixed(2) + "px";
+        else if (position.includes("s")) element.style.top = (top + height).toFixed(2) + "px";
+        if (position.includes("e")) element.style.left = left.toFixed(2) + "px";
+        else if (position.includes("w")) element.style.right = (w - left - width).toFixed(2) + "px";
+        element.style.transform = "";
+    } else if (position === "n") {
+        element.style.bottom = (h - top).toFixed(2) + "px";
+        element.style.left = cx.toFixed(2) + "px";
+        element.style.transform = "translateX(-50%)";
+    } else if (position === "s") {
+        element.style.top = (top + height).toFixed(2) + "px";
+        element.style.left = cx.toFixed(2) + "px";
+        element.style.transform = "translateX(-50%)";
+    } else if (position === "e") {
+        element.style.left = (left + width).toFixed(2) + "px";
+        element.style.top = cy.toFixed(2) + "px";
+        element.style.transform = "translateY(-50%)";
+    } else if (position === "w") {
+        element.style.right = (w - left).toFixed(2) + "px";
+        element.style.top = cy.toFixed(2) + "px";
+        element.style.transform = "translateY(-50%)";
+    }
+};
 
 
 var $815deb6062b0b31b$exports = {};
@@ -3734,5 +3747,5 @@ function $5a28660a6cbe2731$export$b37fb374f2e92eb6(sortValuator, ascending = tru
 
 
 
-export {$5265d118b5240170$export$c947e3cd16175f27 as trackDrag, $5265d118b5240170$export$f3caf27c1d0ebf0c as findHighestZ, $5c31145f3e970423$export$c6e082819e9a0330 as scriptTag, $5c31145f3e970423$export$63257fda812a683f as styleSheet, $5a28660a6cbe2731$export$b37fb374f2e92eb6 as makeSorter, $86ec44903a84f851$export$6aacb15d82c1f62a as AbTest, $86ec44903a84f851$export$f3d50d6cab4ec980 as abTest, $ef1971ff775ba547$export$1bc633d0db17d4e1 as B3d, $ef1971ff775ba547$export$d0bb57305ce055c9 as b3d, $59f50bee37676c09$export$c74d6d817c60b9e6 as BodymovinPlayer, $59f50bee37676c09$export$d75ad8f79fe096cb as bodymovinPlayer, $8a70bd76f9b7e656$export$b7127187684f7150 as CodeEditor, $8a70bd76f9b7e656$export$d89b6f4d34274146 as codeEditor, $e6e19030d0c18d6f$export$df30df7ec97b32b5 as DataTable, $e6e19030d0c18d6f$export$f71ce0a5ddbe8fa0 as dataTable, $46dc716dd2cf5925$export$16a138bde9d9de87 as availableFilters, $46dc716dd2cf5925$export$b7838412d9f17b13 as FilterPart, $46dc716dd2cf5925$export$2237595b531763d7 as filterPart, $46dc716dd2cf5925$export$afb49bb3b076029e as FilterBuilder, $46dc716dd2cf5925$export$8ca73b4108207c1f as filterBuilder, $ddbe66d066773fc1$export$dfef4eaf9958ab9d as XinFloat, $ddbe66d066773fc1$export$aeb0f03cef938121 as xinFloat, $f78058ae816e78a2$export$f0aa272ac8112266 as XinField, $f78058ae816e78a2$export$470ae7cc5ec6d2a as XinForm, $f78058ae816e78a2$export$1e17fa265ee93a1d as xinField, $f78058ae816e78a2$export$ab08039c332a0d0e as xinForm, $fef058b85aa29b7a$export$df03f54e09e486fa as icons, $fef058b85aa29b7a$export$dbcb8210e8a983ed as SvgIcon, $fef058b85aa29b7a$export$8c90725d55a8eef as svgIcon, $ada9b1474dc4b958$export$41199f9ac14d8c08 as LiveExample, $ada9b1474dc4b958$export$dafbe0fa988b899b as liveExample, $ada9b1474dc4b958$export$afa6494eb589c19e as makeExamplesLive, $6246d5006b5a56c3$export$7d6f3ccbb0a81c30 as MAPSTYLES, $6246d5006b5a56c3$export$f2ffec4d96a433ed as MapBox, $6246d5006b5a56c3$export$ca243e53be209efb as mapBox, $1b88c9cb596c3426$export$575eb698d362902 as MarkdownViewer, $1b88c9cb596c3426$export$305b975a891d0dfa as markdownViewer, $52362c0fb5690a1b$export$81725bf7d66575d3 as popFloat, $52362c0fb5690a1b$export$90a23b8db6abf910 as positionFloat, $815deb6062b0b31b$export$94309935dd6eab19 as blockStyle, $815deb6062b0b31b$export$8cc075c801fd6817 as spacer, $815deb6062b0b31b$export$e3f8198a677f57c2 as elastic, $815deb6062b0b31b$export$74540e56d8cdd242 as commandButton, $815deb6062b0b31b$export$8ed2ffe5d58aaa75 as richTextWidgets, $815deb6062b0b31b$export$f284d8638abd8920 as RichText, $815deb6062b0b31b$export$7bcc4193ad80bf91 as richText, $b9e5aa5581e8f051$export$1a35787d6353cf6a as SideNav, $b9e5aa5581e8f051$export$938418df2b06cb50 as sideNav, $0f2017ffca44b547$export$7140c0f3c1b65d3f as SizeBreak, $0f2017ffca44b547$export$96370210d2ca0fff as sizeBreak, $6bbe441346901d5a$export$a3a7254f7f149b03 as TabSelector, $6bbe441346901d5a$export$a932f737dcd864a2 as tabSelector};
+export {$5265d118b5240170$export$c947e3cd16175f27 as trackDrag, $5265d118b5240170$export$1937b0002823d405 as bringToFront, $5265d118b5240170$export$f3caf27c1d0ebf0c as findHighestZ, $5c31145f3e970423$export$c6e082819e9a0330 as scriptTag, $5c31145f3e970423$export$63257fda812a683f as styleSheet, $5a28660a6cbe2731$export$b37fb374f2e92eb6 as makeSorter, $86ec44903a84f851$export$6aacb15d82c1f62a as AbTest, $86ec44903a84f851$export$f3d50d6cab4ec980 as abTest, $ef1971ff775ba547$export$1bc633d0db17d4e1 as B3d, $ef1971ff775ba547$export$d0bb57305ce055c9 as b3d, $59f50bee37676c09$export$c74d6d817c60b9e6 as BodymovinPlayer, $59f50bee37676c09$export$d75ad8f79fe096cb as bodymovinPlayer, $8a70bd76f9b7e656$export$b7127187684f7150 as CodeEditor, $8a70bd76f9b7e656$export$d89b6f4d34274146 as codeEditor, $e6e19030d0c18d6f$export$df30df7ec97b32b5 as DataTable, $e6e19030d0c18d6f$export$f71ce0a5ddbe8fa0 as dataTable, $46dc716dd2cf5925$export$16a138bde9d9de87 as availableFilters, $46dc716dd2cf5925$export$b7838412d9f17b13 as FilterPart, $46dc716dd2cf5925$export$2237595b531763d7 as filterPart, $46dc716dd2cf5925$export$afb49bb3b076029e as FilterBuilder, $46dc716dd2cf5925$export$8ca73b4108207c1f as filterBuilder, $ddbe66d066773fc1$export$dfef4eaf9958ab9d as XinFloat, $ddbe66d066773fc1$export$aeb0f03cef938121 as xinFloat, $f78058ae816e78a2$export$f0aa272ac8112266 as XinField, $f78058ae816e78a2$export$470ae7cc5ec6d2a as XinForm, $f78058ae816e78a2$export$1e17fa265ee93a1d as xinField, $f78058ae816e78a2$export$ab08039c332a0d0e as xinForm, $fef058b85aa29b7a$export$df03f54e09e486fa as icons, $fef058b85aa29b7a$export$dbcb8210e8a983ed as SvgIcon, $fef058b85aa29b7a$export$8c90725d55a8eef as svgIcon, $ada9b1474dc4b958$export$41199f9ac14d8c08 as LiveExample, $ada9b1474dc4b958$export$dafbe0fa988b899b as liveExample, $ada9b1474dc4b958$export$afa6494eb589c19e as makeExamplesLive, $6246d5006b5a56c3$export$7d6f3ccbb0a81c30 as MAPSTYLES, $6246d5006b5a56c3$export$f2ffec4d96a433ed as MapBox, $6246d5006b5a56c3$export$ca243e53be209efb as mapBox, $1b88c9cb596c3426$export$575eb698d362902 as MarkdownViewer, $1b88c9cb596c3426$export$305b975a891d0dfa as markdownViewer, $52362c0fb5690a1b$export$81725bf7d66575d3 as popFloat, $52362c0fb5690a1b$export$90a23b8db6abf910 as positionFloat, $815deb6062b0b31b$export$94309935dd6eab19 as blockStyle, $815deb6062b0b31b$export$8cc075c801fd6817 as spacer, $815deb6062b0b31b$export$e3f8198a677f57c2 as elastic, $815deb6062b0b31b$export$74540e56d8cdd242 as commandButton, $815deb6062b0b31b$export$8ed2ffe5d58aaa75 as richTextWidgets, $815deb6062b0b31b$export$f284d8638abd8920 as RichText, $815deb6062b0b31b$export$7bcc4193ad80bf91 as richText, $b9e5aa5581e8f051$export$1a35787d6353cf6a as SideNav, $b9e5aa5581e8f051$export$938418df2b06cb50 as sideNav, $0f2017ffca44b547$export$7140c0f3c1b65d3f as SizeBreak, $0f2017ffca44b547$export$96370210d2ca0fff as sizeBreak, $6bbe441346901d5a$export$a3a7254f7f149b03 as TabSelector, $6bbe441346901d5a$export$a932f737dcd864a2 as tabSelector};
 //# sourceMappingURL=index.js.map
