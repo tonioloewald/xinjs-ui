@@ -117,7 +117,7 @@ export type FloatPosition =
 
 import { ElementPart } from 'xinjs'
 import { xinFloat, XinFloat } from './float'
-import { findHighestZ } from './track-drag'
+import { bringToFront } from './track-drag'
 
 export type FloatPosition =
   | 'n'
@@ -153,14 +153,11 @@ export const positionFloat = (
   position?: FloatPosition
 ): void => {
   {
-    const { position, zIndex } = getComputedStyle(element)
+    const { position } = getComputedStyle(element)
     if (position !== 'fixed') {
       element.style.position = 'fixed'
     }
-    const highestZ = findHighestZ()
-    if (Number(zIndex) < highestZ) {
-      element.style.zIndex = String(highestZ + 1)
-    }
+    bringToFront(element)
   }
   const { left, top, width, height } = target.getBoundingClientRect()
   const cx = left + width * 0.5

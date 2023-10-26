@@ -23,6 +23,8 @@ import * as xinjsui from '../src/'
 
 import docs from './docs.json'
 
+console.log(document.referrer)
+
 setTimeout(() => {
   console.log(
     'welcome to %cui.xinjs.net',
