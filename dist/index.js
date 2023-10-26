@@ -1310,7 +1310,7 @@ class $46dc716dd2cf5925$export$b7838412d9f17b13 extends (0, $hgUW1$Component) {
         const baseTest = filter.needsValue === false ? filter.makeTest(undefined) : filter.makeTest(needle.value);
         const field = haystack.value;
         let test;
-        if (field !== "") test = negative ? (obj)=>!baseTest(obj[field]) : (obj)=>baseTest(obj[field]);
+        if (field !== "*") test = negative ? (obj)=>!baseTest(obj[field]) : (obj)=>baseTest(obj[field]);
         else test = negative ? (obj)=>Object.values(obj).find((v)=>!baseTest(v)) !== undefined : (obj)=>Object.values(obj).find((v)=>baseTest(v)) !== undefined;
         const matchValue = filter.needsValue !== false ? ` "${needle.value}"` : "";
         const description = `${$46dc716dd2cf5925$var$getSelectText(haystack)} ${$46dc716dd2cf5925$var$getSelectText(condition)}${matchValue}`;
@@ -1366,7 +1366,6 @@ class $46dc716dd2cf5925$export$b7838412d9f17b13 extends (0, $hgUW1$Component) {
             });
         }).flat();
         condition.append(...conditions);
-        console.log(this.haystack);
         if (this.haystack !== "") haystack.value = this.haystack;
         if (this.condition !== "") condition.value = this.condition;
         if (this.needle !== "") needle.value = this.needle;

@@ -290,7 +290,7 @@ export class FilterPart extends WebComponent {
     const field = haystack.value
     let test
 
-    if (field !== '') {
+    if (field !== '*') {
       test = negative
         ? (obj: any) => !baseTest(obj[field])
         : (obj: any) => baseTest(obj[field])
@@ -381,7 +381,6 @@ export class FilterPart extends WebComponent {
       .flat()
     condition.append(...conditions)
 
-    console.log(this.haystack)
     if (this.haystack !== '') {
       haystack.value = this.haystack
     }
