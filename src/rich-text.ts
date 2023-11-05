@@ -127,7 +127,7 @@ export function commandButton(
 }
 
 const paragraphStyleWidgets = () => [
-  commandButton('left-justify', 'justifyLeft', icons.form()),
+  commandButton('left-justify', 'justifyLeft', icons.formatAlignLeft()),
   commandButton('center', 'justifyCenter', icons.formatAlignCenter()),
   commandButton('right-justify', 'justifyRight', icons.formatAlignRight()),
   spacer(),
