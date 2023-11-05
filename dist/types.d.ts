@@ -265,7 +265,6 @@ export class LiveExample extends Component {
     set html(code: string);
     get js(): string;
     set js(code: string);
-    resizeCodeEditors: (event: PointerEvent) => void;
     content: () => any[];
     connectedCallback(): void;
     copy: () => void;
@@ -370,32 +369,13 @@ working on right now, a row of buttons turns into a menu at narrow widths) there
 Note that the sizes referred to are of the `<xin-sizebreak>`'s `.offsetParent`, and it watches for
 the window's `resize` events and its own (via `ResizeObserver`).
 
-```js
-const { trackDrag } = xinjsui
-
-const container = preview.querySelector('.container')
-const sizer = preview.querySelector('.sizer')
-
-function resize(event) {
-  const w = container.offsetWidth
-  const h = container.offsetHeight
-  trackDrag(event, (dx, dy, event) => {
-    container.style.width = (w + dx) + 'px'
-    container.style.height = (h + dy) + 'px'
-    return event.type === 'mouseup'
-  }, 'nwse-resize')
-}
-
-sizer.addEventListener('mousedown', resize, 'nwse-resize')
-sizer.addEventListener('touchstart', resize, 'nwse-resize')
-```
 ```html
 <div class="container">
   <xin-sizebreak min-width="150" min-height="80">
     <h1>BIG!</h1>
     <i slot="small">little</i>
   </xin-sizebreak>
-  <xin-icon class="sizer" icon="resize"></xin-icon>
+  <xin-sizer></xin-sizer>
 </div>
 ```
 ```css
