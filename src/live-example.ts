@@ -59,7 +59,8 @@ import {
 import { xinFloat } from './float'
 import { codeEditor, CodeEditor } from './code-editor'
 import { tabSelector, TabSelector } from './tab-selector'
-import { trackDrag, bringToFront } from './track-drag'
+import { bringToFront } from './track-drag'
+import { xinSizer } from './sizer'
 import { icons } from './icons'
 
 const { div, xinSlot, style, button, h4 } = elements
@@ -294,28 +295,6 @@ export class LiveExample extends WebComponent {
     ;(this.parts.js as CodeEditor).value = code
   }
 
-  resizeCodeEditors = (event: PointerEvent) => {
-    const { codeEditors } = this.parts
-    const w = codeEditors.offsetWidth
-    const h = codeEditors.offsetHeight
-    codeEditors.style.left = codeEditors.offsetLeft + 'px'
-    codeEditors.style.top = codeEditors.offsetTop + 'px'
-    codeEditors.style.bottom = ''
-    codeEditors.style.right = ''
-
-    trackDrag(
-      event,
-      (dx: number, dy: number, event: any): true | undefined => {
-        codeEditors.style.width = Math.max(200, w + dx) + 'px'
-        codeEditors.style.height = Math.max(100, h + dy) + 'px'
-        if (event.type === 'mouseup') {
-          return true
-        }
-      },
-      'nwse-resize'
-    )
-  }
-
   content = () => [
     div({ part: 'example' }, style({ part: 'style' })),
     xinFloat(
@@ -391,14 +370,7 @@ export class LiveExample extends WebComponent {
           icons.moreVertical()
         )
       ),
-      div(
-        {
-          class: 'sizer no-drag',
-          onMousedown: this.resizeCodeEditors,
-          onTouchstart: this.resizeCodeEditors,
-        },
-        icons.resize()
-      )
+      xinSizer({ class: 'no-drag', style: { zIndex: 10 } })
     ),
     div(
       { class: 'example-widgets' },
