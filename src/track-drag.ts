@@ -155,8 +155,9 @@ export const trackDrag = (
 export const findHighestZ = (selector = 'body *'): number =>
   [...document.querySelectorAll(selector)]
     .map((elt) => parseFloat(getComputedStyle(elt).zIndex))
-    .reduce((z, highest = Number.MIN_SAFE_INTEGER) =>
-      isNaN(z) || Number(z) < highest ? highest : Number(z)
+    .reduce(
+      (z, highest) => (isNaN(z) || Number(z) < highest ? highest : Number(z)),
+      0
     )
 
 export const bringToFront = (
