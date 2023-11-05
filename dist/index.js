@@ -807,7 +807,7 @@ const $5265d118b5240170$export$c947e3cd16175f27 = (event, callback, cursor = "mo
 };
 const $5265d118b5240170$export$f3caf27c1d0ebf0c = (selector = "body *")=>[
         ...document.querySelectorAll(selector)
-    ].map((elt)=>parseFloat(getComputedStyle(elt).zIndex)).reduce((z, highest = Number.MIN_SAFE_INTEGER)=>isNaN(z) || Number(z) < highest ? highest : Number(z));
+    ].map((elt)=>parseFloat(getComputedStyle(elt).zIndex)).reduce((z, highest)=>isNaN(z) || Number(z) < highest ? highest : Number(z), 0);
 const $5265d118b5240170$export$1937b0002823d405 = (element, selector = "body *")=>{
     element.style.zIndex = String($5265d118b5240170$export$f3caf27c1d0ebf0c(selector) + 1);
 };
@@ -2410,6 +2410,80 @@ const $6bbe441346901d5a$export$a932f737dcd864a2 = $6bbe441346901d5a$export$a3a72
 
 
 
+/*!
+# sizer
+
+This is a super-simple component that you can put in a fixed size element allowing it to be resized
+from the bottom-right.
+
+```html
+<div>
+  <xin-sizer></xin-sizer>
+</div>
+```
+```css
+.preview div {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  width: 200px;
+  height: 100px;
+  background: #ff02;
+  border: 1px solid #555;
+}
+```
+
+*/ 
+
+
+class $862666af3c1254c2$export$5b41f1c4a4393ecb extends (0, $hgUW1$Component) {
+    styleNode = (0, $hgUW1$Component).StyleNode({
+        ":host": {
+            display: "block",
+            position: "absolute",
+            bottom: -7,
+            right: -7,
+            padding: 14,
+            width: 44,
+            height: 44,
+            opacity: 0.25,
+            transition: "opacity 0.25s ease-out"
+        },
+        ":host(:hover)": {
+            opacity: 0.5
+        },
+        ":host svg": {
+            width: 16,
+            height: 16
+        }
+    });
+    content = (0, $fef058b85aa29b7a$export$df03f54e09e486fa).resize();
+    resizeParent = (event)=>{
+        const parent = this.parentElement;
+        console.log(parent);
+        const w = parent.offsetWidth;
+        const h = parent.offsetHeight;
+        parent.style.left = parent.offsetLeft + "px";
+        parent.style.top = parent.offsetTop + "px";
+        parent.style.bottom = "";
+        parent.style.right = "";
+        (0, $5265d118b5240170$export$c947e3cd16175f27)(event, (dx, dy, event)=>{
+            parent.style.width = Math.max(200, w + dx) + "px";
+            parent.style.height = Math.max(100, h + dy) + "px";
+            if (event.type === "mouseup") return true;
+        }, "nwse-resize");
+    };
+    connectedCallback() {
+        super.connectedCallback();
+        this.addEventListener("mousedown", this.resizeParent);
+        this.addEventListener("touchstart", this.resizeParent);
+    }
+}
+const $862666af3c1254c2$export$2404b448600702b8 = $862666af3c1254c2$export$5b41f1c4a4393ecb.elementCreator({
+    tag: "xin-sizer"
+});
+
+
 
 const { div: $ada9b1474dc4b958$var$div, xinSlot: $ada9b1474dc4b958$var$xinSlot, style: $ada9b1474dc4b958$var$style, button: $ada9b1474dc4b958$var$button, h4: $ada9b1474dc4b958$var$h4 } = (0, $hgUW1$elements);
 const $ada9b1474dc4b958$var$AsyncFunction = (async ()=>{}).constructor;
@@ -2620,20 +2694,6 @@ class $ada9b1474dc4b958$export$41199f9ac14d8c08 extends (0, $hgUW1$Component) {
     set js(code) {
         this.parts.js.value = code;
     }
-    resizeCodeEditors = (event)=>{
-        const { codeEditors: codeEditors } = this.parts;
-        const w = codeEditors.offsetWidth;
-        const h = codeEditors.offsetHeight;
-        codeEditors.style.left = codeEditors.offsetLeft + "px";
-        codeEditors.style.top = codeEditors.offsetTop + "px";
-        codeEditors.style.bottom = "";
-        codeEditors.style.right = "";
-        (0, $5265d118b5240170$export$c947e3cd16175f27)(event, (dx, dy, event)=>{
-            codeEditors.style.width = Math.max(200, w + dx) + "px";
-            codeEditors.style.height = Math.max(100, h + dy) + "px";
-            if (event.type === "mouseup") return true;
-        }, "nwse-resize");
-    };
     content = ()=>[
             $ada9b1474dc4b958$var$div({
                 part: "example"
@@ -2700,11 +2760,12 @@ class $ada9b1474dc4b958$export$41199f9ac14d8c08 extends (0, $hgUW1$Component) {
                 slot: "after-tabs",
                 title: "code menu",
                 class: "transparent"
-            }, (0, $fef058b85aa29b7a$export$df03f54e09e486fa).moreVertical())), $ada9b1474dc4b958$var$div({
-                class: "sizer no-drag",
-                onMousedown: this.resizeCodeEditors,
-                onTouchstart: this.resizeCodeEditors
-            }, (0, $fef058b85aa29b7a$export$df03f54e09e486fa).resize())),
+            }, (0, $fef058b85aa29b7a$export$df03f54e09e486fa).moreVertical())), (0, $862666af3c1254c2$export$2404b448600702b8)({
+                class: "no-drag",
+                style: {
+                    zIndex: 10
+                }
+            })),
             $ada9b1474dc4b958$var$div({
                 class: "example-widgets"
             }, $ada9b1474dc4b958$var$button({
@@ -3413,7 +3474,7 @@ function $815deb6062b0b31b$export$74540e56d8cdd242(title, dataCommand, icon) {
     }, icon);
 }
 const $815deb6062b0b31b$var$paragraphStyleWidgets = ()=>[
-        $815deb6062b0b31b$export$74540e56d8cdd242("left-justify", "justifyLeft", (0, $fef058b85aa29b7a$export$df03f54e09e486fa).form()),
+        $815deb6062b0b31b$export$74540e56d8cdd242("left-justify", "justifyLeft", (0, $fef058b85aa29b7a$export$df03f54e09e486fa).formatAlignLeft()),
         $815deb6062b0b31b$export$74540e56d8cdd242("center", "justifyCenter", (0, $fef058b85aa29b7a$export$df03f54e09e486fa).formatAlignCenter()),
         $815deb6062b0b31b$export$74540e56d8cdd242("right-justify", "justifyRight", (0, $fef058b85aa29b7a$export$df03f54e09e486fa).formatAlignRight()),
         $815deb6062b0b31b$export$8cc075c801fd6817(),
