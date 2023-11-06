@@ -252,6 +252,13 @@ export class TabSelector extends Component {
     render(): void;
 }
 export const tabSelector: ElementCreator<TabSelector>;
+export class XinSizer extends Component {
+    styleNode: HTMLStyleElement;
+    content: SVGElement;
+    resizeParent: (event: Event) => void;
+    connectedCallback(): void;
+}
+export const xinSizer: ElementCreator<XinSizer>;
 interface ExampleContext {
     [key: string]: any;
 }
