@@ -3125,6 +3125,8 @@ Oh, and nested templates {{nested}}.
 </xin-md>
 ```
 */ function $1b88c9cb596c3426$var$populate(basePath, source) {
+    if (source == null) source = "";
+    else if (typeof source !== "string") source = String(source);
     return source.replace(/\{\{([^}]+)\}\}/g, (original, prop)=>{
         const value = (0, $hgUW1$xin)[`${basePath}${prop.startsWith("[") ? prop : "." + prop}`];
         return value === undefined ? original : $1b88c9cb596c3426$var$populate(basePath, String(value));
