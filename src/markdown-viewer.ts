@@ -89,13 +89,21 @@ Oh, and nested templates {{nested}}.
 ```
 */
 
-function populate(basePath: string, source: string): string {
-  return source.replace(/\{\{([^}]+)\}\}/g, (original, prop) => {
-    const value = (xin as any)[
-      `${basePath}${prop.startsWith('[') ? prop : '.' + prop}`
-    ]
-    return value === undefined ? original : populate(basePath, String(value))
-  })
+function populate(basePath: string, source?: any): string {
+  if (source == null) {
+    source = ''
+  } else if (typeof source !== 'string') {
+    source = String(source)
+  }
+  return source.replace(
+    /\{\{([^}]+)\}\}/g,
+    (original: string, prop: string) => {
+      const value = (xin as any)[
+        `${basePath}${prop.startsWith('[') ? prop : '.' + prop}`
+      ]
+      return value === undefined ? original : populate(basePath, String(value))
+    }
+  )
 }
 
 export class MarkdownViewer extends Component {
