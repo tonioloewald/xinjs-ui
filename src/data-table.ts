@@ -40,7 +40,7 @@ const columns = [
   },
 ]
 
-preview.append(dataTable({ array: emojiData, columns }))
+preview.append(dataTable({ multiple: true, array: emojiData, columns }))
 ```
 ```css
 .preview input.td {
@@ -65,6 +65,18 @@ You can set the `<xin-table>`'s `array`, `columns`, and `filter` properties dire
 }
 ```
 
+## selection
+
+`<xin-table>` supports `select` and `multiple` boolean properties allowing rows to be selectable. Selected rows will
+be given the `[aria-selected]` attribute, so style them as you wish.
+
+**multiple** select supports shift-clicking and command/meta-clicking.
+
+`<xin-table>` provides an `onSelect(visibleSelectedRows: any[]): void` callback property allowing you to respond to changes
+in the selection, and also `selectedRows` and `visibleSelectedRows` properties.
+
+## rowHeight
+
 If you set the `<xin-table>`'s `rowHeight` to `0` it will render all its elements (i.e. not be virtual). This is
 useful for smaller tables, or tables with variable row-heights.
 */
@@ -76,6 +88,8 @@ import {
   xin,
   vars,
   xinValue,
+  getListItem,
+  touch,
 } from 'xinjs'
 import { trackDrag } from './track-drag'
 
@@ -133,7 +147,22 @@ export type ArrayFilter = (array: any[]) => any[]
 
 const passThru = (array: any[]) => array
 
+export type SelectCallback = (selected: any[]) => void
+
 export class DataTable extends WebComponent {
+  select = false
+  multiple = false
+  onSelect: SelectCallback = () => {}
+
+  private selectedKey = Symbol('selected')
+  private selectBinding = (elt: HTMLElement, obj: any) => {
+    if (obj[this.selectedKey]) {
+      elt.setAttribute('aria-selected', '')
+    } else {
+      elt.removeAttribute('aria-selected')
+    }
+  }
+
   maxVisibleRows = 10000
 
   get value(): TableData {
@@ -172,7 +201,13 @@ export class DataTable extends WebComponent {
   constructor() {
     super()
 
-    this.initAttributes('rowHeight', 'charWidth', 'minColumnWidth')
+    this.initAttributes(
+      'rowHeight',
+      'charWidth',
+      'minColumnWidth',
+      'select',
+      'multiple'
+    )
   }
 
   get array(): any[] {
@@ -225,10 +260,6 @@ export class DataTable extends WebComponent {
     return this.columns.filter((c) => c.visible !== false)
   }
 
-  get visibleRecords(): any[] {
-    return xin[this.instanceId] as any[]
-  }
-
   content = null
 
   getColumn(event: any): ColumnOptions | undefined {
@@ -248,7 +279,7 @@ export class DataTable extends WebComponent {
     return column
   }
 
-  setCursor = (event: Event) => {
+  private setCursor = (event: Event) => {
     const column = this.getColumn(event)
     if (column !== undefined) {
       this.style.cursor = 'col-resize'
@@ -257,7 +288,7 @@ export class DataTable extends WebComponent {
     }
   }
 
-  resizeColumn = (event: any) => {
+  private resizeColumn = (event: any) => {
     const column = this.getColumn(event)
     if (column !== undefined) {
       const origWidth = column.width
@@ -289,12 +320,74 @@ export class DataTable extends WebComponent {
     }
   }
 
+  // tracking click / shift-click
+  private rangeStart?: any
+  private updateSelection = (event: Event) => {
+    if (!this.select && !this.multiple) {
+      return
+    }
+    const { target } = event
+    if (!(target instanceof HTMLElement)) {
+      return
+    }
+    const tr = target.closest('.tr')
+    if (!(tr instanceof HTMLElement)) {
+      return
+    }
+    const pickedItem = getListItem(tr)
+    const mouseEvent = event as MouseEvent
+    if (
+      this.multiple &&
+      mouseEvent.shiftKey &&
+      this.rangeStart !== undefined &&
+      this.rangeStart !== pickedItem
+    ) {
+      const mode = this.rangeStart[this.selectedKey] === true
+      const rows = this.visibleRows
+      const [start, finish] = [
+        rows.indexOf(this.rangeStart),
+        rows.indexOf(pickedItem),
+      ].sort()
+      // if start is -1 then one of the items is no longer visible
+      if (start > -1) {
+        for (let idx = start; idx <= finish; idx++) {
+          const row = rows[idx]
+          if (mode) {
+            row[this.selectedKey] = true
+          } else {
+            delete row[this.selectedKey]
+          }
+        }
+      }
+    } else if (this.multiple && mouseEvent.metaKey) {
+      this.rangeStart = pickedItem
+      if (pickedItem[this.selectedKey] === true) {
+        delete pickedItem[this.selectedKey]
+      } else {
+        pickedItem[this.selectedKey] = true
+      }
+    } else if (pickedItem[this.selectedKey] !== true) {
+      this.rangeStart = pickedItem
+      for (const item of this.array) {
+        if (item === pickedItem) {
+          item[this.selectedKey] = true
+        } else {
+          delete item[this.selectedKey]
+        }
+      }
+    }
+    this.onSelect(this.visibleSelectedRows)
+    touch(this.instanceId)
+  }
+
   connectedCallback(): void {
     super.connectedCallback()
 
     this.addEventListener('mousemove', this.setCursor)
     this.addEventListener('mousedown', this.resizeColumn)
     this.addEventListener('touchstart', this.resizeColumn, { passive: true })
+    this.addEventListener('mouseup', this.updateSelection)
+    this.addEventListener('touchend', this.updateSelection)
   }
 
   setColumnWidths() {
@@ -356,6 +449,14 @@ export class DataTable extends WebComponent {
     return xinValue(xin[this.instanceId]) as any[]
   }
 
+  get visibleSelectedRows(): any[] {
+    return this.visibleRows.filter((obj) => obj[this.selectedKey])
+  }
+
+  get selectedRows(): any[] {
+    return this.array.filter((obj) => obj[this.selectedKey])
+  }
+
   render() {
     super.render()
 
@@ -402,6 +503,10 @@ export class DataTable extends WebComponent {
               class: 'tr',
               role: 'row',
               style: this.rowStyle,
+              bind: {
+                value: '^',
+                binding: this.selectBinding,
+              },
             },
             ...visibleColumns.map(this.dataCell)
           )
