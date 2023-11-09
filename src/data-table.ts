@@ -27,6 +27,8 @@ const columns = [
         class: 'td',
         bindValue: '^.name',
         title: 'name',
+        onMouseup: (event) => { event.stopPropagation() },
+        onTouchend: (event) => { event.stopPropagation() },
       })
     },
   },
@@ -47,13 +49,17 @@ preview.append(dataTable({ multiple: true, array: emojiData, columns }))
   margin: 0;
   border-radius: 0;
   box-shadow: none !important;
-  background: transparent;
+  background: #fff4;
 }
 
 .preview xin-table {
   height: 100%;
 }
 ```
+
+> In the preceding example, the `name` column is *editable* (and *bound*, try editing something and scrolling
+> it out of view and back) and `multiple` select is enabled. In the console, you can try `$('xin-table').visibleRows`
+> and $('xin-table').selectedRows`.
 
 You can set the `<xin-table>`'s `array`, `columns`, and `filter` properties directly, or set its `value` to:
 
@@ -70,12 +76,22 @@ You can set the `<xin-table>`'s `array`, `columns`, and `filter` properties dire
 `<xin-table>` supports `select` and `multiple` boolean properties allowing rows to be selectable. Selected rows will
 be given the `[aria-selected]` attribute, so style them as you wish.
 
-**multiple** select supports shift-clicking and command/meta-clicking.
+`multiple` select supports shift-clicking and command/meta-clicking.
 
 `<xin-table>` provides an `onSelect(visibleSelectedRows: any[]): void` callback property allowing you to respond to changes
 in the selection, and also `selectedRows` and `visibleSelectedRows` properties.
 
+The following methods are also provided:
+
+- `<xin-table>.selectRow(row: any, select = true)` (de)selects specified row
+- `<xin-table>.selectRows(rows?: any[], select = true)` (de)selects specified rows
+- `<xin-table>.deSelect(rows?: any[])` deselects all or specified rows.
+
+These are rather fine-grained but they're used internally by the selection code so they may as well be documented.
+
 ## rowHeight
+
+This property dictates the height of each row. It defaults to `30` (px).
 
 If you set the `<xin-table>`'s `rowHeight` to `0` it will render all its elements (i.e. not be virtual). This is
 useful for smaller tables, or tables with variable row-heights.
@@ -320,6 +336,24 @@ export class DataTable extends WebComponent {
     }
   }
 
+  selectRow(row: any, select = true) {
+    if (select) {
+      row[this.selectedKey] = true
+    } else {
+      delete row[this.selectedKey]
+    }
+  }
+
+  selectRows(rows?: any[], select = true) {
+    for (let row of rows || this.array) {
+      this.selectRow(row, select)
+    }
+  }
+
+  deSelect(rows?: any[]) {
+    this.selectRows(rows, false)
+  }
+
   // tracking click / shift-click
   private rangeStart?: any
   private updateSelection = (event: Event) => {
@@ -336,6 +370,11 @@ export class DataTable extends WebComponent {
     }
     const pickedItem = getListItem(tr)
     const mouseEvent = event as MouseEvent
+    // prevent ugly selection artifacts
+    const selection = window.getSelection()
+    if (selection !== null) {
+      selection.removeAllRanges()
+    }
     if (
       this.multiple &&
       mouseEvent.shiftKey &&
@@ -347,34 +386,23 @@ export class DataTable extends WebComponent {
       const [start, finish] = [
         rows.indexOf(this.rangeStart),
         rows.indexOf(pickedItem),
-      ].sort()
+      ].sort((a, b) => a - b)
+
       // if start is -1 then one of the items is no longer visible
       if (start > -1) {
         for (let idx = start; idx <= finish; idx++) {
           const row = rows[idx]
-          if (mode) {
-            row[this.selectedKey] = true
-          } else {
-            delete row[this.selectedKey]
-          }
+          this.selectRow(row, mode)
         }
       }
+      this.rangeStart = undefined
     } else if (this.multiple && mouseEvent.metaKey) {
       this.rangeStart = pickedItem
-      if (pickedItem[this.selectedKey] === true) {
-        delete pickedItem[this.selectedKey]
-      } else {
-        pickedItem[this.selectedKey] = true
-      }
-    } else if (pickedItem[this.selectedKey] !== true) {
+      this.selectRow(pickedItem, !pickedItem[this.selectedKey])
+    } else {
       this.rangeStart = pickedItem
-      for (const item of this.array) {
-        if (item === pickedItem) {
-          item[this.selectedKey] = true
-        } else {
-          delete item[this.selectedKey]
-        }
-      }
+      this.deSelect()
+      pickedItem[this.selectedKey] = true
     }
     this.onSelect(this.visibleSelectedRows)
     touch(this.instanceId)
@@ -505,7 +533,7 @@ export class DataTable extends WebComponent {
               style: this.rowStyle,
               bind: {
                 value: '^',
-                binding: this.selectBinding,
+                binding: { toDOM: this.selectBinding },
               },
             },
             ...visibleColumns.map(this.dataCell)
