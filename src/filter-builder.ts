@@ -5,6 +5,7 @@ Automatically creates `ArrayFilter` functions `(a: any[]) => any[]` based on the
 macOS Finder-inspired interface, using an easily customizable / extensible collection of `Filter` objects.
 
 ```js
+const { elements } = xinjs
 const { dataTable, filterBuilder, availableFilters } = xinjsui
 
 const sourceWords = ['acorn', 'bubblegum', 'copper', 'daisy', 'ellipse', 'fabulous', 'gerund', 'hopscotch', 'idiom', 'joke']
@@ -15,7 +16,7 @@ function randomWords () {
     numWords -= 1
     words.push(sourceWords[Math.floor(Math.random() * 10)])
   }
-  return words
+  return [...new Set(words)]
 }
 
 const array = []
@@ -25,7 +26,20 @@ for(let i = 0; i < 1000; i++) {
     isLucky: Math.random() < 0.1,
     number: Math.floor(Math.random() * 200 - 100),
     string: randomWords().join(' '),
+    tags: randomWords()
   })
+}
+
+const { span } = elements
+const tagsBinding = {
+  value: '^.tags',
+  binding: {
+    toDOM(element, value) {
+      element.classList.add('tag-list')
+      element.textContent = ''
+      element.append(...value.map(tag => span(tag, {class: 'tag'})))
+    }
+  }
 }
 
 const columns = [
@@ -36,23 +50,30 @@ const columns = [
   {
     prop: 'isLucky',
     type: 'boolean',
-    width: 100
+    width: 90
   },
   {
     prop: 'number',
     align: 'right',
-    width: 100
+    width: 90
   },
   {
     prop: 'string',
-    width: 300
+    width: 200
+  },
+  {
+    prop: 'tags',
+    width: 200,
+    dataCell() {
+      return elements.div({ bind: tagsBinding })
+    }
   },
 ]
 
 const table = dataTable({ array, columns })
-const { contains, equals, after, isTrue, isFalse } = availableFilters
+const { contains, equals, after, isTrue, isFalse, hasTags, doesNotHaveTags } = availableFilters
 const filter = filterBuilder({
-  filters: { contains, equals, after, isTrue, isFalse },
+  filters: { contains, equals, after, isTrue, isFalse, hasTags, doesNotHaveTags },
   fields: columns,
   onChange(event) {
     table.filter = filter.filter
@@ -68,6 +89,23 @@ preview.append(filter, table)
 
 .preview xin-table {
   flex: 1 1 auto;
+}
+
+.preview .tag-list {
+  display: flex;
+  font-size: 80%;
+  align-items: center;
+  gap: 2px;
+}
+
+.preview .tag {
+  display: inline-block;
+  border-radius: 4px;
+  padding: 0 5px;
+  line-height: 20px;
+  height: 20px;
+  color: var(--brand-text-color);
+  background: var(--brand-color);
 }
 ```
 
@@ -85,6 +123,8 @@ The full collection includes:
 - **truthy** * looks for fields that are true / non-zero / non-empty
 - **true** looks for fields that are `true`
 - **false** looks for fields that are `false`
+- **hasTags** looks for fields that are arrays containing all the (space/comma) delimited strings
+- **doesNotHaveTags** looks for fields that are arrays containing none of the strings
 
 **Note**: the filters marked with an * have negative version (e.g. does not contain).
 
@@ -180,6 +220,32 @@ export const availableFilters: { [key: string]: FilterMaker } = {
     makeTest: (value: string) => {
       value = value.toLocaleLowerCase()
       return (obj: any) => String(obj).toLocaleLowerCase().includes(value)
+    },
+  },
+  hasTags: {
+    caption: 'has tags',
+    makeTest: (value: string) => {
+      const tags = value
+        .split(/[\s,]/)
+        .map((tag) => tag.trim().toLocaleLowerCase())
+        .filter((tag) => tag !== '')
+      console.log(tags)
+      return (obj: any) =>
+        Array.isArray(obj) &&
+        tags.find((tag) => !obj.includes(tag)) === undefined
+    },
+  },
+  doesNotHaveTags: {
+    caption: 'does not have tags',
+    makeTest: (value: string) => {
+      const tags = value
+        .split(/[\s,]/)
+        .map((tag) => tag.trim().toLocaleLowerCase())
+        .filter((tag) => tag !== '')
+      console.log(tags)
+      return (obj: any) =>
+        Array.isArray(obj) &&
+        tags.find((tag) => obj.includes(tag)) === undefined
     },
   },
   equals: {
