@@ -11,6 +11,7 @@
   --bar-color: #dae3df;
   --focus-color: #08835880;
   --brand-text-color: #ecf3dd;
+  --inset-bg: #eee;
   --code-bg: #f8ffe9;
   --spacing: 10px;
   --line-height: calc(var(--font-size) * 1.6);
@@ -102,6 +103,20 @@ main {
 
 main > xin-sidenav {
   height: calc(100vh - var(--header-height));
+}
+
+blockquote {
+  background: var(--inset-bg);
+  margin: 0;
+  padding: var(--spacing) calc(var(--spacing) * 2);
+}
+
+blockquote > :first-child {
+  margin-top: 0;
+}
+
+blockquote > :last-child {
+  margin-bottom: 0;
 }
 
 .bar {
@@ -242,8 +257,12 @@ svg text.hover {
   padding: 0 var(--spacing);
 }
 
-.tr:hover {
+.tr:not([aria-selected]):hover {
   background: #08835810;
+}
+
+[aria-selected] {
+  background: #08835820;
 }
 
 :disabled {

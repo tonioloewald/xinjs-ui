@@ -345,7 +345,7 @@ export class DataTable extends WebComponent {
   }
 
   selectRows(rows?: any[], select = true) {
-    for (let row of rows || this.array) {
+    for (const row of rows || this.array) {
       this.selectRow(row, select)
     }
   }
