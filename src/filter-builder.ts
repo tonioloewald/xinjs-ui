@@ -313,6 +313,12 @@ function getSelectText(select: HTMLSelectElement): string {
 }
 
 type Fields = Array<{ name?: string; prop: string }>
+
+export interface FilterPartState {
+  haystack: string
+  condition: string
+  needle: string
+}
 export class FilterPart extends WebComponent {
   fields: Fields = []
   filters = availableFilters
@@ -335,6 +341,23 @@ export class FilterPart extends WebComponent {
   constructor() {
     super()
     this.initAttributes('haystack', 'condition', 'needle')
+  }
+
+  get state(): FilterPartState {
+    const { haystack, needle, condition } = this.parts as {
+      haystack: HTMLSelectElement
+      condition: HTMLSelectElement
+      needle: HTMLInputElement
+    }
+    return {
+      haystack: haystack.value,
+      needle: needle.value,
+      condition: condition.value,
+    }
+  }
+
+  set state(newState: FilterPartState) {
+    Object.assign(this, newState)
   }
 
   buildFilter = (/* event: Event */) => {
@@ -381,17 +404,6 @@ export class FilterPart extends WebComponent {
     this.parentElement?.dispatchEvent(new Event('change'))
   }
 
-  get query(): string {
-    const { haystack, condition, needle } = this.parts as {
-      haystack: HTMLSelectElement
-      condition: HTMLSelectElement
-      needle: HTMLInputElement
-    }
-    return needle.hidden
-      ? `${haystack.value}=${condition.value}`
-      : `${haystack.value}=${condition.value}:${needle.value}`
-  }
-
   connectedCallback() {
     super.connectedCallback()
 
@@ -405,9 +417,9 @@ export class FilterPart extends WebComponent {
     haystack.addEventListener('change', this.buildFilter)
     condition.addEventListener('change', this.buildFilter)
     needle.addEventListener('input', this.buildFilter)
-    haystack.value = ''
-    condition.value = Object.keys(this.filters)[0]
-    needle.value = ''
+    haystack.value = this.haystack
+    condition.value = this.condition
+    needle.value = this.needle
 
     remove.addEventListener('click', () => {
       const { parentElement } = this
@@ -464,6 +476,8 @@ export const filterPart = FilterPart.elementCreator({
   tag: 'xin-filter-part',
 }) as ElementCreator<FilterPart>
 
+export type FilterState = FilterPartState[]
+
 export class FilterBuilder extends WebComponent {
   private _fields: Fields = []
 
@@ -476,23 +490,19 @@ export class FilterBuilder extends WebComponent {
     this.queueRender()
   }
 
-  get query(): string {
+  get state(): FilterState {
     const { filterContainer } = this.parts
-    const filterParts = [...filterContainer.children] as FilterPart[]
-    return filterParts.map((p) => p.query).join('&')
+    return ([...filterContainer.children] as FilterPart[]).map(
+      (part) => part.state
+    )
   }
 
-  set query(querySpec: string) {
+  set state(parts: FilterState) {
     const { fields, filters } = this
     const { filterContainer } = this.parts
-    const queryParts = querySpec.split('&')
     filterContainer.textContent = ''
-    for (const queryPart of queryParts) {
-      const [haystack, remainder] = queryPart.split('=')
-      const [condition, needle] = remainder.split(':', 2)
-      filterContainer.append(
-        filterPart({ fields, filters, haystack, condition, needle })
-      )
+    for (const state of parts) {
+      filterContainer.append(filterPart({ fields, filters, ...state }))
     }
   }
 
