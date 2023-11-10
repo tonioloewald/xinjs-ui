@@ -87,7 +87,11 @@ export interface TableData {
     filter?: ArrayFilter | null;
 }
 export type ArrayFilter = (array: any[]) => any[];
+export type SelectCallback = (selected: any[]) => void;
 export class DataTable extends Component {
+    select: boolean;
+    multiple: boolean;
+    onSelect: SelectCallback;
     maxVisibleRows: number;
     get value(): TableData;
     set value(data: TableData);
@@ -105,11 +109,11 @@ export class DataTable extends Component {
     get columns(): ColumnOptions[];
     set columns(newColumns: ColumnOptions[]);
     get visibleColumns(): ColumnOptions[];
-    get visibleRecords(): any[];
     content: null;
     getColumn(event: any): ColumnOptions | undefined;
-    setCursor: (event: Event) => void;
-    resizeColumn: (event: any) => void;
+    selectRow(row: any, select?: boolean): void;
+    selectRows(rows?: any[], select?: boolean): void;
+    deSelect(rows?: any[]): void;
     connectedCallback(): void;
     setColumnWidths(): void;
     get rowStyle(): {
@@ -126,6 +130,8 @@ export class DataTable extends Component {
     headerCell: (options: ColumnOptions) => HTMLElement;
     dataCell: (options: ColumnOptions) => HTMLElement;
     get visibleRows(): any[];
+    get visibleSelectedRows(): any[];
+    get selectedRows(): any[];
     render(): void;
 }
 export const dataTable: ElementCreator<DataTable>;
