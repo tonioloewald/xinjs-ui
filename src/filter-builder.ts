@@ -71,9 +71,7 @@ const columns = [
 ]
 
 const table = dataTable({ array, columns })
-const { contains, equals, after, isTrue, isFalse, hasTags, doesNotHaveTags } = availableFilters
 const filter = filterBuilder({
-  filters: { contains, equals, after, isTrue, isFalse, hasTags, doesNotHaveTags },
   fields: columns,
   onChange(event) {
     table.filter = filter.filter
@@ -109,6 +107,12 @@ preview.append(filter, table)
 }
 ```
 
+## serialization
+
+The current state of a `<xin-filter>` can be serialized as, and restored from, a Javascript object (which itself
+can easily be converted into JSON or a URL component) via its `state` property. Obviously, a `<xin-filter>` can
+only restore state if it has the necessary constituent `filters`.
+
 ## availableFilters
 
 `<xin-filter>` has a default set of `FilterMaker` objects which it uses to construct filter function.
@@ -124,7 +128,7 @@ The full collection includes:
 - **true** looks for fields that are `true`
 - **false** looks for fields that are `false`
 - **hasTags** looks for fields that are arrays containing all the (space/comma) delimited strings
-- **doesNotHaveTags** looks for fields that are arrays containing none of the strings
+- **doesNotHaveTags** looks for fields that are arrays containing *none* of the strings
 
 **Note**: the filters marked with an * have negative version (e.g. does not contain).
 
@@ -159,9 +163,14 @@ xin-filter-part svg[class^="icon-"]: {
   pointer-event: none;
 },
 
+xin-filter-part [part="haystack"],
+xin-filter-part [part="condition"] {
+  flex: 1;
+}
+
+
 xin-filter-part [part="needle"] {
-  flex: 1 1 auto;
-  width: 80px;
+  flex: 2
 }
 
 xin-filter-part [hidden]+[part="padding"] {
@@ -171,9 +180,9 @@ xin-filter-part [hidden]+[part="padding"] {
 }
 
 xin-filter {
-  width: 100%;
   height: auto;
-  display: flex;
+  display: grid;
+  grid-template-columns: 32px calc(100% - 64px) 32px;
   align-items: center;
 }
 
@@ -281,8 +290,8 @@ export const availableFilters: { [key: string]: FilterMaker } = {
     },
   },
   truthy: {
-    caption: 'is true / non-empty / no-zero',
-    negative: 'is false / empty / zero',
+    caption: 'is true/non-empty/non-zero',
+    negative: 'is false/empty/zero',
     needsValue: false,
     makeTest: () => (obj: any) => !!obj,
   },
@@ -331,7 +340,7 @@ export class FilterPart extends WebComponent {
     icons.chevronDown(),
     select({ part: 'condition' }),
     icons.chevronDown(),
-    input({ part: 'needle' }),
+    input({ part: 'needle', type: 'search' }),
     span({ part: 'padding' }),
     button({ part: 'remove', title: 'delete' }, icons.trash()),
   ]
