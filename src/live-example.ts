@@ -84,7 +84,7 @@ document.head.append(
 xin-example {
   --xin-example-preview-height: calc(var(--xin-example-height) * 0.5);
   --code-editors-bar-bg: #777;
-  --code-editors-bar-color: #eee;
+  --code-editors-bar-color: #fff;
   --widget-bg: #fffc;
   --widget-color: #000;
   position: relative;
@@ -93,10 +93,6 @@ xin-example {
   height: var(--xin-example-height);
   background: var(--background);
   box-sizing: border-box;
-}
-
-xin-example:not(.-maximize) {
-  border: 2px solid #0002;
 }
 
 xin-example.-maximize {
@@ -143,8 +139,13 @@ xin-example .example-widgets {
   position: absolute;
   right: 0;
   top: 0;
+  transform: translateY(-100%) translateY(-2px);
   background: var(--widget-bg);
   border-radius: 5px;
+}
+
+xin-example.-maximize .example-widgets {
+  transform: none;
 }
 
 xin-example .example-widgets svg {
