@@ -78,7 +78,7 @@ be given the `[aria-selected]` attribute, so style them as you wish.
 
 `multiple` select supports shift-clicking and command/meta-clicking.
 
-`<xin-table>` provides an `onSelect(visibleSelectedRows: any[]): void` callback property allowing you to respond to changes
+`<xin-table>` provides an `selectionChanged(visibleSelectedRows: any[]): void` callback property allowing you to respond to changes
 in the selection, and also `selectedRows` and `visibleSelectedRows` properties.
 
 The following methods are also provided:
@@ -168,7 +168,7 @@ export type SelectCallback = (selected: any[]) => void
 export class DataTable extends WebComponent {
   select = false
   multiple = false
-  onSelect: SelectCallback = () => {}
+  selectionChanged: SelectCallback = () => {}
 
   private selectedKey = Symbol('selected')
   private selectBinding = (elt: HTMLElement, obj: any) => {
@@ -375,16 +375,18 @@ export class DataTable extends WebComponent {
     if (selection !== null) {
       selection.removeAllRanges()
     }
+    const rows = this.visibleRows
     if (
       this.multiple &&
       mouseEvent.shiftKey &&
-      this.rangeStart !== undefined &&
+      rows.length > 0 &&
       this.rangeStart !== pickedItem
     ) {
-      const mode = this.rangeStart[this.selectedKey] === true
-      const rows = this.visibleRows
+      const mode =
+        this.rangeStart === undefined ||
+        this.rangeStart[this.selectedKey] === true
       const [start, finish] = [
-        rows.indexOf(this.rangeStart),
+        this.rangeStart !== undefined ? rows.indexOf(this.rangeStart) : 0,
         rows.indexOf(pickedItem),
       ].sort((a, b) => a - b)
 
@@ -395,16 +397,27 @@ export class DataTable extends WebComponent {
           this.selectRow(row, mode)
         }
       }
-      this.rangeStart = undefined
     } else if (this.multiple && mouseEvent.metaKey) {
-      this.rangeStart = pickedItem
       this.selectRow(pickedItem, !pickedItem[this.selectedKey])
+      const pickedIndex = rows.indexOf(pickedItem)
+      const nextItem = rows[pickedIndex + 1]
+      const previousItem = pickedIndex > 0 ? rows[pickedIndex - 1] : undefined
+      if (nextItem !== undefined && nextItem[this.selectedKey] === true) {
+        this.rangeStart = nextItem
+      } else if (
+        previousItem !== undefined &&
+        previousItem[this.selectedKey] === true
+      ) {
+        this.rangeStart = previousItem
+      } else {
+        this.rangeStart = undefined
+      }
     } else {
       this.rangeStart = pickedItem
       this.deSelect()
       pickedItem[this.selectedKey] = true
     }
-    this.onSelect(this.visibleSelectedRows)
+    this.selectionChanged(this.visibleSelectedRows)
     touch(this.instanceId)
   }
 
