@@ -62,6 +62,16 @@ probably be broken out as a standalone library to allow the use of whatever icon
 (its source data is currently generated from an [icomoon](https://icomoon.com/app)
 `selection.json` file, but could just as easily be generated from a directory full of SVGs).
 
+## Adding and redefining icons
+
+`defineIcon(name: string, icon: IconSpec | string)` adds or replaces your own icons
+
+he simplest option is simply to pass the `path` attribute (if the icon has a single path) while more c
+omplex icons can be provide an `IconSpec` structure `{ p: string[]; w: number; h: number }` (specifying
+any number of paths and the size of the bounding box).
+
+Clearly it would be easy to extend this to allow multi-colored icons in the future.
+
 ## `<xin-icon>`
 
 `<xin-icon>` is a simple component that lets you embed icons as HTML. Check the CSS tab to see
@@ -80,6 +90,11 @@ xin-icon.demo-2 > svg {
   height: 96px;
 }
 ```
+
+## Missing Icons
+
+If you ask for an icon that isn't defined, the `icons` proxy will print a warning to console
+and render a `square` (in fact, `icons.square()`) as a fallback.
 
 ## Why?
 
@@ -107,7 +122,11 @@ type SVGIconMap = { [key: string]: ElementCreator<SVGElement> }
 type IconSpec = { p: string[]; w: number; h: number }
 
 function getIconSpec(name: string): IconSpec {
-  const data = iconData[name]
+  let data = iconData[name]
+  if (data === undefined) {
+    console.warn(`icon ${name} not found`)
+    data = iconData.square
+  }
   const p = Array.isArray(data)
     ? data
     : typeof data === 'string'
@@ -115,6 +134,10 @@ function getIconSpec(name: string): IconSpec {
     : data.p
   const { w, h } = Object.assign({ w: 1024, h: 1024 }, data)
   return { p, w, h }
+}
+
+export const defineIcon = (name: string, icon: IconSpec | string): void => {
+  iconData[name] = icon
 }
 
 export const icons = new Proxy(iconData, {
