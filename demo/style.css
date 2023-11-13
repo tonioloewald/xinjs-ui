@@ -160,11 +160,11 @@ input {
 }
 
 select:has(+ .icon-chevron-down) {
-  padding-right: calc(var(--spacing) * 3);
+  padding-right: calc(var(--spacing) * 2.7);
 }
 select + .icon-chevron-down {
-  margin-left: calc(var(--spacing) * -3);
-  min-width: calc(var(--spacing) * 3.2);
+  margin-left: calc(var(--spacing) * -2.7);
+  width: calc(var(--spacing) * 2.7);
   align-self: center;
   pointer-events: none;
   object-position: left center;
