@@ -127,29 +127,21 @@ export function commandButton(
 }
 
 const paragraphStyleWidgets = () => [
-  commandButton('left-justify', 'justifyLeft', icons.formatAlignLeft()),
-  commandButton('center', 'justifyCenter', icons.formatAlignCenter()),
-  commandButton('right-justify', 'justifyRight', icons.formatAlignRight()),
+  commandButton('left-justify', 'justifyLeft', icons.alignLeft()),
+  commandButton('center', 'justifyCenter', icons.alignCenter()),
+  commandButton('right-justify', 'justifyRight', icons.alignRight()),
   spacer(),
-  commandButton(
-    'bullet list',
-    'insertUnorderedList',
-    icons.formatListBulleted()
-  ),
-  commandButton(
-    'numbered list',
-    'insertOrderedList',
-    icons.formatListNumbered()
-  ),
+  commandButton('bullet list', 'insertUnorderedList', icons.listBullet()),
+  commandButton('numbered list', 'insertOrderedList', icons.listNumber()),
   spacer(),
-  commandButton('indent', 'indent', icons.formatIndentIncrease()),
-  commandButton('indent', 'outdent', icons.formatIndentDecrease()),
+  commandButton('indent', 'indent', icons.blockIndent()),
+  commandButton('indent', 'outdent', icons.blockOutdent()),
 ]
 
 const characterStyleWidgets = () => [
-  commandButton('bold', 'bold', icons.formatBold()),
-  commandButton('italic', 'italic', icons.formatItalic()),
-  commandButton('underline', 'underline', icons.formatUnderlined()),
+  commandButton('bold', 'bold', icons.fontBold()),
+  commandButton('italic', 'italic', icons.fontItalic()),
+  commandButton('underline', 'underline', icons.fontUnderline()),
 ]
 
 const minimalWidgets = () => [
