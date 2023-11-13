@@ -91,7 +91,7 @@ export type SelectCallback = (selected: any[]) => void;
 export class DataTable extends Component {
     select: boolean;
     multiple: boolean;
-    onSelect: SelectCallback;
+    selectionChanged: SelectCallback;
     maxVisibleRows: number;
     get value(): TableData;
     set value(data: TableData);
