@@ -240,6 +240,12 @@ export const xinForm: ElementCreator<XinForm>;
 type SVGIconMap = {
     [key: string]: ElementCreator<SVGElement>;
 };
+type IconSpec = {
+    p: string[];
+    w: number;
+    h: number;
+};
+export const defineIcon: (name: string, icon: IconSpec | string) => void;
 export const icons: SVGIconMap;
 export class SvgIcon extends Component {
     icon: string;
