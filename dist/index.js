@@ -676,7 +676,7 @@ be given the `[aria-selected]` attribute, so style them as you wish.
 
 `multiple` select supports shift-clicking and command/meta-clicking.
 
-`<xin-table>` provides an `onSelect(visibleSelectedRows: any[]): void` callback property allowing you to respond to changes
+`<xin-table>` provides an `selectionChanged(visibleSelectedRows: any[]): void` callback property allowing you to respond to changes
 in the selection, and also `selectedRows` and `visibleSelectedRows` properties.
 
 The following methods are also provided:
@@ -867,7 +867,7 @@ const $e6e19030d0c18d6f$var$passThru = (array)=>array;
 class $e6e19030d0c18d6f$export$df30df7ec97b32b5 extends (0, $hgUW1$Component) {
     select = false;
     multiple = false;
-    onSelect = ()=>{};
+    selectionChanged = ()=>{};
     selectedKey = Symbol("selected");
     selectBinding = (elt, obj)=>{
         if (obj[this.selectedKey]) elt.setAttribute("aria-selected", "");
@@ -1003,11 +1003,11 @@ class $e6e19030d0c18d6f$export$df30df7ec97b32b5 extends (0, $hgUW1$Component) {
         // prevent ugly selection artifacts
         const selection = window.getSelection();
         if (selection !== null) selection.removeAllRanges();
-        if (this.multiple && mouseEvent.shiftKey && this.rangeStart !== undefined && this.rangeStart !== pickedItem) {
-            const mode = this.rangeStart[this.selectedKey] === true;
-            const rows = this.visibleRows;
+        const rows = this.visibleRows;
+        if (this.multiple && mouseEvent.shiftKey && rows.length > 0 && this.rangeStart !== pickedItem) {
+            const mode = this.rangeStart === undefined || this.rangeStart[this.selectedKey] === true;
             const [start, finish] = [
-                rows.indexOf(this.rangeStart),
+                this.rangeStart !== undefined ? rows.indexOf(this.rangeStart) : 0,
                 rows.indexOf(pickedItem)
             ].sort((a, b)=>a - b);
             // if start is -1 then one of the items is no longer visible
@@ -1015,16 +1015,20 @@ class $e6e19030d0c18d6f$export$df30df7ec97b32b5 extends (0, $hgUW1$Component) {
                 const row = rows[idx];
                 this.selectRow(row, mode);
             }
-            this.rangeStart = undefined;
         } else if (this.multiple && mouseEvent.metaKey) {
-            this.rangeStart = pickedItem;
             this.selectRow(pickedItem, !pickedItem[this.selectedKey]);
+            const pickedIndex = rows.indexOf(pickedItem);
+            const nextItem = rows[pickedIndex + 1];
+            const previousItem = pickedIndex > 0 ? rows[pickedIndex - 1] : undefined;
+            if (nextItem !== undefined && nextItem[this.selectedKey] === true) this.rangeStart = nextItem;
+            else if (previousItem !== undefined && previousItem[this.selectedKey] === true) this.rangeStart = previousItem;
+            else this.rangeStart = undefined;
         } else {
             this.rangeStart = pickedItem;
             this.deSelect();
             pickedItem[this.selectedKey] = true;
         }
-        this.onSelect(this.visibleSelectedRows);
+        this.selectionChanged(this.visibleSelectedRows);
         (0, $hgUW1$touch)(this.instanceId);
     };
     connectedCallback() {
@@ -2102,6 +2106,7 @@ var $2d5b9d9e4f25abad$export$2e2bcd8739ae039 = {
     github: "M512 13c-283 0-512 229-512 512 0 226 147 418 350 486 26 5 35-11 35-25 0-12-0-53-1-95-142 31-173-60-173-60-23-59-57-75-57-75-46-32 4-31 4-31 51 4 78 53 78 53 46 78 120 56 149 43 5-33 18-56 33-68-114-13-233-57-233-253 0-56 20-102 53-137-5-13-23-65 5-136 0 0 43-14 141 52 41-11 85-17 128-17 44 0 87 6 128 17 98-66 141-52 141-52 28 71 10 123 5 136 33 36 53 82 53 137 0 197-120 240-234 253 18 16 35 47 35 95 0 69-1 124-1 141 0 14 9 30 35 25 203-68 350-260 350-486 0-283-229-512-512-512z",
     npm: "M0 0v1024h1024v-1024h-1024zM832 832h-128v-512h-192v512h-320v-640h640v640z",
     html5: "M61 0l82 922 369 102 370-103 82-921h-903zM785 301h-433l10 116h412l-31 347-232 64-232-64-16-178h113l8 90 126 34 0-0 126-34 13-147h-392l-30-342h566l-10 113z",
+    calendar: "M299 85v43h-85c-35 0-67 14-90 38s-38 55-38 90v597c0 35 14 67 38 90s55 38 90 38h597c35 0 67-14 90-38s38-55 38-90v-597c0-35-14-67-38-90s-55-38-90-38h-85v-43c0-24-19-43-43-43s-43 19-43 43v43h-256v-43c0-24-19-43-43-43s-43 19-43 43zM853 384h-683v-128c0-12 5-22 13-30s18-13 30-13h85v43c0 24 19 43 43 43s43-19 43-43v-43h256v43c0 24 19 43 43 43s43-19 43-43v-43h85c12 0 22 5 30 13s13 18 13 30zM171 469h683v384c0 12-5 22-13 30s-18 13-30 13h-597c-12 0-22-5-30-13s-13-18-13-30z",
     editDoc: "M469 128h-299c-35 0-67 14-90 38s-38 55-38 90v597c0 35 14 67 38 90s55 38 90 38h597c35 0 67-14 90-38s38-55 38-90v-299c0-24-19-43-43-43s-43 19-43 43v299c0 12-5 22-13 30s-18 13-30 13h-597c-12 0-22-5-30-13s-13-18-13-30v-597c0-12 5-22 13-30s18-13 30-13h299c24 0 43-19 43-43s-19-43-43-43zM759 77l-405 405c-5 5-9 12-11 20l-43 171c-2 6-2 14 0 21 6 23 29 37 52 31l171-43c7-2 14-6 20-11l405-405c26-26 39-60 39-94s-13-68-39-94-60-39-94-39-68 13-94 39zM819 137c9-9 22-14 34-14s24 5 34 14 14 22 14 34-5 24-14 34l-397 397-90 23 23-90z",
     edit: "M695 98l-576 576c-5 5-9 11-11 19l-64 235c-2 7-2 15 0 22 6 23 30 36 52 30l235-64c7-2 13-6 19-11l576-576c32-32 48-74 48-115s-16-84-48-115-74-48-115-48-84 16-115 48zM755 158c15-15 35-23 55-23s40 8 55 23 23 35 23 55-8 40-23 55l-568 568-152 41 41-152z",
     web: "M723 469c-9-115-47-228-114-329 67 17 127 53 174 100 60 60 100 140 110 229zM609 884c63-95 104-207 114-329h171c-10 89-50 169-110 229-47 47-107 83-174 100zM301 555c9 115 47 228 114 329-67-17-127-53-174-100-60-60-100-140-110-229zM415 140c-63 95-104 207-114 329h-171c10-89 50-169 110-229 48-47 107-83 174-100zM512 43c0 0 0 0 0 0-130 0-247 53-332 137-85 85-137 202-137 332s53 247 137 332c85 85 202 137 332 137 0 0 0 0 0 0 130-0 247-53 332-137 85-85 137-202 137-332s-53-247-137-332c-85-85-202-137-332-137zM638 555c-11 119-56 229-126 318-74-95-115-206-126-318zM512 151c74 95 115 206 126 318h-251c11-119 56-229 126-318z",
