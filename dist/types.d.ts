@@ -154,6 +154,11 @@ type Fields = Array<{
     name?: string;
     prop: string;
 }>;
+export interface FilterPartState {
+    haystack: string;
+    condition: string;
+    needle: string;
+}
 export class FilterPart extends Component {
     fields: Fields;
     filters: {
@@ -165,17 +170,19 @@ export class FilterPart extends Component {
     content: () => (SVGElement | HTMLSpanElement)[];
     filter: Filter;
     constructor();
+    get state(): FilterPartState;
+    set state(newState: FilterPartState);
     buildFilter: () => void;
-    get query(): string;
     connectedCallback(): void;
     render(): void;
 }
 export const filterPart: ElementCreator<FilterPart>;
+export type FilterState = FilterPartState[];
 export class FilterBuilder extends Component {
     get fields(): Fields;
     set fields(_fields: Fields);
-    get query(): string;
-    set query(querySpec: string);
+    get state(): FilterState;
+    set state(parts: FilterState);
     filter: _ArrayFilter1;
     description: string;
     addFilter: () => void;

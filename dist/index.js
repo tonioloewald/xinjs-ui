@@ -1150,6 +1150,7 @@ Automatically creates `ArrayFilter` functions `(a: any[]) => any[]` based on the
 macOS Finder-inspired interface, using an easily customizable / extensible collection of `Filter` objects.
 
 ```js
+const { elements } = xinjs
 const { dataTable, filterBuilder, availableFilters } = xinjsui
 
 const sourceWords = ['acorn', 'bubblegum', 'copper', 'daisy', 'ellipse', 'fabulous', 'gerund', 'hopscotch', 'idiom', 'joke']
@@ -1160,7 +1161,7 @@ function randomWords () {
     numWords -= 1
     words.push(sourceWords[Math.floor(Math.random() * 10)])
   }
-  return words
+  return [...new Set(words)]
 }
 
 const array = []
@@ -1170,7 +1171,20 @@ for(let i = 0; i < 1000; i++) {
     isLucky: Math.random() < 0.1,
     number: Math.floor(Math.random() * 200 - 100),
     string: randomWords().join(' '),
+    tags: randomWords()
   })
+}
+
+const { span } = elements
+const tagsBinding = {
+  value: '^.tags',
+  binding: {
+    toDOM(element, value) {
+      element.classList.add('tag-list')
+      element.textContent = ''
+      element.append(...value.map(tag => span(tag, {class: 'tag'})))
+    }
+  }
 }
 
 const columns = [
@@ -1181,23 +1195,28 @@ const columns = [
   {
     prop: 'isLucky',
     type: 'boolean',
-    width: 100
+    width: 90
   },
   {
     prop: 'number',
     align: 'right',
-    width: 100
+    width: 90
   },
   {
     prop: 'string',
-    width: 300
+    width: 200
+  },
+  {
+    prop: 'tags',
+    width: 200,
+    dataCell() {
+      return elements.div({ bind: tagsBinding })
+    }
   },
 ]
 
 const table = dataTable({ array, columns })
-const { contains, equals, after, isTrue, isFalse } = availableFilters
 const filter = filterBuilder({
-  filters: { contains, equals, after, isTrue, isFalse },
   fields: columns,
   onChange(event) {
     table.filter = filter.filter
@@ -1214,7 +1233,30 @@ preview.append(filter, table)
 .preview xin-table {
   flex: 1 1 auto;
 }
+
+.preview .tag-list {
+  display: flex;
+  font-size: 80%;
+  align-items: center;
+  gap: 2px;
+}
+
+.preview .tag {
+  display: inline-block;
+  border-radius: 4px;
+  padding: 0 5px;
+  line-height: 20px;
+  height: 20px;
+  color: var(--brand-text-color);
+  background: var(--brand-color);
+}
 ```
+
+## serialization
+
+The current state of a `<xin-filter>` can be serialized as, and restored from, a Javascript object (which itself
+can easily be converted into JSON or a URL component) via its `state` property. Obviously, a `<xin-filter>` can
+only restore state if it has the necessary constituent `filters`.
 
 ## availableFilters
 
@@ -1230,6 +1272,8 @@ The full collection includes:
 - **truthy** * looks for fields that are true / non-zero / non-empty
 - **true** looks for fields that are `true`
 - **false** looks for fields that are `false`
+- **hasTags** looks for fields that are arrays containing all the (space/comma) delimited strings
+- **doesNotHaveTags** looks for fields that are arrays containing *none* of the strings
 
 **Note**: the filters marked with an * have negative version (e.g. does not contain).
 
@@ -1259,9 +1303,14 @@ xin-filter-part svg[class^="icon-"]: {
   pointer-event: none;
 },
 
+xin-filter-part [part="haystack"],
+xin-filter-part [part="condition"] {
+  flex: 1;
+}
+
+
 xin-filter-part [part="needle"] {
-  flex: 1 1 auto;
-  width: 80px;
+  flex: 2
 }
 
 xin-filter-part [hidden]+[part="padding"] {
@@ -1271,9 +1320,9 @@ xin-filter-part [hidden]+[part="padding"] {
 }
 
 xin-filter {
-  width: 100%;
   height: auto;
-  display: flex;
+  display: grid;
+  grid-template-columns: 32px calc(100% - 64px) 32px;
   align-items: center;
 }
 
@@ -1306,6 +1355,22 @@ const $46dc716dd2cf5925$export$16a138bde9d9de87 = {
         makeTest: (value)=>{
             value = value.toLocaleLowerCase();
             return (obj)=>String(obj).toLocaleLowerCase().includes(value);
+        }
+    },
+    hasTags: {
+        caption: "has tags",
+        makeTest: (value)=>{
+            const tags = value.split(/[\s,]/).map((tag)=>tag.trim().toLocaleLowerCase()).filter((tag)=>tag !== "");
+            console.log(tags);
+            return (obj)=>Array.isArray(obj) && tags.find((tag)=>!obj.includes(tag)) === undefined;
+        }
+    },
+    doesNotHaveTags: {
+        caption: "does not have tags",
+        makeTest: (value)=>{
+            const tags = value.split(/[\s,]/).map((tag)=>tag.trim().toLocaleLowerCase()).filter((tag)=>tag !== "");
+            console.log(tags);
+            return (obj)=>Array.isArray(obj) && tags.find((tag)=>obj.includes(tag)) === undefined;
         }
     },
     equals: {
@@ -1341,8 +1406,8 @@ const $46dc716dd2cf5925$export$16a138bde9d9de87 = {
         }
     },
     truthy: {
-        caption: "is true / non-empty / no-zero",
-        negative: "is false / empty / zero",
+        caption: "is true/non-empty/non-zero",
+        negative: "is false/empty/zero",
         needsValue: false,
         makeTest: ()=>(obj)=>!!obj
     },
@@ -1380,7 +1445,8 @@ class $46dc716dd2cf5925$export$b7838412d9f17b13 extends (0, $hgUW1$Component) {
             }),
             (0, $fef058b85aa29b7a$export$df03f54e09e486fa).chevronDown(),
             $46dc716dd2cf5925$var$input({
-                part: "needle"
+                part: "needle",
+                type: "search"
             }),
             $46dc716dd2cf5925$var$span({
                 part: "padding"
@@ -1394,6 +1460,17 @@ class $46dc716dd2cf5925$export$b7838412d9f17b13 extends (0, $hgUW1$Component) {
     constructor(){
         super();
         this.initAttributes("haystack", "condition", "needle");
+    }
+    get state() {
+        const { haystack: haystack, needle: needle, condition: condition } = this.parts;
+        return {
+            haystack: haystack.value,
+            needle: needle.value,
+            condition: condition.value
+        };
+    }
+    set state(newState) {
+        Object.assign(this, newState);
     }
     buildFilter = ()=>{
         const { haystack: haystack, condition: condition, needle: needle } = this.parts;
@@ -1414,19 +1491,15 @@ class $46dc716dd2cf5925$export$b7838412d9f17b13 extends (0, $hgUW1$Component) {
         };
         this.parentElement?.dispatchEvent(new Event("change"));
     };
-    get query() {
-        const { haystack: haystack, condition: condition, needle: needle } = this.parts;
-        return needle.hidden ? `${haystack.value}=${condition.value}` : `${haystack.value}=${condition.value}:${needle.value}`;
-    }
     connectedCallback() {
         super.connectedCallback();
         const { haystack: haystack, condition: condition, needle: needle, remove: remove } = this.parts;
         haystack.addEventListener("change", this.buildFilter);
         condition.addEventListener("change", this.buildFilter);
         needle.addEventListener("input", this.buildFilter);
-        haystack.value = "";
-        condition.value = Object.keys(this.filters)[0];
-        needle.value = "";
+        haystack.value = this.haystack;
+        condition.value = this.condition;
+        needle.value = this.needle;
         remove.addEventListener("click", ()=>{
             const { parentElement: parentElement } = this;
             this.remove();
@@ -1478,29 +1551,21 @@ class $46dc716dd2cf5925$export$afb49bb3b076029e extends (0, $hgUW1$Component) {
         this._fields = _fields;
         this.queueRender();
     }
-    get query() {
+    get state() {
         const { filterContainer: filterContainer } = this.parts;
-        const filterParts = [
+        return [
             ...filterContainer.children
-        ];
-        return filterParts.map((p)=>p.query).join("&");
+        ].map((part)=>part.state);
     }
-    set query(querySpec) {
+    set state(parts) {
         const { fields: fields, filters: filters } = this;
         const { filterContainer: filterContainer } = this.parts;
-        const queryParts = querySpec.split("&");
         filterContainer.textContent = "";
-        for (const queryPart of queryParts){
-            const [haystack, remainder] = queryPart.split("=");
-            const [condition, needle] = remainder.split(":", 2);
-            filterContainer.append($46dc716dd2cf5925$export$2237595b531763d7({
-                fields: fields,
-                filters: filters,
-                haystack: haystack,
-                condition: condition,
-                needle: needle
-            }));
-        }
+        for (const state of parts)filterContainer.append($46dc716dd2cf5925$export$2237595b531763d7({
+            fields: fields,
+            filters: filters,
+            ...state
+        }));
     }
     filter = $46dc716dd2cf5925$var$passThru;
     description = $46dc716dd2cf5925$var$NULL_FILTER_DESCRIPTION;
@@ -2600,7 +2665,7 @@ document.head.append($ada9b1474dc4b958$var$style({
 xin-example {
   --xin-example-preview-height: calc(var(--xin-example-height) * 0.5);
   --code-editors-bar-bg: #777;
-  --code-editors-bar-color: #eee;
+  --code-editors-bar-color: #fff;
   --widget-bg: #fffc;
   --widget-color: #000;
   position: relative;
@@ -2609,10 +2674,6 @@ xin-example {
   height: var(--xin-example-height);
   background: var(--background);
   box-sizing: border-box;
-}
-
-xin-example:not(.-maximize) {
-  border: 2px solid #0002;
 }
 
 xin-example.-maximize {
@@ -2659,8 +2720,13 @@ xin-example .example-widgets {
   position: absolute;
   right: 0;
   top: 0;
+  transform: translateY(-100%) translateY(-2px);
   background: var(--widget-bg);
   border-radius: 5px;
+}
+
+xin-example.-maximize .example-widgets {
+  transform: none;
 }
 
 xin-example .example-widgets svg {
