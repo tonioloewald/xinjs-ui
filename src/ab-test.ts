@@ -14,16 +14,16 @@ AbTest.conditions = {
 ```
 ```html
 <xin-ab condition="testA">
-  <p>Visible if conditions.testA !== false</p>
+  <p>Visible if conditions.testA === true</p>
 </xin-ab>
 <xin-ab condition="testB">
-  <p>Visible if conditions.testB !== false</p>
+  <p>Visible if conditions.testB === true</p>
 </xin-ab>
 <xin-ab not condition="testB">
-  <p>Visible if conditions.testB === false</p>
+  <p>Visible if conditions.testB !== true</p>
 </xin-ab>
 <xin-ab condition="testC">
-  <p>Visible if conditions.testC !== false (50/50 chance)</p>
+  <p>Visible if conditions.testC === true (50/50 chance)</p>
 </xin-ab>
 ```
 ```css
@@ -90,8 +90,8 @@ export class AbTest extends XinComponent {
     if (
       this.condition !== '' &&
       (this.not
-        ? abTestConditions[this.condition] !== false
-        : abTestConditions[this.condition] === false)
+        ? abTestConditions[this.condition] === true
+        : abTestConditions[this.condition] !== true)
     ) {
       if (!this.hasAttribute('hidden')) {
         this.setAttribute('hidden', '')
