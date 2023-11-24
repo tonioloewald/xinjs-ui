@@ -24,16 +24,16 @@ AbTest.conditions = {
 ```
 ```html
 <xin-ab condition="testA">
-  <p>Visible if conditions.testA !== false</p>
+  <p>Visible if conditions.testA === true</p>
 </xin-ab>
 <xin-ab condition="testB">
-  <p>Visible if conditions.testB !== false</p>
+  <p>Visible if conditions.testB === true</p>
 </xin-ab>
 <xin-ab not condition="testB">
-  <p>Visible if conditions.testB === false</p>
+  <p>Visible if conditions.testB !== true</p>
 </xin-ab>
 <xin-ab condition="testC">
-  <p>Visible if conditions.testC !== false (50/50 chance)</p>
+  <p>Visible if conditions.testC === true (50/50 chance)</p>
 </xin-ab>
 ```
 ```css
@@ -85,7 +85,7 @@ class $86ec44903a84f851$export$6aacb15d82c1f62a extends (0, $hgUW1$Component) {
         $86ec44903a84f851$export$6aacb15d82c1f62a.instances.delete(this);
     }
     render() {
-        if (this.condition !== "" && (this.not ? $86ec44903a84f851$var$abTestConditions[this.condition] !== false : $86ec44903a84f851$var$abTestConditions[this.condition] === false)) {
+        if (this.condition !== "" && (this.not ? $86ec44903a84f851$var$abTestConditions[this.condition] === true : $86ec44903a84f851$var$abTestConditions[this.condition] !== true)) {
             if (!this.hasAttribute("hidden")) this.setAttribute("hidden", "");
         } else if (this.hasAttribute("hidden")) this.removeAttribute("hidden");
     }
