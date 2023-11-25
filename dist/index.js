@@ -2337,7 +2337,6 @@ function that will replace any sequence of
 elements with a `<xin-example>` instance.
 */ 
 
-
 var $6bbe441346901d5a$exports = {};
 
 $parcel$export($6bbe441346901d5a$exports, "TabSelector", () => $6bbe441346901d5a$export$a3a7254f7f149b03);
@@ -2605,85 +2604,6 @@ const $6bbe441346901d5a$export$a932f737dcd864a2 = $6bbe441346901d5a$export$a3a72
 
 
 
-var $862666af3c1254c2$exports = {};
-
-$parcel$export($862666af3c1254c2$exports, "XinSizer", () => $862666af3c1254c2$export$5b41f1c4a4393ecb);
-$parcel$export($862666af3c1254c2$exports, "xinSizer", () => $862666af3c1254c2$export$2404b448600702b8);
-/*!
-# sizer
-
-This is a super-simple component that you can put in a fixed size element allowing it to be resized
-from the bottom-right.
-
-```html
-<div>
-  <xin-sizer></xin-sizer>
-</div>
-```
-```css
-.preview div {
-  position: absolute;
-  top: 10px;
-  left: 10px;
-  width: 200px;
-  height: 100px;
-  background: #ff02;
-  border: 1px solid #555;
-}
-```
-
-*/ 
-
-
-class $862666af3c1254c2$export$5b41f1c4a4393ecb extends (0, $hgUW1$Component) {
-    styleNode = (0, $hgUW1$Component).StyleNode({
-        ":host": {
-            display: "block",
-            position: "absolute",
-            bottom: -7,
-            right: -7,
-            padding: 14,
-            width: 44,
-            height: 44,
-            opacity: 0.25,
-            transition: "opacity 0.25s ease-out"
-        },
-        ":host(:hover)": {
-            opacity: 0.5
-        },
-        ":host svg": {
-            width: 16,
-            height: 16
-        }
-    });
-    content = (0, $fef058b85aa29b7a$export$df03f54e09e486fa).resize();
-    resizeParent = (event)=>{
-        const parent = this.parentElement;
-        console.log(parent);
-        const w = parent.offsetWidth;
-        const h = parent.offsetHeight;
-        parent.style.left = parent.offsetLeft + "px";
-        parent.style.top = parent.offsetTop + "px";
-        parent.style.bottom = "";
-        parent.style.right = "";
-        (0, $5265d118b5240170$export$c947e3cd16175f27)(event, (dx, dy, event)=>{
-            parent.style.width = Math.max(200, w + dx) + "px";
-            parent.style.height = Math.max(100, h + dy) + "px";
-            if (event.type === "mouseup") return true;
-        }, "nwse-resize");
-    };
-    connectedCallback() {
-        super.connectedCallback();
-        this.addEventListener("mousedown", this.resizeParent);
-        this.addEventListener("touchstart", this.resizeParent);
-    }
-}
-const $862666af3c1254c2$export$2404b448600702b8 = $862666af3c1254c2$export$5b41f1c4a4393ecb.elementCreator({
-    tag: "xin-sizer"
-});
-
-
-
 const { div: $ada9b1474dc4b958$var$div, xinSlot: $ada9b1474dc4b958$var$xinSlot, style: $ada9b1474dc4b958$var$style, button: $ada9b1474dc4b958$var$button, h4: $ada9b1474dc4b958$var$h4 } = (0, $hgUW1$elements);
 const $ada9b1474dc4b958$var$AsyncFunction = (async ()=>{}).constructor;
 const $ada9b1474dc4b958$var$codeStyle = {
@@ -2754,9 +2674,8 @@ xin-example [part="editors"] {
 
 xin-example .example-widgets {
   position: absolute;
-  right: 0;
-  top: 0;
-  transform: translateY(-100%) translateY(-2px);
+  right: 2px;
+  top: 2px;
   background: var(--widget-bg);
   border-radius: 5px;
 }
@@ -2770,31 +2689,20 @@ xin-example .example-widgets svg {
 }
 
 xin-example .code-editors {
-  border-radius: 4px;
   overflow: hidden;
   background: white;
-  width: 400px;
-  maxWidth: 100vw;
-  height: 200px;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw !important;
+  height: 100vh !important;
   box-shadow: 0 2px 8px rgba(0,0,0,0.25);
   flex-direction: column;
+  z-index: 10;
 }
 
 xin-example .code-editors:not([hidden]) {
   display: flex;
-}
-
-xin-example .code-editors.-maximize {
-  position: fixed;
-  top: 0 !important;
-  left: 0 !important;
-  width: 100vw !important;
-  height: 100vh !important;
-  transform: none !important;
-}
-.code-editors.-maximize .hide-if-code-maximized,
-.code-editors:not(.-maximize) .show-if-code-maximized {
-  display: none;
 }
 
 xin-example .code-editors > h4 {
@@ -2804,15 +2712,6 @@ xin-example .code-editors > h4 {
   background: var(--code-editors-bar-bg);
   color: var(--code-editors-bar-color);
   cursor: move;
-}
-
-xin-example .code-editors > .sizer {
-  content: '+';
-  position: absolute;
-  bottom: 0;
-  right: 0;
-  opacity: 0.3;
-  z-index: 9;
 }
 
 xin-example button.transparent,
@@ -2828,14 +2727,14 @@ xin-example .sizer {
 xin-example .sizer {
   cursor: nwse-resize;
 }
-
-xin-example .code-editors > .sizer:hover {
-  opacity: 0.6
-}
 `));
 class $ada9b1474dc4b958$export$41199f9ac14d8c08 extends (0, $hgUW1$Component) {
     prettier = false;
+    prefix = "lx";
+    storageKey = "live-example-payload";
     context = {};
+    uuid = crypto.randomUUID();
+    remoteId = "";
     static insertExamples(element, context = {}) {
         const sources = [
             ...element.querySelectorAll('pre code[class="language-html"],pre code[class="language-js"],pre code[class="language-css"]')
@@ -2900,25 +2799,26 @@ class $ada9b1474dc4b958$export$41199f9ac14d8c08 extends (0, $hgUW1$Component) {
             }, $ada9b1474dc4b958$var$style({
                 part: "style"
             })),
-            (0, $ddbe66d066773fc1$export$aeb0f03cef938121)({
+            $ada9b1474dc4b958$var$div({
                 class: "code-editors",
                 part: "codeEditors",
-                drag: true,
                 hidden: true
             }, $ada9b1474dc4b958$var$h4("Code"), $ada9b1474dc4b958$var$button({
-                class: "transparent no-drag",
+                title: "close code",
+                class: "transparent",
                 style: {
                     position: "absolute",
                     top: 0,
                     right: 0
                 },
-                onClick: this.toggleCodeEditors
+                onClick () {
+                    window.close();
+                }
             }, (0, $fef058b85aa29b7a$export$df03f54e09e486fa).x({
                 style: {
                     fill: (0, $hgUW1$vars).codeEditorsBarColor
                 }
             })), (0, $6bbe441346901d5a$export$a932f737dcd864a2)({
-                class: "no-drag",
                 part: "editors"
             }, (0, $8a70bd76f9b7e656$export$d89b6f4d34274146)({
                 name: "js",
@@ -2944,34 +2844,14 @@ class $ada9b1474dc4b958$export$41199f9ac14d8c08 extends (0, $hgUW1$Component) {
                 slot: "after-tabs",
                 title: "reload",
                 class: "transparent",
-                onClick: this.refresh
-            }, (0, $fef058b85aa29b7a$export$df03f54e09e486fa).refresh()), $ada9b1474dc4b958$var$button({
-                part: "maximize",
-                slot: "after-tabs",
-                title: "maximize code",
-                class: "transparent",
-                onClick: this.toggleMaximizeCode
-            }, (0, $fef058b85aa29b7a$export$df03f54e09e486fa).minimize({
-                class: "icon-minimize show-if-code-maximized"
-            }), (0, $fef058b85aa29b7a$export$df03f54e09e486fa).maximize({
-                class: "icon-maximize hide-if-code-maximized"
-            })), $ada9b1474dc4b958$var$button({
-                part: "more",
-                slot: "after-tabs",
-                title: "code menu",
-                class: "transparent"
-            }, (0, $fef058b85aa29b7a$export$df03f54e09e486fa).moreVertical())), (0, $862666af3c1254c2$export$2404b448600702b8)({
-                class: "no-drag",
-                style: {
-                    zIndex: 10
-                }
-            })),
+                onClick: this.refreshRemote
+            }, (0, $fef058b85aa29b7a$export$df03f54e09e486fa).refresh()))),
             $ada9b1474dc4b958$var$div({
                 class: "example-widgets"
             }, $ada9b1474dc4b958$var$button({
                 title: "view/edit code",
                 class: "transparent",
-                onClick: this.toggleCodeEditors
+                onClick: this.openEditorWindow
             }, (0, $fef058b85aa29b7a$export$df03f54e09e486fa).code()), $ada9b1474dc4b958$var$button({
                 part: "maximize",
                 title: "maximize preview",
@@ -2993,6 +2873,15 @@ class $ada9b1474dc4b958$export$41199f9ac14d8c08 extends (0, $hgUW1$Component) {
         this.initFromElements([
             ...sources.children
         ]);
+        addEventListener("storage", this.remoteChange);
+    }
+    disconnectedCallback() {
+        super.disconnectedCallback();
+        const { storageKey: storageKey, remoteKey: remoteKey } = this;
+        localStorage.setItem(storageKey, JSON.stringify({
+            remoteKey: remoteKey,
+            close: true
+        }));
     }
     copy = ()=>{
         const js = this.js !== "" ? "```js\n" + this.js.trim() + "\n```\n" : "";
@@ -3003,20 +2892,43 @@ class $ada9b1474dc4b958$export$41199f9ac14d8c08 extends (0, $hgUW1$Component) {
     toggleMaximize = ()=>{
         this.classList.toggle("-maximize");
     };
-    toggleMaximizeCode = ()=>{
-        this.parts.codeEditors.classList.toggle("-maximize");
+    get remoteKey() {
+        return this.remoteId !== "" ? this.prefix + "-" + this.remoteId : this.prefix + "-" + this.uuid;
+    }
+    remoteChange = (event)=>{
+        console.log(event.key, event);
+        const data = localStorage.getItem(this.storageKey);
+        if (event.key !== this.storageKey) return;
+        console.log("received data from remote");
+        if (data === null) return;
+        const { remoteKey: remoteKey, css: css, html: html, js: js, close: close } = JSON.parse(data);
+        if (remoteKey !== this.remoteKey) return;
+        if (close === true) window.close();
+        console.log("received new code from remote");
+        this.css = css;
+        this.html = html;
+        this.js = js;
+        this.refresh();
     };
-    toggleCodeEditors = ()=>{
-        const { codeEditors: codeEditors } = this.parts;
-        const visible = codeEditors.hidden;
-        if (visible) {
-            codeEditors.style.width = "100%";
-            codeEditors.style.height = "50%";
-            codeEditors.style.top = "50%";
-            codeEditors.style.left = "0";
-            (0, $5265d118b5240170$export$1937b0002823d405)(codeEditors);
-        }
-        codeEditors.hidden = !visible;
+    openEditorWindow = ()=>{
+        const { storageKey: storageKey, remoteKey: remoteKey, css: css, html: html, js: js, uuid: uuid, prefix: prefix } = this;
+        const href = location.href.split("?")[0] + `?${prefix}=${uuid}`;
+        localStorage.setItem(storageKey, JSON.stringify({
+            remoteKey: remoteKey,
+            css: css,
+            html: html,
+            js: js
+        }));
+        window.open(href);
+    };
+    refreshRemote = ()=>{
+        const { remoteKey: remoteKey, css: css, html: html, js: js } = this;
+        localStorage.setItem(this.storageKey, JSON.stringify({
+            remoteKey: remoteKey,
+            css: css,
+            html: html,
+            js: js
+        }));
     };
     refresh = ()=>{
         const { example: example, style: style } = this.parts;
@@ -3063,7 +2975,17 @@ class $ada9b1474dc4b958$export$41199f9ac14d8c08 extends (0, $hgUW1$Component) {
     }
     render() {
         super.render();
-        this.refresh();
+        if (this.remoteId !== "") {
+            const data = localStorage.getItem(this.storageKey);
+            if (data !== null) {
+                const { remoteKey: remoteKey, css: css, html: html, js: js } = JSON.parse(data);
+                if (this.remoteKey !== remoteKey) return;
+                this.css = css;
+                this.html = html;
+                this.js = js;
+                this.parts.codeEditors.hidden = false;
+            }
+        } else this.refresh();
     }
 }
 const $ada9b1474dc4b958$export$dafbe0fa988b899b = $ada9b1474dc4b958$export$41199f9ac14d8c08.elementCreator({
@@ -3090,6 +3012,14 @@ function $ada9b1474dc4b958$export$afa6494eb589c19e(element) {
         element.insertBefore(example, parts[0]);
         example.initFromElements(parts);
     }
+}
+const $ada9b1474dc4b958$var$params = new URL(window.location.href).searchParams;
+const $ada9b1474dc4b958$var$remoteId = $ada9b1474dc4b958$var$params.get("lx");
+if ($ada9b1474dc4b958$var$remoteId) {
+    document.body.textContent = "";
+    document.body.append($ada9b1474dc4b958$export$dafbe0fa988b899b({
+        remoteId: $ada9b1474dc4b958$var$remoteId
+    }));
 }
 
 
@@ -3990,6 +3920,83 @@ const $0f2017ffca44b547$export$96370210d2ca0fff = $0f2017ffca44b547$export$7140c
     tag: "xin-sizebreak"
 });
 
+
+var $862666af3c1254c2$exports = {};
+
+$parcel$export($862666af3c1254c2$exports, "XinSizer", () => $862666af3c1254c2$export$5b41f1c4a4393ecb);
+$parcel$export($862666af3c1254c2$exports, "xinSizer", () => $862666af3c1254c2$export$2404b448600702b8);
+/*!
+# sizer
+
+This is a super-simple component that you can put in a fixed size element allowing it to be resized
+from the bottom-right.
+
+```html
+<div>
+  <xin-sizer></xin-sizer>
+</div>
+```
+```css
+.preview div {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  width: 200px;
+  height: 100px;
+  background: #ff02;
+  border: 1px solid #555;
+}
+```
+
+*/ 
+
+
+class $862666af3c1254c2$export$5b41f1c4a4393ecb extends (0, $hgUW1$Component) {
+    styleNode = (0, $hgUW1$Component).StyleNode({
+        ":host": {
+            display: "block",
+            position: "absolute",
+            bottom: -7,
+            right: -7,
+            padding: 14,
+            width: 44,
+            height: 44,
+            opacity: 0.25,
+            transition: "opacity 0.25s ease-out"
+        },
+        ":host(:hover)": {
+            opacity: 0.5
+        },
+        ":host svg": {
+            width: 16,
+            height: 16
+        }
+    });
+    content = (0, $fef058b85aa29b7a$export$df03f54e09e486fa).resize();
+    resizeParent = (event)=>{
+        const parent = this.parentElement;
+        console.log(parent);
+        const w = parent.offsetWidth;
+        const h = parent.offsetHeight;
+        parent.style.left = parent.offsetLeft + "px";
+        parent.style.top = parent.offsetTop + "px";
+        parent.style.bottom = "";
+        parent.style.right = "";
+        (0, $5265d118b5240170$export$c947e3cd16175f27)(event, (dx, dy, event)=>{
+            parent.style.width = Math.max(200, w + dx) + "px";
+            parent.style.height = Math.max(100, h + dy) + "px";
+            if (event.type === "mouseup") return true;
+        }, "nwse-resize");
+    };
+    connectedCallback() {
+        super.connectedCallback();
+        this.addEventListener("mousedown", this.resizeParent);
+        this.addEventListener("touchstart", this.resizeParent);
+    }
+}
+const $862666af3c1254c2$export$2404b448600702b8 = $862666af3c1254c2$export$5b41f1c4a4393ecb.elementCreator({
+    tag: "xin-sizer"
+});
 
 
 

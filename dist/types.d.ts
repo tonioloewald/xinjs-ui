@@ -271,19 +271,16 @@ export class TabSelector extends Component {
     render(): void;
 }
 export const tabSelector: ElementCreator<TabSelector>;
-export class XinSizer extends Component {
-    styleNode: HTMLStyleElement;
-    content: SVGElement;
-    resizeParent: (event: Event) => void;
-    connectedCallback(): void;
-}
-export const xinSizer: ElementCreator<XinSizer>;
 interface ExampleContext {
     [key: string]: any;
 }
 export class LiveExample extends Component {
     prettier: boolean;
+    prefix: string;
+    storageKey: string;
     context: ExampleContext;
+    uuid: string;
+    remoteId: string;
     static insertExamples(element: HTMLElement, context?: ExampleContext): void;
     get css(): string;
     set css(code: string);
@@ -293,10 +290,13 @@ export class LiveExample extends Component {
     set js(code: string);
     content: () => any[];
     connectedCallback(): void;
+    disconnectedCallback(): void;
     copy: () => void;
     toggleMaximize: () => void;
-    toggleMaximizeCode: () => void;
-    toggleCodeEditors: () => void;
+    get remoteKey(): string;
+    remoteChange: (event: StorageEvent) => void;
+    openEditorWindow: () => void;
+    refreshRemote: () => void;
     refresh: () => void;
     initFromElements(elements: HTMLElement[]): void;
     showDefaultTab(): void;
@@ -466,6 +466,13 @@ export class SizeBreak extends Component {
     disconnectedCallback(): void;
 }
 export const sizeBreak: ElementCreator<SizeBreak>;
+export class XinSizer extends Component {
+    styleNode: HTMLStyleElement;
+    content: SVGElement;
+    resizeParent: (event: Event) => void;
+    connectedCallback(): void;
+}
+export const xinSizer: ElementCreator<XinSizer>;
 type SortValuator<T> = (f: T) => (string | number)[];
 type SortCallback<T> = (p: T, q: T) => number;
 /*!
