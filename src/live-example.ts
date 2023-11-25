@@ -153,7 +153,6 @@ xin-example .example-widgets svg {
 }
 
 xin-example .code-editors {
-  border-radius: 4px;
   overflow: hidden;
   background: white;
   width: 400px;
@@ -161,6 +160,10 @@ xin-example .code-editors {
   height: 200px;
   box-shadow: 0 2px 8px rgba(0,0,0,0.25);
   flex-direction: column;
+}
+
+xin-example .code-editors:not(.-maximize) {
+  border-radius: 4px;
 }
 
 xin-example .code-editors:not([hidden]) {
@@ -225,7 +228,11 @@ interface ExampleContext {
 
 export class LiveExample extends WebComponent {
   prettier = false
+  prefix = 'lx'
+  storageKey = 'live-example-payload'
   context: ExampleContext = {}
+  uuid: string = crypto.randomUUID()
+  remoteId = ''
 
   static insertExamples(
     element: HTMLElement,
@@ -317,6 +324,7 @@ export class LiveExample extends WebComponent {
           onClick: this.toggleCodeEditors,
         },
         icons.x({
+          title: 'close code',
           style: {
             fill: vars.codeEditorsBarColor,
           },
@@ -360,7 +368,8 @@ export class LiveExample extends WebComponent {
           },
           icons.minimize({ class: 'icon-minimize show-if-code-maximized' }),
           icons.maximize({ class: 'icon-maximize hide-if-code-maximized' })
-        ),
+        )
+        /*
         button(
           {
             part: 'more',
@@ -370,8 +379,12 @@ export class LiveExample extends WebComponent {
           },
           icons.moreVertical()
         )
+        */
       ),
-      xinSizer({ class: 'no-drag', style: { zIndex: 10 } })
+      xinSizer({
+        class: 'no-drag hide-if-code-maximized',
+        style: { zIndex: 10 },
+      })
     ),
     div(
       { class: 'example-widgets' },
@@ -382,6 +395,14 @@ export class LiveExample extends WebComponent {
           onClick: this.toggleCodeEditors,
         },
         icons.code()
+      ),
+      button(
+        {
+          title: 'view/edit code in new window',
+          class: 'transparent',
+          onClick: this.openEditorWindow,
+        },
+        icons.plus()
       ),
       button(
         {
@@ -429,11 +450,71 @@ export class LiveExample extends WebComponent {
       codeEditors.style.top = '50%'
       codeEditors.style.left = '0'
       bringToFront(codeEditors)
+    } else if (this.remoteId !== '') {
+      window.close()
+      return
     }
+
     codeEditors.hidden = !visible
   }
 
+  get remoteKey(): string {
+    return this.remoteId !== ''
+      ? this.prefix + '-' + this.remoteId
+      : this.prefix + '-' + this.uuid
+  }
+
+  remoteChange = (event: StorageEvent) => {
+    console.log(event.key, event)
+    const data = localStorage.getItem(this.storageKey)
+    if (event.key !== this.storageKey) {
+      return
+    }
+    console.log('received data from remote')
+    if (data === null) {
+      return
+    }
+    const { remoteKey, css, html, js } = JSON.parse(data)
+    if (remoteKey !== this.remoteKey) {
+      return
+    }
+    console.log('received new code from remote')
+    this.css = css
+    this.html = html
+    this.js = js
+    this.refresh()
+  }
+
+  openEditorWindow = () => {
+    const { storageKey, remoteKey, css, html, js, uuid, prefix } = this
+    const href = location.href.split('?')[0] + `?${prefix}=${uuid}`
+    localStorage.setItem(
+      storageKey,
+      JSON.stringify({
+        remoteKey,
+        css,
+        html,
+        js,
+      })
+    )
+    window.open(href)
+    addEventListener('storage', this.remoteChange)
+  }
+
+  refreshRemote = () => {
+    const { remoteKey, css, html, js } = this
+    localStorage.setItem(
+      this.storageKey,
+      JSON.stringify({ remoteKey, css, html, js })
+    )
+  }
+
   refresh = () => {
+    if (this.remoteId !== '') {
+      this.refreshRemote()
+      return
+    }
+
     const { example, style } = this.parts as {
       style: HTMLStyleElement
       example: HTMLElement
@@ -490,7 +571,22 @@ export class LiveExample extends WebComponent {
   render(): void {
     super.render()
 
-    this.refresh()
+    if (this.remoteId !== '') {
+      const data = localStorage.getItem(this.storageKey)
+      if (data !== null) {
+        const { remoteKey, css, html, js } = JSON.parse(data)
+        if (this.remoteKey !== remoteKey) {
+          return
+        }
+        this.css = css
+        this.html = html
+        this.js = js
+        this.toggleCodeEditors()
+        this.toggleMaximizeCode()
+      }
+    } else {
+      this.refresh()
+    }
   }
 }
 

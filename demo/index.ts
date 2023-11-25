@@ -13,6 +13,7 @@ import {
   markdownViewer,
   MarkdownViewer,
   LiveExample,
+  liveExample,
   sideNav,
   SideNav,
   sizeBreak,
@@ -38,7 +39,7 @@ const PROJECT = 'xinjs-ui'
 
 const docName =
   document.location.search !== ''
-    ? document.location.search.substring(1)
+    ? document.location.search.substring(1).split('&')[0]
     : 'README.md'
 const currentDoc = docs.find((doc) => doc.filename === docName) || docs[0]
 
@@ -85,105 +86,118 @@ window.addEventListener('popstate', () => {
     app.docs.find((doc) => doc.filename === filename) || app.docs[0]
 })
 
-main.append(
-  header(
-    // img({src: favicon}),
-    h2({ bindText: 'app.title' }),
-    span({ class: 'elastic' }),
-    sizeBreak(
-      { minWidth: 500, style: { marginRight: vars.spacing, display: 'flex' } },
-      img({ alt: 'bundlejs size badge', src: app.bundleUrl }),
-      span({ slot: 'small' })
+const params = new URL(window.location.href).searchParams
+const remoteId = params.get('lx')
+if (remoteId) {
+  main.append(liveExample({ remoteId }))
+} else {
+  main.append(
+    header(
+      // img({src: favicon}),
+      h2({ bindText: 'app.title' }),
+      span({ class: 'elastic' }),
+      sizeBreak(
+        {
+          minWidth: 500,
+          style: { marginRight: vars.spacing, display: 'flex' },
+        },
+        img({ alt: 'bundlejs size badge', src: app.bundleUrl }),
+        span({ slot: 'small' })
+      ),
+      a(
+        { class: 'iconic', title: 'github', target: '_blank' },
+        icons.github(),
+        {
+          href: app.githubUrl,
+        }
+      ),
+      a({ class: 'iconic', title: 'npmjs', target: '_blank' }, icons.npm(), {
+        href: app.npmUrl,
+      })
     ),
-    a({ class: 'iconic', title: 'github', target: '_blank' }, icons.github(), {
-      href: app.githubUrl,
-    }),
-    a({ class: 'iconic', title: 'npmjs', target: '_blank' }, icons.npm(), {
-      href: app.npmUrl,
-    })
-  ),
-  sideNav(
-    {
-      name: 'Documentation',
-      navSize: 200,
-      minSize: 600,
-      style: {
-        flex: '1 1 auto',
-        overflow: 'hidden',
-      },
-    },
-    div(
+    sideNav(
       {
-        slot: 'nav',
+        name: 'Documentation',
+        navSize: 200,
+        minSize: 600,
         style: {
-          display: 'flex',
-          flexDirection: 'column',
-          width: '100%',
-          height: '100%',
-          background: vars.navBg,
-          overflowY: 'scroll',
-        },
-        bindList: {
-          value: app.docs,
+          flex: '1 1 auto',
+          overflow: 'hidden',
         },
       },
-      template(
-        a({
-          class: 'doc-link',
-          bindText: '^.title',
-          bindCurrent: 'app.currentDoc.filename',
-          bindDocLink: '^.filename',
-          onClick(event: Event) {
-            const a = event.target as HTMLAnchorElement
-            const doc = getListItem(event.target as HTMLElement)
-            const nav = (event.target as HTMLElement).closest(
-              'xin-sidenav'
-            ) as SideNav
-            nav.contentVisible = true
-            const { href } = a
-            window.history.pushState({ href }, '', href)
-            app.currentDoc = doc
-            event.preventDefault()
+      div(
+        {
+          slot: 'nav',
+          style: {
+            display: 'flex',
+            flexDirection: 'column',
+            width: '100%',
+            height: '100%',
+            background: vars.navBg,
+            overflowY: 'scroll',
+          },
+          bindList: {
+            value: app.docs,
+          },
+        },
+        template(
+          a({
+            class: 'doc-link',
+            bindText: '^.title',
+            bindCurrent: 'app.currentDoc.filename',
+            bindDocLink: '^.filename',
+            onClick(event: Event) {
+              const a = event.target as HTMLAnchorElement
+              const doc = getListItem(event.target as HTMLElement)
+              const nav = (event.target as HTMLElement).closest(
+                'xin-sidenav'
+              ) as SideNav
+              nav.contentVisible = true
+              const { href } = a
+              window.history.pushState({ href }, '', href)
+              app.currentDoc = doc
+              event.preventDefault()
+            },
+          })
+        )
+      ),
+      div(
+        {
+          style: {
+            position: 'relative',
+            overflowY: 'scroll',
+            height: '100%',
+          },
+        },
+        button(
+          {
+            class: 'transparent close-nav show-within-compact',
+            style: {
+              marginTop: '2px',
+              position: 'fixed',
+            },
+            onClick(event: Event) {
+              ;(
+                (event.target as HTMLElement).closest('xin-sidenav') as SideNav
+              ).contentVisible = false
+            },
+          },
+          icons.chevronLeft()
+        ),
+        markdownViewer({
+          style: {
+            display: 'block',
+            maxWidth: '44em',
+            margin: 'auto',
+            padding: `0 1em`,
+            overflow: 'hidden',
+          },
+          bindValue: 'app.currentDoc.text',
+          didRender(this: MarkdownViewer) {
+            LiveExample.insertExamples(this, { xinjs, xinjsui })
           },
         })
       )
-    ),
-    div(
-      {
-        style: {
-          position: 'relative',
-          overflowY: 'scroll',
-          height: '100%',
-        },
-      },
-      button(
-        {
-          class: 'transparent close-nav show-within-compact',
-          style: {
-            marginTop: '2px',
-            position: 'fixed',
-          },
-          onClick(event: Event) {
-            ;(
-              (event.target as HTMLElement).closest('xin-sidenav') as SideNav
-            ).contentVisible = false
-          },
-        },
-        icons.chevronLeft()
-      ),
-      markdownViewer({
-        style: {
-          display: 'block',
-          maxWidth: '44em',
-          margin: 'auto',
-          padding: `0 1em`,
-          overflow: 'hidden',
-        },
-        bindValue: 'app.currentDoc.text',
-        didRender(this: MarkdownViewer) {
-          LiveExample.insertExamples(this, { xinjs, xinjsui })
-        },
-      })
     )
   )
-)
+}
