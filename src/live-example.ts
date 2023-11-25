@@ -550,6 +550,7 @@ export function makeExamplesLive(element: HTMLElement) {
 const params = new URL(window.location.href).searchParams
 const remoteId = params.get('lx')
 if (remoteId) {
+  document.title += ' [code editor]'
   document.body.textContent = ''
   document.body.append(liveExample({ remoteId }))
 }
