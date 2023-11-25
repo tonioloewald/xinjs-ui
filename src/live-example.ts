@@ -56,11 +56,8 @@ import {
   elements,
   vars,
 } from 'xinjs'
-import { xinFloat } from './float'
 import { codeEditor, CodeEditor } from './code-editor'
 import { tabSelector, TabSelector } from './tab-selector'
-import { bringToFront } from './track-drag'
-import { xinSizer } from './sizer'
 import { icons } from './icons'
 
 const { div, xinSlot, style, button, h4 } = elements
@@ -137,9 +134,8 @@ xin-example [part="editors"] {
 
 xin-example .example-widgets {
   position: absolute;
-  right: 0;
-  top: 0;
-  transform: translateY(-100%) translateY(-2px);
+  right: 2px;
+  top: 2px;
   background: var(--widget-bg);
   border-radius: 5px;
 }
@@ -155,32 +151,18 @@ xin-example .example-widgets svg {
 xin-example .code-editors {
   overflow: hidden;
   background: white;
-  width: 400px;
-  maxWidth: 100vw;
-  height: 200px;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw !important;
+  height: 100vh !important;
   box-shadow: 0 2px 8px rgba(0,0,0,0.25);
   flex-direction: column;
-}
-
-xin-example .code-editors:not(.-maximize) {
-  border-radius: 4px;
+  z-index: 10;
 }
 
 xin-example .code-editors:not([hidden]) {
   display: flex;
-}
-
-xin-example .code-editors.-maximize {
-  position: fixed;
-  top: 0 !important;
-  left: 0 !important;
-  width: 100vw !important;
-  height: 100vh !important;
-  transform: none !important;
-}
-.code-editors.-maximize .hide-if-code-maximized,
-.code-editors:not(.-maximize) .show-if-code-maximized {
-  display: none;
 }
 
 xin-example .code-editors > h4 {
@@ -190,15 +172,6 @@ xin-example .code-editors > h4 {
   background: var(--code-editors-bar-bg);
   color: var(--code-editors-bar-color);
   cursor: move;
-}
-
-xin-example .code-editors > .sizer {
-  content: '+';
-  position: absolute;
-  bottom: 0;
-  right: 0;
-  opacity: 0.3;
-  z-index: 9;
 }
 
 xin-example button.transparent,
@@ -213,10 +186,6 @@ xin-example .sizer {
 
 xin-example .sizer {
   cursor: nwse-resize;
-}
-
-xin-example .code-editors > .sizer:hover {
-  opacity: 0.6
 }
 `
   )
@@ -305,33 +274,34 @@ export class LiveExample extends WebComponent {
 
   content = () => [
     div({ part: 'example' }, style({ part: 'style' })),
-    xinFloat(
+    div(
       {
         class: 'code-editors',
         part: 'codeEditors',
-        drag: true,
         hidden: true,
       },
       h4('Code'),
       button(
         {
-          class: 'transparent no-drag',
+          title: 'close code',
+          class: 'transparent',
           style: {
             position: 'absolute',
             top: 0,
             right: 0,
           },
-          onClick: this.toggleCodeEditors,
+          onClick() {
+            window.close()
+          },
         },
         icons.x({
-          title: 'close code',
           style: {
             fill: vars.codeEditorsBarColor,
           },
         })
       ),
       tabSelector(
-        { class: 'no-drag', part: 'editors' },
+        { part: 'editors' },
         codeEditor({
           name: 'js',
           mode: 'javascript',
@@ -354,20 +324,9 @@ export class LiveExample extends WebComponent {
             slot: 'after-tabs',
             title: 'reload',
             class: 'transparent',
-            onClick: this.refresh,
+            onClick: this.refreshRemote,
           },
           icons.refresh()
-        ),
-        button(
-          {
-            part: 'maximize',
-            slot: 'after-tabs',
-            title: 'maximize code',
-            class: 'transparent',
-            onClick: this.toggleMaximizeCode,
-          },
-          icons.minimize({ class: 'icon-minimize show-if-code-maximized' }),
-          icons.maximize({ class: 'icon-maximize hide-if-code-maximized' })
         )
         /*
         button(
@@ -380,11 +339,7 @@ export class LiveExample extends WebComponent {
           icons.moreVertical()
         )
         */
-      ),
-      xinSizer({
-        class: 'no-drag hide-if-code-maximized',
-        style: { zIndex: 10 },
-      })
+      )
     ),
     div(
       { class: 'example-widgets' },
@@ -392,17 +347,9 @@ export class LiveExample extends WebComponent {
         {
           title: 'view/edit code',
           class: 'transparent',
-          onClick: this.toggleCodeEditors,
-        },
-        icons.code()
-      ),
-      button(
-        {
-          title: 'view/edit code in new window',
-          class: 'transparent',
           onClick: this.openEditorWindow,
         },
-        icons.plus()
+        icons.code()
       ),
       button(
         {
@@ -422,6 +369,21 @@ export class LiveExample extends WebComponent {
     super.connectedCallback()
     const { sources } = this.parts
     this.initFromElements([...sources.children] as HTMLElement[])
+    addEventListener('storage', this.remoteChange)
+  }
+
+  disconnectedCallback(): void {
+    super.disconnectedCallback()
+
+    const { storageKey, remoteKey } = this
+
+    localStorage.setItem(
+      storageKey,
+      JSON.stringify({
+        remoteKey,
+        close: true,
+      })
+    )
   }
 
   copy = () => {
@@ -435,27 +397,6 @@ export class LiveExample extends WebComponent {
 
   toggleMaximize = () => {
     this.classList.toggle('-maximize')
-  }
-
-  toggleMaximizeCode = () => {
-    this.parts.codeEditors.classList.toggle('-maximize')
-  }
-
-  toggleCodeEditors = () => {
-    const { codeEditors } = this.parts
-    const visible = codeEditors.hidden
-    if (visible) {
-      codeEditors.style.width = '100%'
-      codeEditors.style.height = '50%'
-      codeEditors.style.top = '50%'
-      codeEditors.style.left = '0'
-      bringToFront(codeEditors)
-    } else if (this.remoteId !== '') {
-      window.close()
-      return
-    }
-
-    codeEditors.hidden = !visible
   }
 
   get remoteKey(): string {
@@ -474,9 +415,12 @@ export class LiveExample extends WebComponent {
     if (data === null) {
       return
     }
-    const { remoteKey, css, html, js } = JSON.parse(data)
+    const { remoteKey, css, html, js, close } = JSON.parse(data)
     if (remoteKey !== this.remoteKey) {
       return
+    }
+    if (close === true) {
+      window.close()
     }
     console.log('received new code from remote')
     this.css = css
@@ -498,7 +442,6 @@ export class LiveExample extends WebComponent {
       })
     )
     window.open(href)
-    addEventListener('storage', this.remoteChange)
   }
 
   refreshRemote = () => {
@@ -510,11 +453,6 @@ export class LiveExample extends WebComponent {
   }
 
   refresh = () => {
-    if (this.remoteId !== '') {
-      this.refreshRemote()
-      return
-    }
-
     const { example, style } = this.parts as {
       style: HTMLStyleElement
       example: HTMLElement
@@ -581,8 +519,7 @@ export class LiveExample extends WebComponent {
         this.css = css
         this.html = html
         this.js = js
-        this.toggleCodeEditors()
-        this.toggleMaximizeCode()
+        this.parts.codeEditors.hidden = false
       }
     } else {
       this.refresh()
@@ -608,4 +545,11 @@ export function makeExamplesLive(element: HTMLElement) {
     element.insertBefore(example, parts[0])
     example.initFromElements(parts)
   }
+}
+
+const params = new URL(window.location.href).searchParams
+const remoteId = params.get('lx')
+if (remoteId) {
+  document.body.textContent = ''
+  document.body.append(liveExample({ remoteId }))
 }

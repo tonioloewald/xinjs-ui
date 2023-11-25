@@ -13,7 +13,6 @@ import {
   markdownViewer,
   MarkdownViewer,
   LiveExample,
-  liveExample,
   sideNav,
   SideNav,
   sizeBreak,
@@ -76,7 +75,7 @@ setTimeout(() => {
   Object.assign(globalThis, { app, xin, bindings, elements, vars, touch })
 }, 1000)
 
-const main = document.querySelector('main') as HTMLElement
+const main = document.querySelector('main') as HTMLElement | null
 
 const { h2, div, span, a, img, header, button, template } = elements
 
@@ -86,11 +85,7 @@ window.addEventListener('popstate', () => {
     app.docs.find((doc) => doc.filename === filename) || app.docs[0]
 })
 
-const params = new URL(window.location.href).searchParams
-const remoteId = params.get('lx')
-if (remoteId) {
-  main.append(liveExample({ remoteId }))
-} else {
+if (main)
   main.append(
     header(
       // img({src: favicon}),
@@ -200,4 +195,3 @@ if (remoteId) {
       )
     )
   )
-}
