@@ -54,6 +54,8 @@ export class CodeEditor extends WebComponent {
       this.source = text
     } else {
       this.editor.setValue(text)
+      this.editor.clearSelection()
+      this.editor.session.getUndoManager().reset()
     }
   }
 
@@ -105,6 +107,8 @@ export class CodeEditor extends WebComponent {
       this._editorPromise.then((editor) => {
         this._editor = editor
         editor.setValue(this.source, 1)
+        editor.clearSelection()
+        editor.session.getUndoManager().reset()
       })
     }
 
