@@ -58,6 +58,35 @@ but if `BABYLON` is already defined (e.g. if you've bundled it) then it will use
 If you need additional libraries, e.g. `https://cdn.babylonjs.com/loaders/babylonjs.loaders.min.js` for loading models
 such as `gltf` and `glb` files, you should load those in `sceneCreated`.
 
+### Gamepad State
+
+A quick and dirty viewer for gamepad state.
+
+```js
+const pre = preview.querySelector('pre')
+
+const interval = setInterval(() => {
+  if (document.body.contains(preview)) {
+    const pads = navigator.getGamepads().filter(p => p !== null).map(({id, axes, buttons}) => ({
+      id,
+      axes: axes.map(a => a.toFixed(2)).join(', '),
+      buttons: buttons.map(({pressed, touched, value}, idx) => `${idx}: p: ${pressed}, t: ${touched}, ${value}`)
+    }))
+    pre.innerText = JSON.stringify(pads, false, 2)
+  } else {
+    clearInterval(interval)
+  }
+}, 100)
+```
+```html
+<pre></pre>
+```
+```css
+.preview pre {
+  background: transparent;
+  color: #444;
+}
+```
 */
 import { Component as WebComponent, ElementCreator, elements } from 'xinjs'
 import { scriptTag } from './via-tag'
