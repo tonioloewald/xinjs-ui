@@ -159,6 +159,35 @@ but if `BABYLON` is already defined (e.g. if you've bundled it) then it will use
 If you need additional libraries, e.g. `https://cdn.babylonjs.com/loaders/babylonjs.loaders.min.js` for loading models
 such as `gltf` and `glb` files, you should load those in `sceneCreated`.
 
+### Gamepad State
+
+A quick and dirty viewer for gamepad state.
+
+```js
+const pre = preview.querySelector('pre')
+
+const interval = setInterval(() => {
+  if (document.body.contains(preview)) {
+    const pads = navigator.getGamepads().filter(p => p !== null).map(({id, axes, buttons}) => ({
+      id,
+      axes: axes.map(a => a.toFixed(2)).join(', '),
+      buttons: buttons.map(({pressed, touched, value}, idx) => `${idx}: p: ${pressed}, t: ${touched}, ${value}`)
+    }))
+    pre.innerText = JSON.stringify(pads, false, 2)
+  } else {
+    clearInterval(interval)
+  }
+}, 100)
+```
+```html
+<pre></pre>
+```
+```css
+.preview pre {
+  background: transparent;
+  color: #444;
+}
+```
 */ 
 /*!
 # scriptTag & styleSheet
@@ -571,7 +600,11 @@ class $8a70bd76f9b7e656$export$b7127187684f7150 extends (0, $hgUW1$Component) {
     }
     set value(text) {
         if (this.editor === undefined) this.source = text;
-        else this.editor.setValue(text);
+        else {
+            this.editor.setValue(text);
+            this.editor.clearSelection();
+            this.editor.session.getUndoManager().reset();
+        }
     }
     mode = "javascript";
     disabled = false;
@@ -604,6 +637,8 @@ class $8a70bd76f9b7e656$export$b7127187684f7150 extends (0, $hgUW1$Component) {
             this._editorPromise.then((editor)=>{
                 this._editor = editor;
                 editor.setValue(this.source, 1);
+                editor.clearSelection();
+                editor.session.getUndoManager().reset();
             });
         }
         this.addEventListener("change", this.updateValue);
@@ -2120,7 +2155,7 @@ all the icons have been processed to have integer coordinates in a `viewBox` typ
 
 */ 
 var $2d5b9d9e4f25abad$export$2e2bcd8739ae039 = {
-    facebook2: "M928 0h-832c-53 0-96 43-96 96v832c0 53 43 96 96 96h416v-448h-128v-128h128v-64c0-106 86-192 192-192h128v128h-128c-35 0-64 29-64 64v64h192l-32 128h-160v448h288c53 0 96-43 96-96v-832c0-53-43-96-96-96z",
+    facebook: "M928 0h-832c-53 0-96 43-96 96v832c0 53 43 96 96 96h416v-448h-128v-128h128v-64c0-106 86-192 192-192h128v128h-128c-35 0-64 29-64 64v64h192l-32 128h-160v448h288c53 0 96-43 96-96v-832c0-53-43-96-96-96z",
     twitter: "M1024 226c-38 17-78 28-121 33 43-26 77-67 92-116-41 24-86 42-133 51-38-41-93-66-153-66-116 0-210 94-210 210 0 16 2 32 5 48-175-9-329-92-433-220-18 31-28 67-28 106 0 73 37 137 93 175-34-1-67-11-95-26 0 1 0 2 0 3 0 102 72 187 169 206-18 5-36 7-55 7-14 0-27-1-40-4 27 83 104 144 196 146-72 56-162 90-261 90-17 0-34-1-50-3 93 60 204 94 322 94 386 0 598-320 598-598 0-9-0-18-1-27 41-29 77-66 105-109z",
     game: {
         p: [
@@ -2131,6 +2166,12 @@ var $2d5b9d9e4f25abad$export$2e2bcd8739ae039 = {
     google: "M512 0c-283 0-512 229-512 512s229 512 512 512 512-229 512-512-229-512-512-512zM520 896c-212 0-384-172-384-384s172-384 384-384c104 0 190 38 257 100l-104 100c-29-27-78-59-153-59-131 0-238 109-238 242s107 242 238 242c152 0 209-109 218-166h-218v-132h363c3 19 6 38 6 64 0 219-147 375-369 375z",
     github: "M512 13c-283 0-512 229-512 512 0 226 147 418 350 486 26 5 35-11 35-25 0-12-0-53-1-95-142 31-173-60-173-60-23-59-57-75-57-75-46-32 4-31 4-31 51 4 78 53 78 53 46 78 120 56 149 43 5-33 18-56 33-68-114-13-233-57-233-253 0-56 20-102 53-137-5-13-23-65 5-136 0 0 43-14 141 52 41-11 85-17 128-17 44 0 87 6 128 17 98-66 141-52 141-52 28 71 10 123 5 136 33 36 53 82 53 137 0 197-120 240-234 253 18 16 35 47 35 95 0 69-1 124-1 141 0 14 9 30 35 25 203-68 350-260 350-486 0-283-229-512-512-512z",
     npm: "M0 0v1024h1024v-1024h-1024zM832 832h-128v-512h-192v512h-320v-640h640v640z",
+    xr: {
+        p: [
+            "M768 142c385 0 686 22 686 369 0 226-149 371-322 371-86 0-150-32-203-67l-4-3-4-3-4-3-4-3c-1-0-1-1-2-1l-4-3-4-3-5-4-8-6-14-10-5-4-5-4-4-3-3-2-4-3-4-3-3-2-3-2-3-2-3-2c-0-0-1-1-1-1l-2-2-2-2-2-1-2-1c-22-12-43-21-64-21l-3 0c-24 1-47 11-71 26l-3 2-3 2-3 2c-0 0-1 1-1 1l-4 3-3 2-4 3-3 2-4 3-4 3-5 4-20 15-5 4-4 3c-1 0-1 1-2 1l-4 3c-1 0-1 1-2 1l-4 3-4 3c-1 0-1 1-2 1l-4 3c-53 35-118 68-205 68-172 0-322-145-322-371 0-344 306-368 686-369zM671 291l-5-0-2 0-2 0-1 0-1 0c-7 1-13 2-19 9l-1 1-114 114-114-114-4-4-1-1-0-0-0-0-0-0-0-0-0-0-0-0-1-0-4-2-2-1-2-1-2-1-5-0-2 0-2 0-1 0-1 0c-8 1-13 3-20 9-13 13-13 35-1 48l1 1 114 114-114 114c-13 13-13 35 0 49 13 13 35 13 48 1l1-1 114-114 114 114c13 13 35 13 49 0 13-13 13-35 1-48l-1-1-114-114 114-114c13-13 13-35 0-49l-4-4-1-1-0-0-0-0-0-0-0-0-0-0-0-0-1-0-4-2-2-1-2-1-2-1zM768 290c-19 0-34 15-34 34l-0 1v276c0 19 15 34 34 34l1 0 1-0c19-0 33-15 34-34l0-1 0-39-0-126-0-111c0-19-15-34-35-34zM878 291l-5-0-2 0-2 0-1 0-1 0c-8 1-13 3-20 9-13 13-13 35-1 48l1 1 276 276c7 7 15 10 24 10h1l1-0c8-0 17-4 23-10 13-13 13-35 0-49l-276-276-5-4-1-0-0-0-0-0-0-0-0-0-0-0-0-0-1-0-3-1-2-1-2-1-2-1-1-0z"
+        ],
+        w: 1536
+    },
     html5: "M61 0l82 922 369 102 370-103 82-921h-903zM785 301h-433l10 116h412l-31 347-232 64-232-64-16-178h113l8 90 126 34 0-0 126-34 13-147h-392l-30-342h566l-10 113z",
     calendar: "M299 85v43h-85c-35 0-67 14-90 38s-38 55-38 90v597c0 35 14 67 38 90s55 38 90 38h597c35 0 67-14 90-38s38-55 38-90v-597c0-35-14-67-38-90s-55-38-90-38h-85v-43c0-24-19-43-43-43s-43 19-43 43v43h-256v-43c0-24-19-43-43-43s-43 19-43 43zM853 384h-683v-128c0-12 5-22 13-30s18-13 30-13h85v43c0 24 19 43 43 43s43-19 43-43v-43h256v43c0 24 19 43 43 43s43-19 43-43v-43h85c12 0 22 5 30 13s13 18 13 30zM171 469h683v384c0 12-5 22-13 30s-18 13-30 13h-597c-12 0-22-5-30-13s-13-18-13-30z",
     editDoc: "M469 128h-299c-35 0-67 14-90 38s-38 55-38 90v597c0 35 14 67 38 90s55 38 90 38h597c35 0 67-14 90-38s38-55 38-90v-299c0-24-19-43-43-43s-43 19-43 43v299c0 12-5 22-13 30s-18 13-30 13h-597c-12 0-22-5-30-13s-13-18-13-30v-597c0-12 5-22 13-30s18-13 30-13h299c24 0 43-19 43-43s-19-43-43-43zM759 77l-405 405c-5 5-9 12-11 20l-43 171c-2 6-2 14 0 21 6 23 29 37 52 31l171-43c7-2 14-6 20-11l405-405c26-26 39-60 39-94s-13-68-39-94-60-39-94-39-68 13-94 39zM819 137c9-9 22-14 34-14s24 5 34 14 14 22 14 34-5 24-14 34l-397 397-90 23 23-90z",
@@ -2162,8 +2203,8 @@ var $2d5b9d9e4f25abad$export$2e2bcd8739ae039 = {
     chevronRight: "M414 798l256-256c17-17 17-44 0-60l-256-256c-17-17-44-17-60 0s-17 44 0 60l226 226-226 226c-17 17-17 44 0 60s44 17 60 0z",
     chevronUp: "M798 610l-256-256c-17-17-44-17-60 0l-256 256c-17 17-17 44 0 60s44 17 60 0l226-226 226 226c17 17 44 17 60 0s17-44 0-60z",
     code: "M713 798l256-256c17-17 17-44 0-60l-256-256c-17-17-44-17-60 0s-17 44 0 60l226 226-226 226c-17 17-17 44 0 60s44 17 60 0zM311 226l-256 256c-17 17-17 44 0 60l256 256c17 17 44 17 60 0s17-44 0-60l-226-226 226-226c17-17 17-44 0-60s-44-17-60 0z",
-    cornerUpLeft: "M896 853v-299c0-59-24-112-62-151s-92-62-151-62h-409l141-141c17-17 17-44 0-60s-44-17-60 0l-213 213c-4 4-7 9-9 14s-3 11-3 16 1 11 3 16c2 5 5 10 9 14l213 213c17 17 44 17 60 0s17-44 0-60l-141-141h409c35 0 67 14 90 38s38 55 38 90v299c0 24 19 43 43 43s43-19 43-43z",
-    cornerUpRight: "M213 853v-299c0-35 14-67 38-90s55-38 90-38h409l-141 141c-17 17-17 44 0 60s44 17 60 0l213-213c4-4 7-9 9-14 4-10 4-22 0-33-2-5-5-10-9-14l-213-213c-17-17-44-17-60 0s-17 44 0 60l141 141h-409c-59 0-112 24-151 62s-62 92-62 151v299c0 24 19 43 43 43s43-19 43-43z",
+    undo: "M896 853v-299c0-59-24-112-62-151s-92-62-151-62h-409l141-141c17-17 17-44 0-60s-44-17-60 0l-213 213c-4 4-7 9-9 14s-3 11-3 16 1 11 3 16c2 5 5 10 9 14l213 213c17 17 44 17 60 0s17-44 0-60l-141-141h409c35 0 67 14 90 38s38 55 38 90v299c0 24 19 43 43 43s43-19 43-43z",
+    redo: "M213 853v-299c0-35 14-67 38-90s55-38 90-38h409l-141 141c-17 17-17 44 0 60s44 17 60 0l213-213c4-4 7-9 9-14 4-10 4-22 0-33-2-5-5-10-9-14l-213-213c-17-17-44-17-60 0s-17 44 0 60l141 141h-409c-59 0-112 24-151 62s-62 92-62 151v299c0 24 19 43 43 43s43-19 43-43z",
     crop: "M302 302l381-3c11 0 22 5 30 13s13 18 13 30v384h-384c-12 0-22-5-30-13s-13-18-13-30zM43 304l174-1-3 380c0 36 14 68 38 91s55 38 90 38h384v171c0 24 19 43 43 43s43-19 43-43v-171h171c24 0 43-19 43-43s-19-43-43-43h-171v-384c0-35-14-67-38-90s-55-38-91-38l-380 3 1-174c0-24-19-43-42-43s-43 19-43 42l-2 175-175 2c-24 0-42 19-42 43s19 42 43 42z",
     database: "M171 213c0 0 0-4 9-12 10-10 29-21 56-31 64-25 163-42 277-42s213 17 277 42c27 11 45 22 56 31 9 8 9 12 9 12 0 0-0 4-9 12-10 10-29 21-56 31-64 25-163 42-277 42s-213-17-277-42c-27-11-45-22-56-31-9-8-9-12-9-12zM853 620v191c-2 4-4 8-9 12-10 10-29 21-56 31-64 25-163 42-276 42s-213-17-276-42c-27-10-45-21-56-31-5-5-8-8-8-10l-0-193c11 5 22 10 33 15 77 30 187 48 307 48s231-18 307-48c12-5 23-10 34-15zM853 321v190c0 0 0 0 0 1-2 4-4 8-9 12-10 10-29 21-56 31-64 25-163 42-276 42s-213-17-276-42c-27-10-45-21-56-31-5-5-8-8-8-10-0-2-0-3-0-5l-0-188c11 5 22 10 34 15 77 30 187 48 308 48s231-18 308-48c12-5 23-10 34-15zM85 213v597c0 2 0 5 0 7 2 28 18 51 37 68 21 19 50 35 82 48 77 30 187 48 307 48s231-18 307-48c32-13 61-28 82-48 18-17 34-40 37-68 0-2 0-5 0-7v-597c0-2-0-5-0-7-2-28-18-51-36-68-21-20-50-35-82-48-77-30-187-48-308-48s-231 18-308 48c-32 13-61 28-82 48-18 17-34 40-36 68-0 2-0 5-0 7z",
     download: "M853 640v171c0 12-5 22-13 30s-18 13-30 13h-597c-12 0-22-5-30-13s-13-18-13-30v-171c0-24-19-43-43-43s-43 19-43 43v171c0 35 14 67 38 90s55 38 90 38h597c35 0 67-14 90-38s38-55 38-90v-171c0-24-19-43-43-43s-43 19-43 43zM555 537v-409c0-24-19-43-43-43s-43 19-43 43v409l-141-141c-17-17-44-17-60 0s-17 44 0 60l213 213c4 4 9 7 14 9s11 3 16 3c11 0 22-4 30-13l213-213c17-17 17-44 0-60s-44-17-60 0z",
@@ -2779,6 +2820,9 @@ class $ada9b1474dc4b958$export$41199f9ac14d8c08 extends (0, $hgUW1$Component) {
     context = {};
     uuid = crypto.randomUUID();
     remoteId = "";
+    // FIXME workarounds for StorageEvent issue on Quest
+    lastUpdate = 0;
+    interval;
     static insertExamples(element, context = {}) {
         const sources = [
             ...element.querySelectorAll('pre code[class="language-html"],pre code[class="language-js"],pre code[class="language-css"]')
@@ -2819,24 +2863,57 @@ class $ada9b1474dc4b958$export$41199f9ac14d8c08 extends (0, $hgUW1$Component) {
             example.showDefaultTab();
         }
     }
+    get activeTab() {
+        const { editors: editors } = this.parts;
+        return [
+            ...editors.children
+        ].find((elt)=>elt.getAttribute("hidden") === null);
+    }
+    getEditorValue(which) {
+        return this.parts[which].value;
+    }
+    setEditorValue(which, code) {
+        const codeEditor = this.parts[which];
+        codeEditor.value = code;
+    }
     get css() {
-        return this.parts.css.value;
+        return this.getEditorValue("css");
     }
     set css(code) {
-        this.parts.css.value = code;
+        this.setEditorValue("css", code);
     }
     get html() {
-        return this.parts.html.value;
+        return this.getEditorValue("html");
     }
     set html(code) {
-        this.parts.html.value = code;
+        this.setEditorValue("html", code);
     }
     get js() {
-        return this.parts.js.value;
+        return this.getEditorValue("js");
     }
     set js(code) {
-        this.parts.js.value = code;
+        this.setEditorValue("js", code);
     }
+    updateUndo = ()=>{
+        const { activeTab: activeTab } = this;
+        const { undo: undo, redo: redo } = this.parts;
+        if (activeTab instanceof (0, $8a70bd76f9b7e656$export$b7127187684f7150) && activeTab.editor !== undefined) {
+            const undoManager = activeTab.editor.session.getUndoManager();
+            undo.disabled = !undoManager.hasUndo();
+            redo.disabled = !undoManager.hasRedo();
+        } else {
+            undo.disabled = true;
+            redo.disabled = true;
+        }
+    };
+    undo = ()=>{
+        const { activeTab: activeTab } = this;
+        if (activeTab instanceof (0, $8a70bd76f9b7e656$export$b7127187684f7150)) activeTab.editor.undo();
+    };
+    redo = ()=>{
+        const { activeTab: activeTab } = this;
+        if (activeTab instanceof (0, $8a70bd76f9b7e656$export$b7127187684f7150)) activeTab.editor.redo();
+    };
     content = ()=>[
             $ada9b1474dc4b958$var$div({
                 part: "example"
@@ -2863,7 +2940,8 @@ class $ada9b1474dc4b958$export$41199f9ac14d8c08 extends (0, $hgUW1$Component) {
                     fill: (0, $hgUW1$vars).codeEditorsBarColor
                 }
             })), (0, $6bbe441346901d5a$export$a932f737dcd864a2)({
-                part: "editors"
+                part: "editors",
+                onChange: this.updateUndo
             }, (0, $8a70bd76f9b7e656$export$d89b6f4d34274146)({
                 name: "js",
                 mode: "javascript",
@@ -2879,17 +2957,28 @@ class $ada9b1474dc4b958$export$41199f9ac14d8c08 extends (0, $hgUW1$Component) {
                 mode: "css",
                 part: "css",
                 ...$ada9b1474dc4b958$var$codeStyle
-            }), $ada9b1474dc4b958$var$button({
+            }), $ada9b1474dc4b958$var$div({
                 slot: "after-tabs",
+                class: "row"
+            }, $ada9b1474dc4b958$var$button({
+                title: "undo",
+                part: "undo",
+                class: "transparent",
+                onClick: this.undo
+            }, (0, $fef058b85aa29b7a$export$df03f54e09e486fa).undo()), $ada9b1474dc4b958$var$button({
+                title: "redo",
+                part: "redo",
+                class: "transparent",
+                onClick: this.redo
+            }, (0, $fef058b85aa29b7a$export$df03f54e09e486fa).redo()), $ada9b1474dc4b958$var$button({
                 title: "copy as markdown",
                 class: "transparent",
                 onClick: this.copy
             }, (0, $fef058b85aa29b7a$export$df03f54e09e486fa).copy()), $ada9b1474dc4b958$var$button({
-                slot: "after-tabs",
                 title: "reload",
                 class: "transparent",
                 onClick: this.refreshRemote
-            }, (0, $fef058b85aa29b7a$export$df03f54e09e486fa).refresh()))),
+            }, (0, $fef058b85aa29b7a$export$df03f54e09e486fa).refresh())))),
             $ada9b1474dc4b958$var$div({
                 class: "example-widgets"
             }, $ada9b1474dc4b958$var$button({
@@ -2918,12 +3007,19 @@ class $ada9b1474dc4b958$export$41199f9ac14d8c08 extends (0, $hgUW1$Component) {
             ...sources.children
         ]);
         addEventListener("storage", this.remoteChange);
+        // FIXME workaround for Quest 3
+        this.interval = setInterval(this.remoteChange, 500);
+        this.undoInterval = setInterval(this.updateUndo, 250);
     }
     disconnectedCallback() {
         super.disconnectedCallback();
         const { storageKey: storageKey, remoteKey: remoteKey } = this;
+        // FIXME workaround for Quest 3
+        clearInterval(this.interval);
+        clearInterval(this.undoInterval);
         localStorage.setItem(storageKey, JSON.stringify({
             remoteKey: remoteKey,
+            sentAt: Date.now(),
             close: true
         }));
     }
@@ -2940,15 +3036,16 @@ class $ada9b1474dc4b958$export$41199f9ac14d8c08 extends (0, $hgUW1$Component) {
         return this.remoteId !== "" ? this.prefix + "-" + this.remoteId : this.prefix + "-" + this.uuid;
     }
     remoteChange = (event)=>{
-        console.log(event.key, event);
         const data = localStorage.getItem(this.storageKey);
-        if (event.key !== this.storageKey) return;
-        console.log("received data from remote");
+        if (event instanceof StorageEvent && event.key !== this.storageKey) return;
         if (data === null) return;
-        const { remoteKey: remoteKey, css: css, html: html, js: js, close: close } = JSON.parse(data);
+        const { remoteKey: remoteKey, sentAt: sentAt, css: css, html: html, js: js, close: close } = JSON.parse(data);
+        // FIXME workaround for Quest
+        if (sentAt <= this.lastUpdate) return;
         if (remoteKey !== this.remoteKey) return;
         if (close === true) window.close();
-        console.log("received new code from remote");
+        console.log("received new code from remote", sentAt, this.lastUpdate);
+        this.lastUpdate = sentAt;
         this.css = css;
         this.html = html;
         this.js = js;
@@ -2959,6 +3056,7 @@ class $ada9b1474dc4b958$export$41199f9ac14d8c08 extends (0, $hgUW1$Component) {
         const href = location.href.split("?")[0] + `?${prefix}=${uuid}`;
         localStorage.setItem(storageKey, JSON.stringify({
             remoteKey: remoteKey,
+            sentAt: Date.now(),
             css: css,
             html: html,
             js: js
@@ -2969,12 +3067,14 @@ class $ada9b1474dc4b958$export$41199f9ac14d8c08 extends (0, $hgUW1$Component) {
         const { remoteKey: remoteKey, css: css, html: html, js: js } = this;
         localStorage.setItem(this.storageKey, JSON.stringify({
             remoteKey: remoteKey,
+            sentAt: Date.now(),
             css: css,
             html: html,
             js: js
         }));
     };
     refresh = ()=>{
+        if (this.remoteId !== "") return;
         const { example: example, style: style } = this.parts;
         const preview = $ada9b1474dc4b958$var$div({
             class: "preview"
@@ -3022,12 +3122,14 @@ class $ada9b1474dc4b958$export$41199f9ac14d8c08 extends (0, $hgUW1$Component) {
         if (this.remoteId !== "") {
             const data = localStorage.getItem(this.storageKey);
             if (data !== null) {
-                const { remoteKey: remoteKey, css: css, html: html, js: js } = JSON.parse(data);
+                const { remoteKey: remoteKey, sentAt: sentAt, css: css, html: html, js: js } = JSON.parse(data);
                 if (this.remoteKey !== remoteKey) return;
+                this.lastUpdate = sentAt;
                 this.css = css;
                 this.html = html;
                 this.js = js;
                 this.parts.codeEditors.hidden = false;
+                this.updateUndo();
             }
         } else this.refresh();
     }
