@@ -221,6 +221,10 @@ export class LiveExample extends WebComponent {
   uuid: string = crypto.randomUUID()
   remoteId = ''
 
+  // FIXME workarounds for StorageEvent issue on Quest
+  lastUpdate = 0
+  interval?: Timer
+
   static insertExamples(
     element: HTMLElement,
     context: ExampleContext = {}
@@ -266,28 +270,68 @@ export class LiveExample extends WebComponent {
     }
   }
 
+  private getEditorValue(which: string): string {
+    return (this.parts[which] as CodeEditor).value
+  }
+
+  private setEditorValue(which: string, code: string): void {
+    const codeEditor = this.parts[which] as CodeEditor
+    codeEditor.value = code
+  }
+
   get css(): string {
-    return (this.parts.css as CodeEditor).value
+    return this.getEditorValue('css')
   }
 
   set css(code: string) {
-    ;(this.parts.css as CodeEditor).value = code
+    this.setEditorValue('css', code)
   }
 
   get html(): string {
-    return (this.parts.html as CodeEditor).value
+    return this.getEditorValue('html')
   }
 
   set html(code: string) {
-    ;(this.parts.html as CodeEditor).value = code
+    this.setEditorValue('html', code)
   }
 
   get js(): string {
-    return (this.parts.js as CodeEditor).value
+    return this.getEditorValue('js')
   }
 
   set js(code: string) {
-    ;(this.parts.js as CodeEditor).value = code
+    this.setEditorValue('js', code)
+  }
+
+  updateUndo = () => {
+    const { editors, undo, redo } = this.parts as {
+      editors: TabSelector
+      undo: HTMLButtonElement
+      redo: HTMLButtonElement
+    }
+    const activeTab = editors.querySelector(':not([hidden])')
+    if (activeTab instanceof CodeEditor && activeTab.editor !== undefined) {
+      const undoManager = activeTab.editor.session.getUndoManager()
+      undo.disabled = !undoManager.hasUndo()
+      redo.disabled = !undoManager.hasRedo()
+    } else {
+      undo.disabled = true
+      redo.disabled = true
+    }
+  }
+
+  undo = () => {
+    const activeTab = this.parts.editors.querySelector(':not([hidden])')
+    if (activeTab instanceof CodeEditor) {
+      activeTab.editor.undo()
+    }
+  }
+
+  redo = () => {
+    const activeTab = this.parts.editors.querySelector(':not([hidden])')
+    if (activeTab instanceof CodeEditor) {
+      activeTab.editor.redo()
+    }
   }
 
   content = () => [
@@ -319,7 +363,10 @@ export class LiveExample extends WebComponent {
         })
       ),
       tabSelector(
-        { part: 'editors' },
+        {
+          part: 'editors',
+          onChange: this.updateUndo,
+        },
         codeEditor({
           name: 'js',
           mode: 'javascript',
@@ -328,23 +375,45 @@ export class LiveExample extends WebComponent {
         }),
         codeEditor({ name: 'html', mode: 'html', part: 'html', ...codeStyle }),
         codeEditor({ name: 'css', mode: 'css', part: 'css', ...codeStyle }),
-        button(
+        div(
           {
             slot: 'after-tabs',
-            title: 'copy as markdown',
-            class: 'transparent',
-            onClick: this.copy,
+            class: 'row',
           },
-          icons.copy()
-        ),
-        button(
-          {
-            slot: 'after-tabs',
-            title: 'reload',
-            class: 'transparent',
-            onClick: this.refreshRemote,
-          },
-          icons.refresh()
+          button(
+            {
+              title: 'undo',
+              part: 'undo',
+              class: 'transparent',
+              onClick: this.undo,
+            },
+            icons.undo()
+          ),
+          button(
+            {
+              title: 'redo',
+              part: 'redo',
+              class: 'transparent',
+              onClick: this.redo,
+            },
+            icons.redo()
+          ),
+          button(
+            {
+              title: 'copy as markdown',
+              class: 'transparent',
+              onClick: this.copy,
+            },
+            icons.copy()
+          ),
+          button(
+            {
+              title: 'reload',
+              class: 'transparent',
+              onClick: this.refreshRemote,
+            },
+            icons.refresh()
+          )
         )
         /*
         button(
@@ -388,6 +457,10 @@ export class LiveExample extends WebComponent {
     const { sources } = this.parts
     this.initFromElements([...sources.children] as HTMLElement[])
     addEventListener('storage', this.remoteChange)
+
+    // FIXME workaround for Quest 3
+    this.interval = setInterval(this.remoteChange, 500)
+    this.undoInterval = setInterval(this.updateUndo, 250)
   }
 
   disconnectedCallback(): void {
@@ -395,10 +468,15 @@ export class LiveExample extends WebComponent {
 
     const { storageKey, remoteKey } = this
 
+    // FIXME workaround for Quest 3
+    clearInterval(this.interval)
+    clearInterval(this.undoInterval)
+
     localStorage.setItem(
       storageKey,
       JSON.stringify({
         remoteKey,
+        sentAt: Date.now(),
         close: true,
       })
     )
@@ -423,24 +501,27 @@ export class LiveExample extends WebComponent {
       : this.prefix + '-' + this.uuid
   }
 
-  remoteChange = (event: StorageEvent) => {
-    console.log(event.key, event)
+  remoteChange = (event?: StorageEvent) => {
     const data = localStorage.getItem(this.storageKey)
-    if (event.key !== this.storageKey) {
+    if (event instanceof StorageEvent && event.key !== this.storageKey) {
       return
     }
-    console.log('received data from remote')
     if (data === null) {
       return
     }
-    const { remoteKey, css, html, js, close } = JSON.parse(data)
+    const { remoteKey, sentAt, css, html, js, close } = JSON.parse(data)
+    // FIXME workaround for Quest
+    if (sentAt <= this.lastUpdate) {
+      return
+    }
     if (remoteKey !== this.remoteKey) {
       return
     }
     if (close === true) {
       window.close()
     }
-    console.log('received new code from remote')
+    console.log('received new code from remote', sentAt, this.lastUpdate)
+    this.lastUpdate = sentAt
     this.css = css
     this.html = html
     this.js = js
@@ -454,6 +535,7 @@ export class LiveExample extends WebComponent {
       storageKey,
       JSON.stringify({
         remoteKey,
+        sentAt: Date.now(),
         css,
         html,
         js,
@@ -466,11 +548,15 @@ export class LiveExample extends WebComponent {
     const { remoteKey, css, html, js } = this
     localStorage.setItem(
       this.storageKey,
-      JSON.stringify({ remoteKey, css, html, js })
+      JSON.stringify({ remoteKey, sentAt: Date.now(), css, html, js })
     )
   }
 
   refresh = () => {
+    if (this.remoteId !== '') {
+      return
+    }
+
     const { example, style } = this.parts as {
       style: HTMLStyleElement
       example: HTMLElement
@@ -530,14 +616,16 @@ export class LiveExample extends WebComponent {
     if (this.remoteId !== '') {
       const data = localStorage.getItem(this.storageKey)
       if (data !== null) {
-        const { remoteKey, css, html, js } = JSON.parse(data)
+        const { remoteKey, sentAt, css, html, js } = JSON.parse(data)
         if (this.remoteKey !== remoteKey) {
           return
         }
+        this.lastUpdate = sentAt
         this.css = css
         this.html = html
         this.js = js
         this.parts.codeEditors.hidden = false
+        this.updateUndo()
       }
     } else {
       this.refresh()
