@@ -270,6 +270,13 @@ export class LiveExample extends WebComponent {
     }
   }
 
+  get activeTab(): Element | undefined {
+    const { editors } = this.parts
+    return [...editors.children].find(
+      (elt) => elt.getAttribute('hidden') === null
+    )
+  }
+
   private getEditorValue(which: string): string {
     return (this.parts[which] as CodeEditor).value
   }
@@ -304,12 +311,11 @@ export class LiveExample extends WebComponent {
   }
 
   updateUndo = () => {
-    const { editors, undo, redo } = this.parts as {
-      editors: TabSelector
+    const { activeTab } = this
+    const { undo, redo } = this.parts as {
       undo: HTMLButtonElement
       redo: HTMLButtonElement
     }
-    const activeTab = editors.querySelector(':not([hidden])')
     if (activeTab instanceof CodeEditor && activeTab.editor !== undefined) {
       const undoManager = activeTab.editor.session.getUndoManager()
       undo.disabled = !undoManager.hasUndo()
@@ -321,14 +327,14 @@ export class LiveExample extends WebComponent {
   }
 
   undo = () => {
-    const activeTab = this.parts.editors.querySelector(':not([hidden])')
+    const { activeTab } = this
     if (activeTab instanceof CodeEditor) {
       activeTab.editor.undo()
     }
   }
 
   redo = () => {
-    const activeTab = this.parts.editors.querySelector(':not([hidden])')
+    const { activeTab } = this
     if (activeTab instanceof CodeEditor) {
       activeTab.editor.redo()
     }
