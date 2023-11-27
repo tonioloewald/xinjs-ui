@@ -7,8 +7,8 @@
   "source": "src/index.ts",
   "scripts": {
     "start": "bun pack && rm -rf www && bun parcel demo/index.html --https --dist-dir www -p 8787",
-    "pack": "bun prebuild && bun format && bun test && rm -rf docs && bun parcel build --public-url . && cp demo/CNAME docs && cp demo/robots.txt docs",
-    "prebuild": "bun docs.js && bun icons.js",
+    "pack": "bun prebuild && bun test && rm -rf docs && bun parcel build --public-url . && cp demo/CNAME docs && cp demo/robots.txt docs",
+    "prebuild": "bun docs.js && bun icons.js && bun format",
     "format": "bun eslint src demo --fix && bun prettier --write .",
     "test": "bun test",
     "latest": "rm -rf .parcel-cache && rm -rf node_modules && npm install && bun install"
