@@ -38,7 +38,15 @@ function xrControllers(xrHelper) {
 }
 
 function xrControllersText(controllers) {
-  return controllers ? JSON.stringify(controllers) : 'no xr inputs'
+  if (controllers === undefined) {
+    return 'no xr inputs'
+  }
+
+  return Object.keys(controllers).map(controllerId => {
+    const state = controllers[controllerId]
+    const buttonText = Object.keys(state).filter(componentId => state[componentId].pressed).join(' ')
+    return `${controllerId}\n${buttonText}`
+  }).join('\n')
 }
 
 preview.append(b3d({
@@ -260,11 +268,6 @@ export class B3d extends WebComponent {
       */
       this.engine.runRenderLoop(this._update)
     })
-  }
-
-  disconnectedCallback(): void {
-    super.disconnectedCallback()
-    this.engine.stopRenderLoop(this._update)
   }
 }
 
