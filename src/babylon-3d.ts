@@ -10,10 +10,39 @@ If you view this example with a VR-enabled device, such as the
 as an AR scene.
 
 ```js
-const { b3d } = xinjsui
+const { b3d, gamepadText } = xinjsui
+
+function xrControllers(xrHelper) {
+  const controllers = {}
+  xrHelper.input.onControllerAddedObservable.add((controller) => {
+    controller.onMotionControllerInitObservable.add((mc) => {
+      const state = {}
+      const componentIds = mc.getComponentIds()
+      componentIds.forEach(componentId => {
+        const component = mc.getComponent(componentId)
+        state[componentId] = { pressed: component.pressed }
+        component.onButtonStateChangedObservable.add(() => {
+          state[componentId].pressed = component.pressed
+        })
+        if (component.onAxisValueChangedObservable) {
+          state[componentId].axes = []
+          component.onAxisValueChangedObservable.add((axes) => {
+            state[componentId].axes = axes
+          })
+        }
+      })
+      controllers[mc.handedness] = state
+    })
+  })
+  return controllers
+}
+
+function xrControllersText(controllers) {
+  return controllers ? JSON.stringify(controllers) : 'no xr inputs'
+}
 
 preview.append(b3d({
-  sceneCreated(element, BABYLON) {
+  async sceneCreated(element, BABYLON) {
     const camera = new BABYLON.FreeCamera(
       'camera',
       new BABYLON.Vector3(0, 2, -2),
@@ -25,13 +54,35 @@ preview.append(b3d({
     const box = BABYLON.MeshBuilder.CreateBox('box', {})
     box.position.y = 1.25
 
+    const {widgets} = await element.loadUI({
+      // https://gui.babylonjs.com/ to edit/create snippets
+      snippetId: 'M5R90S#6',
+    })
+
+    widgets.buttonOK.onPointerClickObservable.add((evt) => {
+      const visible = !widgets.text.isVisible
+      widgets.text.isVisible = visible
+      widgets.frame.isVisible = visible
+      widgets.textBg.isVisible = visible
+    })
+
+    let controllers
     if (navigator.xr) {
-      element.scene.createDefaultXRExperienceAsync({
+      const xrHelper = await element.scene.createDefaultXRExperienceAsync({
         uiOptions: {
           sessionMode: 'immersive-ar'
         }
       })
+      controllers = xrControllers(xrHelper)
     }
+
+    const interval = setInterval(() => {
+      if (document.body.contains(element)) {
+        widgets.text.text = gamepadText() + '\n' + xrControllersText(controllers)
+      } else {
+        clearInterval(interval)
+      }
+    }, 100)
   },
   update(element) {
     element.scene.getMeshByName('box').rotation.y += 0.005
@@ -57,36 +108,6 @@ but if `BABYLON` is already defined (e.g. if you've bundled it) then it will use
 
 If you need additional libraries, e.g. `https://cdn.babylonjs.com/loaders/babylonjs.loaders.min.js` for loading models
 such as `gltf` and `glb` files, you should load those in `sceneCreated`.
-
-### Gamepad State
-
-A quick and dirty viewer for gamepad state.
-
-```js
-const pre = preview.querySelector('pre')
-
-const interval = setInterval(() => {
-  if (document.body.contains(preview)) {
-    const pads = navigator.getGamepads().filter(p => p !== null).map(({id, axes, buttons}) => ({
-      id,
-      axes: axes.map(a => a.toFixed(2)).join(', '),
-      buttons: buttons.map(({pressed, touched, value}, idx) => `${idx}: p: ${pressed}, t: ${touched}, ${value}`)
-    }))
-    pre.innerText = JSON.stringify(pads, false, 2)
-  } else {
-    clearInterval(interval)
-  }
-}, 100)
-```
-```html
-<pre></pre>
-```
-```css
-.preview pre {
-  background: transparent;
-  color: #444;
-}
-```
 */
 import { Component as WebComponent, ElementCreator, elements } from 'xinjs'
 import { scriptTag } from './via-tag'
@@ -94,6 +115,13 @@ import { scriptTag } from './via-tag'
 type B3dCallback =
   | ((element: B3d, BABYLON: any) => void)
   | ((element: B3d, BABYLON: any) => Promise<void>)
+
+interface B3dUIOptions {
+  snippetId?: string
+  jsonUrl?: string
+  data?: any
+  size?: number
+}
 
 export class B3d extends WebComponent {
   babylonReady: Promise<any>
@@ -163,6 +191,47 @@ export class B3d extends WebComponent {
     if (this.engine) {
       this.engine.resize()
     }
+  }
+
+  loadUI = async (options: B3dUIOptions): Promise<any> => {
+    const { BABYLON } = await scriptTag(
+      'https://cdn.babylonjs.com/gui/babylon.gui.js',
+      'BABYLON'
+    )
+    const advancedTexture =
+      BABYLON.GUI.AdvancedDynamicTexture.CreateFullscreenUI(
+        'GUI',
+        true,
+        this.scene
+      )
+    const { snippetId, jsonUrl, data, size } = options
+    if (size) {
+      advancedTexture.idealWidth = size
+      advancedTexture.renderAtIdealSize = true
+    }
+    // edit or create your own snippet here
+    // https://gui.babylonjs.com/
+    let gui
+    if (snippetId) {
+      gui = await advancedTexture.parseFromSnippetAsync(snippetId)
+    } else if (jsonUrl) {
+      gui = await advancedTexture.parseFromURLAsync(jsonUrl)
+    } else if (data) {
+      gui = advancedTexture.parseContent(data)
+    } else {
+      return null
+    }
+
+    const root = advancedTexture.getChildren()[0]
+    const widgets = root.children.reduce(
+      (map: { [key: string]: any }, widget: any) => {
+        map[widget.name] = widget
+        return map
+      },
+      {}
+    )
+
+    return { advancedTexture, gui, root, widgets }
   }
 
   connectedCallback(): void {
