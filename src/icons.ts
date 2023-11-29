@@ -91,6 +91,10 @@ xin-icon.demo-2 > svg {
 }
 ```
 
+## `svg2DataUrl(svg): string`
+
+A simple utility function for turning icons into dataUrls (e.g. for incorporation into CSS properties).
+
 ## Missing Icons
 
 If you ask for an icon that isn't defined, the `icons` proxy will print a warning to console
@@ -138,6 +142,26 @@ function getIconSpec(name: string): IconSpec {
 
 export const defineIcon = (name: string, icon: IconSpec | string): void => {
   iconData[name] = icon
+}
+
+export const svg2DataUrl = (
+  svg: SVGElement,
+  fill?: string,
+  stroke?: string,
+  strokeWidth?: number | string
+): string => {
+  if (fill !== undefined) {
+    for (const path of [...svg.querySelectorAll('path')]) {
+      path.setAttribute('fill', fill)
+      if (stroke !== undefined) path.setAttribute('stroke', stroke)
+      if (strokeWidth !== undefined)
+        path.setAttribute('stroke-width', String(strokeWidth))
+    }
+  }
+
+  svg.setAttribute('xmlns', 'http://www.w3.org/2000/svg')
+  const text = encodeURIComponent(svg.outerHTML)
+  return `url(data:image/svg+xml;charset=UTF-8,${text})`
 }
 
 export const icons = new Proxy(iconData, {
