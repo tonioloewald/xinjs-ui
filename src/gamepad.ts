@@ -1,11 +1,22 @@
 /*!
 # gamepads
 
-A couple of utility functions for dealing with gamepads.
+A couple of utility functions for dealing with gamepads and XRInputs.
 
 `gamepadState()` gives you a condensed version of active gamepad state
 
 `gamepadText()` provides the above in minimal text form for debugging
+
+## XRInput Devices
+
+> This is experimental, the API is changing and stuff doesn't work. Hopefully it
+> will become a lot more generally useful once Apple's VisionPro comes out.
+
+`xrControllers(babylonjsXRHelper)` returns an `XinXRControllerMap` structure that tries to
+conveniently render the current state of XR controls. (The babylonjs API for this is horrific!)
+
+`xrControllerText(controllerMap)` renders the map output by the above in a compact form
+which is useful when debugging.
 */
 
 export interface XinButton {
@@ -60,4 +71,59 @@ export function gamepadText() {
           return `${id}\n${axesText}\n${buttonText}`
         })
         .join('\n')
+}
+
+export interface XinXRControllerComponentState {
+  pressed: boolean
+  axes?: number[]
+}
+
+export interface XinXRControllerState {
+  [key: string]: XinXRControllerComponentState
+}
+
+export interface XinXRControllerMap {
+  [key: string]: XinXRControllerState
+}
+
+export function xrControllers(xrHelper: any) {
+  const controllers = {} as { [key: string]: XinXRControllerState }
+  xrHelper.input.onControllerAddedObservable.add((controller: any) => {
+    controller.onMotionControllerInitObservable.add((mc: any) => {
+      const state = {} as XinXRControllerState
+      const componentIds = mc.getComponentIds() as string[]
+      componentIds.forEach((componentId) => {
+        const component = mc.getComponent(componentId)
+        state[componentId] = { pressed: component.pressed as boolean }
+        component.onButtonStateChangedObservable.add(() => {
+          state[componentId].pressed = component.pressed
+        })
+        // TODO does this work?! inquiring minds…
+        if (component.onAxisValueChangedObservable) {
+          state[componentId].axes = [] as number[]
+          component.onAxisValueChangedObservable.add((axes: number[]) => {
+            state[componentId].axes = axes
+          })
+        }
+      })
+      controllers[mc.handedness] = state
+    })
+  })
+  return controllers
+}
+
+export function xrControllersText(controllers?: XinXRControllerMap) {
+  if (controllers === undefined || Object.keys(controllers).length === 0) {
+    return 'no xr inputs'
+  }
+
+  return Object.keys(controllers)
+    .map((controllerId) => {
+      const state = controllers[controllerId] as XinXRControllerState
+      const buttonText = Object.keys(state)
+        .filter((componentId) => state[componentId].pressed)
+        .join(' ')
+      return `${controllerId}\n${buttonText}`
+    })
+    .join('\n')
 }
