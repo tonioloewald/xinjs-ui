@@ -14,7 +14,31 @@ export class AbTest extends Component {
 export const abTest: import("xinjs").ElementCreator<HTMLElement>;
 export function scriptTag(src: string, existingSymbolName?: string): Promise<any>;
 export function styleSheet(href: string): Promise<void>;
+type SVGIconMap = {
+    [key: string]: ElementCreator<SVGElement>;
+};
+type IconSpec = {
+    p: string[];
+    w: number;
+    h: number;
+};
+export const defineIcon: (name: string, icon: IconSpec | string) => void;
+export const svg2DataUrl: (svg: SVGElement, fill?: string, stroke?: string, strokeWidth?: number | string) => string;
+export const icons: SVGIconMap;
+export class SvgIcon extends Component {
+    icon: string;
+    color: string;
+    constructor();
+    render(): void;
+}
+export const svgIcon: ElementCreator<HTMLElement>;
 type B3dCallback = ((element: B3d, BABYLON: any) => void) | ((element: B3d, BABYLON: any) => Promise<void>);
+interface B3dUIOptions {
+    snippetId?: string;
+    jsonUrl?: string;
+    data?: any;
+    size?: number;
+}
 export class B3d extends Component {
     babylonReady: Promise<any>;
     BABYLON?: any;
@@ -26,8 +50,8 @@ export class B3d extends Component {
     sceneCreated: B3dCallback;
     update: B3dCallback;
     onResize(): void;
+    loadUI: (options: B3dUIOptions) => Promise<any>;
     connectedCallback(): void;
-    disconnectedCallback(): void;
 }
 export const b3d: ElementCreator<B3d>;
 export interface LottieConfig {
@@ -237,23 +261,60 @@ export class XinForm extends Component {
 }
 export const xinField: ElementCreator<XinField>;
 export const xinForm: ElementCreator<XinForm>;
-type SVGIconMap = {
-    [key: string]: ElementCreator<SVGElement>;
-};
-type IconSpec = {
-    p: string[];
-    w: number;
-    h: number;
-};
-export const defineIcon: (name: string, icon: IconSpec | string) => void;
-export const icons: SVGIconMap;
-export class SvgIcon extends Component {
-    icon: string;
-    color: string;
-    constructor();
-    render(): void;
+/*!
+# gamepads
+
+A couple of utility functions for dealing with gamepads and XRInputs.
+
+`gamepadState()` gives you a condensed version of active gamepad state
+
+`gamepadText()` provides the above in minimal text form for debugging
+
+## XRInput Devices
+
+> This is experimental, the API is changing and stuff doesn't work. Hopefully it
+> will become a lot more generally useful once Apple's VisionPro comes out.
+
+`xrControllers(babylonjsXRHelper)` returns an `XinXRControllerMap` structure that tries to
+conveniently render the current state of XR controls. (The babylonjs API for this is horrific!)
+
+`xrControllerText(controllerMap)` renders the map output by the above in a compact form
+which is useful when debugging.
+*/
+export interface XinButton {
+    index: number;
+    pressed: boolean;
+    value: number;
 }
-export const svgIcon: ElementCreator<HTMLElement>;
+export interface XinGamepad {
+    id: string;
+    axes: number[];
+    buttons: {
+        [key: number]: number;
+    };
+}
+export function gamepadState(): {
+    id: string;
+    axes: readonly number[];
+    buttons: {
+        [key: number]: number;
+    };
+}[];
+export function gamepadText(): string;
+export interface XinXRControllerComponentState {
+    pressed: boolean;
+    axes?: number[];
+}
+export interface XinXRControllerState {
+    [key: string]: XinXRControllerComponentState;
+}
+export interface XinXRControllerMap {
+    [key: string]: XinXRControllerState;
+}
+export function xrControllers(xrHelper: any): {
+    [key: string]: XinXRControllerState;
+};
+export function xrControllersText(controllers?: XinXRControllerMap): string;
 export class TabSelector extends Component {
     value: number;
     static makeTab(tabs: TabSelector, tabBody: HTMLElement, bodyId: string): HTMLElement;
