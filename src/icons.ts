@@ -6,7 +6,7 @@ A library that provides `ElementCreator` functions that produce SVG icons. It le
 
 ## icons
 
-`icons` is simply a proxy that generates an `ElementCreator` for a given icon on demand,
+`icons` is a proxy that generates an `ElementCreator` for a given icon on demand,
 e.g. `icons.chevronDown()` produces an `<svg>` element containing a downward-pointing chevron
 icon with the class `icon-chevron-down`.
 
@@ -91,9 +91,14 @@ xin-icon.demo-2 > svg {
 }
 ```
 
-## `svg2DataUrl(svg): string`
+## SVGs as data-urls
 
-A simple utility function for turning icons into dataUrls (e.g. for incorporation into CSS properties).
+`svg2DataUrl(svg: SVGElement, fill?: string, stroke?: string): string` is provided as a
+utility for converting SVG elements into data-urls (e.g. for incorporation into
+CSS properties. (It's used by the `<xin-3d>` component to render the XR widget.)
+
+If you're using `SVGElement`s created using the `icons` proxy, you'll want to provide `fill` and/or
+`stroke` values, because images loaded via css properties cannot be styled.
 
 ## Missing Icons
 
