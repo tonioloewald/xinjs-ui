@@ -326,15 +326,6 @@ xin-sidenav:not([compact]) .show-within-compact {
   --text-color: var(--brand-text-color);
 }
 
-xin-word [part='toolbar'] {
-  --text-color: var(--brand-color);
-}
-xin-word [part='doc'] {
-  padding: 20px;
-  box-shadow: none !important;
-  border-top: 0.25px solid var(--brand-color);
-}
-
 .current {
   color: var(--brand-color);
   background: var(--background);

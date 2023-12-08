@@ -9,6 +9,19 @@
 <p>And some <b>text</b></p>
 </xin-word>
 ```
+```css
+xin-word {
+  background: white;
+}
+
+xin-word [part="toolbar"] {
+  background: #f8f8f8;
+}
+
+xin-word [part="doc"] {
+  padding: 20px;
+}
+```
 
 By default, `<xin-word>` treats its initial contents as its document, but you can also set (and get)
 its `value`.
