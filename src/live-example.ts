@@ -68,12 +68,7 @@ function that will replace any sequence of
 elements with a `<xin-example>` instance.
 */
 
-import {
-  Component as WebComponent,
-  ElementCreator,
-  elements,
-  vars,
-} from 'xinjs'
+import { Component as WebComponent, ElementCreator, elements } from 'xinjs'
 import { codeEditor, CodeEditor } from './code-editor'
 import { tabSelector, TabSelector } from './tab-selector'
 import { icons } from './icons'
@@ -97,14 +92,12 @@ document.head.append(
 }
 
 xin-example {
-  --xin-example-preview-height: calc(var(--xin-example-height) * 0.5);
   --code-editors-bar-bg: #777;
   --code-editors-bar-color: #fff;
   --widget-bg: #fffc;
   --widget-color: #000;
   position: relative;
   display: flex;
-  flex-direction: column-reverse;
   height: var(--xin-example-height);
   background: var(--background);
   box-sizing: border-box;
@@ -130,8 +123,8 @@ xin-example:not(.-maximize) .show-if-maximized {
 }
 
 xin-example [part="example"] {
-  flex: 1 1 var(--xin-example-preview-height);
-  height: var(--xin-example-preview-height);
+  flex: 1 1 50%;
+  height: 100%;
   position: relative;
 }
 
@@ -150,7 +143,7 @@ xin-example [part="editors"] {
   position: relative;
 }
 
-xin-example .example-widgets {
+xin-example [part="exampleWidgets"] {
   position: absolute;
   right: 2px;
   top: 2px;
@@ -158,25 +151,23 @@ xin-example .example-widgets {
   border-radius: 5px;
 }
 
-xin-example.-maximize .example-widgets {
-  transform: none;
-}
-
-xin-example .example-widgets svg {
+xin-example [part="exampleWidgets"] svg {
   fill: var(--widget-color);
 }
 
 xin-example .code-editors {
   overflow: hidden;
   background: white;
-  position: fixed;
+  position: relative;
   top: 0;
-  left: 0;
-  width: 100vw !important;
-  height: 100vh !important;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.25);
+  right: 0;
+  flex: 1 1 50%;
+  height: 100%;
   flex-direction: column;
   z-index: 10;
+}
+
+@media (max-width: 1200px) {
 }
 
 xin-example .code-editors:not([hidden]) {
@@ -190,6 +181,13 @@ xin-example .code-editors > h4 {
   background: var(--code-editors-bar-bg);
   color: var(--code-editors-bar-color);
   cursor: move;
+}
+
+xin-example .close-button {
+  position: absolute;
+  top: 0;
+  right: 0;
+  --text-color: var(--code-editors-bar-color);
 }
 
 xin-example button.transparent,
@@ -341,7 +339,39 @@ export class LiveExample extends WebComponent {
   }
 
   content = () => [
-    div({ part: 'example' }, style({ part: 'style' })),
+    div(
+      { part: 'example' },
+      style({ part: 'style' }),
+      div(
+        { part: 'exampleWidgets' },
+        button(
+          {
+            title: 'view/edit code',
+            class: 'transparent',
+            onClick: this.showCode,
+          },
+          icons.edit()
+        ),
+        button(
+          {
+            title: 'view/edit code (in new window)',
+            class: 'transparent',
+            onClick: this.openEditorWindow,
+          },
+          icons.editDoc()
+        ),
+        button(
+          {
+            part: 'maximize',
+            title: 'maximize preview',
+            class: 'transparent',
+            onClick: this.toggleMaximize,
+          },
+          icons.minimize({ class: 'icon-minimize show-if-maximized' }),
+          icons.maximize({ class: 'icon-maximize hide-if-maximized' })
+        )
+      )
+    ),
     div(
       {
         class: 'code-editors',
@@ -352,21 +382,10 @@ export class LiveExample extends WebComponent {
       button(
         {
           title: 'close code',
-          class: 'transparent',
-          style: {
-            position: 'absolute',
-            top: 0,
-            right: 0,
-          },
-          onClick() {
-            window.close()
-          },
+          class: 'transparent close-button',
+          onClick: this.closeCode,
         },
-        icons.x({
-          style: {
-            fill: vars.codeEditorsBarColor,
-          },
-        })
+        icons.x()
       ),
       tabSelector(
         {
@@ -432,27 +451,6 @@ export class LiveExample extends WebComponent {
           icons.moreVertical()
         )
         */
-      )
-    ),
-    div(
-      { class: 'example-widgets' },
-      button(
-        {
-          title: 'view/edit code',
-          class: 'transparent',
-          onClick: this.openEditorWindow,
-        },
-        icons.code()
-      ),
-      button(
-        {
-          part: 'maximize',
-          title: 'maximize preview',
-          class: 'transparent',
-          onClick: this.toggleMaximize,
-        },
-        icons.minimize({ class: 'icon-minimize show-if-maximized' }),
-        icons.maximize({ class: 'icon-maximize hide-if-maximized' })
       )
     ),
     xinSlot({ part: 'sources', hidden: true }),
@@ -534,6 +532,18 @@ export class LiveExample extends WebComponent {
     this.refresh()
   }
 
+  showCode = () => {
+    this.parts.codeEditors.hidden = false
+  }
+
+  closeCode = () => {
+    if (this.remoteId !== '') {
+      window.close()
+    } else {
+      this.parts.codeEditors.hidden = true
+    }
+  }
+
   openEditorWindow = () => {
     const { storageKey, remoteKey, css, html, js, uuid, prefix } = this
     const href = location.href.split('?')[0] + `?${prefix}=${uuid}`
@@ -571,10 +581,11 @@ export class LiveExample extends WebComponent {
     const preview = div({ class: 'preview' })
     preview.innerHTML = this.html
     style.innerText = this.css
-    if (example.children.length > 1) {
-      example.children[1].replaceWith(preview)
+    const oldPreview = example.querySelector('.preview')
+    if (oldPreview) {
+      oldPreview.replaceWith(preview)
     } else {
-      example.append(preview)
+      example.insertBefore(preview, this.parts.exampleWidgets)
     }
 
     const context = { preview, ...this.context }
@@ -630,7 +641,9 @@ export class LiveExample extends WebComponent {
         this.css = css
         this.html = html
         this.js = js
+        this.parts.example.hidden = true
         this.parts.codeEditors.hidden = false
+        this.classList.add('-maximize')
         this.updateUndo()
       }
     } else {
