@@ -27,7 +27,7 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/tonioloewald/xinjs-polygons.git"
+    "url": "https://github.com/tonioloewald/xinjs-ui.git"
   },
   "devDependencies": {
     "@parcel/packager-ts": "^2.9.3",
@@ -63,9 +63,11 @@
     "dist": {
       "context": "browser",
       "isLibrary": true,
+      "source": "src/index.ts",
       "distDir": "dist",
       "includeNodeModules": false,
-      "outputFormat": "esmodule"
+      "outputFormat": "esmodule",
+      "optimize": true
     }
   }
 }
