@@ -1,14 +1,15 @@
 {
   "name": "xinjs-ui",
-  "version": "0.6.3",
+  "version": "0.6.4",
   "description": "simple robust web-components for use with xinjs or anything else",
   "main": "dist/index.js",
   "types": "dist/types.d.ts",
   "source": "src/index.ts",
   "scripts": {
-    "start": "bun pack && rm -rf www && bun parcel demo/index.html --https --dist-dir www -p 8787",
-    "pack": "bun prebuild && bun test && rm -rf docs && bun parcel build --public-url . && cp demo/CNAME docs && cp demo/robots.txt docs",
-    "prebuild": "bun docs.js && bun icons.js && bun format",
+    "start": "bun pack && bun parcel demo/index.html --https --dist-dir www -p 8787",
+    "pack": "bun prebuild && bun test && bun parcel build --public-url . && bun postbuild",
+    "prebuild": "rm -rf www && rm -rf docs && mkdir www docs && bun docs.js && bun icons.js && bun format",
+    "postbuild": "cp demo/static/* www && cp demo/static/* docs",
     "format": "bun eslint src demo --fix && bun prettier --write .",
     "test": "bun test",
     "latest": "rm -rf .parcel-cache && rm -rf node_modules && npm install && bun install"
@@ -27,7 +28,7 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/tonioloewald/xinjs-polygons.git"
+    "url": "https://github.com/tonioloewald/xinjs-ui.git"
   },
   "devDependencies": {
     "@parcel/packager-ts": "^2.9.3",

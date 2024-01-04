@@ -26,11 +26,13 @@ import docs from './docs.json'
 console.log(document.referrer)
 
 setTimeout(() => {
+  const brandColor = getComputedStyle(document.body).getPropertyValue(
+    '--brand-color'
+  )
+
   console.log(
     'welcome to %cui.xinjs.net',
-    `color: ${getComputedStyle(document.body).getPropertyValue(
-      '--brand-color'
-    )}; padding: 0 5px;`
+    `color: ${brandColor}; padding: 0 5px;`
   )
 }, 100)
 

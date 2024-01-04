@@ -39,6 +39,7 @@ interface B3dUIOptions {
     data?: any;
     size?: number;
 }
+type MeshProcessCallback = (meshes: any[]) => void;
 export class B3d extends Component {
     babylonReady: Promise<any>;
     BABYLON?: any;
@@ -50,6 +51,7 @@ export class B3d extends Component {
     sceneCreated: B3dCallback;
     update: B3dCallback;
     onResize(): void;
+    loadScene: (path: string, file: string, processCallback?: MeshProcessCallback) => Promise<void>;
     loadUI: (options: B3dUIOptions) => Promise<any>;
     connectedCallback(): void;
 }
@@ -362,6 +364,8 @@ export class LiveExample extends Component {
     toggleMaximize: () => void;
     get remoteKey(): string;
     remoteChange: (event?: StorageEvent) => void;
+    showCode: () => void;
+    closeCode: () => void;
     openEditorWindow: () => void;
     refreshRemote: () => void;
     refresh: () => void;
