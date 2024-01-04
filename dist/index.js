@@ -117,15 +117,14 @@ preview.append(b3d({
   async sceneCreated(element, BABYLON) {
     const camera = new BABYLON.FreeCamera(
       'camera',
-      new BABYLON.Vector3(0, 2, -2),
+      new BABYLON.Vector3(0, 1, -4),
       element.scene
     )
     camera.attachControl(element.parts.canvas, true)
 
     new BABYLON.HemisphericLight('light', new BABYLON.Vector3(0.25, 1, -0.5))
-    const box = BABYLON.MeshBuilder.CreateBox('box', {})
-    box.position.x = 0
-    box.position.y = 1.25
+
+    this.loadScene('/', 'xin3d.glb')
 
     const size = 1024
     const textTexture = new BABYLON.DynamicTexture('Text', size, element.scene)
@@ -139,7 +138,7 @@ preview.append(b3d({
 
     const plaque = BABYLON.MeshBuilder.CreatePlane('Plaque', {size: 1}, element.scene)
     plaque.position.x = 0
-    plaque.position.y = 3
+    plaque.position.y = 2
     plaque.billboardMode = BABYLON.Mesh.BILLBOARDMODE_ALL
     plaque.material = textMaterial
 
@@ -173,9 +172,6 @@ preview.append(b3d({
       }
     }, 100)
   },
-  update(element) {
-    element.scene.getMeshByName('box').rotation.y += 0.005
-  }
 }))
 ```
 ```css
@@ -195,8 +191,64 @@ before starting the renderLoop, but `update` is simply passed to babylon, so be 
 By default, this component loads `babylon.js` from the [babylonjs CDN](https://doc.babylonjs.com/setup/frameworkPackages/CDN),
 but if `BABYLON` is already defined (e.g. if you've bundled it) then it will use that instead.
 
-If you need additional libraries, e.g. `https://cdn.babylonjs.com/loaders/babylonjs.loaders.min.js` for loading models
-such as `gltf` and `glb` files, you should load those in `sceneCreated`.
+If you need additional libraries, e.g. `https://cdn.babylonjs.com/loaders/babylonjs.loaders.min.js` for loading models such as `gltf` and `glb` files, you should load those in `sceneCreated`.
+
+Here's a simple example of a terrain mesh comprising 125k triangles.
+
+```js
+const { b3d } = xinjsui
+
+preview.append(b3d({
+  async sceneCreated(element, BABYLON) {
+    const { scene } = element
+    const { createNoise2D } = await import('https://cdn.jsdelivr.net/npm/simplex-noise@4.0.1/+esm')
+
+    new BABYLON.HemisphericLight('light', new BABYLON.Vector3(0.25, 1, 2))
+
+    const terrain = new BABYLON.Mesh('terrain', scene)
+    const vertexData = new BABYLON.VertexData()
+
+    const noise2D = createNoise2D()
+    const positions = []
+    const indices = []
+    const gridSize = 100
+    const gridResolution = 250
+    const gridPoints = gridResolution + 1
+    const noiseScale = 0.03
+    const heightScale = 4.5
+    terrain.position.y = -5
+    const scale = t => t * gridSize / gridResolution - gridSize * 0.5
+    for(let x = 0; x <= gridResolution; x++) {
+      for(let z = 0; z <= gridResolution; z++) {
+        positions.push(scale(x), noise2D(scale(x) * noiseScale, scale(z) * noiseScale) * heightScale, scale(z))
+        if (x > 0 && z > 0) {
+          const i = x * gridPoints + z
+          indices.push(
+            i, i - gridPoints - 1, i - 1,
+            i, i - gridPoints, i - gridPoints - 1,
+          )
+        }
+      }
+    }
+    const normals = []
+    BABYLON.VertexData.ComputeNormals(positions, indices, normals);
+
+    vertexData.positions = positions
+    vertexData.indices = indices
+    vertexData.normals = normals
+    vertexData.applyToMesh(terrain)
+  },
+}))
+```
+
+## loadScene
+
+`<xin-3d>.loadScene(path: string, file: string, callBack(meshes: any[]): void)` can
+be used to load `.glb` files.
+
+## loadUI
+
+`<xin-3d>.loadUI(options: B3dUIOptions)` loads babylonjs guis, which you can create programmatically or using the [babylonjs gui tool](https://gui.babylonjs.com/).
 */ 
 /*!
 # scriptTag & styleSheet
@@ -327,7 +379,7 @@ A library that provides `ElementCreator` functions that produce SVG icons. It le
 
 ## icons
 
-`icons` is simply a proxy that generates an `ElementCreator` for a given icon on demand,
+`icons` is a proxy that generates an `ElementCreator` for a given icon on demand,
 e.g. `icons.chevronDown()` produces an `<svg>` element containing a downward-pointing chevron
 icon with the class `icon-chevron-down`.
 
@@ -412,9 +464,14 @@ xin-icon.demo-2 > svg {
 }
 ```
 
-## `svg2DataUrl(svg): string`
+## SVGs as data-urls
 
-A simple utility function for turning icons into dataUrls (e.g. for incorporation into CSS properties).
+`svg2DataUrl(svg: SVGElement, fill?: string, stroke?: string): string` is provided as a
+utility for converting SVG elements into data-urls (e.g. for incorporation into
+CSS properties. (It's used by the `<xin-3d>` component to render the XR widget.)
+
+If you're using `SVGElement`s created using the `icons` proxy, you'll want to provide `fill` and/or
+`stroke` values, because images loaded via css properties cannot be styled.
 
 ## Missing Icons
 
@@ -691,8 +748,12 @@ class $ef1971ff775ba547$export$1bc633d0db17d4e1 extends (0, $hgUW1$Component) {
     onResize() {
         if (this.engine) this.engine.resize();
     }
+    loadScene = async (path, file, processCallback)=>{
+        const { BABYLON: BABYLON } = await (0, $5c31145f3e970423$export$c6e082819e9a0330)("https://cdn.babylonjs.com/loaders/babylonjs.loaders.min.js", "BABYLON");
+        BABYLON.SceneLoader.Append(path, file, this.scene, processCallback);
+    };
     loadUI = async (options)=>{
-        const { BABYLON: BABYLON } = await (0, $5c31145f3e970423$export$c6e082819e9a0330)("https://cdn.babylonjs.com/gui/babylon.gui.js", "BABYLON");
+        const { BABYLON: BABYLON } = await (0, $5c31145f3e970423$export$c6e082819e9a0330)("https://cdn.babylonjs.com/gui/babylon.gui.min.js", "BABYLON");
         const advancedTexture = BABYLON.GUI.AdvancedDynamicTexture.CreateFullscreenUI("GUI", true, this.scene);
         const { snippetId: snippetId, jsonUrl: jsonUrl, data: data, size: size } = options;
         if (size) {
@@ -726,18 +787,11 @@ class $ef1971ff775ba547$export$1bc633d0db17d4e1 extends (0, $hgUW1$Component) {
             this.engine = new BABYLON.Engine(canvas, true);
             this.scene = new BABYLON.Scene(this.engine);
             if (this.sceneCreated) await this.sceneCreated(this, BABYLON);
-            /*
-      if (this.scene.activeCamera === undefined) {
-        const camera = new BABYLON.ArcRotateCamera(
-          'default-camera',
-          -Math.PI / 2,
-          Math.PI / 2.5,
-          3,
-          new BABYLON.Vector3(0, 0, 0)
-        )
-        camera.attachControl(this.parts.canvas, true)
-      }
-      */ this.engine.runRenderLoop(this._update);
+            if (this.scene.activeCamera === undefined) {
+                const camera = new BABYLON.ArcRotateCamera("default-camera", -Math.PI / 2, Math.PI / 2.5, 3, new BABYLON.Vector3(0, 0, 0));
+                camera.attachControl(this.parts.canvas, true);
+            }
+            this.engine.runRenderLoop(this._update);
         });
     }
 }
@@ -2846,14 +2900,12 @@ document.head.append($ada9b1474dc4b958$var$style({
 }
 
 xin-example {
-  --xin-example-preview-height: calc(var(--xin-example-height) * 0.5);
   --code-editors-bar-bg: #777;
   --code-editors-bar-color: #fff;
   --widget-bg: #fffc;
   --widget-color: #000;
   position: relative;
   display: flex;
-  flex-direction: column-reverse;
   height: var(--xin-example-height);
   background: var(--background);
   box-sizing: border-box;
@@ -2879,8 +2931,8 @@ xin-example:not(.-maximize) .show-if-maximized {
 }
 
 xin-example [part="example"] {
-  flex: 1 1 var(--xin-example-preview-height);
-  height: var(--xin-example-preview-height);
+  flex: 1 1 50%;
+  height: 100%;
   position: relative;
 }
 
@@ -2899,7 +2951,7 @@ xin-example [part="editors"] {
   position: relative;
 }
 
-xin-example .example-widgets {
+xin-example [part="exampleWidgets"] {
   position: absolute;
   right: 2px;
   top: 2px;
@@ -2907,25 +2959,23 @@ xin-example .example-widgets {
   border-radius: 5px;
 }
 
-xin-example.-maximize .example-widgets {
-  transform: none;
-}
-
-xin-example .example-widgets svg {
+xin-example [part="exampleWidgets"] svg {
   fill: var(--widget-color);
 }
 
 xin-example .code-editors {
   overflow: hidden;
   background: white;
-  position: fixed;
+  position: relative;
   top: 0;
-  left: 0;
-  width: 100vw !important;
-  height: 100vh !important;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.25);
+  right: 0;
+  flex: 1 1 50%;
+  height: 100%;
   flex-direction: column;
   z-index: 10;
+}
+
+@media (max-width: 1200px) {
 }
 
 xin-example .code-editors:not([hidden]) {
@@ -2939,6 +2989,13 @@ xin-example .code-editors > h4 {
   background: var(--code-editors-bar-bg);
   color: var(--code-editors-bar-color);
   cursor: move;
+}
+
+xin-example .close-button {
+  position: absolute;
+  top: 0;
+  right: 0;
+  --text-color: var(--code-editors-bar-color);
 }
 
 xin-example button.transparent,
@@ -3061,27 +3118,35 @@ class $ada9b1474dc4b958$export$41199f9ac14d8c08 extends (0, $hgUW1$Component) {
                 part: "example"
             }, $ada9b1474dc4b958$var$style({
                 part: "style"
-            })),
+            }), $ada9b1474dc4b958$var$div({
+                part: "exampleWidgets"
+            }, $ada9b1474dc4b958$var$button({
+                title: "view/edit code",
+                class: "transparent",
+                onClick: this.showCode
+            }, (0, $fef058b85aa29b7a$export$df03f54e09e486fa).edit()), $ada9b1474dc4b958$var$button({
+                title: "view/edit code (in new window)",
+                class: "transparent",
+                onClick: this.openEditorWindow
+            }, (0, $fef058b85aa29b7a$export$df03f54e09e486fa).editDoc()), $ada9b1474dc4b958$var$button({
+                part: "maximize",
+                title: "maximize preview",
+                class: "transparent",
+                onClick: this.toggleMaximize
+            }, (0, $fef058b85aa29b7a$export$df03f54e09e486fa).minimize({
+                class: "icon-minimize show-if-maximized"
+            }), (0, $fef058b85aa29b7a$export$df03f54e09e486fa).maximize({
+                class: "icon-maximize hide-if-maximized"
+            })))),
             $ada9b1474dc4b958$var$div({
                 class: "code-editors",
                 part: "codeEditors",
                 hidden: true
             }, $ada9b1474dc4b958$var$h4("Code"), $ada9b1474dc4b958$var$button({
                 title: "close code",
-                class: "transparent",
-                style: {
-                    position: "absolute",
-                    top: 0,
-                    right: 0
-                },
-                onClick () {
-                    window.close();
-                }
-            }, (0, $fef058b85aa29b7a$export$df03f54e09e486fa).x({
-                style: {
-                    fill: (0, $hgUW1$vars).codeEditorsBarColor
-                }
-            })), (0, $6bbe441346901d5a$export$a932f737dcd864a2)({
+                class: "transparent close-button",
+                onClick: this.closeCode
+            }, (0, $fef058b85aa29b7a$export$df03f54e09e486fa).x()), (0, $6bbe441346901d5a$export$a932f737dcd864a2)({
                 part: "editors",
                 onChange: this.updateUndo
             }, (0, $8a70bd76f9b7e656$export$d89b6f4d34274146)({
@@ -3121,22 +3186,6 @@ class $ada9b1474dc4b958$export$41199f9ac14d8c08 extends (0, $hgUW1$Component) {
                 class: "transparent",
                 onClick: this.refreshRemote
             }, (0, $fef058b85aa29b7a$export$df03f54e09e486fa).refresh())))),
-            $ada9b1474dc4b958$var$div({
-                class: "example-widgets"
-            }, $ada9b1474dc4b958$var$button({
-                title: "view/edit code",
-                class: "transparent",
-                onClick: this.openEditorWindow
-            }, (0, $fef058b85aa29b7a$export$df03f54e09e486fa).code()), $ada9b1474dc4b958$var$button({
-                part: "maximize",
-                title: "maximize preview",
-                class: "transparent",
-                onClick: this.toggleMaximize
-            }, (0, $fef058b85aa29b7a$export$df03f54e09e486fa).minimize({
-                class: "icon-minimize show-if-maximized"
-            }), (0, $fef058b85aa29b7a$export$df03f54e09e486fa).maximize({
-                class: "icon-maximize hide-if-maximized"
-            }))),
             $ada9b1474dc4b958$var$xinSlot({
                 part: "sources",
                 hidden: true
@@ -3193,6 +3242,13 @@ class $ada9b1474dc4b958$export$41199f9ac14d8c08 extends (0, $hgUW1$Component) {
         this.js = js;
         this.refresh();
     };
+    showCode = ()=>{
+        this.parts.codeEditors.hidden = false;
+    };
+    closeCode = ()=>{
+        if (this.remoteId !== "") window.close();
+        else this.parts.codeEditors.hidden = true;
+    };
     openEditorWindow = ()=>{
         const { storageKey: storageKey, remoteKey: remoteKey, css: css, html: html, js: js, uuid: uuid, prefix: prefix } = this;
         const href = location.href.split("?")[0] + `?${prefix}=${uuid}`;
@@ -3223,8 +3279,9 @@ class $ada9b1474dc4b958$export$41199f9ac14d8c08 extends (0, $hgUW1$Component) {
         });
         preview.innerHTML = this.html;
         style.innerText = this.css;
-        if (example.children.length > 1) example.children[1].replaceWith(preview);
-        else example.append(preview);
+        const oldPreview = example.querySelector(".preview");
+        if (oldPreview) oldPreview.replaceWith(preview);
+        else example.insertBefore(preview, this.parts.exampleWidgets);
         const context = {
             preview: preview,
             ...this.context
@@ -3270,7 +3327,9 @@ class $ada9b1474dc4b958$export$41199f9ac14d8c08 extends (0, $hgUW1$Component) {
                 this.css = css;
                 this.html = html;
                 this.js = js;
+                this.parts.example.hidden = true;
                 this.parts.codeEditors.hidden = false;
+                this.classList.add("-maximize");
                 this.updateUndo();
             }
         } else this.refresh();
@@ -3785,6 +3844,19 @@ $parcel$export($815deb6062b0b31b$exports, "richText", () => $815deb6062b0b31b$ex
 <h3>Heading</h3>
 <p>And some <b>text</b></p>
 </xin-word>
+```
+```css
+xin-word {
+  background: white;
+}
+
+xin-word [part="toolbar"] {
+  background: #f8f8f8;
+}
+
+xin-word [part="doc"] {
+  padding: 20px;
+}
 ```
 
 By default, `<xin-word>` treats its initial contents as its document, but you can also set (and get)
@@ -4306,5 +4378,5 @@ function $5a28660a6cbe2731$export$b37fb374f2e92eb6(sortValuator, ascending = tru
 
 
 
-export {$5265d118b5240170$export$c947e3cd16175f27 as trackDrag, $5265d118b5240170$export$1937b0002823d405 as bringToFront, $5265d118b5240170$export$f3caf27c1d0ebf0c as findHighestZ, $5c31145f3e970423$export$c6e082819e9a0330 as scriptTag, $5c31145f3e970423$export$63257fda812a683f as styleSheet, $5a28660a6cbe2731$export$b37fb374f2e92eb6 as makeSorter, $86ec44903a84f851$export$6aacb15d82c1f62a as AbTest, $86ec44903a84f851$export$f3d50d6cab4ec980 as abTest, $ef1971ff775ba547$export$1bc633d0db17d4e1 as B3d, $ef1971ff775ba547$export$d0bb57305ce055c9 as b3d, $59f50bee37676c09$export$c74d6d817c60b9e6 as BodymovinPlayer, $59f50bee37676c09$export$d75ad8f79fe096cb as bodymovinPlayer, $8a70bd76f9b7e656$export$b7127187684f7150 as CodeEditor, $8a70bd76f9b7e656$export$d89b6f4d34274146 as codeEditor, $e6e19030d0c18d6f$export$df30df7ec97b32b5 as DataTable, $e6e19030d0c18d6f$export$f71ce0a5ddbe8fa0 as dataTable, $46dc716dd2cf5925$export$16a138bde9d9de87 as availableFilters, $46dc716dd2cf5925$export$b7838412d9f17b13 as FilterPart, $46dc716dd2cf5925$export$2237595b531763d7 as filterPart, $46dc716dd2cf5925$export$afb49bb3b076029e as FilterBuilder, $46dc716dd2cf5925$export$8ca73b4108207c1f as filterBuilder, $ddbe66d066773fc1$export$dfef4eaf9958ab9d as XinFloat, $ddbe66d066773fc1$export$aeb0f03cef938121 as xinFloat, $f78058ae816e78a2$export$f0aa272ac8112266 as XinField, $f78058ae816e78a2$export$470ae7cc5ec6d2a as XinForm, $f78058ae816e78a2$export$1e17fa265ee93a1d as xinField, $f78058ae816e78a2$export$ab08039c332a0d0e as xinForm, $fef058b85aa29b7a$export$c07bb2d77ca8d15 as defineIcon, $fef058b85aa29b7a$export$c12d014da9da5ff8 as svg2DataUrl, $fef058b85aa29b7a$export$df03f54e09e486fa as icons, $fef058b85aa29b7a$export$dbcb8210e8a983ed as SvgIcon, $fef058b85aa29b7a$export$8c90725d55a8eef as svgIcon, $ada9b1474dc4b958$export$41199f9ac14d8c08 as LiveExample, $ada9b1474dc4b958$export$dafbe0fa988b899b as liveExample, $ada9b1474dc4b958$export$afa6494eb589c19e as makeExamplesLive, $6246d5006b5a56c3$export$7d6f3ccbb0a81c30 as MAPSTYLES, $6246d5006b5a56c3$export$f2ffec4d96a433ed as MapBox, $6246d5006b5a56c3$export$ca243e53be209efb as mapBox, $1b88c9cb596c3426$export$575eb698d362902 as MarkdownViewer, $1b88c9cb596c3426$export$305b975a891d0dfa as markdownViewer, $52362c0fb5690a1b$export$81725bf7d66575d3 as popFloat, $52362c0fb5690a1b$export$90a23b8db6abf910 as positionFloat, $815deb6062b0b31b$export$94309935dd6eab19 as blockStyle, $815deb6062b0b31b$export$8cc075c801fd6817 as spacer, $815deb6062b0b31b$export$e3f8198a677f57c2 as elastic, $815deb6062b0b31b$export$74540e56d8cdd242 as commandButton, $815deb6062b0b31b$export$8ed2ffe5d58aaa75 as richTextWidgets, $815deb6062b0b31b$export$f284d8638abd8920 as RichText, $815deb6062b0b31b$export$7bcc4193ad80bf91 as richText, $b9e5aa5581e8f051$export$1a35787d6353cf6a as SideNav, $b9e5aa5581e8f051$export$938418df2b06cb50 as sideNav, $0f2017ffca44b547$export$7140c0f3c1b65d3f as SizeBreak, $0f2017ffca44b547$export$96370210d2ca0fff as sizeBreak, $862666af3c1254c2$export$5b41f1c4a4393ecb as XinSizer, $862666af3c1254c2$export$2404b448600702b8 as xinSizer, $6bbe441346901d5a$export$a3a7254f7f149b03 as TabSelector, $6bbe441346901d5a$export$a932f737dcd864a2 as tabSelector, $534e33669d896770$export$3ba85dfa569d0a2 as gamepadState, $534e33669d896770$export$12a9b81fff6446ce as gamepadText, $534e33669d896770$export$26767cb0bb5a32c4 as xrControllers, $534e33669d896770$export$eecbd93f0e9594d8 as xrControllersText};
+export {$5265d118b5240170$export$c947e3cd16175f27 as trackDrag, $5265d118b5240170$export$1937b0002823d405 as bringToFront, $5265d118b5240170$export$f3caf27c1d0ebf0c as findHighestZ, $5c31145f3e970423$export$c6e082819e9a0330 as scriptTag, $5c31145f3e970423$export$63257fda812a683f as styleSheet, $5a28660a6cbe2731$export$b37fb374f2e92eb6 as makeSorter, $86ec44903a84f851$export$6aacb15d82c1f62a as AbTest, $86ec44903a84f851$export$f3d50d6cab4ec980 as abTest, $ef1971ff775ba547$export$1bc633d0db17d4e1 as B3d, $ef1971ff775ba547$export$d0bb57305ce055c9 as b3d, $59f50bee37676c09$export$c74d6d817c60b9e6 as BodymovinPlayer, $59f50bee37676c09$export$d75ad8f79fe096cb as bodymovinPlayer, $8a70bd76f9b7e656$export$b7127187684f7150 as CodeEditor, $8a70bd76f9b7e656$export$d89b6f4d34274146 as codeEditor, $e6e19030d0c18d6f$export$df30df7ec97b32b5 as DataTable, $e6e19030d0c18d6f$export$f71ce0a5ddbe8fa0 as dataTable, $46dc716dd2cf5925$export$16a138bde9d9de87 as availableFilters, $46dc716dd2cf5925$export$b7838412d9f17b13 as FilterPart, $46dc716dd2cf5925$export$2237595b531763d7 as filterPart, $46dc716dd2cf5925$export$afb49bb3b076029e as FilterBuilder, $46dc716dd2cf5925$export$8ca73b4108207c1f as filterBuilder, $ddbe66d066773fc1$export$dfef4eaf9958ab9d as XinFloat, $ddbe66d066773fc1$export$aeb0f03cef938121 as xinFloat, $f78058ae816e78a2$export$f0aa272ac8112266 as XinField, $f78058ae816e78a2$export$470ae7cc5ec6d2a as XinForm, $f78058ae816e78a2$export$1e17fa265ee93a1d as xinField, $f78058ae816e78a2$export$ab08039c332a0d0e as xinForm, $534e33669d896770$export$3ba85dfa569d0a2 as gamepadState, $534e33669d896770$export$12a9b81fff6446ce as gamepadText, $534e33669d896770$export$26767cb0bb5a32c4 as xrControllers, $534e33669d896770$export$eecbd93f0e9594d8 as xrControllersText, $fef058b85aa29b7a$export$c07bb2d77ca8d15 as defineIcon, $fef058b85aa29b7a$export$c12d014da9da5ff8 as svg2DataUrl, $fef058b85aa29b7a$export$df03f54e09e486fa as icons, $fef058b85aa29b7a$export$dbcb8210e8a983ed as SvgIcon, $fef058b85aa29b7a$export$8c90725d55a8eef as svgIcon, $ada9b1474dc4b958$export$41199f9ac14d8c08 as LiveExample, $ada9b1474dc4b958$export$dafbe0fa988b899b as liveExample, $ada9b1474dc4b958$export$afa6494eb589c19e as makeExamplesLive, $6246d5006b5a56c3$export$7d6f3ccbb0a81c30 as MAPSTYLES, $6246d5006b5a56c3$export$f2ffec4d96a433ed as MapBox, $6246d5006b5a56c3$export$ca243e53be209efb as mapBox, $1b88c9cb596c3426$export$575eb698d362902 as MarkdownViewer, $1b88c9cb596c3426$export$305b975a891d0dfa as markdownViewer, $52362c0fb5690a1b$export$81725bf7d66575d3 as popFloat, $52362c0fb5690a1b$export$90a23b8db6abf910 as positionFloat, $815deb6062b0b31b$export$94309935dd6eab19 as blockStyle, $815deb6062b0b31b$export$8cc075c801fd6817 as spacer, $815deb6062b0b31b$export$e3f8198a677f57c2 as elastic, $815deb6062b0b31b$export$74540e56d8cdd242 as commandButton, $815deb6062b0b31b$export$8ed2ffe5d58aaa75 as richTextWidgets, $815deb6062b0b31b$export$f284d8638abd8920 as RichText, $815deb6062b0b31b$export$7bcc4193ad80bf91 as richText, $b9e5aa5581e8f051$export$1a35787d6353cf6a as SideNav, $b9e5aa5581e8f051$export$938418df2b06cb50 as sideNav, $0f2017ffca44b547$export$7140c0f3c1b65d3f as SizeBreak, $0f2017ffca44b547$export$96370210d2ca0fff as sizeBreak, $862666af3c1254c2$export$5b41f1c4a4393ecb as XinSizer, $862666af3c1254c2$export$2404b448600702b8 as xinSizer, $6bbe441346901d5a$export$a3a7254f7f149b03 as TabSelector, $6bbe441346901d5a$export$a932f737dcd864a2 as tabSelector};
 //# sourceMappingURL=index.js.map
