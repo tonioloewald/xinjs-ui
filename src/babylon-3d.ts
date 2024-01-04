@@ -16,15 +16,14 @@ preview.append(b3d({
   async sceneCreated(element, BABYLON) {
     const camera = new BABYLON.FreeCamera(
       'camera',
-      new BABYLON.Vector3(0, 2, -2),
+      new BABYLON.Vector3(0, 1, -4),
       element.scene
     )
     camera.attachControl(element.parts.canvas, true)
 
     new BABYLON.HemisphericLight('light', new BABYLON.Vector3(0.25, 1, -0.5))
-    const box = BABYLON.MeshBuilder.CreateBox('box', {})
-    box.position.x = 0
-    box.position.y = 1.25
+
+    this.loadScene('/', 'xin3d.glb')
 
     const size = 1024
     const textTexture = new BABYLON.DynamicTexture('Text', size, element.scene)
@@ -38,7 +37,7 @@ preview.append(b3d({
 
     const plaque = BABYLON.MeshBuilder.CreatePlane('Plaque', {size: 1}, element.scene)
     plaque.position.x = 0
-    plaque.position.y = 3
+    plaque.position.y = 2
     plaque.billboardMode = BABYLON.Mesh.BILLBOARDMODE_ALL
     plaque.material = textMaterial
 
@@ -72,9 +71,6 @@ preview.append(b3d({
       }
     }, 100)
   },
-  update(element) {
-    element.scene.getMeshByName('box').rotation.y += 0.005
-  }
 }))
 ```
 ```css
@@ -94,8 +90,50 @@ before starting the renderLoop, but `update` is simply passed to babylon, so be 
 By default, this component loads `babylon.js` from the [babylonjs CDN](https://doc.babylonjs.com/setup/frameworkPackages/CDN),
 but if `BABYLON` is already defined (e.g. if you've bundled it) then it will use that instead.
 
-If you need additional libraries, e.g. `https://cdn.babylonjs.com/loaders/babylonjs.loaders.min.js` for loading models
-such as `gltf` and `glb` files, you should load those in `sceneCreated`.
+If you need additional libraries, e.g. `https://cdn.babylonjs.com/loaders/babylonjs.loaders.min.js` for loading models such as `gltf` and `glb` files, you should load those in `sceneCreated`.
+
+```js
+const { b3d } = xinjsui
+
+preview.append(b3d({
+  async sceneCreated(element, BABYLON) {
+    const { scene } = element
+    const { createNoise2D } = await import('https://cdn.jsdelivr.net/npm/simplex-noise@4.0.1/+esm')
+    const camera = new BABYLON.FreeCamera(
+      'camera',
+      new BABYLON.Vector3(0, 1, -4),
+      element.scene
+    )
+    camera.attachControl(element.parts.canvas, true)
+    new BABYLON.HemisphericLight('light', new BABYLON.Vector3(0.25, 1, -0.5))
+
+    const terrain = new BABYLON.Mesh('terrain', scene)
+    const vertexData = new BABYLON.VertexData()
+
+    const positions = [
+      -1, -1, 0,
+      1, -1, 0,
+      1, 1, 0,
+      -1, 1, 0
+    ]
+
+    const indices = [
+      0, 1, 2,
+      0, 2, 3
+    ]
+
+    console.log(positions, indices)
+
+    vertexData.positions = positions
+    vertexData.indices = indices
+    vertexData.applyToMesh(terrain)
+  },
+
+  update() {
+
+  }
+}))
+```
 */
 import { Component as WebComponent, ElementCreator, elements } from 'xinjs'
 import { scriptTag } from './via-tag'
@@ -111,6 +149,8 @@ interface B3dUIOptions {
   data?: any
   size?: number
 }
+
+type MeshProcessCallback = (meshes: any[]) => void
 
 export class B3d extends WebComponent {
   babylonReady: Promise<any>
@@ -181,9 +221,22 @@ export class B3d extends WebComponent {
     }
   }
 
+  loadScene = async (
+    path: string,
+    file: string,
+    processCallback?: MeshProcessCallback
+  ): Promise<void> => {
+    const { BABYLON } = await scriptTag(
+      'https://cdn.babylonjs.com/loaders/babylonjs.loaders.min.js',
+      'BABYLON'
+    )
+
+    BABYLON.SceneLoader.Append(path, file, this.scene, processCallback)
+  }
+
   loadUI = async (options: B3dUIOptions): Promise<any> => {
     const { BABYLON } = await scriptTag(
-      'https://cdn.babylonjs.com/gui/babylon.gui.js',
+      'https://cdn.babylonjs.com/gui/babylon.gui.min.js',
       'BABYLON'
     )
     const advancedTexture =
