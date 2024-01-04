@@ -92,6 +92,8 @@ but if `BABYLON` is already defined (e.g. if you've bundled it) then it will use
 
 If you need additional libraries, e.g. `https://cdn.babylonjs.com/loaders/babylonjs.loaders.min.js` for loading models such as `gltf` and `glb` files, you should load those in `sceneCreated`.
 
+Here's a simple example of a terrain mesh comprising 125k triangles.
+
 ```js
 const { b3d } = xinjsui
 
@@ -99,41 +101,53 @@ preview.append(b3d({
   async sceneCreated(element, BABYLON) {
     const { scene } = element
     const { createNoise2D } = await import('https://cdn.jsdelivr.net/npm/simplex-noise@4.0.1/+esm')
-    const camera = new BABYLON.FreeCamera(
-      'camera',
-      new BABYLON.Vector3(0, 1, -4),
-      element.scene
-    )
-    camera.attachControl(element.parts.canvas, true)
-    new BABYLON.HemisphericLight('light', new BABYLON.Vector3(0.25, 1, -0.5))
+
+    new BABYLON.HemisphericLight('light', new BABYLON.Vector3(0.25, 1, 2))
 
     const terrain = new BABYLON.Mesh('terrain', scene)
     const vertexData = new BABYLON.VertexData()
 
-    const positions = [
-      -1, -1, 0,
-      1, -1, 0,
-      1, 1, 0,
-      -1, 1, 0
-    ]
-
-    const indices = [
-      0, 1, 2,
-      0, 2, 3
-    ]
-
-    console.log(positions, indices)
+    const noise2D = createNoise2D()
+    const positions = []
+    const indices = []
+    const gridSize = 100
+    const gridResolution = 250
+    const gridPoints = gridResolution + 1
+    const noiseScale = 0.03
+    const heightScale = 4.5
+    terrain.position.y = -5
+    const scale = t => t * gridSize / gridResolution - gridSize * 0.5
+    for(let x = 0; x <= gridResolution; x++) {
+      for(let z = 0; z <= gridResolution; z++) {
+        positions.push(scale(x), noise2D(scale(x) * noiseScale, scale(z) * noiseScale) * heightScale, scale(z))
+        if (x > 0 && z > 0) {
+          const i = x * gridPoints + z
+          indices.push(
+            i, i - gridPoints - 1, i - 1,
+            i, i - gridPoints, i - gridPoints - 1,
+          )
+        }
+      }
+    }
+    const normals = []
+    BABYLON.VertexData.ComputeNormals(positions, indices, normals);
 
     vertexData.positions = positions
     vertexData.indices = indices
+    vertexData.normals = normals
     vertexData.applyToMesh(terrain)
   },
-
-  update() {
-
-  }
 }))
 ```
+
+## loadScene
+
+`<xin-3d>.loadScene(path: string, file: string, callBack(meshes: any[]): void)` can
+be used to load `.glb` files.
+
+## loadUI
+
+`<xin-3d>.loadUI(options: B3dUIOptions)` loads babylonjs guis, which you can create programmatically or using the [babylonjs gui tool](https://gui.babylonjs.com/).
 */
 import { Component as WebComponent, ElementCreator, elements } from 'xinjs'
 import { scriptTag } from './via-tag'
@@ -287,7 +301,6 @@ export class B3d extends WebComponent {
       if (this.sceneCreated) {
         await this.sceneCreated(this, BABYLON)
       }
-      /*
       if (this.scene.activeCamera === undefined) {
         const camera = new BABYLON.ArcRotateCamera(
           'default-camera',
@@ -298,7 +311,6 @@ export class B3d extends WebComponent {
         )
         camera.attachControl(this.parts.canvas, true)
       }
-      */
       this.engine.runRenderLoop(this._update)
     })
   }
