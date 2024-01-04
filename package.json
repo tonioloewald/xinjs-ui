@@ -64,9 +64,11 @@
     "dist": {
       "context": "browser",
       "isLibrary": true,
+      "source": "src/index.ts",
       "distDir": "dist",
       "includeNodeModules": false,
-      "outputFormat": "esmodule"
+      "outputFormat": "esmodule",
+      "optimize": true
     }
   }
 }
