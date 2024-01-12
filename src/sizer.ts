@@ -53,7 +53,6 @@ export class XinSizer extends XinComponent {
 
   resizeParent = (event: Event): void => {
     const parent = this.parentElement as HTMLElement
-    console.log(parent)
     const w = parent.offsetWidth
     const h = parent.offsetHeight
     parent.style.left = parent.offsetLeft + 'px'
