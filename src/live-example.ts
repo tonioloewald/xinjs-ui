@@ -77,13 +77,6 @@ const { div, xinSlot, style, button, h4 } = elements
 
 const AsyncFunction = (async () => {}).constructor
 
-const codeStyle = {
-  style: {
-    width: '100%',
-    height: '100%',
-  },
-}
-
 document.head.append(
   style(
     { id: 'xin-example' },
@@ -126,6 +119,7 @@ xin-example [part="example"] {
   flex: 1 1 50%;
   height: 100%;
   position: relative;
+  overflow-x: auto;
 }
 
 xin-example .preview {
@@ -396,10 +390,9 @@ export class LiveExample extends WebComponent {
           name: 'js',
           mode: 'javascript',
           part: 'js',
-          ...codeStyle,
         }),
-        codeEditor({ name: 'html', mode: 'html', part: 'html', ...codeStyle }),
-        codeEditor({ name: 'css', mode: 'css', part: 'css', ...codeStyle }),
+        codeEditor({ name: 'html', mode: 'html', part: 'html' }),
+        codeEditor({ name: 'css', mode: 'css', part: 'css' }),
         div(
           {
             slot: 'after-tabs',
