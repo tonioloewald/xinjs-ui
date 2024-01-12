@@ -75,6 +75,8 @@ export class CodeEditor extends WebComponent {
     ':host': {
       display: 'block',
       position: 'relative',
+      width: '100%',
+      height: '100%',
     },
   })
 
