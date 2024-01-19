@@ -46,7 +46,8 @@ preview.querySelector('.submit').addEventListener('click', () => {
 }
 
 .preview label {
-  display: flex;
+  display: grid;
+  grid-template-columns: 180px auto 100px;
   gap: var(--spacing);
 }
 
