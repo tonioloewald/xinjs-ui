@@ -25,7 +25,23 @@ preview.querySelector('.add').addEventListener('click', () => {
 ```html
 <xin-tabs>
   <div name="first">first body</div>
-  <div name="second" data-close>second body</div>
+  <div name="second" data-close>
+    <template role="tab">
+      <xin-icon
+        style="
+          display: inline-block;
+          width: 16px;
+          height: 16px;
+          transform: translateY(2px);
+          margin-right: 4px;
+          fill: var(--brand-color);
+        "
+        icon="eye"
+      ></xin-icon>
+      <span>Ooooh!!!</span>
+    </template>
+    look at the html…
+  </div>
   <div name="third">third body</div>
   <button class="add" slot="after-tabs">
     <xin-icon icon="plus"></xin-icon>
@@ -49,6 +65,12 @@ The `<xin-tabs>`s `value` is the index of its active body.
 
 A `<xin-tabs>` has `addTabBody(body: HTMLElement, select?: boolean)` and
 `removeTabBody(body: number | HTMLElement)` methods for updating its content.
+
+## Custom Tab Content
+
+You can specify the exact content of the tab for a given body by
+adding a `<template role="tab">` to that body. The contents of that
+template will be cloned into the tab.
 */
 
 import {
@@ -70,9 +92,13 @@ export class TabSelector extends WebComponent {
     tabBody: HTMLElement,
     bodyId: string
   ): HTMLElement {
-    const name = tabBody.getAttribute('name') as string
+    const tabContent =
+      (
+        tabBody.querySelector('template[role="tab"]') as HTMLTemplateElement
+      )?.content.cloneNode(true) || span(tabBody.getAttribute('name') as string)
+    console.log(tabContent)
     const tab = div(
-      span(name),
+      tabContent,
       {
         tabindex: 0,
         role: 'tab',
