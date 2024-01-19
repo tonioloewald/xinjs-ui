@@ -108,6 +108,10 @@ export class SideNav extends WebComponent {
 
     this.observer = new MutationObserver(this.onResize)
     this.observer.observe(this, { childList: true })
+    this.style.setProperty('--side-nav-transition', '0s')
+    setTimeout(() => {
+      this.style.removeProperty('--side-nav-transition')
+    }, 250)
   }
 
   disconnectedCallback() {
