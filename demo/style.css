@@ -350,10 +350,11 @@ xin-example {
   margin: var(--spacing) 0;
 }
 
-[class^='icon-'] {
+[class*='icon-'] {
   fill: var(--text-color);
   vertical-align: middle;
   height: var(--font-size);
+  pointer-events: none;
 }
 
 .icon-plus {
