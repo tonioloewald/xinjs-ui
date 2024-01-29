@@ -18,6 +18,7 @@ trigger.addEventListener('click', (event) => {
       {
         icon: 'thumbsUp',
         caption: 'Like',
+        shortcut: '^L',
         action() {
           window.alert('I like it!')
         }
@@ -26,6 +27,7 @@ trigger.addEventListener('click', (event) => {
       {
         icon: 'thumbsDown',
         caption: 'dislike',
+        shortcut: '⌘D',
         action() {
           window.alert('Awwwww!')
         }
@@ -95,7 +97,6 @@ trigger.addEventListener('click', (event) => {
 </button>
 ```
 
-
 ## popMenu({target, width, menuItems…})
 
 `popMenu` will spawn a menu on a target element. A menu is just a `MenuItem[]`.
@@ -114,7 +115,7 @@ A `MenuItem` can be one of three things:
 Note that popMenu does not implement shortcuts for you (yet!).
 
 ```
-export interface MenuAction {
+interface MenuAction {
   caption: string
   shortcut?: string
   enabled?: () => boolean
@@ -126,14 +127,13 @@ export interface MenuAction {
 ### SubMenu
 
 ```
-export interface SubMenu {
+interface SubMenu {
   caption: string
   enabled?: () => boolean
   menuItems: MenuItem[]
   icon?: string | Element
 }
 ```
-
 
 ## Why another menu library?!
 
@@ -152,7 +152,7 @@ And, finally, submenus are darn useful for any serious app.
 For this reason, `xinjs-ui` has its own menu implementation.
 */
 
-import { elements, css, varDefault, XinStyleRule } from 'xinjs'
+import { elements, css, varDefault, vars, XinStyleRule } from 'xinjs'
 import { popFloat, FloatPosition } from './pop-float'
 import { icons } from './icons'
 
@@ -182,16 +182,18 @@ const { div, button, span, a, style } = elements
 document.head.append(
   style(
     css({
-      '.menu': {
+      '.xin-menu': {
         width: varDefault.menuWidth('200px'),
         background: varDefault.menuBg('#fafafa'),
+        boxShadow: `${vars.spacing13} ${vars.spacing50} ${vars.spacing25} ${vars.shadowColor}`,
+        borderRadius: vars.spacing50,
       },
-      '.menu-trigger': {
+      '.xin-menu-trigger': {
         paddingLeft: 0,
         paddingRight: 0,
         minWidth: varDefault.touchSize('48px'),
       },
-      '.menu-separator': {
+      '.xin-menu-separator': {
         display: 'inline-block',
         content: ' ',
         height: '1px',
@@ -200,7 +202,7 @@ document.head.append(
         opacity: 0.25,
         margin: varDefault.menuSeparatorMargin('8px 0'),
       },
-      '.menu-item': {
+      '.xin-menu-item': {
         boxShadow: 'none',
         border: 'none !important',
         display: 'grid',
@@ -214,34 +216,35 @@ document.head.append(
         padding: varDefault.menuItemPadding('0 16px'),
         height: varDefault.menuItemHeight('48px'),
         lineHeight: varDefault.menuItemHeight('48px'),
+        textAlign: 'left',
       },
-      '.menu-item, .menu-item > span': {
+      '.xin-menu-item, .xin-menu-item > span': {
         color: varDefault.menuItemColor('#222'),
       },
-      '.menu-with-icons .menu-item': {
+      '.xin-menu-with-icons .xin-menu-item': {
         gridTemplateColumns: '30px 1fr 30px',
       },
-      '.menu-item svg': {
+      '.xin-menu-item svg': {
         fill: varDefault.menuItemIconColor('#222'),
       },
-      '.menu-item > span:nth-child(2)': {
+      '.xin-menu-item > span:nth-child(2)': {
         whiteSpace: 'nowrap',
         overflow: 'hidden',
         textOverflow: 'ellipsis',
         textAlign: 'left',
       },
-      '.menu-item:hover': {
+      '.xin-menu-item:hover': {
         // chrome rendering bug
         boxShadow: 'none !important',
         background: varDefault.menuItemHoverBg('#eee'),
       },
-      '.menu-item:active': {
+      '.xin-menu-item:active': {
         // chrome rendering bug
         boxShadow: 'none !important',
         background: varDefault.menuItemActiveBg('#aaa'),
         color: varDefault.menuItemActiveColor('#000'),
       },
-      '.menu-item:active svg': {
+      '.xin-menu-item:active svg': {
         fill: varDefault.menuItemIconActiveColor('#000'),
       },
     })
@@ -257,7 +260,7 @@ export const createMenuAction = (item: MenuAction): HTMLElement => {
   if (typeof item?.action === 'string') {
     menuItem = a(
       {
-        class: 'menu-item',
+        class: 'xin-menu-item',
         href: item.action,
       },
       icon,
@@ -267,7 +270,7 @@ export const createMenuAction = (item: MenuAction): HTMLElement => {
   } else {
     menuItem = button(
       {
-        class: 'menu-item',
+        class: 'xin-menu-item',
         onClick: item.action,
       },
       icon,
@@ -291,7 +294,7 @@ export const createSubMenu = (
   }
   const submenuItem = button(
     {
-      class: 'menu-item',
+      class: 'xin-menu-item',
       onClick(event: Event) {
         popMenu(
           Object.assign({}, options, {
@@ -318,7 +321,7 @@ export const createMenuItem = (
   options: PopMenuOptions
 ): HTMLElement => {
   if (item === null) {
-    return span({ class: 'menu-separator' })
+    return span({ class: 'xin-menu-separator' })
   } else if ((item as MenuAction)?.action) {
     return createMenuAction(item as MenuAction)
   } else {
@@ -336,7 +339,7 @@ export const menu = (options: PopMenuOptions): HTMLDivElement => {
   return div(
     {
       style,
-      class: hasIcons ? 'menu menu-with-icons' : 'menu',
+      class: hasIcons ? 'xin-menu xin-menu-with-icons' : 'xin-menu',
       onClick() {
         removeLastMenu(0)
       },
