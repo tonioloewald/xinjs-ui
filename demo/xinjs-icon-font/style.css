@@ -1,10 +1,10 @@
 @font-face {
   font-family: 'icomoon';
-  src: url('fonts/icomoon.eot?f31mic');
-  src: url('fonts/icomoon.eot?f31mic#iefix') format('embedded-opentype'),
-    url('fonts/icomoon.ttf?f31mic') format('truetype'),
-    url('fonts/icomoon.woff?f31mic') format('woff'),
-    url('fonts/icomoon.svg?f31mic#icomoon') format('svg');
+  src: url('fonts/icomoon.eot?ys5bky');
+  src: url('fonts/icomoon.eot?ys5bky#iefix') format('embedded-opentype'),
+    url('fonts/icomoon.ttf?ys5bky') format('truetype'),
+    url('fonts/icomoon.woff?ys5bky') format('woff'),
+    url('fonts/icomoon.svg?ys5bky#icomoon') format('svg');
   font-weight: normal;
   font-style: normal;
   font-display: block;
@@ -26,11 +26,17 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
+.icon-bug:before {
+  content: '\e970';
+}
 .icon-facebook:before {
   content: '\eef0';
 }
 .icon-twitter:before {
   content: '\eef5';
+}
+.icon-youtube:before {
+  content: '\eefc';
 }
 .icon-game:before {
   content: '\e96d';
@@ -50,6 +56,9 @@
 .icon-xinjs:before {
   content: '\ef45';
 }
+.icon-xinie:before {
+  content: '\ef46';
+}
 .icon-html5:before {
   content: '\ef44';
 }
@@ -65,17 +74,38 @@
 .icon-web:before {
   content: '\e969';
 }
+.icon-loading:before {
+  content: '\e959';
+}
 .icon-mail:before {
   content: '\e96a';
 }
 .icon-resize:before {
   content: '\e966';
 }
+.icon-menu:before {
+  content: '\e972';
+}
+.icon-message:before {
+  content: '\e973';
+}
 .icon-phone:before {
   content: '\e96b';
 }
+.icon-pie-chart:before {
+  content: '\e975';
+}
+.icon-search:before {
+  content: '\e971';
+}
 .icon-send:before {
   content: '\e96c';
+}
+.icon-server:before {
+  content: '\e974';
+}
+.icon-graph-up:before {
+  content: '\e976';
 }
 .icon-copy:before {
   content: '\e965';
@@ -290,10 +320,10 @@
 .icon-share:before {
   content: '\e93b';
 }
-.icon-begin:before {
+.icon-start:before {
   content: '\e93d';
 }
-.icon-skip-forward:before {
+.icon-end:before {
   content: '\e93e';
 }
 .icon-forbidden:before {
@@ -302,8 +332,11 @@
 .icon-square:before {
   content: '\e940';
 }
-.icon-star:before {
+.icon-star-filled:before {
   content: '\e941';
+}
+.icon-star:before {
+  content: '\e96f';
 }
 .icon-sun:before {
   content: '\e942';
@@ -373,9 +406,6 @@
 }
 .icon-x:before {
   content: '\e958';
-}
-.icon-youtube:before {
-  content: '\e959';
 }
 .icon-zoom-in:before {
   content: '\e95a';
