@@ -96,7 +96,6 @@ export class TabSelector extends WebComponent {
       (
         tabBody.querySelector('template[role="tab"]') as HTMLTemplateElement
       )?.content.cloneNode(true) || span(tabBody.getAttribute('name') as string)
-    console.log(tabContent)
     const tab = div(
       tabContent,
       {
