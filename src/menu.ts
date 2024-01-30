@@ -110,7 +110,7 @@ preview.addEventListener('click', (event) => {
 A `MenuItem` can be one of three things:
 
 - `null` denotes a separator
-- `MenuAction` denotes a labeled button or <a> tag based on whether the `action` provided
+- `MenuAction` denotes a labeled button or `<a>` tag based on whether the `action` provided
   is a url (string) or an event handler (function).
 - `SubMenu` is a submenu.
 
