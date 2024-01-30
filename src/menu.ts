@@ -301,8 +301,7 @@ export const createSubMenu = (
             menuItems: item.menuItems,
             target: submenuItem,
             submenuDepth: (options.submenuDepth || 0) + 1,
-            position:
-              submenuItem.offsetLeft < window.innerWidth / 50 ? 'e' : 'w',
+            position: 'side',
           })
         )
         event.stopPropagation()
