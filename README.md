@@ -1,6 +1,8 @@
 # xinjs-ui
 
-[ui.xinjs.net live demo](https://ui.xinjs.net) [xinjs](https://xinjs.net) [discord](https://discord.gg/ramJ9rgky5) [github](https://github.com/tonioloewald/xinjs-ui#readme) [npm](https://www.npmjs.com/package/xinjs-ui) <xin-sizebreak min-width="500"><img alt="bundlejs" src="https://deno.bundlejs.com/?q=xinjs-ui&badge="></xin-sizebreak>
+<!--{ "pin": "top" }-->
+
+[ui.xinjs.net live demo](https://ui.xinjs.net) [xinjs](https://xinjs.net) [discord](https://discord.gg/ramJ9rgky5) [github](https://github.com/tonioloewald/xinjs-ui#readme) [npm](https://www.npmjs.com/package/xinjs-ui)
 
 Copyright ©2023 Tonio Loewald
 
