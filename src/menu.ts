@@ -8,9 +8,10 @@ to be generated on-the-fly, and even supports hierarchical menus.
 const { popMenu } = xinjsui
 const { elements } = xinjs
 
-const trigger = preview.querySelector('button')
-
-trigger.addEventListener('click', (event) => {
+preview.addEventListener('click', (event) => {
+  if (!event.target.closest('button')) {
+    return
+  }
   popMenu({
     target: event.target,
     width: 'auto',
@@ -93,6 +94,9 @@ trigger.addEventListener('click', (event) => {
 ```
 ```html
 <button>
+  <xin-icon icon="moreVertical"></xin-icon>
+</button>
+<button style="position: absolute; bottom: 0; right: 0">
   <xin-icon icon="moreVertical"></xin-icon>
 </button>
 ```
