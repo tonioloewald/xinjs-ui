@@ -17,6 +17,9 @@ const grid = preview.querySelector('.grid')
 
 grid.addEventListener('click', (event) => {
   const { target } = event
+  if (!target.closest('button')) {
+    return
+  }
   const float = preview.querySelector('xin-float')
   if (float === null) {
     // create and position a float
@@ -46,9 +49,15 @@ grid.addEventListener('click', (event) => {
   <button data-float="nw">nw</button>
   <button data-float="n">n</button>
   <button data-float="ne">ne</button>
+  <button data-float="wn">wn</button>
+  <span>&nbsp;</span>
+  <button data-float="en">en</button>
   <button data-float="w">w</button>
   <button data-float="auto">auto</button>
   <button data-float="e">e</button>
+  <button data-float="ws">ws</button>
+  <button data-float="side">side</button>
+  <button data-float="es">es</button>
   <button data-float="sw">sw</button>
   <button data-float="s">s</button>
   <button data-float="se">se</button>
@@ -110,6 +119,11 @@ export type FloatPosition =
 | 'nw'
 | 'se'
 | 'sw'
+| 'en'
+| 'wn'
+| 'es'
+| 'ws'
+| 'side'
 | 'auto'
 ```
 
@@ -128,6 +142,11 @@ export type FloatPosition =
   | 'nw'
   | 'se'
   | 'sw'
+  | 'en'
+  | 'wn'
+  | 'es'
+  | 'ws'
+  | 'side'
   | 'auto'
 
 export interface PopFloatOptions {
@@ -164,10 +183,14 @@ export const positionFloat = (
   const cy = top + height * 0.5
   const w = window.innerWidth
   const h = window.innerHeight
-  if (position === 'auto' || position === undefined) {
+  if (position === 'side') {
+    position = ((cx < w * 0.5 ? 'e' : 'w') +
+      (cy < h * 0.5 ? 's' : 'n')) as FloatPosition
+  } else if (position === 'auto' || position === undefined) {
     position = ((cy < h * 0.5 ? 's' : 'n') +
       (cx < w * 0.5 ? 'e' : 'w')) as FloatPosition
   }
+  console.log(position)
   element.style.top =
     element.style.left =
     element.style.right =
@@ -175,15 +198,35 @@ export const positionFloat = (
     element.style.transform =
       ''
   if (position.length === 2) {
-    if (position.includes('n')) {
-      element.style.bottom = (h - top).toFixed(2) + 'px'
-    } else if (position.includes('s')) {
-      element.style.top = (top + height).toFixed(2) + 'px'
+    const [first, second] = position
+    switch (first) {
+      case 'n':
+        element.style.bottom = (h - top).toFixed(2) + 'px'
+        break
+      case 'e':
+        element.style.left = (left + width).toFixed(2) + 'px'
+        break
+      case 's':
+        element.style.top = (top + height).toFixed(2) + 'px'
+        break
+      case 'w':
+        element.style.right = (w - left).toFixed(2) + 'px'
+        break
     }
-    if (position.includes('e')) {
-      element.style.left = left.toFixed(2) + 'px'
-    } else if (position.includes('w')) {
-      element.style.right = (w - left - width).toFixed(2) + 'px'
+
+    switch (second) {
+      case 'n':
+        element.style.bottom = (h - top - height).toFixed(2) + 'px'
+        break
+      case 'e':
+        element.style.left = left.toFixed(2) + 'px'
+        break
+      case 's':
+        element.style.top = top.toFixed(2) + 'px'
+        break
+      case 'w':
+        element.style.right = (w - left - width).toFixed(2) + 'px'
+        break
     }
     element.style.transform = ''
   } else if (position === 'n') {
