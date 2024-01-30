@@ -189,7 +189,7 @@ document.head.append(
       '.xin-menu': {
         width: varDefault.menuWidth('200px'),
         background: varDefault.menuBg('#fafafa'),
-        boxShadow: `${vars.spacing13} ${vars.spacing50} ${vars.spacing25} ${vars.shadowColor}`,
+        boxShadow: `${vars.spacing13} ${vars.spacing50} ${vars.spacing} ${vars.shadowColor}`,
         borderRadius: vars.spacing50,
       },
       '.xin-menu-trigger': {
@@ -380,6 +380,11 @@ export interface PopMenuOptions {
 }
 
 document.body.addEventListener('mousedown', () => removeLastMenu(0))
+document.body.addEventListener('keydown', (event: KeyboardEvent) => {
+  if (event.key === 'Escape') {
+    removeLastMenu(0)
+  }
+})
 
 export const popMenu = (options: PopMenuOptions): void => {
   const { target, position, submenuDepth } = Object.assign(
