@@ -72,6 +72,7 @@ import { Component as WebComponent, ElementCreator, elements } from 'xinjs'
 import { codeEditor, CodeEditor } from './code-editor'
 import { tabSelector, TabSelector } from './tab-selector'
 import { icons } from './icons'
+import { popMenu } from './menu'
 
 const { div, xinSlot, style, button, h4 } = elements
 
@@ -87,7 +88,7 @@ document.head.append(
 xin-example {
   --code-editors-bar-bg: #777;
   --code-editors-bar-color: #fff;
-  --widget-bg: #fffc;
+  --widget-bg: #fff8;
   --widget-color: #000;
   position: relative;
   display: flex;
@@ -139,10 +140,14 @@ xin-example [part="editors"] {
 
 xin-example [part="exampleWidgets"] {
   position: absolute;
-  right: 2px;
-  top: 2px;
+  left: 2px;
+  bottom: 2px;
+  --widget-color: var(--brand-color);
   background: var(--widget-bg);
   border-radius: 5px;
+  width: 44px;
+  height: 44px;
+  line-height: 44px;
 }
 
 xin-example [part="exampleWidgets"] svg {
@@ -332,38 +337,46 @@ export class LiveExample extends WebComponent {
     }
   }
 
+  get isMaximized(): boolean {
+    return this.classList.contains('-maximize')
+  }
+
+  exampleMenu = () => {
+    popMenu({
+      target: this.parts.exampleWidgets,
+      width: 'auto',
+      menuItems: [
+        {
+          icon: 'edit',
+          caption: 'view/edit code',
+          action: this.showCode,
+        },
+        {
+          icon: 'editDoc',
+          caption: 'view/edit code in a new window',
+          action: this.openEditorWindow,
+        },
+        null,
+        {
+          icon: this.isMaximized ? 'minimize' : 'maximize',
+          caption: this.isMaximized ? 'restore preview' : 'maximize preview',
+          action: this.toggleMaximize,
+        },
+      ],
+    })
+  }
+
   content = () => [
     div(
       { part: 'example' },
       style({ part: 'style' }),
-      div(
-        { part: 'exampleWidgets' },
-        button(
-          {
-            title: 'view/edit code',
-            class: 'transparent',
-            onClick: this.showCode,
-          },
-          icons.edit()
-        ),
-        button(
-          {
-            title: 'view/edit code (in new window)',
-            class: 'transparent',
-            onClick: this.openEditorWindow,
-          },
-          icons.editDoc()
-        ),
-        button(
-          {
-            part: 'maximize',
-            title: 'maximize preview',
-            class: 'transparent',
-            onClick: this.toggleMaximize,
-          },
-          icons.minimize({ class: 'icon-minimize show-if-maximized' }),
-          icons.maximize({ class: 'icon-maximize hide-if-maximized' })
-        )
+      button(
+        {
+          title: 'example menu',
+          part: 'exampleWidgets',
+          onClick: this.exampleMenu,
+        },
+        icons.code()
       )
     ),
     div(
