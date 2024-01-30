@@ -93,10 +93,10 @@ preview.addEventListener('click', (event) => {
 })
 ```
 ```html
-<button>
+<button title="menu test">
   <xin-icon icon="moreVertical"></xin-icon>
 </button>
-<button style="position: absolute; bottom: 0; right: 0">
+<button title="menu test from bottom-right" style="position: absolute; bottom: 0; right: 0">
   <xin-icon icon="moreVertical"></xin-icon>
 </button>
 ```
