@@ -2,5 +2,7 @@
   "apexskier.typescript.config.userPreferences.quotePreference": "single",
   "editor.default_syntax": "typescript",
   "index.ignored_file_patterns": ["dist/**", "docs/**"],
-  "workspace.color": 3
+  "workspace.color": 3,
+  "workspace.preview_type": "custom",
+  "workspace.preview_url": "https://localhost:8787"
 }

@@ -50,7 +50,10 @@ const { app } = xinProxy({
     githubUrl: `https://github.com/tonioloewald/${PROJECT}#readme`,
     npmUrl: `https://www.npmjs.com/package/${PROJECT}`,
     xinjsUrl: 'https://xinjs.net',
-    bundleUrl: `https://deno.bundlejs.com/?q=${PROJECT}&badge=`,
+    bundleBadgeUrl: `https://deno.bundlejs.com/?q=${PROJECT}&badge=`,
+    bundleUrl: `https://bundlejs.com/?q=${PROJECT}`,
+    cdnBadgeUrl: `https://data.jsdelivr.com/v1/package/npm/${PROJECT}/badge`,
+    cdnUrl: `https://www.jsdelivr.com/package/npm/${PROJECT}`,
     optimizeLottie: false,
     lottieFilename: '',
     lottieData: '',
@@ -96,9 +99,25 @@ if (main)
       sizeBreak(
         {
           minWidth: 500,
-          style: { marginRight: vars.spacing, display: 'flex' },
         },
-        img({ alt: 'bundlejs size badge', src: app.bundleUrl }),
+        span(
+          {
+            style: {
+              marginRight: vars.spacing,
+              display: 'flex',
+              alignItems: 'center',
+              gap: vars.spacing50,
+            },
+          },
+          a(
+            { href: app.bundleUrl },
+            img({ alt: 'bundlejs size badge', src: app.bundleBadgeUrl })
+          ),
+          a(
+            { href: app.cdnUrl },
+            img({ alt: 'jsdelivr', src: app.cdnBadgeUrl })
+          )
+        ),
         span({ slot: 'small' })
       ),
       a(
@@ -168,6 +187,7 @@ if (main)
         },
         button(
           {
+            title: 'show navigation',
             class: 'transparent close-nav show-within-compact',
             style: {
               marginTop: '2px',
