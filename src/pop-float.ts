@@ -190,7 +190,6 @@ export const positionFloat = (
     position = ((cy < h * 0.5 ? 's' : 'n') +
       (cx < w * 0.5 ? 'e' : 'w')) as FloatPosition
   }
-  console.log(position)
   element.style.top =
     element.style.left =
     element.style.right =
