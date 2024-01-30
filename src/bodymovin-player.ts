@@ -1,5 +1,5 @@
 /*!
-# lottie
+# lottie / bodymovin
 
 A [lottie](https://airbnb.io/lottie/#/web) (a.k.a. **bodymovin**) player.
 
@@ -8,7 +8,7 @@ It's designed to work like an `<img>` element (just set its `src` attribute).
 ```js
 const { xinProxy } = xinjs
 const { icons, popFloat } = xinjsui
-const { h4, label, input, select, option, span } = xinjs.elements
+const { div, label, input, select, option, span } = xinjs.elements
 
 const rocket = preview.querySelector('xin-lottie')
 setTimeout(
@@ -17,7 +17,7 @@ setTimeout(
    popFloat({
      content: [
        { class: 'panel', drag: true },
-       h4('Player Controls'),
+       div({ class: 'panel-header' }, 'Player Controls' ),
        label(
          { class: 'no-drag' },
          'speed',
@@ -44,7 +44,7 @@ setTimeout(
        )
      ],
      target: rocket,
-     position: 'w'
+     position: 's'
    })
  )
   },
@@ -83,9 +83,10 @@ setTimeout(
   bottom: 5px;
 }
 
-.preview h4 {
+.preview .panel-header {
   margin: 0;
   text-align: center;
+  font-weight: bold;
   background: var(--brand-color);
   color: white;
   padding: 5px;
