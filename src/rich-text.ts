@@ -57,7 +57,7 @@ the `<xin-word>` component).
 import { Component as WebComponent, ElementCreator, elements } from 'xinjs'
 import { icons } from './icons'
 
-const { style, xinSlot, div, select, fragment, option, button, span } = elements
+const { xinSlot, div, select, fragment, option, button, span } = elements
 
 const blockStyles = [
   {
