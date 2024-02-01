@@ -156,7 +156,7 @@ And, finally, submenus are darn useful for any serious app.
 For this reason, `xinjs-ui` has its own menu implementation.
 */
 
-import { elements, css, varDefault, vars, XinStyleRule } from 'xinjs'
+import { elements, css, varDefault, vars, XinStyleRule, StyleNode } from 'xinjs'
 import { popFloat, FloatPosition } from './pop-float'
 import { icons } from './icons'
 
@@ -183,8 +183,10 @@ export type MenuItem = MenuAction | SubMenu | MenuSeparator
 
 const { div, button, span, a, style } = elements
 
+// FIXME replace with StyleSheet when xinjs is updated
 document.head.append(
   style(
+    { id: 'xin-menu-helper' },
     css({
       '.xin-menu': {
         width: varDefault.menuWidth('200px'),

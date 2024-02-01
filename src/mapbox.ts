@@ -79,7 +79,7 @@ export class MapBox extends WebComponent {
 
   private _map: any
 
-  styleNode = WebComponent.StyleNode({
+  static styleSpec = {
     ':host': {
       display: 'inline-block',
       position: 'relative',
@@ -87,7 +87,7 @@ export class MapBox extends WebComponent {
       height: '400px',
       textAlign: 'left',
     },
-  })
+  }
 
   constructor() {
     super()

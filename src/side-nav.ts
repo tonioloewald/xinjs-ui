@@ -38,7 +38,7 @@ export class SideNav extends WebComponent {
     this.queueRender()
   }
 
-  styleNode = WebComponent.StyleNode({
+  static styleSpec = {
     ':host': {
       display: 'grid',
       gridTemplateColumns: `${varDefault.navWidth(
@@ -58,7 +58,7 @@ export class SideNav extends WebComponent {
     ':host slot[name="nav"]': {
       display: 'block',
     },
-  })
+  }
 
   onResize = () => {
     const { content } = this.parts

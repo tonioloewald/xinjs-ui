@@ -14,7 +14,7 @@ the window's `resize` events and its own (via `ResizeObserver`).
 
 ```html
 <div class="container">
-  <xin-sizebreak min-width="150" min-height="80">
+  <xin-sizebreak min-width="300" min-height="150">
     <h1>BIG!</h1>
     <i slot="small">little</i>
   </xin-sizebreak>
@@ -79,12 +79,12 @@ export class SizeBreak extends WebComponent {
 
   content = [slot({ part: 'normal' }), slot({ part: 'small', name: 'small' })]
 
-  styleNode = WebComponent.StyleNode({
+  static styleSpec = {
     ':host': {
       display: 'inline-block',
       position: 'relative',
     },
-  })
+  }
 
   constructor() {
     super()

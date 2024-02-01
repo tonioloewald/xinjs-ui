@@ -129,13 +129,13 @@ export class BodymovinPlayer extends WebComponent {
 
   animation: any
 
-  styleNode = WebComponent.StyleNode({
+  static styleSpec = {
     ':host': {
       width: 400,
       height: 400,
       display: 'inline-block',
     },
-  })
+  }
 
   private _loading = false
 

@@ -182,7 +182,7 @@ export class XinForm extends XinComponent {
     return widgets.find((widget) => !widget.reportValidity()) === undefined
   }
 
-  styleNode = XinComponent.StyleNode({
+  static styleSpec = {
     ':host': {
       display: 'flex',
       flexDirection: 'column',
@@ -205,7 +205,7 @@ export class XinForm extends XinComponent {
       position: 'relative',
       overflow: 'hidden',
     },
-  })
+  }
 
   content = [
     slot({ part: 'header', name: 'header' }),

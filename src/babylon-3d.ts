@@ -170,7 +170,7 @@ export class B3d extends WebComponent {
   babylonReady: Promise<any>
   BABYLON?: any
 
-  styleNode = WebComponent.StyleNode({
+  static styleSpec = {
     ':host': {
       display: 'block',
       position: 'relative',
@@ -196,7 +196,7 @@ export class B3d extends WebComponent {
     ':host .babylonVRicon:hover': {
       transform: 'scale(1.1)',
     },
-  })
+  }
 
   content = elements.canvas({ part: 'canvas' })
 
