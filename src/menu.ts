@@ -101,6 +101,30 @@ preview.addEventListener('click', (event) => {
 </button>
 ```
 
+## Overflow test
+
+```js
+const { popMenu, icons } = xinjsui
+const { elements } = xinjs
+
+preview.querySelector('button').addEventListener('click', (event) => {
+  popMenu({
+    target: event.target,
+    menuItems:  Object.keys(icons).map(caption => ({
+      caption,
+      action() {
+        console.log(caption)
+      }
+    }))
+  })
+})
+```
+```html
+<button title="big menu test" style="position: absolute; top: 0; left: 0">
+  Big Menu Test
+</button>
+```
+
 ## popMenu({target, width, menuItems…})
 
 `popMenu` will spawn a menu on a target element. A menu is just a `MenuItem[]`.
@@ -156,7 +180,7 @@ And, finally, submenus are darn useful for any serious app.
 For this reason, `xinjs-ui` has its own menu implementation.
 */
 
-import { elements, css, varDefault, vars, XinStyleRule, StyleNode } from 'xinjs'
+import { elements, css, varDefault, vars, XinStyleRule } from 'xinjs'
 import { popFloat, FloatPosition } from './pop-float'
 import { icons } from './icons'
 
@@ -189,10 +213,14 @@ document.head.append(
     { id: 'xin-menu-helper' },
     css({
       '.xin-menu': {
-        width: varDefault.menuWidth('200px'),
+        overflow: 'hidden auto',
+        maxHeight: `calc(${vars.maxHeight} - ${varDefault.menuInset('8px')})`,
+        borderRadius: vars.spacing50,
         background: varDefault.menuBg('#fafafa'),
         boxShadow: `${vars.spacing13} ${vars.spacing50} ${vars.spacing} ${vars.shadowColor}`,
-        borderRadius: vars.spacing50,
+      },
+      '.xin-menu > div': {
+        width: varDefault.menuWidth('200px'),
       },
       '.xin-menu-trigger': {
         paddingLeft: 0,
@@ -348,12 +376,16 @@ export const menu = (options: PopMenuOptions): HTMLDivElement => {
       onClick() {
         removeLastMenu(0)
       },
-      onMousedown(event: Event) {
-        event.preventDefault()
-        event.stopPropagation()
-      },
     },
-    ...menuItems.map((item) => createMenuItem(item, options))
+    div(
+      {
+        onMousedown(event: Event) {
+          event.preventDefault()
+          event.stopPropagation()
+        },
+      },
+      ...menuItems.map((item) => createMenuItem(item, options))
+    )
   )
 }
 

@@ -107,6 +107,12 @@ This allows you to, for example, provide a global menu that can be used on any e
 instead of needing to have a whole instance of the menu wrapped around every instance
 of the thing you want the menu to affect (a common anti-pattern of front-end frameworks).
 
+### Handling Overflow
+
+`positionFloat` automatically sets two css-variables `--max-height` and `--max-width` on
+the floating element to help you deal with overflow (e.g. in menus). E.g. if the float
+is positioned with `top: 125px` then it will set `--max-height: calc(100vh - 125px)`.
+
 ## FloatPosition
 
 ```
@@ -245,4 +251,12 @@ export const positionFloat = (
     element.style.top = cy.toFixed(2) + 'px'
     element.style.transform = 'translateY(-50%)'
   }
+  element.style.setProperty(
+    '--max-height',
+    `calc(100vh - ${element.style.top || element.style.bottom})`
+  )
+  element.style.setProperty(
+    '--max-width',
+    `calc(100vw - ${element.style.left || element.style.right})`
+  )
 }
