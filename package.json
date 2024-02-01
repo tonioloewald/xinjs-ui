@@ -45,7 +45,7 @@
   },
   "peerDependencies": {
     "marked": "^5.1.0",
-    "xinjs": "^0.6.2"
+    "xinjs": "^0.6.3"
   },
   "files": [
     "/dist",
