@@ -147,7 +147,7 @@ interface FilterMaker {
 import { Component as WebComponent, ElementCreator, elements } from 'xinjs'
 import { icons } from '../src/'
 
-const { div, input, select, option, button, span, style } = elements
+const { div, input, select, option, button, span } = elements
 
 type ObjectTest = (obj: any) => boolean
 type ArrayFilter = (array: any[]) => any[]
