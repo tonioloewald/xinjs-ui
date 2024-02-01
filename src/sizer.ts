@@ -28,7 +28,7 @@ import { icons } from './icons'
 import { trackDrag } from './track-drag'
 
 export class XinSizer extends XinComponent {
-  styleNode = XinComponent.StyleNode({
+  static styleSpec = {
     ':host': {
       display: 'block',
       position: 'absolute',
@@ -47,7 +47,7 @@ export class XinSizer extends XinComponent {
       width: 16,
       height: 16,
     },
-  })
+  }
 
   content = icons.resize()
 

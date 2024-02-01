@@ -149,66 +149,6 @@ import { icons } from '../src/'
 
 const { div, input, select, option, button, span, style } = elements
 
-document.head.append(
-  style(
-    { id: 'xin-filter' },
-    `xin-filter-part {
-  display: flex;
-}
-
-xin-filter-part svg[class^="icon-"]: {
-  height: var(--font-size, 16px);
-  verticalAlign: middle;
-  fill: var(--text-color);
-  pointer-event: none;
-},
-
-xin-filter-part [part="haystack"],
-xin-filter-part [part="condition"] {
-  flex: 1;
-}
-
-
-xin-filter-part [part="needle"] {
-  flex: 2
-}
-
-xin-filter-part [hidden]+[part="padding"] {
-  display: block;
-  content: ' ';
-  flex: 1 1 auto;
-}
-
-xin-filter {
-  height: auto;
-  display: grid;
-  grid-template-columns: 32px calc(100% - 64px) 32px;
-  align-items: center;
-}
-
-xin-filter [part="filterContainer"] {
-  display: flex;
-  flex-direction: column;
-  align-items: stretch;
-  flex: 1 1 auto;
-}
-
-xin-filter [part="add"],
-xin-filter [part="reset"] {
-  --button-size: var(--touch-size, 32px);
-  border-radius: 999px;
-  height: var(--button-size);
-  line-height: var(--button-size);
-  margin: 0;
-  padding: 0;
-  text-align: center;
-  width: var(--button-size);
-  flex: 0 0 var(--button-size);
-}
-`
-  )
-)
-
 type ObjectTest = (obj: any) => boolean
 type ArrayFilter = (array: any[]) => any[]
 
@@ -483,6 +423,32 @@ export class FilterPart extends WebComponent {
 
 export const filterPart = FilterPart.elementCreator({
   tag: 'xin-filter-part',
+  styleSpec: {
+    ':host': {
+      display: 'flex',
+    },
+
+    ':host svg[class^="icon-"]:': {
+      height: 'var(--font-size, 16px)',
+      verticalAlign: 'middle',
+      fill: 'var(--text-color)',
+      pointerEvents: 'none',
+    },
+
+    ':host [part="haystack"], :host [part="condition"]': {
+      flex: '1',
+    },
+
+    ':host [part="needle"]': {
+      flex: 2,
+    },
+
+    ':host [hidden]+[part="padding"]': {
+      display: 'block',
+      content: ' ',
+      flex: '1 1 auto',
+    },
+  },
 }) as ElementCreator<FilterPart>
 
 export type FilterState = FilterPartState[]
@@ -587,4 +553,31 @@ export class FilterBuilder extends WebComponent {
 
 export const filterBuilder = FilterBuilder.elementCreator({
   tag: 'xin-filter',
+  styleSpec: {
+    ':host': {
+      height: 'auto',
+      display: 'grid',
+      gridTemplateColumns: '32px calc(100% - 64px) 32px',
+      alignItems: 'center',
+    },
+
+    ':host [part="filterContainer"]': {
+      display: 'flex',
+      flexDirection: 'column',
+      alignItems: 'stretch',
+      flex: '1 1 auto',
+    },
+
+    ':host [part="add"], :host [part="reset"]': {
+      '--button-size': 'var(--touch-size, 32px)',
+      borderRadius: '999px',
+      height: 'var(--button-size)',
+      lineHeight: 'var(--button-size)',
+      margin: '0',
+      padding: '0',
+      textAlign: 'center',
+      width: 'var(--button-size)',
+      flex: '0 0 var(--button-size)',
+    },
+  },
 }) as ElementCreator<FilterBuilder>

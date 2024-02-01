@@ -59,25 +59,6 @@ import { icons } from './icons'
 
 const { style, xinSlot, div, select, fragment, option, button, span } = elements
 
-document.head.append(
-  style(
-    { id: 'xin-word' },
-    `xin-word {
-  display: flex;
-  flex-direction: column;
-  height: 100%;
-}
-xin-word [part="toolbar"] {
-  padding: 4px;
-  display: flex;
-  gap: 0px;
-  flex: 0 0 auto;
-  flex-wrap: wrap;
-}
-`
-  )
-)
-
 const blockStyles = [
   {
     caption: 'Title',
@@ -331,4 +312,18 @@ export class RichText extends WebComponent {
 
 export const richText = RichText.elementCreator({
   tag: 'xin-word',
+  styleSpec: {
+    ':host': {
+      display: 'flex',
+      flexDirection: 'column',
+      height: '100%',
+    },
+    ':host [part="toolbar"]': {
+      padding: '4px',
+      display: 'flex',
+      gap: '0px',
+      flex: '0 0 auto',
+      flexWrap: 'wrap',
+    },
+  },
 }) as ElementCreator<RichText>

@@ -116,7 +116,7 @@ export class TabSelector extends WebComponent {
     return tab
   }
 
-  styleNode = WebComponent.StyleNode({
+  static styleSpec = {
     ':host': {
       display: 'flex',
       flexDirection: 'column',
@@ -180,7 +180,7 @@ export class TabSelector extends WebComponent {
     ':host button.close > svg': {
       height: '12px',
     },
-  })
+  }
 
   content = [
     div(

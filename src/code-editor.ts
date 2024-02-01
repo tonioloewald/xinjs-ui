@@ -71,14 +71,14 @@ export class CodeEditor extends WebComponent {
   options: any = {}
   theme = DEFAULT_THEME
 
-  styleNode = WebComponent.StyleNode({
+  static styleSpec = {
     ':host': {
       display: 'block',
       position: 'relative',
       width: '100%',
       height: '100%',
     },
-  })
+  }
 
   constructor() {
     super()

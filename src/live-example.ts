@@ -78,134 +78,6 @@ const { div, xinSlot, style, button, h4 } = elements
 
 const AsyncFunction = (async () => {}).constructor
 
-document.head.append(
-  style(
-    { id: 'xin-example' },
-    `:root {
-  --xin-example-height: 320px;
-}
-
-xin-example {
-  --code-editors-bar-bg: #777;
-  --code-editors-bar-color: #fff;
-  --widget-bg: #fff8;
-  --widget-color: #000;
-  position: relative;
-  display: flex;
-  height: var(--xin-example-height);
-  background: var(--background);
-  box-sizing: border-box;
-}
-
-xin-example.-maximize {
-  position: fixed;
-  left: 0;
-  top: 0;
-  height: 100vh;
-  width: 100vw;
-  margin: 0 !important;
-}
-
-.-maximize {
-  /* FIXME: kludge */
-  z-index: 10;
-}
-
-xin-example.-maximize .hide-if-maximized,
-xin-example:not(.-maximize) .show-if-maximized {
-  display: none;
-}
-
-xin-example [part="example"] {
-  flex: 1 1 50%;
-  height: 100%;
-  position: relative;
-  overflow-x: auto;
-}
-
-xin-example .preview {
-  height: 100%;
-  position: relative;
-  overflow: hidden;
-  background: #f7f7f7 url('data:image/svg+xml,\
-  <svg xmlns="http://www.w3.org/2000/svg" width="80" height="80" viewBox="0 0 8 8" fill-opacity=".02" >\
-  <rect x="4" width="4" height="4" /><rect y="4" width="4" height="4" /></svg>');
-}
-
-xin-example [part="editors"] {
-  flex: 1 1 200px;
-  height: 100%;
-  position: relative;
-}
-
-xin-example [part="exampleWidgets"] {
-  position: absolute;
-  left: 2px;
-  bottom: 2px;
-  --widget-color: var(--brand-color);
-  background: var(--widget-bg);
-  border-radius: 5px;
-  width: 44px;
-  height: 44px;
-  line-height: 44px;
-}
-
-xin-example [part="exampleWidgets"] svg {
-  fill: var(--widget-color);
-}
-
-xin-example .code-editors {
-  overflow: hidden;
-  background: white;
-  position: relative;
-  top: 0;
-  right: 0;
-  flex: 1 1 50%;
-  height: 100%;
-  flex-direction: column;
-  z-index: 10;
-}
-
-@media (max-width: 1200px) {
-}
-
-xin-example .code-editors:not([hidden]) {
-  display: flex;
-}
-
-xin-example .code-editors > h4 {
-  padding: 5px;
-  margin: 0;
-  text-align: center;
-  background: var(--code-editors-bar-bg);
-  color: var(--code-editors-bar-color);
-  cursor: move;
-}
-
-xin-example .close-button {
-  position: absolute;
-  top: 0;
-  right: 0;
-  --text-color: var(--code-editors-bar-color);
-}
-
-xin-example button.transparent,
-xin-example .sizer {
-  width: 32px;
-  height: 32px;
-  line-height: 32px;
-  text-align: center;
-  padding: 0;
-  margin: 0;
-}
-
-xin-example .sizer {
-  cursor: nwse-resize;
-}
-`
-  )
-)
-
 interface ExampleContext {
   [key: string]: any
 }
@@ -660,6 +532,120 @@ export class LiveExample extends WebComponent {
 
 export const liveExample = LiveExample.elementCreator({
   tag: 'xin-example',
+  styleSpec: {
+    ':host': {
+      '--xin-example-height': '320px',
+      '--code-editors-bar-bg': '#777',
+      '--code-editors-bar-color': '#fff',
+      '--widget-bg': '#fff8',
+      '--widget-color': '#000',
+      position: 'relative',
+      display: 'flex',
+      height: 'var(--xin-example-height)',
+      background: 'var(--background)',
+      boxSizing: 'border-box',
+    },
+
+    ':host.-maximize': {
+      position: 'fixed',
+      left: '0',
+      top: '0',
+      height: '100vh',
+      width: '100vw',
+      margin: '0 !important',
+    },
+
+    '.-maximize': {
+      zIndex: 10,
+    },
+
+    ':host.-maximize .hide-if-maximized, :host:not(.-maximize) .show-if-maximized':
+      {
+        display: 'none',
+      },
+
+    ':host [part="example"]': {
+      flex: '1 1 50%',
+      height: '100%',
+      position: 'relative',
+      overflowX: 'auto',
+    },
+
+    ':host .preview': {
+      height: '100%',
+      position: 'relative',
+      overflow: 'hidden',
+      background:
+        '#f7f7f7 url(\'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="80" height="80" viewBox="0 0 8 8" fill-opacity=".02" ><rect x="4" width="4" height="4" /><rect y="4" width="4" height="4" /></svg>\')',
+    },
+
+    ':host [part="editors"]': {
+      flex: '1 1 200px',
+      height: '100%',
+      position: 'relative',
+    },
+
+    ':host [part="exampleWidgets"]': {
+      position: 'absolute',
+      left: '2px',
+      bottom: '2px',
+      '--widget-color': 'var(--brand-color)',
+      background: 'var(--widget-bg)',
+      borderRadius: '5px',
+      width: '44px',
+      height: '44px',
+      lineHeight: '44px',
+    },
+
+    ':host [part="exampleWidgets"] svg': {
+      fill: 'var(--widget-color)',
+    },
+
+    ':host .code-editors': {
+      overflow: 'hidden',
+      background: 'white',
+      position: 'relative',
+      top: '0',
+      right: '0',
+      flex: '1 1 50%',
+      height: '100%',
+      flexDirection: 'column',
+      zIndex: 10,
+    },
+
+    ':host .code-editors:not([hidden])': {
+      display: 'flex',
+    },
+
+    ':host .code-editors > h4': {
+      padding: '5px',
+      margin: '0',
+      textAlign: 'center',
+      background: 'var(--code-editors-bar-bg)',
+      color: 'var(--code-editors-bar-color)',
+      cursor: 'move',
+    },
+
+    ':host .close-button': {
+      position: 'absolute',
+      top: '0',
+      right: '0',
+      '--text-color': 'var(--code-editors-bar-color)',
+    },
+
+    ':host button.transparent, :host .sizer': {
+      width: '32px',
+      height: '32px',
+      lineHeight: '32px',
+      textAlign: 'center',
+      padding: '0',
+      margin: '0',
+    },
+
+    ':host .sizer': {
+      cursor: 'nwse-resize',
+    },
+  },
 }) as ElementCreator<LiveExample>
 
 export function makeExamplesLive(element: HTMLElement) {
