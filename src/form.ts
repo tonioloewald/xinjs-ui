@@ -96,9 +96,7 @@ import { Component as XinComponent, ElementCreator, elements } from 'xinjs'
 const { form, slot, xinSlot, label, input } = elements
 
 function attr(element: HTMLElement, name: string, value: any): void {
-  if (value === true) {
-    element.setAttribute(name, '')
-  } else if (value !== '' && value !== false) {
+  if (value !== '' && value !== false) {
     element.setAttribute(name, value)
   } else {
     element.removeAttribute(name)

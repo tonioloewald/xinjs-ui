@@ -118,7 +118,7 @@ export class XinSelect extends WebComponent {
       if (typeof option === 'string') {
         caption = value = option
       } else {
-        ;({ icon, caption, value } = option)
+        ({ icon, caption, value } = option)
       }
       return {
         icon,

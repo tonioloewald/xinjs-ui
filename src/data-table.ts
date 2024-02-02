@@ -172,11 +172,7 @@ export class DataTable extends WebComponent {
 
   private selectedKey = Symbol('selected')
   private selectBinding = (elt: HTMLElement, obj: any) => {
-    if (obj[this.selectedKey]) {
-      elt.setAttribute('aria-selected', '')
-    } else {
-      elt.removeAttribute('aria-selected')
-    }
+    elt.toggleAttribute('aria-selected', obj[this.selectedKey] === true)
   }
 
   maxVisibleRows = 10000
