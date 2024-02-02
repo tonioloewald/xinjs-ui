@@ -110,8 +110,9 @@ const { elements } = xinjs
 preview.querySelector('button').addEventListener('click', (event) => {
   popMenu({
     target: event.target,
-    menuItems:  Object.keys(icons).map(caption => ({
-      caption,
+    menuItems:  Object.keys(icons).map(icon => ({
+      icon,
+      caption: icon,
       action() {
         console.log(caption)
       }
@@ -180,7 +181,7 @@ And, finally, submenus are darn useful for any serious app.
 For this reason, `xinjs-ui` has its own menu implementation.
 */
 
-import { elements, css, varDefault, vars, XinStyleRule } from 'xinjs'
+import { elements, varDefault, vars, StyleSheet } from 'xinjs'
 import { popFloat, FloatPosition } from './pop-float'
 import { icons } from './icons'
 
@@ -205,85 +206,79 @@ export type MenuSeparator = null
 
 export type MenuItem = MenuAction | SubMenu | MenuSeparator
 
-const { div, button, span, a, style } = elements
+const { div, button, span, a } = elements
 
-// FIXME replace with StyleSheet when xinjs is updated
-document.head.append(
-  style(
-    { id: 'xin-menu-helper' },
-    css({
-      '.xin-menu': {
-        overflow: 'hidden auto',
-        maxHeight: `calc(${vars.maxHeight} - ${varDefault.menuInset('8px')})`,
-        borderRadius: vars.spacing50,
-        background: varDefault.menuBg('#fafafa'),
-        boxShadow: `${vars.spacing13} ${vars.spacing50} ${vars.spacing} ${vars.shadowColor}`,
-      },
-      '.xin-menu > div': {
-        width: varDefault.menuWidth('200px'),
-      },
-      '.xin-menu-trigger': {
-        paddingLeft: 0,
-        paddingRight: 0,
-        minWidth: varDefault.touchSize('48px'),
-      },
-      '.xin-menu-separator': {
-        display: 'inline-block',
-        content: ' ',
-        height: '1px',
-        width: '100%',
-        background: varDefault.menuItemColor('#222'),
-        opacity: 0.25,
-        margin: varDefault.menuSeparatorMargin('8px 0'),
-      },
-      '.xin-menu-item': {
-        boxShadow: 'none',
-        border: 'none !important',
-        display: 'grid',
-        alignItems: 'center',
-        justifyContent: 'flex-start',
-        textDecoration: 'none',
-        gridTemplateColumns: '0px 1fr 30px',
-        width: '100%',
-        gap: 0,
-        background: 'transparent',
-        padding: varDefault.menuItemPadding('0 16px'),
-        height: varDefault.menuItemHeight('48px'),
-        lineHeight: varDefault.menuItemHeight('48px'),
-        textAlign: 'left',
-      },
-      '.xin-menu-item, .xin-menu-item > span': {
-        color: varDefault.menuItemColor('#222'),
-      },
-      '.xin-menu-with-icons .xin-menu-item': {
-        gridTemplateColumns: '30px 1fr 30px',
-      },
-      '.xin-menu-item svg': {
-        fill: varDefault.menuItemIconColor('#222'),
-      },
-      '.xin-menu-item > span:nth-child(2)': {
-        whiteSpace: 'nowrap',
-        overflow: 'hidden',
-        textOverflow: 'ellipsis',
-        textAlign: 'left',
-      },
-      '.xin-menu-item:hover': {
-        // chrome rendering bug
-        boxShadow: 'none !important',
-        background: varDefault.menuItemHoverBg('#eee'),
-      },
-      '.xin-menu-item:active': {
-        // chrome rendering bug
-        boxShadow: 'none !important',
-        background: varDefault.menuItemActiveBg('#aaa'),
-        color: varDefault.menuItemActiveColor('#000'),
-      },
-      '.xin-menu-item:active svg': {
-        fill: varDefault.menuItemIconActiveColor('#000'),
-      },
-    })
-  )
-)
+StyleSheet('xin-menu-helper', {
+  '.xin-menu': {
+    overflow: 'hidden auto',
+    maxHeight: `calc(${vars.maxHeight} - ${varDefault.menuInset('8px')})`,
+    borderRadius: vars.spacing50,
+    background: varDefault.menuBg('#fafafa'),
+    boxShadow: `${vars.spacing13} ${vars.spacing50} ${vars.spacing} ${vars.shadowColor}`,
+  },
+  '.xin-menu > div': {
+    width: varDefault.menuWidth('200px'),
+  },
+  '.xin-menu-trigger': {
+    paddingLeft: 0,
+    paddingRight: 0,
+    minWidth: varDefault.touchSize('48px'),
+  },
+  '.xin-menu-separator': {
+    display: 'inline-block',
+    content: ' ',
+    height: '1px',
+    width: '100%',
+    background: varDefault.menuItemColor('#222'),
+    opacity: 0.25,
+    margin: varDefault.menuSeparatorMargin('8px 0'),
+  },
+  '.xin-menu-item': {
+    boxShadow: 'none',
+    border: 'none !important',
+    display: 'grid',
+    alignItems: 'center',
+    justifyContent: 'flex-start',
+    textDecoration: 'none',
+    gridTemplateColumns: '0px 1fr 30px',
+    width: '100%',
+    gap: 0,
+    background: 'transparent',
+    padding: varDefault.menuItemPadding('0 16px'),
+    height: varDefault.menuItemHeight('48px'),
+    lineHeight: varDefault.menuItemHeight('48px'),
+    textAlign: 'left',
+  },
+  '.xin-menu-item, .xin-menu-item > span': {
+    color: varDefault.menuItemColor('#222'),
+  },
+  '.xin-menu-with-icons .xin-menu-item': {
+    gridTemplateColumns: '30px 1fr 30px',
+  },
+  '.xin-menu-item svg': {
+    fill: varDefault.menuItemIconColor('#222'),
+  },
+  '.xin-menu-item > span:nth-child(2)': {
+    whiteSpace: 'nowrap',
+    overflow: 'hidden',
+    textOverflow: 'ellipsis',
+    textAlign: 'left',
+  },
+  '.xin-menu-item:hover': {
+    // chrome rendering bug
+    boxShadow: 'none !important',
+    background: varDefault.menuItemHoverBg('#eee'),
+  },
+  '.xin-menu-item:active': {
+    // chrome rendering bug
+    boxShadow: 'none !important',
+    background: varDefault.menuItemActiveBg('#aaa'),
+    color: varDefault.menuItemActiveColor('#000'),
+  },
+  '.xin-menu-item:active svg': {
+    fill: varDefault.menuItemIconActiveColor('#000'),
+  },
+})
 
 export const createMenuAction = (item: MenuAction): HTMLElement => {
   let icon = item?.icon || span(' ')
@@ -363,15 +358,10 @@ export const createMenuItem = (
 }
 
 export const menu = (options: PopMenuOptions): HTMLDivElement => {
-  const style: XinStyleRule = {}
-  const { width, menuItems } = options
-  if (width) {
-    style.width = typeof width === 'number' ? `${width}px` : width
-  }
+  const { target, width, menuItems } = options
   const hasIcons = menuItems.find((item) => item?.icon != null)
   return div(
     {
-      style,
       class: hasIcons ? 'xin-menu xin-menu-with-icons' : 'xin-menu',
       onClick() {
         removeLastMenu(0)
@@ -379,6 +369,10 @@ export const menu = (options: PopMenuOptions): HTMLDivElement => {
     },
     div(
       {
+        style: {
+          minWidth: target.offsetWidth + 'px',
+          width: typeof width === 'number' ? `${width}px` : width,
+        },
         onMousedown(event: Event) {
           event.preventDefault()
           event.stopPropagation()
