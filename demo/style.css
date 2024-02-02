@@ -22,6 +22,7 @@
   --xin-tabs-bar-color: var(--brand-text-color);
   --touch-size: 32px;
   --shadow-color: #0004;
+  --menu-item-icon-color: var(--brand-color);
 
   --header-height: calc(
     var(--line-height) * var(--h2-scale) + var(--spacing) * 2
