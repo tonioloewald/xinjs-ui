@@ -20,7 +20,7 @@ const { icons } = xinjsui
 
 const iconsSelect = preview.querySelector('.icons')
 
-iconsSelect.options = Object.keys(icons).map(icon =>({
+iconsSelect.options = Object.keys(icons).sort().map(icon =>({
   icon,
   caption: icon,
   value: icon
@@ -141,7 +141,6 @@ export class XinSelect extends WebComponent {
   popOptions = () => {
     popMenu({
       target: this,
-      width: 'auto',
       menuItems: this.optionsMenu,
     })
   }
