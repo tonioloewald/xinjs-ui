@@ -14,7 +14,6 @@ preview.addEventListener('click', (event) => {
   }
   popMenu({
     target: event.target,
-    width: 'auto',
     menuItems: [
       {
         icon: 'thumbsUp',
@@ -217,7 +216,7 @@ StyleSheet('xin-menu-helper', {
     boxShadow: `${vars.spacing13} ${vars.spacing50} ${vars.spacing} ${vars.shadowColor}`,
   },
   '.xin-menu > div': {
-    width: varDefault.menuWidth('200px'),
+    width: varDefault.menuWidth('auto'),
   },
   '.xin-menu-trigger': {
     paddingLeft: 0,
