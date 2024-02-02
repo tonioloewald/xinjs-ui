@@ -107,8 +107,8 @@ export const xinTag = XinTag.elementCreator({
   tag: 'xin-tag',
   styleSpec: {
     ':host': {
-      '--tag-close-button-color': '#fff',
-      '--tag-close-button-bg': '#888',
+      '--tag-close-button-color': '#000c',
+      '--tag-close-button-bg': '#fffc',
       '--tag-close-button-border-radius': '99px',
       '--tag-button-opacity': '0.5',
       '--tag-button-hover-opacity': '0.75',
@@ -312,15 +312,13 @@ export class XinTagList extends WebComponent {
     }
 
     tagInput.value = ''
-    tagInput.setAttribute('hidden', '')
     tagInput.setAttribute('placeholder', this.placeholder)
     if (this.editable) {
-      tagMenu.removeAttribute('hidden')
-      if (this.textEntry) {
-        tagInput.removeAttribute('hidden')
-      }
+      tagMenu.toggleAttribute('hidden', false)
+        tagInput.toggleAttribute('hidden', !this.textEntry)
     } else {
-      tagMenu.setAttribute('hidden', '')
+      tagMenu.toggleAttribute('hidden', true)
+      tagInput.toggleAttribute('hidden', true)
     }
 
     tagContainer.textContent = ''

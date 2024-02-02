@@ -93,11 +93,9 @@ export class AbTest extends XinComponent {
         ? abTestConditions[this.condition] === true
         : abTestConditions[this.condition] !== true)
     ) {
-      if (!this.hasAttribute('hidden')) {
-        this.setAttribute('hidden', '')
-      }
-    } else if (this.hasAttribute('hidden')) {
-      this.removeAttribute('hidden')
+      this.toggleAttribute('hidden', true)
+    } else {
+      this.toggleAttribute('hidden', false)
     }
   }
 }
