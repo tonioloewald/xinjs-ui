@@ -8,14 +8,29 @@ as a comma-delimited string or an array of strings).
 
 ```html
 <b>Display Only</b>
-<xin-tag-list value="this,that,,the-other"></xin-tag-list>
-<xin-tag-list class="compact" value="this,that,,the-other"></xin-tag-list>
+<xin-tag-list
+  value="this,that,,the-other"
+></xin-tag-list>
+<xin-tag-list
+  class="compact"
+  value="this,that,,the-other"
+></xin-tag-list>
 <br>
 <b>Editable</b>
-<xin-tag-list value="belongs,also belongs,custom" editable available-tags="belongs,also belongs,not initially chosen"></xin-tag-list>
+<xin-tag-list
+  value="belongs,also belongs,custom"
+  editable
+  available-tags="belongs,also belongs,not initially chosen"
+></xin-tag-list>
+
 <br>
 <b>Text-Entry</b>
-<xin-tag-list value="this,that,the-other,not,enough,space" editable text-entry available-tags="tomasina,dick,,harriet"></xin-tag-list>
+<xin-tag-list
+  value="this,that,the-other,not,enough,space"
+  editable
+  text-entry
+  available-tags="tomasina,dick,,harriet"
+></xin-tag-list>
 ```
 ```css
 .preview .compact {

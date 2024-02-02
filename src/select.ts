@@ -12,8 +12,17 @@ built in `<select>` element that addresses its various shortcomings.
 - picking an item triggers an `action` event even if the value hasn't changed.
 
 ```html
-<xin-select title="simple select" options="this,that,,the other" value="not an option!"></xin-select><br>
-<xin-select title="combo select" class="icons" editable placeholder="pick an icon"></xin-select>
+<xin-select
+  title="simple select"
+  options="this,that,,the other"
+  value="not an option!"
+></xin-select><br>
+<xin-select
+  title="combo select"
+  class="icons"
+  editable
+  placeholder="pick an icon"
+></xin-select>
 ```
 ```js
 const { icons } = xinjsui
