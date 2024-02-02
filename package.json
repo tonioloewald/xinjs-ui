@@ -12,7 +12,7 @@
     "postbuild": "cp demo/static/* www && cp demo/static/* docs",
     "format": "bun eslint src demo --fix && bun prettier --write .",
     "test": "bun test",
-    "latest": "rm -rf .parcel-cache && rm -rf node_modules && npm update --dev && bun install"
+    "latest": "rm -rf .parcel-cache && rm -rf node_modules && npm install && bun install"
   },
   "keywords": [
     "xinjs",
@@ -45,7 +45,7 @@
   },
   "peerDependencies": {
     "marked": "^5.1.0",
-    "xinjs": "^0.6.3"
+    "xinjs": "^0.6.4"
   },
   "files": [
     "/dist",
