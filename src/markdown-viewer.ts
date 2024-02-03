@@ -120,7 +120,7 @@ export class MarkdownViewer extends Component {
   connectedCallback(): void {
     super.connectedCallback()
     if (this.src !== '') {
-      (async () => {
+      ;(async () => {
         const request = await fetch(this.src)
         this.value = await request.text()
       })()

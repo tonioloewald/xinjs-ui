@@ -22,7 +22,7 @@
 import { Component, elements, vars } from 'xinjs'
 import { icons } from './icons'
 
-const { div, button } = elements
+const { div } = elements
 
 export class EditableRect extends Component {
   content = () => [
@@ -32,41 +32,39 @@ export class EditableRect extends Component {
       },
       icons.move()
     ),
+    div({
+      title: 'resize left',
+      class: 'drag-size',
+      style: { left: '-6px', width: '8px' },
+    }),
+    div({
+      title: 'resize right',
+      class: 'drag-size',
+      style: { left: 'calc(100% - 2px)', width: '8px' },
+    }),
+    div({
+      title: 'resize top',
+      class: 'drag-size',
+      style: { top: '-6px', height: '8px', cursor: 'ns-resize' },
+    }),
+    div({
+      title: 'resize bottom',
+      class: 'drag-size',
+      style: { top: 'calc(100% - 2px)', height: '8px', cursor: 'ns-resize' },
+    }),
     div(
       {
-        title: 'resize left',
-        class: 'drag-size',
-        style: { left: '-6px', width: '8px'}
+        style: { bottom: '0', right: '0' },
       },
-    ),
-    div(
-      {
-        title: 'resize right',
-        class: 'drag-size',
-        style: { left: 'calc(100% - 2px)', width: '8px'}
-      },
-    ),
-    div(
-      {
-        title: 'resize top',
-        class: 'drag-size',
-        style: { top: '-6px', height: '8px', cursor: 'ns-resize'}
-      },
-    ),
-    div(
-      {
-        title: 'resize bottom',
-        class: 'drag-size',
-        style: { top: 'calc(100% - 2px)', height: '8px', cursor: 'ns-resize'}
-      },
+      icons.resize()
     ),
     div(
       {
         style: { top: '100%', left: '100%' },
       },
-      icons.resize()
+      icons.refresh()
     ),
-    button(
+    div(
       {
         part: 'lockLeft',
         title: 'lock left',
@@ -75,7 +73,7 @@ export class EditableRect extends Component {
       icons.lock(),
       icons.unlock()
     ),
-    button(
+    div(
       {
         part: 'lockRight',
         title: 'lock right',
@@ -84,7 +82,7 @@ export class EditableRect extends Component {
       icons.lock(),
       icons.unlock()
     ),
-    button(
+    div(
       {
         part: 'lockTop',
         title: 'lock top',
@@ -93,7 +91,7 @@ export class EditableRect extends Component {
       icons.lock(),
       icons.unlock()
     ),
-    button(
+    div(
       {
         part: 'lockBottom',
         title: 'lock left',
@@ -103,14 +101,17 @@ export class EditableRect extends Component {
       icons.unlock()
     ),
   ]
-  
+
   render() {
     super.render()
-    
+
     const { lockLeft, lockRight, lockTop, lockBottom } = this.parts
-    
-    const style = getComputedStyle(this.parent)
-    lockLeft.s
+
+    const { style } = this.parentElement
+    lockLeft.toggleAttribute('locked', !style.left.match(/\d/))
+    lockRight.toggleAttribute('locked', !style.right.match(/\d/))
+    lockTop.toggleAttribute('locked', !style.top.match(/\d/))
+    lockBottom.toggleAttribute('locked', !style.bottom.match(/\d/))
   }
 }
 
@@ -139,10 +140,13 @@ export const editableRect = EditableRect.elementCreator({
       height: 'auto',
       width: 'auto',
       background: 'transparent',
-      cursor: 'ew-resize'
+      cursor: 'ew-resize',
+    },
+    ':host > :not([locked]) > svg+svg, :host > [locked] > svg:first-child': {
+      display: 'none',
     },
     ':host > * > svg+svg': {
-      display: 'none'
-    }
+      opacity: 0.5,
+    },
   },
 })
