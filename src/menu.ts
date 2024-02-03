@@ -388,14 +388,14 @@ interface PoppedMenu {
 }
 const poppedMenus: PoppedMenu[] = []
 
+let lastPopped?: PoppedMenu
 const removeLastMenu = (depth = 0): PoppedMenu | undefined => {
   const toBeRemoved = poppedMenus.splice(depth)
   for (const popped of toBeRemoved) {
     popped.menu.remove()
   }
-  if (depth > 0) {
-    return poppedMenus[depth - 1]
-  }
+  lastPopped = toBeRemoved[0]
+  return depth > 0 ? poppedMenus[depth - 1] : undefined
 }
 
 export interface PopMenuOptions {
@@ -418,7 +418,9 @@ export const popMenu = (options: PopMenuOptions): void => {
     { submenuDepth: 0 },
     options
   )
+  if (submenuDepth === 0 && lastPopped?.target === target) return
   const popped = removeLastMenu(submenuDepth)
+  if (lastPopped?.target === target) return
   if (popped && popped.target === target) {
     removeLastMenu()
     return
