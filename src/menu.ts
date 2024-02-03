@@ -386,9 +386,9 @@ interface PoppedMenu {
   target: HTMLElement
   menu: HTMLElement
 }
+let lastPopped: PoppedMenu | undefined
 const poppedMenus: PoppedMenu[] = []
 
-let lastPopped?: PoppedMenu
 const removeLastMenu = (depth = 0): PoppedMenu | undefined => {
   const toBeRemoved = poppedMenus.splice(depth)
   for (const popped of toBeRemoved) {
