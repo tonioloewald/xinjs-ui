@@ -315,7 +315,7 @@ export class XinTagList extends WebComponent {
     tagInput.setAttribute('placeholder', this.placeholder)
     if (this.editable) {
       tagMenu.toggleAttribute('hidden', false)
-        tagInput.toggleAttribute('hidden', !this.textEntry)
+      tagInput.toggleAttribute('hidden', !this.textEntry)
     } else {
       tagMenu.toggleAttribute('hidden', true)
       tagInput.toggleAttribute('hidden', true)
