@@ -28,6 +28,8 @@ import { icons } from './icons'
 import { trackDrag } from './track-drag'
 
 export class XinSizer extends XinComponent {
+  target?: HTMLElement | null = null
+
   static styleSpec = {
     ':host': {
       display: 'block',
@@ -51,20 +53,30 @@ export class XinSizer extends XinComponent {
 
   content = icons.resize()
 
-  resizeParent = (event: Event): void => {
-    const parent = this.parentElement as HTMLElement
-    const w = parent.offsetWidth
-    const h = parent.offsetHeight
-    parent.style.left = parent.offsetLeft + 'px'
-    parent.style.top = parent.offsetTop + 'px'
-    parent.style.bottom = ''
-    parent.style.right = ''
+  get minSize(): {width: number, height: number} {
+    const {minWidth, minHeight} = getComputedStyle(this.target!)
+    return {
+      width: (parseFloat(minWidth) || 32),
+      height: (parseFloat(minHeight) || 32)
+    }
+  }
+
+  resizeTarget = (event: Event): void => {
+    const {target} = this
+    if(!target) return
+    const w = target.offsetWidth
+    const h = target.offsetHeight
+    target.style.left = target.offsetLeft + 'px'
+    target.style.top = target.offsetTop + 'px'
+    target.style.bottom = ''
+    target.style.right = ''
+    const {minSize } = this
 
     trackDrag(
       event as PointerEvent,
       (dx: number, dy: number, event: any): true | undefined => {
-        parent.style.width = Math.max(200, w + dx) + 'px'
-        parent.style.height = Math.max(100, h + dy) + 'px'
+        target.style.width = Math.max(minSize.width, w + dx) + 'px'
+        target.style.height = Math.max(minSize.height, h + dy) + 'px'
         if (event.type === 'mouseup') {
           return true
         }
@@ -76,8 +88,12 @@ export class XinSizer extends XinComponent {
   connectedCallback(): void {
     super.connectedCallback()
 
-    this.addEventListener('mousedown', this.resizeParent)
-    this.addEventListener('touchstart', this.resizeParent)
+    if (!this.target) {
+      this.target = this.parentElement
+    }
+
+    this.addEventListener('mousedown', this.resizeTarget)
+    this.addEventListener('touchstart', this.resizeTarget)
   }
 }
 

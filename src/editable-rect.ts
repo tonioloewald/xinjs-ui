@@ -21,6 +21,7 @@
 
 import { Component, elements, vars } from 'xinjs'
 import { icons } from './icons'
+import { xinSizer, XinSizer } from './sizer'
 import { trackDrag } from './track-drag'
 
 const { div } = elements
@@ -49,6 +50,36 @@ export class EditableRect extends Component {
     )
   }
 
+  get coords(): {top: number, left: number, bottom: number, right: number} {
+    const {top, left, right, bottom} = this.parentElement!.style
+    return {
+      top: parseFloat(top),
+      left: parseFloat(left),
+      right: parseFloat(right),
+      bottom: parseFloat(bottom)
+    }
+  }
+
+  adjustPosition = (event: PointerEvent) => {
+    const target = this.parentElement!
+    const { top, left, bottom, right } = this.coords
+    trackDrag(event, (dx, dy, dragEvent) => {
+      if (!isNaN(top)) {
+        target.style.top = (top + dy) + 'px'
+      }
+      if (!isNaN(bottom)) {
+        target.style.bottom = (bottom - dy) + 'px'
+      }
+      if (!isNaN(left)) {
+        target.style.left = (left + dx) + 'px'
+      }
+      if (!isNaN(right)) {
+        target.style.right = (right - dx) + 'px'
+      }
+      return dragEvent.type === 'mouseup'
+    })
+  }
+
   adjustSize = (event: Event) => {
     const dimension = (event.target as HTMLElement).getAttribute('part')!
     console.log(dimension)
@@ -66,19 +97,20 @@ export class EditableRect extends Component {
     return this.parentElement as HTMLElement
   }
 
-  adjustRotation = (event: Event) => {
+  adjustRotation = (event: PointerEvent) => {
     const { center } = this
     if (!this.element.style.transformOrigin) {
       this.element.style.transformOrigin = '50% 50%'
     }
-    trackDrag(event as PointerEvent, (dx, dy, dragEvent: PointerEvent) => {
+    trackDrag(event, (dx, dy, dragEvent: PointerEvent) => {
       const { clientX, clientY } = dragEvent
       const x = clientX - center.x
       const y = clientY - center.y
       let alpha = y > 0 ? 90 : -90
       if (x !== 0) {
-        alpha = (Math.atan(y / x) * 180) / Math.PI
+        alpha = (Math.atan2(y, x) * 180) / Math.PI;
       }
+      console.log(x, alpha)
       if (dragEvent.shiftKey) {
         alpha =
           Math.round(alpha / EditableRect.rotationSnap) *
@@ -93,6 +125,7 @@ export class EditableRect extends Component {
     div(
       {
         style: { top: '50%', left: '50%', transform: 'translate(-50%,-50%)' },
+        onMousedown: this.adjustPosition
       },
       icons.move()
     ),
@@ -121,17 +154,16 @@ export class EditableRect extends Component {
       class: 'drag-size',
       style: { top: 'calc(100% - 2px)', height: '8px', cursor: 'ns-resize' },
     }),
-    div(
+    xinSizer(
       {
         part: 'resize',
         style: { bottom: '0', right: '0' },
       },
-      icons.resize()
     ),
     div(
       {
         part: 'rotate',
-        style: { top: '50%', left: '100%' },
+        style: { top: '50%', right: '0' },
         onMousedown: this.adjustRotation,
       },
       icons.refresh()
@@ -173,6 +205,18 @@ export class EditableRect extends Component {
       icons.lock()
     ),
   ]
+
+  constructor() {
+    super()
+
+    this.initAttributes('rotationSnap', 'positionSnap')
+  }
+
+  connectedCallback() {
+    super.connectedCallback()
+
+    ;(this.parts.resize as XinSizer).target = this.parentElement
+  }
 
   render() {
     super.render()
@@ -218,7 +262,7 @@ export const editableRect = EditableRect.elementCreator({
       cursor: 'ew-resize',
     },
     ':host > [part="rotate"]': {
-      transform: `translate(${vars.handleSize}, ${vars.handleSize_50})`,
+      transform: `translateY(${vars.handleSize_50})`,
     },
     ':host > [locked] > svg:first-child, :host > :not([locked]) > svg+svg': {
       display: 'none',
