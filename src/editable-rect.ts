@@ -21,10 +21,74 @@
 
 import { Component, elements, vars } from 'xinjs'
 import { icons } from './icons'
+import { trackDrag } from './track-drag'
 
 const { div } = elements
 
 export class EditableRect extends Component {
+  static rotationSnap = 15
+  static positionSnap = 4
+
+  get lockedRight(): boolean {
+    return this.parentElement?.style.right.match(/\d/) !== null
+  }
+
+  get lockedLeft(): boolean {
+    return (
+      this.parentElement?.style.left.match(/\d/) !== null || !this.lockedRight
+    )
+  }
+
+  get lockedBottom(): boolean {
+    return this.parentElement?.style.bottom.match(/\d/) !== null
+  }
+
+  get lockedTop(): boolean {
+    return (
+      this.parentElement?.style.top.match(/\d/) !== null || !this.lockedBottom
+    )
+  }
+
+  adjustSize = (event: Event) => {
+    const dimension = (event.target as HTMLElement).getAttribute('part')!
+    console.log(dimension)
+  }
+
+  get center(): { x: number; y: number } {
+    const rect = this.parentElement!.getBoundingClientRect()
+    return {
+      x: rect.x + rect.width * 0.5,
+      y: rect.y + rect.height * 0.5,
+    }
+  }
+
+  get element(): HTMLElement {
+    return this.parentElement as HTMLElement
+  }
+
+  adjustRotation = (event: Event) => {
+    const { center } = this
+    if (!this.element.style.transformOrigin) {
+      this.element.style.transformOrigin = '50% 50%'
+    }
+    trackDrag(event as PointerEvent, (dx, dy, dragEvent: PointerEvent) => {
+      const { clientX, clientY } = dragEvent
+      const x = clientX - center.x
+      const y = clientY - center.y
+      let alpha = y > 0 ? 90 : -90
+      if (x !== 0) {
+        alpha = (Math.atan(y / x) * 180) / Math.PI
+      }
+      if (dragEvent.shiftKey) {
+        alpha =
+          Math.round(alpha / EditableRect.rotationSnap) *
+          EditableRect.rotationSnap
+      }
+      this.element.style.transform = `rotate(${alpha}deg)`
+      return dragEvent.type === 'mouseup'
+    })
+  }
+
   content = () => [
     div(
       {
@@ -33,34 +97,42 @@ export class EditableRect extends Component {
       icons.move()
     ),
     div({
+      part: 'left',
       title: 'resize left',
       class: 'drag-size',
       style: { left: '-6px', width: '8px' },
     }),
     div({
+      part: 'right',
       title: 'resize right',
       class: 'drag-size',
       style: { left: 'calc(100% - 2px)', width: '8px' },
+      onMousedown: this.adjustSize,
     }),
     div({
+      part: 'top',
       title: 'resize top',
       class: 'drag-size',
       style: { top: '-6px', height: '8px', cursor: 'ns-resize' },
     }),
     div({
+      part: 'bottom',
       title: 'resize bottom',
       class: 'drag-size',
       style: { top: 'calc(100% - 2px)', height: '8px', cursor: 'ns-resize' },
     }),
     div(
       {
+        part: 'resize',
         style: { bottom: '0', right: '0' },
       },
       icons.resize()
     ),
     div(
       {
-        style: { top: '100%', left: '100%' },
+        part: 'rotate',
+        style: { top: '50%', left: '100%' },
+        onMousedown: this.adjustRotation,
       },
       icons.refresh()
     ),
@@ -70,8 +142,8 @@ export class EditableRect extends Component {
         title: 'lock left',
         style: { top: '50%', left: 0, transform: 'translate(-100%, -50%)' },
       },
-      icons.lock(),
-      icons.unlock()
+      icons.unlock(),
+      icons.lock()
     ),
     div(
       {
@@ -79,8 +151,8 @@ export class EditableRect extends Component {
         title: 'lock right',
         style: { top: '50%', left: '100%', transform: 'translate(0%, -50%)' },
       },
-      icons.lock(),
-      icons.unlock()
+      icons.unlock(),
+      icons.lock()
     ),
     div(
       {
@@ -88,8 +160,8 @@ export class EditableRect extends Component {
         title: 'lock top',
         style: { top: 0, left: '50%', transform: 'translate(-50%, -100%)' },
       },
-      icons.lock(),
-      icons.unlock()
+      icons.unlock(),
+      icons.lock()
     ),
     div(
       {
@@ -97,8 +169,8 @@ export class EditableRect extends Component {
         title: 'lock left',
         style: { top: '100%', left: '50%', transform: 'translate(-50%, 0%)' },
       },
-      icons.lock(),
-      icons.unlock()
+      icons.unlock(),
+      icons.lock()
     ),
   ]
 
@@ -107,11 +179,10 @@ export class EditableRect extends Component {
 
     const { lockLeft, lockRight, lockTop, lockBottom } = this.parts
 
-    const { style } = this.parentElement
-    lockLeft.toggleAttribute('locked', !style.left.match(/\d/))
-    lockRight.toggleAttribute('locked', !style.right.match(/\d/))
-    lockTop.toggleAttribute('locked', !style.top.match(/\d/))
-    lockBottom.toggleAttribute('locked', !style.bottom.match(/\d/))
+    lockLeft.toggleAttribute('locked', this.lockedLeft)
+    lockRight.toggleAttribute('locked', this.lockedRight)
+    lockTop.toggleAttribute('locked', this.lockedTop)
+    lockBottom.toggleAttribute('locked', this.lockedBottom)
   }
 }
 
@@ -121,14 +192,18 @@ export const editableRect = EditableRect.elementCreator({
     ':host': {
       '--handle-bg': '#fff8',
       '--handle-color': '#222',
+      '--handle-hover-bg': '#8ff8',
+      '--handle-size': '20px',
+      '--handle-padding': '2px',
     },
     ':host > *': {
+      boxSizing: 'border-box',
       content: '" "',
       position: 'absolute',
       display: 'flex',
-      height: '20px',
-      width: '20px',
-      padding: '2px',
+      height: vars.handleSize,
+      width: vars.handleSize,
+      padding: vars.handlePadding,
       '--text-color': vars.handleColor,
       background: vars.handleBg,
     },
@@ -142,11 +217,17 @@ export const editableRect = EditableRect.elementCreator({
       background: 'transparent',
       cursor: 'ew-resize',
     },
-    ':host > :not([locked]) > svg+svg, :host > [locked] > svg:first-child': {
+    ':host > [part="rotate"]': {
+      transform: `translate(${vars.handleSize}, ${vars.handleSize_50})`,
+    },
+    ':host > [locked] > svg:first-child, :host > :not([locked]) > svg+svg': {
       display: 'none',
     },
-    ':host > * > svg+svg': {
+    ':host .icon-unlock': {
       opacity: 0.5,
+    },
+    ':host > div:hover': {
+      background: vars.handleHoverBg,
     },
   },
 })
