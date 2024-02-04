@@ -1,6 +1,10 @@
 import { elements } from 'xinjs'
 
-type TrackerCallback = (dx: number, dy: number, event: any) => true | undefined
+type TrackerCallback = (
+  dx: number,
+  dy: number,
+  event: PointerEvent
+) => boolean | undefined
 
 /*!
 # trackDrag
