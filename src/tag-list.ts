@@ -50,7 +50,7 @@ A list of tags
 
 A read-only property giving the value as an array.
 
-### `available-tags`
+### `available-tags`: string | string[]
 
 A list of tags that will be displayed in the popup menu by default. The popup menu
 will always display custom tags (allowing their removal).
@@ -246,13 +246,13 @@ export class XinTagList extends WebComponent {
     if (extraTags.length) {
       tags.push(null, ...extraTags)
     }
-    const menuItems: MenuItem = tags.map((tag) => {
+    const menuItems: MenuItem[] = tags.map((tag) => {
       if (tag === '' || tag === null) {
         return null
       } else if (typeof tag === 'object') {
         return {
           icon: this.tags.includes(tag.value) ? icons.minus() : icons.plus(),
-          caption: tag.caption,
+          caption: tag.caption!,
           action() {
             toggleTag(tag.value)
           },
@@ -296,7 +296,7 @@ export class XinTagList extends WebComponent {
   ]
 
   removeTag = (event: Event) => {
-    const tag = (event.target as HTMLElement).closest(XinTag.tagName) as XinTag
+    const tag = (event.target as HTMLElement).closest(XinTag.tagName!) as XinTag
     this.value = this.tags.filter((value) => value !== tag.caption)
     tag.remove()
     event.stopPropagation()
@@ -361,7 +361,7 @@ export const xinTagList = XinTagList.elementCreator({
       background: vars.inputBg,
       borderRadius: vars.roundedRadius,
       boxShadow: vars.borderShadow,
-      flexWrap: 'no-wrap',
+      flexWrap: 'nowrap',
       overflow: 'auto hidden',
       gap: vars.spacing25,
       minHeight: `calc(${vars.lineHeight} + ${vars.spacing})`,
