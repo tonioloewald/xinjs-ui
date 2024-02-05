@@ -85,6 +85,10 @@ export class EditableRect extends Component {
     console.log(dimension)
   }
 
+  get rect(): DOMRect {
+    return this.parentElement!.getBoundingClientRect()
+  }
+
   get center(): { x: number; y: number } {
     const rect = this.parentElement!.getBoundingClientRect()
     return {
@@ -99,7 +103,8 @@ export class EditableRect extends Component {
 
   adjustRotation = (event: PointerEvent) => {
     const { center } = this
-    if (!this.element.style.transformOrigin) {
+    const { transformOrigin } = this.element.style
+    if (!transformOrigin) {
       this.element.style.transformOrigin = '50% 50%'
     }
     trackDrag(event, (dx, dy, dragEvent: PointerEvent) => {
@@ -110,22 +115,45 @@ export class EditableRect extends Component {
       if (x !== 0) {
         alpha = (Math.atan2(y, x) * 180) / Math.PI;
       }
-      console.log(x, alpha)
       if (dragEvent.shiftKey) {
         alpha =
           Math.round(alpha / EditableRect.rotationSnap) *
           EditableRect.rotationSnap
       }
-      this.element.style.transform = `rotate(${alpha}deg)`
-      return dragEvent.type === 'mouseup'
+      if (alpha === 0) {
+        this.element.style.transformOrigin = ''
+        this.element.style.transform = ''
+      } else {
+        this.element.style.transform = `rotate(${alpha}deg)`
+        return dragEvent.type === 'mouseup'
+      }
     })
+  }
+
+  toggleLock = (event: Event) => {
+    const { rect } = this
+    const which = (event.target as HTMLElement).title.split(' ')[1]
+    switch(which) {
+      case 'left':
+        break
+      case 'right':
+        if (this.lockedLeft) {
+
+        }
+        break
+      case 'top':
+        break
+      case 'bottom':
+        break
+    }
+    this.queueRender()
   }
 
   content = () => [
     div(
       {
         style: { top: '50%', left: '50%', transform: 'translate(-50%,-50%)' },
-        onMousedown: this.adjustPosition
+        onMousedown: this.adjustPosition,
       },
       icons.move()
     ),
@@ -173,6 +201,7 @@ export class EditableRect extends Component {
         part: 'lockLeft',
         title: 'lock left',
         style: { top: '50%', left: 0, transform: 'translate(-100%, -50%)' },
+        onClick: this.toggleLock,
       },
       icons.unlock(),
       icons.lock()
@@ -182,6 +211,7 @@ export class EditableRect extends Component {
         part: 'lockRight',
         title: 'lock right',
         style: { top: '50%', left: '100%', transform: 'translate(0%, -50%)' },
+        onClick: this.toggleLock,
       },
       icons.unlock(),
       icons.lock()
@@ -191,6 +221,7 @@ export class EditableRect extends Component {
         part: 'lockTop',
         title: 'lock top',
         style: { top: 0, left: '50%', transform: 'translate(-50%, -100%)' },
+        onClick: this.toggleLock,
       },
       icons.unlock(),
       icons.lock()
@@ -200,6 +231,7 @@ export class EditableRect extends Component {
         part: 'lockBottom',
         title: 'lock left',
         style: { top: '100%', left: '50%', transform: 'translate(-50%, 0%)' },
+        onClick: this.toggleLock,
       },
       icons.unlock(),
       icons.lock()
