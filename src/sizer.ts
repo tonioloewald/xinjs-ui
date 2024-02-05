@@ -53,24 +53,24 @@ export class XinSizer extends XinComponent {
 
   content = icons.resize()
 
-  get minSize(): {width: number, height: number} {
-    const {minWidth, minHeight} = getComputedStyle(this.target!)
+  get minSize(): { width: number; height: number } {
+    const { minWidth, minHeight } = getComputedStyle(this.target!)
     return {
-      width: (parseFloat(minWidth) || 32),
-      height: (parseFloat(minHeight) || 32)
+      width: parseFloat(minWidth) || 32,
+      height: parseFloat(minHeight) || 32,
     }
   }
 
   resizeTarget = (event: Event): void => {
-    const {target} = this
-    if(!target) return
+    const { target } = this
+    if (!target) return
     const w = target.offsetWidth
     const h = target.offsetHeight
     target.style.left = target.offsetLeft + 'px'
     target.style.top = target.offsetTop + 'px'
     target.style.bottom = ''
     target.style.right = ''
-    const {minSize } = this
+    const { minSize } = this
 
     trackDrag(
       event as PointerEvent,

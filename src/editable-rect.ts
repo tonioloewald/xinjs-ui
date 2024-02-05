@@ -1,62 +1,134 @@
 /*!
 # editable-rect
 
+`<xin-editable>` (`editableRect` is the `ElementCreator` and `EditableRect` is the class) is an element
+for allowing the adjustment of another element's position and size. Simply insert it in a `position: absolute`
+or `position: fixed` element and you can directly adjust its CSS positioning, including rotation.
+
+> **Caution**: this is work-in-progress.
+
+Click on an element to adjust its position, dimensions, and rotation.
+
+```js
+const { editableRect } = xinjsui
+const editable = editableRect()
+preview.addEventListener('click', (event) => {
+  const target = event.target
+  if (['absolute', 'fixed'].includes(getComputedStyle(target).position)) {
+    target.append(editable)
+  } else {
+    editable.remove()
+  }
+})
+```
 ```html
-<div class="editable" style="top: 20px; left: 20px">
-	<xin-editable-rect></xin-editable-rect>
-</div>
-<div class="editable" style="bottom: 20px; right: 20px">
-	<xin-editable-rect></xin-editable-rect>
+<div class="editable" style="top: 20px; left: 20px; width: auto; height: auto; right: 20px; bottom: 20px;">
+  <div class="editable" style="top: 20px; left: 20px; width: 200px; height: 150px;">
+  </div>
+  <div class="editable" style="bottom: 20px; top: 20px; width: 300px; height: auto; right: 20px;">
+  </div>
 </div>
 ```
 ```css
 .preview .editable {
-	position: absolute;
-	width: 200px;
-	height: 150px;
-	box-shadow: inset 0 0 0 1px #0ccc;
-	background: #0cc2;
+  position: absolute;
+  box-shadow: inset 0 0 0 1px #0ccc;
+  background: #0cc1;
 }
+```
 */
 
 import { Component, elements, vars } from 'xinjs'
 import { icons } from './icons'
-import { xinSizer, XinSizer } from './sizer'
 import { trackDrag } from './track-drag'
 
 const { div } = elements
 
+interface Locks {
+  left: boolean
+  right: boolean
+  top: boolean
+  bottom: boolean
+}
+
+type Side = keyof Locks
+
 export class EditableRect extends Component {
-  static rotationSnap = 15
-  static positionSnap = 4
+  static angleSize = 15
+  static gridSize = 8
+  static snapAngle = false
+  static snapToGrid = false
 
-  get lockedRight(): boolean {
-    return this.parentElement?.style.right.match(/\d/) !== null
+  static snappedCoords(event: PointerEvent, coords: number[]): number[] {
+    const { gridSize } = EditableRect
+    return EditableRect.snapToGrid || event.shiftKey
+      ? coords.map((v) => Math.round(v / gridSize) * gridSize)
+      : coords
   }
 
-  get lockedLeft(): boolean {
-    return (
-      this.parentElement?.style.left.match(/\d/) !== null || !this.lockedRight
-    )
+  static snappedAngle(event: PointerEvent, a: number): number {
+    const { angleSize } = EditableRect
+    return EditableRect.snapAngle || event.shiftKey
+      ? Math.round(a / angleSize) * angleSize
+      : a
   }
 
-  get lockedBottom(): boolean {
-    return this.parentElement?.style.bottom.match(/\d/) !== null
+  get locked(): Locks {
+    const element = this.parentElement!
+    if (element.style.inset) {
+      return { left: true, top: true, bottom: true, right: true }
+    }
+    const right = element.style.right.match(/\d/) !== null
+    const left = !right || element.style.left.match(/\d/) !== null
+    const bottom = element.style.bottom.match(/\d/) !== null
+    const top = !bottom || element.style.top.match(/\d/) !== null
+    return { left, top, bottom, right }
   }
 
-  get lockedTop(): boolean {
-    return (
-      this.parentElement?.style.top.match(/\d/) !== null || !this.lockedBottom
-    )
+  set locked(locks: Locks) {
+    const { bottom, right } = locks
+    let { left, top } = locks
+    const element = this.parentElement!
+    const l = element.offsetLeft
+    const t = element.offsetTop
+    const w = element.offsetWidth
+    const h = element.offsetHeight
+    const r = (element.offsetParent as HTMLElement).offsetWidth - l - w
+    const b = (element.offsetParent as HTMLElement).offsetHeight - t - h
+    Object.assign(element.style, {
+      left: '',
+      right: '',
+      top: '',
+      bottom: '',
+      width: '',
+      height: '',
+    })
+    if (!right) left = true
+    if (!bottom) top = true
+    if (left) element.style.left = l + 'px'
+    if (right) element.style.right = r + 'px'
+    if (left && right) {
+      element.style.width = 'auto'
+    } else {
+      element.style.width = w + 'px'
+    }
+    if (top) element.style.top = t + 'px'
+    if (bottom) element.style.bottom = b + 'px'
+    if (top && bottom) {
+      element.style.height = 'auto'
+    } else {
+      element.style.height = h + 'px'
+    }
+    this.queueRender()
   }
 
-  get coords(): {top: number, left: number, bottom: number, right: number} {
-    const {top, left, right, bottom} = this.parentElement!.style
+  get coords(): { top: number; left: number; bottom: number; right: number } {
+    const { top, left, right, bottom } = this.parentElement!.style
     return {
       top: parseFloat(top),
       left: parseFloat(left),
       right: parseFloat(right),
-      bottom: parseFloat(bottom)
+      bottom: parseFloat(bottom),
     }
   }
 
@@ -64,25 +136,101 @@ export class EditableRect extends Component {
     const target = this.parentElement!
     const { top, left, bottom, right } = this.coords
     trackDrag(event, (dx, dy, dragEvent) => {
+      ;[dx, dy] = EditableRect.snappedCoords(dragEvent, [dx, dy])
       if (!isNaN(top)) {
-        target.style.top = (top + dy) + 'px'
+        target.style.top = top + dy + 'px'
       }
       if (!isNaN(bottom)) {
-        target.style.bottom = (bottom - dy) + 'px'
+        target.style.bottom = bottom - dy + 'px'
       }
       if (!isNaN(left)) {
-        target.style.left = (left + dx) + 'px'
+        target.style.left = left + dx + 'px'
       }
       if (!isNaN(right)) {
-        target.style.right = (right - dx) + 'px'
+        target.style.right = right - dx + 'px'
       }
       return dragEvent.type === 'mouseup'
     })
   }
 
+  get left(): number {
+    return this.parentElement!.offsetLeft
+  }
+
+  get width(): number {
+    return this.parentElement!.offsetWidth
+  }
+
+  get right(): number {
+    return (
+      (this.parentElement!.offsetParent as HTMLElement).offsetWidth -
+      (this.left + this.width)
+    )
+  }
+
+  get top(): number {
+    return this.parentElement!.offsetTop
+  }
+
+  get height(): number {
+    return this.parentElement!.offsetHeight
+  }
+
+  get bottom(): number {
+    return (
+      (this.parentElement!.offsetParent as HTMLElement).offsetHeight -
+      (this.top + this.height)
+    )
+  }
+
+  resize = (event: Event) => {
+    const target = this.parentElement!
+    const { locked } = this
+    this.locked = Object.assign({
+      left: true,
+      top: true,
+      right: true,
+      bottom: true,
+    })
+    const [right, bottom] = [this.right, this.bottom]
+
+    trackDrag(event as PointerEvent, (dx, dy, dragEvent) => {
+      let r = right - dx
+      let b = bottom - dy
+      ;[r, b] = EditableRect.snappedCoords(dragEvent as PointerEvent, [r, b])
+      target.style.right = r + 'px'
+      target.style.bottom = b + 'px'
+      if (dragEvent.type === 'mouseup') {
+        this.locked = locked
+        return true
+      }
+    })
+  }
+
   adjustSize = (event: Event) => {
-    const dimension = (event.target as HTMLElement).getAttribute('part')!
-    console.log(dimension)
+    const target = this.parentElement!
+    const { locked } = this
+    const dimension = (event.target as HTMLElement).getAttribute('part') as Side
+    this.locked = Object.assign({
+      left: true,
+      right: true,
+      top: true,
+      bottom: true,
+    })
+    const original = this[dimension]
+
+    trackDrag(event as PointerEvent, (dx, dy, dragEvent) => {
+      const [adjusted] = EditableRect.snappedCoords(dragEvent, [
+        original +
+          (['left', 'right'].includes(dimension) ? dx : dy) *
+            (['right', 'bottom'].includes(dimension) ? -1 : 1),
+      ])
+      target.style[dimension] = adjusted + 'px'
+      if (dragEvent.type === 'mouseup') {
+        this.locked = locked
+        return true
+      }
+    })
   }
 
   get rect(): DOMRect {
@@ -113,13 +261,9 @@ export class EditableRect extends Component {
       const y = clientY - center.y
       let alpha = y > 0 ? 90 : -90
       if (x !== 0) {
-        alpha = (Math.atan2(y, x) * 180) / Math.PI;
+        alpha = (Math.atan2(y, x) * 180) / Math.PI
       }
-      if (dragEvent.shiftKey) {
-        alpha =
-          Math.round(alpha / EditableRect.rotationSnap) *
-          EditableRect.rotationSnap
-      }
+      alpha = EditableRect.snappedAngle(dragEvent, alpha)
       if (alpha === 0) {
         this.element.style.transformOrigin = ''
         this.element.style.transform = ''
@@ -131,22 +275,13 @@ export class EditableRect extends Component {
   }
 
   toggleLock = (event: Event) => {
-    const { rect } = this
-    const which = (event.target as HTMLElement).title.split(' ')[1]
-    switch(which) {
-      case 'left':
-        break
-      case 'right':
-        if (this.lockedLeft) {
-
-        }
-        break
-      case 'top':
-        break
-      case 'bottom':
-        break
-    }
+    const { locked } = this
+    const which = (event.target as HTMLElement).title.split(' ')[1] as Side
+    locked[which] = !locked[which]
+    this.locked = locked
     this.queueRender()
+    event.stopPropagation()
+    event.preventDefault()
   }
 
   content = () => [
@@ -162,6 +297,7 @@ export class EditableRect extends Component {
       title: 'resize left',
       class: 'drag-size',
       style: { left: '-6px', width: '8px' },
+      onMousedown: this.adjustSize,
     }),
     div({
       part: 'right',
@@ -175,18 +311,22 @@ export class EditableRect extends Component {
       title: 'resize top',
       class: 'drag-size',
       style: { top: '-6px', height: '8px', cursor: 'ns-resize' },
+      onMousedown: this.adjustSize,
     }),
     div({
       part: 'bottom',
       title: 'resize bottom',
       class: 'drag-size',
       style: { top: 'calc(100% - 2px)', height: '8px', cursor: 'ns-resize' },
+      onMousedown: this.adjustSize,
     }),
-    xinSizer(
+    div(
       {
         part: 'resize',
         style: { bottom: '0', right: '0' },
+        onMousedown: this.resize,
       },
+      icons.resize()
     ),
     div(
       {
@@ -229,7 +369,7 @@ export class EditableRect extends Component {
     div(
       {
         part: 'lockBottom',
-        title: 'lock left',
+        title: 'lock bottom',
         style: { top: '100%', left: '50%', transform: 'translate(-50%, 0%)' },
         onClick: this.toggleLock,
       },
@@ -244,26 +384,21 @@ export class EditableRect extends Component {
     this.initAttributes('rotationSnap', 'positionSnap')
   }
 
-  connectedCallback() {
-    super.connectedCallback()
-
-    ;(this.parts.resize as XinSizer).target = this.parentElement
-  }
-
   render() {
     super.render()
 
     const { lockLeft, lockRight, lockTop, lockBottom } = this.parts
+    const { left, right, top, bottom } = this.locked
 
-    lockLeft.toggleAttribute('locked', this.lockedLeft)
-    lockRight.toggleAttribute('locked', this.lockedRight)
-    lockTop.toggleAttribute('locked', this.lockedTop)
-    lockBottom.toggleAttribute('locked', this.lockedBottom)
+    lockLeft.toggleAttribute('locked', left)
+    lockRight.toggleAttribute('locked', right)
+    lockTop.toggleAttribute('locked', top)
+    lockBottom.toggleAttribute('locked', bottom)
   }
 }
 
 export const editableRect = EditableRect.elementCreator({
-  tag: 'xin-editable-rect',
+  tag: 'xin-editable',
   styleSpec: {
     ':host': {
       '--handle-bg': '#fff8',
