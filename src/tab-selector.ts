@@ -303,10 +303,10 @@ export class TabSelector extends WebComponent {
         tab.setAttribute('aria-selected', 'true')
         selected.style.marginLeft = `${tab.offsetLeft - tabs.offsetLeft}px`
         selected.style.width = `${tab.offsetWidth}px`
-        tabBody.toggleAttribute('hidden', true)
+        tabBody.toggleAttribute('hidden', false)
       } else {
         tab.toggleAttribute('aria-selected', false)
-        tabBody.toggleAttribute('hidden', false)
+        tabBody.toggleAttribute('hidden', true)
       }
     }
   }
