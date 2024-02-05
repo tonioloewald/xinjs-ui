@@ -125,8 +125,8 @@ export class EditableRect extends Component {
         this.element.style.transform = ''
       } else {
         this.element.style.transform = `rotate(${alpha}deg)`
-        return dragEvent.type === 'mouseup'
       }
+      return dragEvent.type === 'mouseup'
     })
   }
 
