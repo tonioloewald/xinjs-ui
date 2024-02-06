@@ -57,6 +57,53 @@ export declare class EditableRect extends Component {
     static gridSize: number;
     static snapAngle: boolean;
     static snapToGrid: boolean;
+    static styleSpec: {
+        ':host': {
+            '--handle-bg': string;
+            '--handle-color': string;
+            '--handle-hover-bg': string;
+            '--handle-hover-color': string;
+            '--handle-size': string;
+            '--handle-padding': string;
+        };
+        ':host > :not(style)': {
+            boxSizing: string;
+            content: string;
+            position: string;
+            display: string;
+            height: any;
+            width: any;
+            padding: any;
+            '--text-color': any;
+            background: any;
+        };
+        ':host > .drag-size': {
+            top: number;
+            bottom: number;
+            left: number;
+            right: number;
+            height: string;
+            width: string;
+            background: string;
+            cursor: string;
+        };
+        ':host > [part="rotate"]': {
+            transform: string;
+        };
+        ':host > [locked] > svg:first-child, :host > :not([locked]) > svg+svg': {
+            display: string;
+        };
+        ':host .icon-unlock': {
+            opacity: number;
+        };
+        ':host svg': {
+            pointerEvents: string;
+        };
+        ':host > *:hover': {
+            '--text-color': any;
+            background: any;
+        };
+    };
     static snappedCoords(event: PointerEvent, coords: number[]): number[];
     static snappedAngle(event: PointerEvent, a: number): number;
     get locked(): Locks;
@@ -74,7 +121,7 @@ export declare class EditableRect extends Component {
     get height(): number;
     get bottom(): number;
     triggerChange: () => void;
-    adjustPosition: (event: PointerEvent) => void;
+    adjustPosition: (event: Event) => void;
     resize: (event: Event) => void;
     adjustSize: (event: Event) => void;
     get rect(): DOMRect;
@@ -83,10 +130,11 @@ export declare class EditableRect extends Component {
         y: number;
     };
     get element(): HTMLElement;
-    adjustRotation: (event: PointerEvent) => void;
+    adjustRotation: (event: Event) => void;
     toggleLock: (event: Event) => void;
     content: () => any[];
     constructor();
+    connectedCallback(): void;
     render(): void;
 }
 export declare const editableRect: any;
