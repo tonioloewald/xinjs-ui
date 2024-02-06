@@ -92,8 +92,9 @@ export class XinSizer extends XinComponent {
       this.target = this.parentElement
     }
 
-    this.addEventListener('mousedown', this.resizeTarget)
-    this.addEventListener('touchstart', this.resizeTarget)
+    const PASSIVE = { passive: true }
+    this.addEventListener('mousedown', this.resizeTarget, PASSIVE)
+    this.addEventListener('touchstart', this.resizeTarget, PASSIVE)
   }
 }
 

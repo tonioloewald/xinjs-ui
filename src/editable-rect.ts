@@ -463,19 +463,20 @@ export class EditableRect extends Component {
       rotate,
     } = this.parts
 
+    const PASSIVE = { passive: true }
     ;[left, right, top, bottom].forEach((elt) => {
-      elt.addEventListener('mousedown', this.adjustSize)
-      elt.addEventListener('touchstart', this.adjustSize)
+      elt.addEventListener('mousedown', this.adjustSize, PASSIVE)
+      elt.addEventListener('touchstart', this.adjustSize, PASSIVE)
     })
     ;[lockLeft, lockRight, lockTop, lockBottom].forEach((elt) => {
       elt.addEventListener('click', this.toggleLock)
     })
-    resize.addEventListener('mousedown', this.resize)
-    move.addEventListener('mousedown', this.adjustPosition)
-    rotate.addEventListener('mousedown', this.adjustRotation)
-    resize.addEventListener('touchstart', this.resize)
-    move.addEventListener('touchstart', this.adjustPosition)
-    rotate.addEventListener('touchstart', this.adjustRotation)
+    resize.addEventListener('mousedown', this.resize, PASSIVE)
+    move.addEventListener('mousedown', this.adjustPosition, PASSIVE)
+    rotate.addEventListener('mousedown', this.adjustRotation, PASSIVE)
+    resize.addEventListener('touchstart', this.resize, PASSIVE)
+    move.addEventListener('touchstart', this.adjustPosition, PASSIVE)
+    rotate.addEventListener('touchstart', this.adjustRotation, PASSIVE)
   }
 
   render() {
