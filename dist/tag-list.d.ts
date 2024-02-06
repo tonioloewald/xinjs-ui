@@ -1,0 +1,105 @@
+/*!
+# tag-list
+
+Building a tag-list from standard HTML elements is a bit of a nightmare.
+
+`<xin-tag-list>` allows you to display an editable or read-only tag list (represented either
+as a comma-delimited string or an array of strings).
+
+```html
+<b>Display Only</b>
+<xin-tag-list
+  value="this,that,,the-other"
+></xin-tag-list>
+<xin-tag-list
+  class="compact"
+  value="this,that,,the-other"
+></xin-tag-list>
+<br>
+<b>Editable</b>
+<xin-tag-list
+  value="belongs,also belongs,custom"
+  editable
+  available-tags="belongs,also belongs,not initially chosen"
+></xin-tag-list>
+
+<br>
+<b>Text-Entry</b>
+<xin-tag-list
+  value="this,that,the-other,not,enough,space"
+  editable
+  text-entry
+  available-tags="tomasina,dick,,harriet"
+></xin-tag-list>
+```
+```css
+.preview .compact {
+  --spacing: 8px;
+  --font-size: 12px;
+  --line-height: 18px;
+}
+```
+
+## Properties
+
+### `value`: string | string[]
+
+A list of tags
+
+### `tags`: string[]
+
+A read-only property giving the value as an array.
+
+### `available-tags`: string | string[]
+
+A list of tags that will be displayed in the popup menu by default. The popup menu
+will always display custom tags (allowing their removal).
+
+### `editable`: boolean
+
+Allows the tag list to be modified via menu and removing tags.
+
+### `text-entry`: boolean
+
+If `editable`, an input field is provided for entering tags directly.
+
+### `placeholder`: string = 'enter tags'
+
+Placeholder shown on input field.
+*/
+import { Component as WebComponent } from 'xinjs';
+export declare class XinTag extends WebComponent {
+    caption: string;
+    removeable: boolean;
+    removeCallback: (event: Event) => void;
+    content: () => any[];
+    constructor();
+}
+export declare const xinTag: ElementCreator<XinTag>;
+interface Tag {
+    value: string;
+    caption?: string;
+    color?: string;
+    background?: string;
+    icon?: string | HTMLElement;
+}
+type TagList = (string | Tag | null)[];
+export declare class XinTagList extends WebComponent {
+    name: string;
+    availableTags: string | TagList;
+    value: string | string[];
+    textEntry: boolean;
+    editable: boolean;
+    placeholder: string;
+    get tags(): string[];
+    constructor();
+    addTag: (tag: string) => void;
+    toggleTag: (toggled: string) => void;
+    enterTag: (event: KeyboardEvent) => void;
+    popAddMenu: () => void;
+    content: () => any[];
+    removeTag: (event: Event) => void;
+    render(): void;
+}
+export declare const xinTagList: ElementCreator<XinTagList>;
+export {};
