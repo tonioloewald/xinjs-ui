@@ -67,6 +67,54 @@ export class EditableRect extends Component {
   static snapAngle = false
   static snapToGrid = false
 
+  static styleSpec = {
+    ':host': {
+      '--handle-bg': '#fff4',
+      '--handle-color': '#2228',
+      '--handle-hover-bg': '#8ff8',
+      '--handle-hover-color': '#222',
+      '--handle-size': '20px',
+      '--handle-padding': '2px',
+    },
+    ':host > :not(style)': {
+      boxSizing: 'border-box',
+      content: '" "',
+      position: 'absolute',
+      display: 'flex',
+      height: vars.handleSize,
+      width: vars.handleSize,
+      padding: vars.handlePadding,
+      '--text-color': vars.handleColor,
+      background: vars.handleBg,
+    },
+    ':host > .drag-size': {
+      top: 0,
+      bottom: 0,
+      left: 0,
+      right: 0,
+      height: 'auto',
+      width: 'auto',
+      background: 'transparent',
+      cursor: 'ew-resize',
+    },
+    ':host > [part="rotate"]': {
+      transform: `translateY(${vars.handleSize_50})`,
+    },
+    ':host > [locked] > svg:first-child, :host > :not([locked]) > svg+svg': {
+      display: 'none',
+    },
+    ':host .icon-unlock': {
+      opacity: 0.5,
+    },
+    ':host svg': {
+      pointerEvents: 'none',
+    },
+    ':host > *:hover': {
+      '--text-color': vars.handleHoverColor,
+      background: vars.handleHoverBg,
+    },
+  }
+
   static snappedCoords(event: PointerEvent, coords: number[]): number[] {
     const { gridSize } = EditableRect
     return EditableRect.snapToGrid || event.shiftKey
@@ -174,10 +222,10 @@ export class EditableRect extends Component {
     this.parentElement!.dispatchEvent(new Event('change'))
   }
 
-  adjustPosition = (event: PointerEvent) => {
+  adjustPosition = (event: Event) => {
     const target = this.parentElement!
     const { top, left, bottom, right } = this.coords
-    trackDrag(event, (dx, dy, dragEvent) => {
+    trackDrag(event as PointerEvent, (dx, dy, dragEvent) => {
       ;[dx, dy] = EditableRect.snappedCoords(dragEvent, [dx, dy])
       if (!isNaN(top)) {
         target.style.top = top + dy + 'px'
@@ -266,13 +314,13 @@ export class EditableRect extends Component {
     return this.parentElement as HTMLElement
   }
 
-  adjustRotation = (event: PointerEvent) => {
+  adjustRotation = (event: Event) => {
     const { center } = this
     const { transformOrigin } = this.element.style
     if (!transformOrigin) {
       this.element.style.transformOrigin = '50% 50%'
     }
-    trackDrag(event, (dx, dy, dragEvent: PointerEvent) => {
+    trackDrag(event as PointerEvent, (dx, dy, dragEvent: PointerEvent) => {
       const { clientX, clientY } = dragEvent
       const x = clientX - center.x
       const y = clientY - center.y
@@ -305,8 +353,8 @@ export class EditableRect extends Component {
   content = () => [
     div(
       {
+        part: 'move',
         style: { top: '50%', left: '50%', transform: 'translate(-50%,-50%)' },
-        onMousedown: this.adjustPosition,
       },
       icons.move()
     ),
@@ -315,34 +363,29 @@ export class EditableRect extends Component {
       title: 'resize left',
       class: 'drag-size',
       style: { left: '-6px', width: '8px' },
-      onMousedown: this.adjustSize,
     }),
     div({
       part: 'right',
       title: 'resize right',
       class: 'drag-size',
       style: { left: 'calc(100% - 2px)', width: '8px' },
-      onMousedown: this.adjustSize,
     }),
     div({
       part: 'top',
       title: 'resize top',
       class: 'drag-size',
       style: { top: '-6px', height: '8px', cursor: 'ns-resize' },
-      onMousedown: this.adjustSize,
     }),
     div({
       part: 'bottom',
       title: 'resize bottom',
       class: 'drag-size',
       style: { top: 'calc(100% - 2px)', height: '8px', cursor: 'ns-resize' },
-      onMousedown: this.adjustSize,
     }),
     div(
       {
         part: 'resize',
         style: { top: '100%', left: '100%' },
-        onMousedown: this.resize,
       },
       icons.resize()
     ),
@@ -350,7 +393,6 @@ export class EditableRect extends Component {
       {
         part: 'rotate',
         style: { top: '50%', right: '0' },
-        onMousedown: this.adjustRotation,
       },
       icons.refresh()
     ),
@@ -359,7 +401,6 @@ export class EditableRect extends Component {
         part: 'lockLeft',
         title: 'lock left',
         style: { top: '50%', left: 0, transform: 'translate(-100%, -50%)' },
-        onClick: this.toggleLock,
       },
       icons.unlock(),
       icons.lock()
@@ -369,7 +410,6 @@ export class EditableRect extends Component {
         part: 'lockRight',
         title: 'lock right',
         style: { top: '50%', left: '100%', transform: 'translate(0%, -50%)' },
-        onClick: this.toggleLock,
       },
       icons.unlock(),
       icons.lock()
@@ -379,7 +419,6 @@ export class EditableRect extends Component {
         part: 'lockTop',
         title: 'lock top',
         style: { top: 0, left: '50%', transform: 'translate(-50%, -100%)' },
-        onClick: this.toggleLock,
       },
       icons.unlock(),
       icons.lock()
@@ -389,7 +428,6 @@ export class EditableRect extends Component {
         part: 'lockBottom',
         title: 'lock bottom',
         style: { top: '100%', left: '50%', transform: 'translate(-50%, 0%)' },
-        onClick: this.toggleLock,
       },
       icons.unlock(),
       icons.lock()
@@ -402,8 +440,40 @@ export class EditableRect extends Component {
     this.initAttributes('rotationSnap', 'positionSnap')
   }
 
+  connectedCallback(): void {
+    super.connectedCallback()
+
+    const {
+      left,
+      right,
+      top,
+      bottom,
+      lockLeft,
+      lockRight,
+      lockTop,
+      lockBottom,
+      move,
+      resize,
+      rotate,
+    } = this.parts
+
+    ;[left, right, top, bottom].forEach((elt) => {
+      elt.addEventListener('mousedown', this.adjustSize)
+    })
+    ;[lockLeft, lockRight, lockTop, lockBottom].forEach((elt) => {
+      elt.addEventListener('click', this.toggleLock)
+    })
+    resize.addEventListener('mousedown', this.resize)
+    move.addEventListener('mousedown', this.adjustPosition)
+    rotate.addEventListener('mousedown', this.adjustRotation)
+  }
+
   render() {
     super.render()
+
+    if (!this.parentElement) {
+      return
+    }
 
     const { lockLeft, lockRight, lockTop, lockBottom } = this.parts
     const { left, right, top, bottom } = this.locked
@@ -417,48 +487,4 @@ export class EditableRect extends Component {
 
 export const editableRect = EditableRect.elementCreator({
   tag: 'xin-editable',
-  styleSpec: {
-    ':host': {
-      '--handle-bg': '#fff4',
-      '--handle-color': '#2228',
-      '--handle-hover-bg': '#8ff8',
-      '--handle-hover-color': '#222',
-      '--handle-size': '20px',
-      '--handle-padding': '2px',
-    },
-    ':host > *': {
-      boxSizing: 'border-box',
-      content: '" "',
-      position: 'absolute',
-      display: 'flex',
-      height: vars.handleSize,
-      width: vars.handleSize,
-      padding: vars.handlePadding,
-      '--text-color': vars.handleColor,
-      background: vars.handleBg,
-    },
-    ':host > .drag-size': {
-      top: 0,
-      bottom: 0,
-      left: 0,
-      right: 0,
-      height: 'auto',
-      width: 'auto',
-      background: 'transparent',
-      cursor: 'ew-resize',
-    },
-    ':host > [part="rotate"]': {
-      transform: `translateY(${vars.handleSize_50})`,
-    },
-    ':host > [locked] > svg:first-child, :host > :not([locked]) > svg+svg': {
-      display: 'none',
-    },
-    ':host .icon-unlock': {
-      opacity: 0.5,
-    },
-    ':host > *:hover': {
-      '--text-color': vars.handleHoverColor,
-      background: vars.handleHoverBg,
-    },
-  },
 })
