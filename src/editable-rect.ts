@@ -5,8 +5,6 @@
 for allowing the adjustment of another element's position and size. Simply insert it in a `position: absolute`
 or `position: fixed` element and you can directly adjust its CSS positioning, including rotation.
 
-> **Caution**: this is work-in-progress.
-
 Click on an element to adjust its position, dimensions, and rotation.
 
 ```js
@@ -36,6 +34,16 @@ preview.addEventListener('click', (event) => {
   background: #0cc1;
 }
 ```
+
+## Snapping
+
+When `EditableRect.snapToGrid === true` or the shift-key is depresseed, position will snap to `EditableRect.gridSize` pixels (default = 8).
+
+Similarly `EditableRect.snapAngle === true` or the shift-key will snap rotation to increments of `EditableRect.angleSize` degrees (default = 15).
+
+## Events
+
+After an element's position, size, or rotation are adjusted a `change` event is triggered on the element.
 */
 
 import { Component, elements, vars } from 'xinjs'
@@ -132,27 +140,6 @@ export class EditableRect extends Component {
     }
   }
 
-  adjustPosition = (event: PointerEvent) => {
-    const target = this.parentElement!
-    const { top, left, bottom, right } = this.coords
-    trackDrag(event, (dx, dy, dragEvent) => {
-      ;[dx, dy] = EditableRect.snappedCoords(dragEvent, [dx, dy])
-      if (!isNaN(top)) {
-        target.style.top = top + dy + 'px'
-      }
-      if (!isNaN(bottom)) {
-        target.style.bottom = bottom - dy + 'px'
-      }
-      if (!isNaN(left)) {
-        target.style.left = left + dx + 'px'
-      }
-      if (!isNaN(right)) {
-        target.style.right = right - dx + 'px'
-      }
-      return dragEvent.type === 'mouseup'
-    })
-  }
-
   get left(): number {
     return this.parentElement!.offsetLeft
   }
@@ -183,6 +170,34 @@ export class EditableRect extends Component {
     )
   }
 
+  triggerChange = () => {
+    this.parentElement!.dispatchEvent(new Event('change'))
+  }
+
+  adjustPosition = (event: PointerEvent) => {
+    const target = this.parentElement!
+    const { top, left, bottom, right } = this.coords
+    trackDrag(event, (dx, dy, dragEvent) => {
+      ;[dx, dy] = EditableRect.snappedCoords(dragEvent, [dx, dy])
+      if (!isNaN(top)) {
+        target.style.top = top + dy + 'px'
+      }
+      if (!isNaN(bottom)) {
+        target.style.bottom = bottom - dy + 'px'
+      }
+      if (!isNaN(left)) {
+        target.style.left = left + dx + 'px'
+      }
+      if (!isNaN(right)) {
+        target.style.right = right - dx + 'px'
+      }
+      if (dragEvent.type === 'mouseup') {
+        this.triggerChange()
+        return true
+      }
+    })
+  }
+
   resize = (event: Event) => {
     const target = this.parentElement!
     const { locked } = this
@@ -202,6 +217,7 @@ export class EditableRect extends Component {
       target.style.bottom = b + 'px'
       if (dragEvent.type === 'mouseup') {
         this.locked = locked
+        this.triggerChange()
         return true
       }
     })
@@ -228,6 +244,7 @@ export class EditableRect extends Component {
       target.style[dimension] = adjusted + 'px'
       if (dragEvent.type === 'mouseup') {
         this.locked = locked
+        this.triggerChange()
         return true
       }
     })
@@ -270,6 +287,7 @@ export class EditableRect extends Component {
       } else {
         this.element.style.transform = `rotate(${alpha}deg)`
       }
+      this.triggerChange()
       return dragEvent.type === 'mouseup'
     })
   }
@@ -323,7 +341,7 @@ export class EditableRect extends Component {
     div(
       {
         part: 'resize',
-        style: { bottom: '0', right: '0' },
+        style: { top: '100%', left: '100%' },
         onMousedown: this.resize,
       },
       icons.resize()
@@ -401,9 +419,10 @@ export const editableRect = EditableRect.elementCreator({
   tag: 'xin-editable',
   styleSpec: {
     ':host': {
-      '--handle-bg': '#fff8',
-      '--handle-color': '#222',
+      '--handle-bg': '#fff4',
+      '--handle-color': '#2228',
       '--handle-hover-bg': '#8ff8',
+      '--handle-hover-color': '#222',
       '--handle-size': '20px',
       '--handle-padding': '2px',
     },
@@ -437,7 +456,8 @@ export const editableRect = EditableRect.elementCreator({
     ':host .icon-unlock': {
       opacity: 0.5,
     },
-    ':host > div:hover': {
+    ':host > *:hover': {
+      '--text-color': vars.handleHoverColor,
       background: vars.handleHoverBg,
     },
   },

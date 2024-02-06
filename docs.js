@@ -1,5 +1,5 @@
 /*!
-# notes on docs
+# docs.js
 
 The `xinjs-ui` package includes `docs.js` which is used to build the documentation
 for the [ui.xinjs.net](https://ui.xinjs.net).
