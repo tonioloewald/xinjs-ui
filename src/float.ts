@@ -122,8 +122,9 @@ export class XinFloat extends WebComponent {
   connectedCallback(): void {
     super.connectedCallback()
 
-    this.addEventListener('touchstart', this.reposition, {passive: true})
-    this.addEventListener('mousedown', this.reposition, {passive: true})
+    const PASSIVE = { passive: true }
+    this.addEventListener('touchstart', this.reposition, PASSIVE)
+    this.addEventListener('mousedown', this.reposition, PASSIVE)
     bringToFront(this)
   }
 }
