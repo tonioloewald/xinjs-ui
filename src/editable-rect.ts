@@ -18,6 +18,7 @@ preview.addEventListener('click', (event) => {
     editable.remove()
   }
 })
+preview.addEventListener('change', event => console.log(event))
 ```
 ```html
 <div class="editable" style="top: 20px; left: 20px; width: auto; height: auto; right: 20px; bottom: 20px;">
@@ -219,7 +220,12 @@ export class EditableRect extends Component {
   }
 
   triggerChange = () => {
-    this.parentElement!.dispatchEvent(new Event('change'))
+    this.parentElement!.dispatchEvent(
+      new Event('change', {
+        bubbles: true,
+        composed: true,
+      })
+    )
   }
 
   adjustPosition = (event: Event) => {
@@ -459,6 +465,7 @@ export class EditableRect extends Component {
 
     ;[left, right, top, bottom].forEach((elt) => {
       elt.addEventListener('mousedown', this.adjustSize)
+      elt.addEventListener('touchstart', this.adjustSize)
     })
     ;[lockLeft, lockRight, lockTop, lockBottom].forEach((elt) => {
       elt.addEventListener('click', this.toggleLock)
@@ -466,6 +473,9 @@ export class EditableRect extends Component {
     resize.addEventListener('mousedown', this.resize)
     move.addEventListener('mousedown', this.adjustPosition)
     rotate.addEventListener('mousedown', this.adjustRotation)
+    resize.addEventListener('touchstart', this.resize)
+    move.addEventListener('touchstart', this.adjustPosition)
+    rotate.addEventListener('touchstart', this.adjustRotation)
   }
 
   render() {

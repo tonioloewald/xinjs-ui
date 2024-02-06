@@ -18,6 +18,7 @@ preview.addEventListener('click', (event) => {
     editable.remove()
   }
 })
+preview.addEventListener('change', event => console.log(event))
 ```
 ```html
 <div class="editable" style="top: 20px; left: 20px; width: auto; height: auto; right: 20px; bottom: 20px;">
