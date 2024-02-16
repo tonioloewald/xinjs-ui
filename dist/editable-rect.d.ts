@@ -8,8 +8,11 @@ or `position: fixed` element and you can directly adjust its CSS positioning, in
 Click on an element to adjust its position, dimensions, and rotation.
 
 ```js
-const { editableRect } = xinjsui
-const editable = editableRect()
+const { editableRect, icons } = xinjsui
+const { elements } = xinjs
+const { button } = elements
+
+const editable = editableRect(button({class: 'more-popup'}, icons.moreVertical()))
 preview.addEventListener('click', (event) => {
   const target = event.target
   if (['absolute', 'fixed'].includes(getComputedStyle(target).position)) {
@@ -34,6 +37,19 @@ preview.addEventListener('change', event => console.log(event))
   box-shadow: inset 0 0 0 1px #0ccc;
   background: #0cc1;
 }
+
+.preview button.more-popup {
+  position: absolute;
+  width: 44px;
+  height: 44px;
+  top: 2px;
+  right: 2px;
+  fill: var(--handle-hover-color);
+  background: var(--handle-hover-bg);
+  box-shadow: none;
+}
+
+.previw button
 ```
 
 ## Snapping
@@ -67,7 +83,10 @@ export declare class EditableRect extends Component {
             '--handle-size': string;
             '--handle-padding': string;
         };
-        ':host > :not(style)': {
+        ':host ::slotted(*)': {
+            position: string;
+        };
+        ':host > :not(style,slot)': {
             boxSizing: string;
             content: string;
             position: string;

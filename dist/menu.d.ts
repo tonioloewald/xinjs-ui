@@ -206,5 +206,9 @@ export interface PopMenuOptions {
     width?: string | number;
     position?: FloatPosition;
     submenuDepth?: number;
+    submenuOffset?: {
+        x: number;
+        y: number;
+    };
 }
 export declare const popMenu: (options: PopMenuOptions) => void;
