@@ -8,8 +8,11 @@ or `position: fixed` element and you can directly adjust its CSS positioning, in
 Click on an element to adjust its position, dimensions, and rotation.
 
 ```js
-const { editableRect } = xinjsui
-const editable = editableRect()
+const { editableRect, icons } = xinjsui
+const { elements } = xinjs
+const { button } = elements
+
+const editable = editableRect(button({class: 'more-popup'}, icons.moreVertical()))
 preview.addEventListener('click', (event) => {
   const target = event.target
   if (['absolute', 'fixed'].includes(getComputedStyle(target).position)) {
@@ -34,6 +37,19 @@ preview.addEventListener('change', event => console.log(event))
   box-shadow: inset 0 0 0 1px #0ccc;
   background: #0cc1;
 }
+
+.preview button.more-popup {
+  position: absolute;
+  width: 44px;
+  height: 44px;
+  top: 2px;
+  right: 2px;
+  fill: var(--handle-hover-color);
+  background: var(--handle-hover-bg);
+  box-shadow: none;
+}
+
+.previw button
 ```
 
 ## Snapping
@@ -51,7 +67,7 @@ import { Component, elements, vars } from 'xinjs'
 import { icons } from './icons'
 import { trackDrag } from './track-drag'
 
-const { div } = elements
+const { div, slot } = elements
 
 interface Locks {
   left: boolean
@@ -77,7 +93,10 @@ export class EditableRect extends Component {
       '--handle-size': '20px',
       '--handle-padding': '2px',
     },
-    ':host > :not(style)': {
+    ':host ::slotted(*)': {
+      position: 'absolute',
+    },
+    ':host > :not(style,slot)': {
       boxSizing: 'border-box',
       content: '" "',
       position: 'absolute',
@@ -229,6 +248,9 @@ export class EditableRect extends Component {
   }
 
   adjustPosition = (event: Event) => {
+    // this means there will be some positioning coordinate set!
+    const { locked } = this
+    this.locked = locked
     const target = this.parentElement!
     const { top, left, bottom, right } = this.coords
     trackDrag(event as PointerEvent, (dx, dy, dragEvent) => {
@@ -438,6 +460,7 @@ export class EditableRect extends Component {
       icons.unlock(),
       icons.lock()
     ),
+    slot(),
   ]
 
   constructor() {
