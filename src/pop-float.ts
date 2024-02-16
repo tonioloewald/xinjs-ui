@@ -100,6 +100,8 @@ export const positionFloat = (
   element: HTMLElement,
   target: HTMLElement,
   position?: FloatPosition
+  remainOnScroll?: 'hide' | 'remove' | boolean // default is 'remove'
+  remainOnResize?: 'hide' | 'remove' | boolean // default is 'remove'
 ): void
 ```
 

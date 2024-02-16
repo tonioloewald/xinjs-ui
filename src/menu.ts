@@ -404,6 +404,7 @@ export interface PopMenuOptions {
   width?: string | number
   position?: FloatPosition
   submenuDepth?: number
+  submenuOffset?: { x: number; y: number }
 }
 
 document.body.addEventListener('mousedown', () => removeLastMenu(0))
@@ -414,10 +415,11 @@ document.body.addEventListener('keydown', (event: KeyboardEvent) => {
 })
 
 export const popMenu = (options: PopMenuOptions): void => {
-  const { target, position, submenuDepth } = Object.assign(
-    { submenuDepth: 0 },
-    options
-  )
+  options = Object.assign({ submenuDepth: 0 }, options)
+  const { target, position, submenuDepth } = options
+  if (lastPopped && !document.body.contains(lastPopped?.menu)) {
+    lastPopped = undefined
+  }
   if (submenuDepth === 0 && lastPopped?.target === target) return
   const popped = removeLastMenu(submenuDepth)
   if (lastPopped?.target === target) return
@@ -425,12 +427,16 @@ export const popMenu = (options: PopMenuOptions): void => {
     removeLastMenu()
     return
   }
+
+  const content = menu(options)
+  const float = popFloat({
+    content,
+    target,
+    position,
+  })
+  float.remainOnScroll = 'remove'
   poppedMenus.push({
     target,
-    menu: popFloat({
-      content: menu(options),
-      target,
-      position,
-    }),
+    menu: float,
   })
 }
