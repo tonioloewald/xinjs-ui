@@ -16,10 +16,12 @@ similar as possible to things that you already use, such as `<input>` or `<selec
 E.g. where appropriate, the `value` of an element is its malleable `state`, and when this changes,
 the element emits a `change` event.
 
-Similarly, the xinjs base `Component` class and the components in this collection stive to
-be as similar in operation as possible to DOM elements as possible. E.g. binary attributes
-work as expected. Adding the `hidden` attribute makes them disappear.
-Intinsic properties of components will default to `null` rather than `undefined`.
+Similarly, the xinjs base `Component` class and the components in this collection strive to
+be as similar in operation as possible to DOM elements as makes sense. E.g. binary attributes
+work as expected. Adding the `hidden` attribute makes them disappear. If a component subclass
+has a `value` property then it will be rendered if the value changes (similarly it will be
+rendered if an initialized attribute is changed). Intinsic properties of components will
+default to `null` rather than `undefined`.
 
 Similarly, because web-components are highly interoperable, there's no reason to reinvent
 wheels. In particular, this library won't try to replace existing, excellent libraries
@@ -27,7 +29,12 @@ such as [shoelace.style](https://shoelace.style/) or wrap perfectly functional H
 elements, like the venerable `<input>` or `<form>` elements that are already capable
 and accessible.
 
-The goal here is to provide useful components and other utilities that add to what's built into HTML5 and CSS3.
+The goal here is to provide useful components and other utilities that add to what's built
+into HTML5 and CSS3 and to make custom-elements work as much as possible like drop-in replacements
+for an `<input>` or `<textarea>` (while mitigating the historical pathologies of things like
+`<select>` and `<input type="radio">`). E.g. the `<xin-select>` does not suffer from a
+race-condition between having its value set and being given an `<option>` with the intended value
+and you can differentiate between the user picking a value (`action`) and the value changing (`change`).
 
 ## custom elements
 
