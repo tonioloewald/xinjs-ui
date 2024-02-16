@@ -1,12 +1,12 @@
 {
   "name": "xinjs-ui",
-  "version": "0.6.16",
+  "version": "0.6.17",
   "description": "simple robust web-components for use with xinjs or anything else",
   "scripts": {
     "start": "bun pack && bun parcel demo/index.html --https --dist-dir www -p 8787",
     "pack": "bun prebuild && bun test && bun parcel build --public-url . && bun types; bun postbuild",
     "types": "echo 'ignore the error...' && bun tsc ./src/index.ts --declaration --emitDeclarationOnly --target esnext --outDir dist > tsc.log || true",
-    "prebuild": "rm -rf www && rm -rf docs && mkdir www docs && bun docs.js && bun icons.js && bun format",
+    "prebuild": "rm -rf .parcel-cache && rm -rf www && rm -rf docs && mkdir www docs && bun docs.js && bun icons.js && bun format",
     "postbuild": "cp demo/static/* www && cp demo/static/* docs",
     "format": "bun eslint src demo --fix && bun prettier --write .",
     "test": "bun test",
