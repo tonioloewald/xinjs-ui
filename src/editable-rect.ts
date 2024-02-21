@@ -12,7 +12,12 @@ const { editableRect, icons } = xinjsui
 const { elements } = xinjs
 const { button } = elements
 
-const editable = editableRect(button({class: 'more-popup'}, icons.moreVertical()))
+function showTools(event) {
+  event.stopPropagation()
+  event.preventDefault()
+}
+
+const editable = editableRect(button({class: 'more-popup', onClick: showTools}, icons.moreVertical()))
 preview.addEventListener('click', (event) => {
   const target = event.target
   if (['absolute', 'fixed'].includes(getComputedStyle(target).position)) {
@@ -44,8 +49,8 @@ preview.addEventListener('change', event => console.log(event))
   height: 44px;
   top: 2px;
   right: 2px;
-  fill: var(--handle-hover-color);
-  background: var(--handle-hover-bg);
+  --text-color: black;
+  background: transparent;
   box-shadow: none;
 }
 

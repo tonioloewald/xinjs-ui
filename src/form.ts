@@ -15,11 +15,20 @@ preview.querySelector('.submit').addEventListener('click', () => {
   <h3 slot="header">Example Form Header</h3>
   <xin-field caption="Required field" key="required"></xin-field>
   <xin-field optional key="optional"><i>Optional</i> Field</xin-field>
+  <xin-field key="text" type="text" placeholder="type it in here">Tell us a long story</xin-field>
   <xin-field caption="Zip Code" placeholder="12345 or 12345-6789" key="zipcode" pattern="\d{5}(-\d{4})?"></xin-field>
   <xin-field caption="Date" key="date" type="date"></xin-field>
   <xin-field caption="Number" key="number" type="number"></xin-field>
-  <xin-field caption="Range" key="range" type="range"></xin-field>
+  <xin-field caption="Range" key="range" type="range" min="0" max="10"></xin-field>
   <xin-field key="boolean" type="checkbox">😃 <b>Agreed?!</b></xin-field>
+  <xin-field key="select">
+    Custom Field
+    <select slot="input">
+      <option>This</option>
+      <option>That</option>
+      <option>The Other</option>
+    </select>
+  </xin-field>
   <button slot="footer" class="submit">Submit</button>
 </xin-form>
 ```
@@ -56,11 +65,11 @@ preview.querySelector('.submit').addEventListener('click', () => {
   text-align: right;
 }
 
-.preview input:invalid {
+.preview :invalid {
   box-shadow: inset 0 0 2px red;
 }
 
-.preview label:has(input:invalid:required)::after {
+.preview label:has(:invalid:required)::after {
   content: '* required'
 }
 ```
@@ -81,19 +90,25 @@ and triggers form validation.
 `<xin-field>` is a simple web-component with no shadowDOM that combines an `<input>` field wrapped with a `<label>`. Any
 content of the custom-element will become the `caption` or you can simply set the `caption` attribute.
 
+You can replace the default `<input>` field by adding an element to the slot `input` (it's a `xinSlot`) whereupon
+the `value` of that element will be used instead of the built-in `<input>`. (The `<input>` is retained and
+is used to drive form-validation.)
+
 `<xin-field>` supports the following attributes:
 
 - `caption` labels the field
 - `key` determines the form property the field will populate
-- `type` determines the data-type: '' | 'checkbox' | 'number' | 'range' | 'date'
+- `type` determines the data-type: '' | 'checkbox' | 'number' | 'range' | 'date' | 'text'
 - `optional` turns off the `required` attribute (fields are required by default)
 - `pattern` is an (optional) regex pattern
 - `placeholder` is an (optional) placeholder
+
+The `text` type actually populates the `input` slot with a `<textarea>` element.
 */
 
 import { Component as XinComponent, ElementCreator, elements } from 'xinjs'
 
-const { form, slot, xinSlot, label, input } = elements
+const { form, slot, xinSlot, label, input, span } = elements
 
 function attr(element: HTMLElement, name: string, value: any): void {
   if (value !== '' && value !== false) {
@@ -106,12 +121,22 @@ function attr(element: HTMLElement, name: string, value: any): void {
 export class XinField extends XinComponent {
   caption = ''
   key = ''
-  type: '' | 'checkbox' | 'number' | 'range' | 'date' = ''
+  type: '' | 'checkbox' | 'number' | 'range' | 'date' | 'text' = ''
   optional = false
   pattern = ''
   placeholder = ''
+  min = ''
+  max = ''
+  step = ''
 
-  content = label(xinSlot({ part: 'caption' }), input({ part: 'input' }))
+  content = label(
+    xinSlot({ part: 'caption' }),
+    span(
+      { part: 'field' },
+      input({ part: 'valueHolder' }),
+      xinSlot({ part: 'input', name: 'input' })
+    )
+  )
 
   constructor() {
     super()
@@ -121,52 +146,77 @@ export class XinField extends XinComponent {
       'type',
       'optional',
       'pattern',
-      'placeholder'
+      'placeholder',
+      'min',
+      'max',
+      'step'
     )
   }
 
   handleChange = () => {
-    const { input } = this.parts as {
-      input: HTMLInputElement
-      caption: HTMLElement
+    const { input, valueHolder } = this.parts as {
+      input: HTMLElement
+      valueHolder: HTMLInputElement
+    }
+    const inputElement = (input.children[0] || valueHolder) as HTMLInputElement
+    if (inputElement !== valueHolder) {
+      valueHolder.value = inputElement.value
     }
     const form = this.closest('xin-form') as XinForm
     if (form && this.key !== '') {
       switch (this.type) {
         case 'checkbox':
-          form.value[this.key] = input.checked
+          form.value[this.key] = inputElement.checked
           break
         case 'number':
         case 'range':
-          form.value[this.key] = Number(input.value)
+          form.value[this.key] = Number(inputElement.value)
           break
         default:
-          form.value[this.key] = input.value
+          form.value[this.key] = inputElement.value
       }
     }
   }
 
   connectedCallback(): void {
     super.connectedCallback()
-    const { input } = this.parts as {
-      input: HTMLInputElement
-      caption: HTMLElement
-    }
-    input.addEventListener('change', this.handleChange)
+    const { input, valueHolder } = this.parts
+    valueHolder.addEventListener('change', this.handleChange)
+    input.addEventListener('change', this.handleChange, true)
   }
 
   render() {
-    const { input, caption } = this.parts as {
-      input: HTMLInputElement
+    const { input, caption, valueHolder } = this.parts as {
+      input: HTMLElement
       caption: HTMLElement
+      valueHolder: HTMLInputElement
     }
     if (caption.textContent?.trim() === '') {
       caption.append(this.caption !== '' ? this.caption : this.key)
     }
-    attr(input, 'placeholder', this.placeholder)
-    attr(input, 'type', this.type)
-    attr(input, 'pattern', this.pattern)
-    attr(input, 'required', !this.optional)
+    if (this.type === 'text') {
+      const textarea =
+        (input.children[0] as HTMLTextAreaElement) || elements.textarea()
+      if (input.children.length === 0) {
+        input.append(textarea)
+      }
+      attr(textarea, 'placeholder', this.placeholder)
+    } else if (input.children.length === 0) {
+      attr(valueHolder, 'placeholder', this.placeholder)
+      attr(valueHolder, 'type', this.type)
+      attr(valueHolder, 'pattern', this.pattern)
+      attr(valueHolder, 'min', this.min)
+      attr(valueHolder, 'max', this.max)
+      attr(valueHolder, 'step', this.step)
+    }
+    valueHolder.classList.toggle('hidden', input.children.length > 0)
+    if (input.children.length > 0) {
+      valueHolder.setAttribute('tabindex', '-1')
+    } else {
+      valueHolder.removeAttribute('tabindex')
+    }
+    input.style.display = input.children.length === 0 ? 'none' : ''
+    attr(valueHolder, 'required', !this.optional)
   }
 }
 
@@ -233,6 +283,26 @@ export class XinForm extends XinComponent {
 
 export const xinField = XinField.elementCreator({
   tag: 'xin-field',
+  styleSpec: {
+    ':host [part="field"]': {
+      position: 'relative',
+    },
+    ':host [part="field"] > *, :host [part="input"] > *': {
+      display: 'block',
+      width: '100%',
+    },
+    ':host textarea': {
+      resize: 'none',
+    },
+    ':host input[type="checkbox"]': {
+      width: 'fit-content',
+    },
+    ':host .hidden': {
+      position: 'absolute',
+      pointerEvents: 'none',
+      opacity: 0,
+    },
+  },
 }) as ElementCreator<XinField>
 export const xinForm = XinForm.elementCreator({
   tag: 'xin-form',

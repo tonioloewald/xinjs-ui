@@ -15,11 +15,20 @@ preview.querySelector('.submit').addEventListener('click', () => {
   <h3 slot="header">Example Form Header</h3>
   <xin-field caption="Required field" key="required"></xin-field>
   <xin-field optional key="optional"><i>Optional</i> Field</xin-field>
+  <xin-field key="text" type="text" placeholder="type it in here">Tell us a long story</xin-field>
   <xin-field caption="Zip Code" placeholder="12345 or 12345-6789" key="zipcode" pattern="\d{5}(-\d{4})?"></xin-field>
   <xin-field caption="Date" key="date" type="date"></xin-field>
   <xin-field caption="Number" key="number" type="number"></xin-field>
-  <xin-field caption="Range" key="range" type="range"></xin-field>
+  <xin-field caption="Range" key="range" type="range" min="0" max="10"></xin-field>
   <xin-field key="boolean" type="checkbox">😃 <b>Agreed?!</b></xin-field>
+  <xin-field key="select">
+    Custom Field
+    <select slot="input">
+      <option>This</option>
+      <option>That</option>
+      <option>The Other</option>
+    </select>
+  </xin-field>
   <button slot="footer" class="submit">Submit</button>
 </xin-form>
 ```
@@ -56,11 +65,11 @@ preview.querySelector('.submit').addEventListener('click', () => {
   text-align: right;
 }
 
-.preview input:invalid {
+.preview :invalid {
   box-shadow: inset 0 0 2px red;
 }
 
-.preview label:has(input:invalid:required)::after {
+.preview label:has(:invalid:required)::after {
   content: '* required'
 }
 ```
@@ -81,23 +90,32 @@ and triggers form validation.
 `<xin-field>` is a simple web-component with no shadowDOM that combines an `<input>` field wrapped with a `<label>`. Any
 content of the custom-element will become the `caption` or you can simply set the `caption` attribute.
 
+You can replace the default `<input>` field by adding an element to the slot `input` (it's a `xinSlot`) whereupon
+the `value` of that element will be used instead of the built-in `<input>`. (The `<input>` is retained and
+is used to drive form-validation.)
+
 `<xin-field>` supports the following attributes:
 
 - `caption` labels the field
 - `key` determines the form property the field will populate
-- `type` determines the data-type: '' | 'checkbox' | 'number' | 'range' | 'date'
+- `type` determines the data-type: '' | 'checkbox' | 'number' | 'range' | 'date' | 'text'
 - `optional` turns off the `required` attribute (fields are required by default)
 - `pattern` is an (optional) regex pattern
 - `placeholder` is an (optional) placeholder
+
+The `text` type actually populates the `input` slot with a `<textarea>` element.
 */
 import { Component as XinComponent } from 'xinjs';
 export declare class XinField extends XinComponent {
     caption: string;
     key: string;
-    type: '' | 'checkbox' | 'number' | 'range' | 'date';
+    type: '' | 'checkbox' | 'number' | 'range' | 'date' | 'text';
     optional: boolean;
     pattern: string;
     placeholder: string;
+    min: string;
+    max: string;
+    step: string;
     content: any;
     constructor();
     handleChange: () => void;

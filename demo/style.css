@@ -52,6 +52,7 @@ textarea {
 
 select {
   -webkit-appearance: none;
+  appearance: none;
 }
 
 header {
@@ -177,11 +178,21 @@ label > select + .icon-chevron-down {
   margin-left: calc(var(--spacing) * -3.5);
 }
 
-input {
+input,
+textarea {
   border: none;
   outline: none;
-  padding: 0 calc(var(--spacing) * 1.5);
   border-radius: calc(var(--spacing) * 0.5);
+}
+
+input {
+  padding: 0 calc(var(--spacing) * 1.5);
+}
+
+textarea {
+  padding: var(--spacing) calc(var(--spacing) * 1.25);
+  line-height: var(--line-height);
+  min-height: calc(var(--spacing) + var(--line-height) * 4);
 }
 
 input[type='number'] {
