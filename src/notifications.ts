@@ -5,6 +5,9 @@
 `XinNotification` provides a singleton custom `<xin-notification>` element that manages
 a list of notifications.
 
+The notifications are displayed most-recent first. If the notifications would take more than
+half the height of the display, they are scrolled.
+
 You can post a notification simply with `XinNotification.post()` or `postNotification()`.
 
 ```
@@ -89,6 +92,7 @@ export class XinNotification extends Component {
       gap: vars.notificationSpacing,
       maxHeight: '50vh',
       overflow: 'hidden auto',
+      boxShadow: 'none !important',
     },
     ':host *': {
       color: vars.notificationTextColor,
@@ -102,7 +106,9 @@ export class XinNotification extends Component {
       alignItems: 'center',
       borderRadius: vars.notificationBorderRadius,
       boxShadow: `0 2px 8px #0006, inset 0 0 0 2px ${vars.notificationAccentColor}`,
-      transition: '0.5s ease-out',
+      transition: '0.5s ease-in',
+      transitionProperty: 'margin, opacity',
+      zIndex: 1,
     },
     ':host .note .icon': {
       fill: vars.notificationAccentColor,
@@ -135,15 +141,18 @@ export class XinNotification extends Component {
     },
     ':host .note.closing': {
       opacity: 0,
+      zIndex: 0,
     },
   }
 
   static removeNote(note: HTMLElement) {
     note.classList.add('closing')
     note.style.marginBottom = -note.offsetHeight + 'px'
-    note.addEventListener('transitionend', () => {
+    const remove = () => {
       note.remove()
-    })
+    }
+    note.addEventListener('transitionend', remove)
+    setTimeout(remove, 1000)
   }
 
   static handleClick = (event: Event) => {
