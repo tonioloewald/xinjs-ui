@@ -20,6 +20,16 @@ interface NotificationSpec {
 }
 ```
 
+If you provide a `progress` callback (which is assumed to return a number from `0-100`, with
+100+ indicating completion) then `XinNotification` will poll it every second until the
+task completes or the notification is closed. Returning 100 or more will automatically close
+the notification.
+
+If you configure a notification's `type = "progress"` but don't provide a `progress` callback
+then an indefinite `<progress>` element will be displayed.
+
+If you provide a `close` callback, it will be fired if the user closes the notification.
+
 ```js
 const { postNotification } = xinjsui
 
@@ -92,7 +102,7 @@ export class XinNotification extends Component {
     ':host': {
       _notificationSpacing: 8,
       _notificationWidth: 360,
-      _notificationPadding: vars.notificationSpacing200,
+      _notificationPadding: `${vars.notificationSpacing} ${vars.notificationSpacing50} ${vars.notificationSpacing} ${vars.notificationSpacing200}`,
       _notificationBg: '#fafafa',
       _notificationAccentColor: '#aaa',
       _notificationTextColor: '#444',
@@ -147,12 +157,14 @@ export class XinNotification extends Component {
       border: 'none',
       position: 'relative',
     },
-    ':host .note button:hover': {
+    ':host .note button:hover svg': {
       fill: vars.notificationAccentColor,
     },
-    ':host .note button:active': {
-      transformOrigin: '50% 50%',
-      transform: 'scale(1.1)',
+    ':host .note button:active svg': {
+      borderRadius: 99,
+      fill: vars.notificationBg,
+      background: vars.notificationAccentColor,
+      padding: vars.spacing50,
     },
     ':host .note svg': {
       height: vars.notificationIconSize,
@@ -246,8 +258,7 @@ export class XinNotification extends Component {
         const percentage = progress()
         progressBar.value = percentage
         if (percentage >= 0) {
-          XinNotification.removeNote(node)
-          clearInterval(interval)
+          XinNotification.removeNote(note)
         }
       }, 1000)
     }
