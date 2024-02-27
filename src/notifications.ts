@@ -12,9 +12,11 @@ You can post a notification simply with `XinNotification.post()` or `postNotific
 
 ```
 interface NotificationSpec {
-	message: string
-	type?: 'log'| 'info' | 'warn' | 'error',
-	duration?: number
+  message: string
+  type?: 'info' | 'log' | 'warn' | 'error' // default 'info'
+  duration?: number
+  progress?: () => number // return percentage completion
+  close?: () => void
 }
 ```
 
@@ -40,6 +42,21 @@ postNotification({
   type: 'error',
   message: 'An error!',
 })
+
+const start = Date.now()
+postNotification({
+  type: 'progress',
+  message: 'Something is happening!',
+  duration: 5,
+  progress() {
+    const completionPercentage = (Date.now() - start) / 50
+    console.log(completionPercentage)
+    return completionPercentage
+  },
+  close() {
+    postNotification('cancelled something!')
+  }
+})
 ```
 
 ## `postNotification(spec: NotificationSpec | string)`
@@ -54,15 +71,18 @@ const { div, button } = elements
 
 interface NotificationSpec {
   message: string
-  type?: 'log' | 'info' | 'warn' | 'error'
+  type?: 'info' | 'log' | 'warn' | 'error' | 'progress' // default 'info'
   duration?: number
+  progress?: () => number
+  close?: () => void
 }
 
 const COLOR_MAP = {
   error: 'red',
   warn: 'orange',
-  info: 'blue',
+  info: 'royalblue',
   log: 'gray',
+  progress: 'royalblue',
 }
 
 export class XinNotification extends Component {
@@ -139,6 +159,12 @@ export class XinNotification extends Component {
       width: vars.notificationIconSize,
       pointerEvents: 'none',
     },
+    ':host .message': {
+      display: 'flex',
+      flexDirection: 'column',
+      alignItems: 'center',
+      gap: vars.notificationSpacing,
+    },
     ':host .note.closing': {
       opacity: 0,
       zIndex: 0,
@@ -162,7 +188,7 @@ export class XinNotification extends Component {
   }
 
   static post(spec: NotificationSpec | string) {
-    const { message, duration, type } = Object.assign(
+    const { message, duration, type, close, progress } = Object.assign(
       { type: 'info', duration: -1 },
       typeof spec === 'string' ? { message: spec } : spec
     )
@@ -175,9 +201,11 @@ export class XinNotification extends Component {
     this.singleton.style.zIndex = String(findHighestZ() + 1)
 
     const _notificationAccentColor = COLOR_MAP[type]
+    const progressBar =
+      progress | (type === 'progress') ? elements.progress() : null
     const note = div(
       {
-        class: 'note',
+        class: `note ${type}`,
         style: {
           _notificationAccentColor,
         },
@@ -185,26 +213,50 @@ export class XinNotification extends Component {
       icons.info({
         class: 'icon',
       }),
-      div({ class: 'message' }, message),
+      div({ class: 'message' }, div(message), progressBar),
       button(
         {
           class: 'close',
           title: 'close',
           apply(elt) {
-            elt.addEventListener('click', XinNotification.handleClick)
+            if (close) {
+              elt.addEventListener('click', (event: Event) => {
+                close()
+                XinNotification.handleClick(event)
+              })
+            } else {
+              elt.addEventListener('click', XinNotification.handleClick)
+            }
           },
         },
         icons.x()
       )
     )
 
+    this.singleton.shadowRoot.append(note)
+
+    if (progress) {
+      progressBar.value = progress()
+      progressBar.setAttribute('max', 100)
+      const interval = setInterval(() => {
+        if (!this.singleton.shadowRoot.contains(note)) {
+          clearInterval(interval)
+          return
+        }
+        const percentage = progress()
+        progressBar.value = percentage
+        if (percentage >= 0) {
+          XinNotification.removeNote(node)
+          clearInterval(interval)
+        }
+      }, 1000)
+    }
+
     if (duration > 0) {
       setTimeout(() => {
         XinNotification.removeNote(note)
       }, duration * 1000)
     }
-
-    this.singleton.shadowRoot.append(note)
 
     note.scrollIntoView()
   }
@@ -216,6 +268,6 @@ export const xinNotification = XinNotification.elementCreator({
   tag: 'xin-notification',
 })
 
-export function postNotification(spec: NotificationSpec | string): void {
+export function postNotification(spec: NotificationSpec | string) {
   XinNotification.post(spec)
 }
