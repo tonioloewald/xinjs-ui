@@ -255,4 +255,11 @@ export class SvgIcon extends WebComponent {
   }
 }
 
-export const svgIcon = SvgIcon.elementCreator({ tag: 'xin-icon' })
+export const svgIcon = SvgIcon.elementCreator({
+  tag: 'xin-icon',
+  styleSpec: {
+    ':host': {
+      verticalAlign: 'baseline',
+    },
+  },
+})
