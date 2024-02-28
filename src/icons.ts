@@ -2,7 +2,8 @@
 # icons
 
 A library that provides `ElementCreator` functions that produce SVG icons. It leverages `xinjs`'s
-`svgElements` proxy.
+`svgElements` proxy and is intended to address all the key use-cases for SVG icons in web
+applications along with being very easy to extend and maintain.
 
 ## icons
 
@@ -66,11 +67,11 @@ probably be broken out as a standalone library to allow the use of whatever icon
 
 `defineIcon(name: string, icon: IconSpec | string)` adds or replaces your own icons
 
-he simplest option is simply to pass the `path` attribute (if the icon has a single path) while more c
-omplex icons can be provide an `IconSpec` structure `{ p: string[]; w: number; h: number }` (specifying
+The simplest option is simply to pass the `path` attribute (if the icon has a single path) while more 
+complex icons can be provide an `IconSpec` structure `{ p: string[]; w: number; h: number }` (specifying
 any number of paths and the size of the bounding box).
 
-Clearly it would be easy to extend this to allow multi-colored icons in the future.
+> This will be extended to allow multi-colored icons (whose colors can still be overridden via CSS) in the future.
 
 ## `<xin-icon>`
 
@@ -93,6 +94,32 @@ xin-icon.demo-2 > svg {
 
 ## SVGs as data-urls
 
+```js
+const { elements } = xinjs
+const { icons, svg2DataUrl } = xinjsui
+
+preview.append(
+  elements.span({
+    style: {
+      display: 'inline-block',
+      width: '120px',
+      height: '24px',
+      content: '" "',
+      background: svg2DataUrl(icons.star(), '#bbb')
+    }
+  }),
+  elements.span({
+    style: {
+      display: 'inline-block',
+      width: '120px',
+      height: '24px',
+      content: '" "',
+      background: svg2DataUrl(icons.starFilled(), 'gold', 'orange')
+    }
+  }),
+)
+```
+
 `svg2DataUrl(svg: SVGElement, fill?: string, stroke?: string): string` is provided as a
 utility for converting SVG elements into data-urls (e.g. for incorporation into
 CSS properties. (It's used by the `<xin-3d>` component to render the XR widget.)
@@ -111,6 +138,21 @@ The motivation behind this is to avoid dealing with tooling issues that inevitab
 integrating custom icon fonts or stylesheets needed by code libraries (and an icon-font also needs
 a style-sheet. Importing code is simply easier (and as a bonus, more compact and flexible, and there's
 no question as to when the stuff is available).
+
+Until I wrote this library, I had settled on icomoon.io's system for generating and maintaining
+custom icon fonts for managing icons within a project, but this makes exporting UI elements
+with icons in them fiddly, and I looked at other UI libraries and found similar issues.
+
+Even when just using this approach for projects over which I had full control, there were issues
+with syncing icons with CSS (e.g. if you want to attach an element to a pseudo-element). `icons`
+in combination with `svg2DataUrl` solves all these problems.
+
+Basically, I wanted an icon solution that "just works" and this is it.
+
+> Multi-color icons are not yet supported, but it's on the list and the colors
+> will be overridable via styling.
+
+Internally, icons are stored as javascript path data.
 
 These icons are mainly sourced from [feather](https://github.com/feathericons/feather), but
 all the icons have been processed to have integer coordinates in a `viewBox` typically scaled to 1024  &times; 1024.
