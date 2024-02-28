@@ -180,7 +180,10 @@ window.addEventListener(
 
 document.addEventListener(
   'scroll',
-  () => {
+  (event: Event) => {
+    if (event.target.closest(XinFloat.tagName)) {
+      return
+    }
     ;[...XinFloat.floats].forEach((float: XinFloat) => {
       if (float.remainOnScroll === 'hide') {
         float.hidden = true
