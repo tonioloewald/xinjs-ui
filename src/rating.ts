@@ -2,22 +2,18 @@
 # rating
 
 `XinRating` / `<xin-rating>` provides a drop-in replacement for an `<input>`
-that renders a rating using <xin-icon icon="starFilled" color="red"></xin-icon>s.
-
-`<xin-rating>` is very lightweight, comprising exactly two internal elements, versus
-(for example) at least 12 for [Shoelace's <sl-rating>](https://shoelace.style/components/rating/)
-or 33 for [MUI's rating](https://mui.com/material-ui/react-rating/). On the other
-hand it isn't as nicely interactive as these controls.
+that renders a rating using <xin-icon icon="star" color="red"></xin-icon>s.
 
 ```html
-<xin-rating value=3.4 step=1></xin-rating>
-<xin-rating value=3.4 empty-icon="star"></xin-rating>
-<xin-rating value=3.4 fill-color="deepskyblue"></xin-rating>
-<xin-rating value=3.1 max=10 color="green" icon="bug" icon-size=32></xin-rating>
+<xin-rating value=3.4></xin-rating>
+<xin-rating min=0 value=3.4 step=0.5 hollow></xin-rating>
+<xin-rating value=3.4 color="deepskyblue"></xin-rating>
+<xin-rating value=3.1 max=10 color="hotpink" icon="heart" icon-size=32></xin-rating>
 ```
 ```css
-xin-rating {
-	display: block;
+.preview {
+  display: flex;
+  flex-direction: column;
 }
 ```
 
@@ -27,15 +23,23 @@ xin-rating {
 - `max` maximum rating
 - `min` (1 by default) can be 0 or 1 (allowing ratings of 0 to max or 1 to max)
 - `step` (0.5 by default) granularity of rating
-- `icon` ('starFilled' by default) determines the icon used
-- `empty-icon` ('' by default) will determine the appearance of the background icons by default
-- `fill-color` (#f91 by default) is the color of rating icons
+- `icon` ('star' by default) determines the icon used
+- `fill` (#f91 by default) is the color of rating icons
 - `empty-color` (#ccc by default) is the color of background icons
 - `readonly` (false by default) prevents the user from changing the rating
+- `hollow` (false by default) makes the empty rating icons hollow.
+
+## Keyboard
+
+`<xin-rating>` should be fully keyboard navigable (and, I hope, accessible).
+
+The up key increases the rating, down descreases it. This is the same
+as the behavior of `<input type="number">`, [Shoelace's rating widget](https://shoelace.style/components/rating/), 
+and (in my opinion) common sense, but  not like [MUI's rating widget](https://mui.com/material-ui/react-rating/).
 */
 
-import { Component, elements, ElementCreator } from 'xinjs'
-import { icons, svg2DataUrl } from './icons'
+import { Component, elements, ElementCreator, vars } from 'xinjs'
+import { icons } from './icons'
 
 const { span } = elements
 
@@ -43,23 +47,55 @@ export class XinRating extends Component {
   iconSize = 24
   min: 0 | 1 = 1
   max = 5
-  step = 0.5
+  step = 1
   value: number | null = null
-  icon = 'starFilled'
-  emptyIcon = ''
-  fillColor = '#f91'
-  emptyColor = '#ccc'
+  icon = 'star'
+  color = '#f91'
+  emptyColor = '#8888'
+  emptyStrokeWidth = 2
   readonly = false
+  hollow = false
 
   static styleSpec = {
     ':host': {
       display: 'inline-block',
       position: 'relative',
+      width: 'fit-content',
+    },
+    ':host::part(empty), :host::part(filled)': {
+      height: '100%',
+      whiteSpace: 'nowrap',
+      overflow: 'hidden',
+    },
+    ':host::part(empty)': {
+      pointerEvents: 'none',
+      _textColor: 'transparent',
+    },
+    ':host [part="empty"]:not(.hollow)': {
+      fill: vars.ratingEmptyColor,
+    },
+    ':host .hollow': {
+      fill: 'none',
+      stroke: vars.ratingEmptyColor,
+      strokeWidth: vars.ratingEmptyStrokeWidth,
     },
     ':host::part(filled)': {
       position: 'absolute',
-      pointerEvents: 'none',
-      height: '100%',
+      left: 0,
+      fill: vars.ratingColor,
+      stroke: vars.ratingColor,
+      strokeWidth: vars.ratingEmptyStrokeWidth,
+    },
+    ':host svg': {
+      transform: 'scale(0.7)',
+      pointerEvents: 'all !important',
+      transition: '0.25s ease-in-out',
+    },
+    ':host svg:hover': {
+      transform: 'scale(0.9)',
+    },
+    ':host svg:active': {
+      transform: 'scale(1)',
     },
   }
 
@@ -71,22 +107,20 @@ export class XinRating extends Component {
       'min',
       'icon',
       'step',
-      'emptyIcon',
-      'fillColor',
+      'color',
       'emptyColor',
       'readonly',
-      'iconSize'
+      'iconSize',
+      'hollow'
     )
   }
 
-  content = () => span({ part: 'filled' })
+  content = () => [span({ part: 'empty' }), span({ part: 'filled' })]
 
-  private aspectRatio = 1
-
-  displayValue(value: number) {
-    const { filled } = this.parts
-    const roundedValue = Math.round(value / this.step) * this.step
-    filled.style.width = this.iconSize * roundedValue * this.aspectRatio + 'px'
+  displayValue(value: number | null) {
+    const { empty, filled } = this.parts
+    const roundedValue = Math.round((value || 0) / this.step) * this.step
+    filled.style.width = (roundedValue / this.max) * empty.offsetWidth + 'px'
   }
 
   update = (event: Event) => {
@@ -94,11 +128,13 @@ export class XinRating extends Component {
       return
     }
 
+    const { empty } = this.parts
+
+    const x = event instanceof MouseEvent ? event.offsetX : 0
     const value = Math.max(
       this.min,
       Math.round(
-        ((event.layerX / this.offsetWidth) * this.max) / this.step +
-          this.step * 0.5
+        ((x / empty.offsetWidth) * this.max) / this.step + this.step * 0.5
       ) * this.step
     )
     if (event.type === 'click') {
@@ -106,36 +142,78 @@ export class XinRating extends Component {
     } else if (event.type === 'mousemove') {
       this.displayValue(value)
     } else {
-      this.displayValue(this.value)
+      this.displayValue(this.value || 0)
+    }
+  }
+
+  handleKey = (event: KeyboardEvent) => {
+    let value = Number(this.value)
+    if (value == null) {
+      value = Math.round((this.min + this.max) * 0.5 * this.step) * this.step
+    }
+    let blockEvent = false
+    switch (event.key) {
+      case 'ArrowUp':
+      case 'ArrowRight':
+        value += this.step
+        blockEvent = true
+        break
+      case 'ArrowDown':
+      case 'ArrowLeft':
+        value -= this.step
+        blockEvent = true
+        break
+    }
+    this.value = Math.max(Math.min(value, this.max), this.min)
+    if (blockEvent) {
+      event.stopPropagation()
+      event.preventDefault()
     }
   }
 
   connectedCallback() {
     super.connectedCallback()
 
+    this.tabIndex = 0
     this.addEventListener('mousemove', this.update)
     this.addEventListener('mouseleave', this.update)
     this.addEventListener('blur', this.update)
     this.addEventListener('click', this.update)
+
+    this.addEventListener('keydown', this.handleKey)
   }
+
+  private _renderedIcon = ''
 
   render() {
     super.render()
 
-    const { filled } = this.parts
-
-    const filledIcon = icons[this.icon]()
-    const [, , w, h] = filledIcon.getAttribute('viewBox').split(' ')
-    this.aspectRatio = Number(w) / Number(h)
-
-    this.style.background = svg2DataUrl(
-      icons[this.emptyIcon || this.icon](),
-      this.emptyColor
+    this.style.setProperty('--rating-color', this.color)
+    this.style.setProperty('--rating-empty-color', this.emptyColor)
+    this.style.setProperty(
+      '--rating-empty-stroke-width',
+      String(this.emptyStrokeWidth * 32)
     )
-    this.style.height = this.iconSize + 'px'
-    this.style.width = this.iconSize * this.max * this.aspectRatio + 'px'
 
-    filled.style.background = svg2DataUrl(filledIcon, this.fillColor)
+    if (this.readonly) {
+      this.role = 'image'
+    } else {
+      this.role = 'input'
+    }
+    this.ariaLabel = `rating ${this.value} out of ${this.max}`
+
+    const { empty, filled } = this.parts
+    const height = this.iconSize + 'px'
+    empty.classList.toggle('hollow', this.hollow)
+
+    if (this._renderedIcon !== this.icon) {
+      this._renderedIcon = this.icon
+      for (let i = 0; i < this.max; i++) {
+        empty.append(icons[this.icon]({ height }))
+        filled.append(icons[this.icon]({ height }))
+      }
+    }
+    this.style.height = height
 
     this.displayValue(this.value)
   }
