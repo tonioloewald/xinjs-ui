@@ -17,7 +17,7 @@ const { div } = xinjs.elements
 
 preview.append(...Object.keys(icons).sort().map(iconName => div(
   { class: 'tile' },
-  svgIcon({icon: iconName}),
+  svgIcon({icon: iconName, size: 16}),
   div(iconName)
 )))
 ```
@@ -78,19 +78,44 @@ any number of paths and the size of the bounding box).
 `<xin-icon>` is a simple component that lets you embed icons as HTML. Check the CSS tab to see
 how it's styled.
 
-`<xin-icon>` supports two attributes:
+`<xin-icon>` supports four attributes:
 
+- `size` (defaults to 32) is the height of the icon in pixels
 - `icon` is the name of the icon
 - `color` is the fill color (if you don't want to style it using CSS)
+- `stroke` is the stroke color
+- `stroke-width` (defaults to 1) is the width of the stroke assuming the icon's viewBox is 1024 units tall but the
+  icon is rendered at 32px (so it's multiplied by 32).
+
+> **Aside**: the tool used to build the icon library scales up the viewBox to 1024 tall and then rounds
+> all coordinates to nearest integer on the assumption that this is plenty precise enough for icons and
+> makes everything smaller and easier to compress.
 
 ```html
-<xin-icon class="demo-2" icon="game" color="var(--brand-color)"></xin-icon>
+<xin-icon size="64" icon="game" color="var(--brand-color)"></xin-icon>
+<xin-icon size="96" icon="game" color="yellow" stroke="black"></xin-icon>
+<xin-icon size="64" icon="star"
+ color="linear-gradient(0deg, rgba(34,193,195,1) 0%, rgba(253,187,45,1) 100%)"
+></xin-icon>
+<xin-icon size="64" icon="star"
+ color="linear-gradient(345deg, rgba(34,193,195,1) 0%, rgba(253,187,45,1) 100%)"
+></xin-icon>
+<xin-icon size="64" icon="star"
+ color="linear-gradient(180deg, rgba(34,193,195,1) 0%, rgba(253,187,45,1) 100%)"
+></xin-icon>
+<xin-icon size="64" icon="star"
+ color="linear-gradient(90deg, rgba(34,193,195,1) 0%, rgba(253,187,45,1) 100%)"
+></xin-icon>
 ```
 ```css
 xin-icon.demo-2 > svg {
   height: 96px;
 }
 ```
+
+**CSS-to-SVG Gradient** support is work-in-progress and experimental (there seem to be 
+…issues… with how SVG  gradients behave). The goal is to be able to use CSS gradients 
+to generate SVG gradients (which are kind of a pain) on-the-fly. Use at your own risk.
 
 ## SVGs as data-urls
 
@@ -105,7 +130,7 @@ preview.append(
       width: '120px',
       height: '24px',
       content: '" "',
-      background: svg2DataUrl(icons.star(), '#bbb')
+      background: svg2DataUrl(icons.star(), 'none', '#bbb', 3)
     }
   }),
   elements.span({
@@ -114,7 +139,7 @@ preview.append(
       width: '120px',
       height: '24px',
       content: '" "',
-      background: svg2DataUrl(icons.starFilled(), 'gold', 'orange')
+      background: svg2DataUrl(icons.star(), 'gold', 'orange', 2)
     }
   }),
 )
@@ -164,6 +189,8 @@ import {
   ElementCreator,
   ElementPart,
   Component as WebComponent,
+  XinStyleRule,
+  Color,
 } from 'xinjs'
 import iconData from './icon-data'
 
@@ -195,14 +222,15 @@ export const svg2DataUrl = (
   svg: SVGElement,
   fill?: string,
   stroke?: string,
-  strokeWidth?: number | string
+  strokeWidth: number | string = 1
 ): string => {
   if (fill !== undefined) {
     for (const path of [...svg.querySelectorAll('path')]) {
       path.setAttribute('fill', fill)
-      if (stroke !== undefined) path.setAttribute('stroke', stroke)
-      if (strokeWidth !== undefined)
-        path.setAttribute('stroke-width', String(strokeWidth))
+      if (stroke !== undefined) {
+        path.setAttribute('stroke', stroke)
+        path.setAttribute('stroke-width', String(Number(strokeWidth) * 32))
+      }
     }
   }
 
@@ -237,21 +265,58 @@ export const icons = new Proxy(iconData, {
 
 export class SvgIcon extends WebComponent {
   icon = ''
+  size = 32
   color = ''
+  stroke = ''
+  strokeWidth = 1
 
   constructor() {
     super()
 
-    this.initAttributes('icon', 'color')
+    this.initAttributes('icon', 'size', 'color', 'stroke', 'strokeWidth')
   }
 
   render(): void {
     this.textContent = ''
-    this.append(
-      this.color !== ''
-        ? icons[this.icon]({ style: { fill: this.color } })
-        : icons[this.icon]()
-    )
+    const style: XinStyleRule = {
+      height: `${this.size}px`,
+    }
+    if (this.stroke) {
+      style.stroke = this.stroke
+      style.strokeWidth = this.strokeWidth * 32
+    }
+    if (this.color.match(/linear-gradient/)) {
+      const type = this.color.split('-')[0]
+      const [, spec] = this.color.match(/[a-z-]+\((.*)\)/) || []
+      const [, direction] = spec.match(/(\d+)deg/) || []
+      const items = spec.match(/(#|rgb|hsl).*?%/g) || []
+      console.log(items)
+      const stops = items
+        .map((item) => {
+          const [, color, position] = item.match(/^(.*)\s(\d+%)$/) || [
+            'black',
+            '100%',
+          ]
+          return `<stop offset="${position}" stop-color="${
+            Color.fromCss(color).html
+          }" ></stop>`
+        })
+        .join('')
+      let transform = ''
+      if (direction) {
+        const angle = parseFloat(direction)
+        transform = ` gradientTransform="rotate(${angle.toFixed(0)})"`
+      }
+      const defs = svgElements.defs()
+      const id = 'g-' + Math.floor(Math.random() * Number.MAX_SAFE_INTEGER)
+      defs.innerHTML = `<${type}Gradient id="${id}" ${transform}>${stops}</${type}Gradient>`
+      console.log(defs)
+      style.fill = `url(#${id})`
+      this.append(icons[this.icon]({ style }, defs))
+    } else {
+      style.fill = this.color
+      this.append(icons[this.icon]({ style }))
+    }
   }
 }
 
