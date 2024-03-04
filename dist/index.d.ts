@@ -1,6 +1,7 @@
 export * from './ab-test';
 export * from './babylon-3d';
 export * from './bodymovin-player';
+export * from './carousel';
 export * from './code-editor';
 export * from './data-table';
 export * from './editable-rect';
@@ -13,7 +14,9 @@ export * from './live-example';
 export * from './mapbox';
 export * from './markdown-viewer';
 export * from './menu';
+export * from './notifications';
 export * from './pop-float';
+export * from './rating';
 export * from './select';
 export * from './rich-text';
 export * from './side-nav';
