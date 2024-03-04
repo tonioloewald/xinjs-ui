@@ -10,7 +10,6 @@
   <div class="thing pink">item 5</div>
   <div class="thing green">item 6</div>
   <div class="thing blue">item 7</div>
-  <div class="thing yellow">item 8</div>
 </xin-carousel>
 ```
 ```css
@@ -39,16 +38,29 @@
 }
 ```
 
-This is a minimalist carousel control that supports the usual stuff.
+This is a minimalist carousel component that supports the usual stuff.
+
+## Attributes
+
+- `arrows` (boolean, false by default) shows/hides the arrow paging controls
+- `dots` (boolean, false by default) shows/hides the dot progress indicators
+- `max-visible-items` (number, 1 by default) determines how many items are shown at once.
+- `snap-duration` (number, 0.25s by default) determines the time taken to scroll / snap scroll.
+
+## Styling
+
+Inspect the DOM to see all the CSS-variables available for styling this component.
 */
 import { Component as WebComponent } from 'xinjs';
 declare class XinCarousel extends WebComponent {
     arrows: boolean;
     dots: boolean;
     maxVisibleItems: number;
-    page: number;
     snapDuration: number;
     role: string;
+    private _page;
+    get page(): number;
+    set page(p: number);
     get visibleItems(): HTMLElement[];
     get lastPage(): number;
     static styleSpec: {

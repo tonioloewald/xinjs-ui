@@ -10,7 +10,6 @@
   <div class="thing pink">item 5</div>
   <div class="thing green">item 6</div>
   <div class="thing blue">item 7</div>
-  <div class="thing yellow">item 8</div>
 </xin-carousel>
 ```
 ```css
@@ -39,7 +38,18 @@
 }
 ```
 
-This is a minimalist carousel control that supports the usual stuff.
+This is a minimalist carousel component that supports the usual stuff.
+
+## Attributes
+
+- `arrows` (boolean, false by default) shows/hides the arrow paging controls
+- `dots` (boolean, false by default) shows/hides the dot progress indicators
+- `max-visible-items` (number, 1 by default) determines how many items are shown at once.
+- `snap-duration` (number, 0.25s by default) determines the time taken to scroll / snap scroll.
+
+## Styling
+
+Inspect the DOM to see all the CSS-variables available for styling this component.
 */
 
 import {
@@ -62,9 +72,20 @@ class XinCarousel extends WebComponent {
   arrows = false
   dots = false
   maxVisibleItems = 1
-  page = 0
   snapDuration = 0.25
   role = 'listbox'
+
+  private _page = 0
+
+  get page(): number {
+    return this._page
+  }
+
+  set page(p: number) {
+    const { scroller } = this.parts
+    this._page = p
+    this.animateScroll(this.page * scroller.offsetWidth)
+  }
 
   get visibleItems(): HTMLElement[] {
     return [...this.children].filter(
@@ -182,30 +203,23 @@ class XinCarousel extends WebComponent {
   snapPosition = () => {
     const { scroller } = this.parts
     this.page = Math.round(scroller.scrollLeft / scroller.offsetWidth)
-    // scroller.scrollLeft = this.page * scroller.offsetWidth
-    this.animateScroll(this.page * scroller.offsetWidth)
   }
 
   back = () => {
     cancelAnimationFrame(this.animationFrame)
-    const { scroller } = this.parts
     this.page = Math.max(0, this.page - 1)
-    this.animateScroll(this.page * scroller.offsetWidth)
   }
 
   forward = () => {
     cancelAnimationFrame(this.animationFrame)
-    const { scroller } = this.parts
     this.page = Math.min(this.page + 1, this.lastPage)
-    this.animateScroll(this.page * scroller.offsetWidth)
   }
 
   handleDotClick = (event: Event) => {
-    const { progress, scroller } = this.parts
+    const { progress } = this.parts
     const index = [...progress.children].indexOf(event.target as HTMLElement)
     if (index > -1) {
       this.page = Math.floor(index / this.maxVisibleItems)
-      this.animateScroll(this.page * scroller.offsetWidth)
     }
   }
 
@@ -282,7 +296,9 @@ class XinCarousel extends WebComponent {
     visibleItems.forEach((item) => {
       item.role = 'option'
     })
-    grid.style.gridTemplateColumns = `${100 / visibleItems.length}% `
+    grid.style.gridTemplateColumns = `${
+      100 / this.maxVisibleItems / (1 + this.lastPage)
+    }% `
       .repeat(visibleItems.length)
       .trim()
     grid.style.width = (1 + this.lastPage) * 100 + '%'
