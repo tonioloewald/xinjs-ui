@@ -181,11 +181,7 @@ window.addEventListener(
 document.addEventListener(
   'scroll',
   (event: Event) => {
-    if (
-      (event.target as HTMLElement | undefined)?.closest(
-        XinFloat.tagName as string
-      )
-    ) {
+    if ((event.target as HTMLElement)?.closest(XinFloat.tagName as string)) {
       return
     }
     ;[...XinFloat.floats].forEach((float: XinFloat) => {
