@@ -29,6 +29,10 @@ preview.querySelector('.submit').addEventListener('click', () => {
       <option>The Other</option>
     </select>
   </xin-field>
+  <xin-field key="rating">
+    Rate this form!
+    <xin-rating slot="input"></xin-rating>
+  </xin-field>
   <button slot="footer" class="submit">Submit</button>
 </xin-form>
 ```

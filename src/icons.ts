@@ -80,7 +80,7 @@ how it's styled.
 
 `<xin-icon>` supports four attributes:
 
-- `size` (defaults to 32) is the height of the icon in pixels
+- `size` (defaults to 0) if non-zero sets the height of the icon in pixels
 - `icon` is the name of the icon
 - `color` is the fill color (if you don't want to style it using CSS)
 - `stroke` is the stroke color
@@ -265,7 +265,7 @@ export const icons = new Proxy(iconData, {
 
 export class SvgIcon extends WebComponent {
   icon = ''
-  size = 32
+  size = 0
   color = ''
   stroke = ''
   strokeWidth = 1
@@ -278,9 +278,8 @@ export class SvgIcon extends WebComponent {
 
   render(): void {
     this.textContent = ''
-    const style: XinStyleRule = {
-      height: `${this.size}px`,
-    }
+    const style: XinStyleRule = {}
+    if (this.size) style.height = this.size
     if (this.stroke) {
       style.stroke = this.stroke
       style.strokeWidth = this.strokeWidth * 32
