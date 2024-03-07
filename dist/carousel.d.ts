@@ -45,17 +45,19 @@ This is a minimalist carousel component that supports the usual stuff.
 - `arrows` (boolean, false by default) shows/hides the arrow paging controls
 - `dots` (boolean, false by default) shows/hides the dot progress indicators
 - `max-visible-items` (number, 1 by default) determines how many items are shown at once.
-- `snap-duration` (number, 0.25s by default) determines the time taken to scroll / snap scroll.
+- `snap-duration` (number, 0.25 [seconds] by default) determines the time taken to scroll / snap scroll.
+- `snap-delay` (number, 0.1 [seconds] by default)
 
 ## Styling
 
 Inspect the DOM to see all the CSS-variables available for styling this component.
 */
 import { Component as WebComponent } from 'xinjs';
-declare class XinCarousel extends WebComponent {
+export declare class XinCarousel extends WebComponent {
     arrows: boolean;
     dots: boolean;
     maxVisibleItems: number;
+    snapDelay: number;
     snapDuration: number;
     role: string;
     private _page;
@@ -158,4 +160,3 @@ declare class XinCarousel extends WebComponent {
     render(): void;
 }
 export declare const xinCarousel: ElementCreator<XinCarousel>;
-export {};
