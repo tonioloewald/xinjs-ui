@@ -5,13 +5,11 @@
 [client-side validation](https://developer.mozilla.org/en-US/docs/Learn/Forms/Form_validation#built-in_form_validation_examples).
 
 ```js
-const xinForm = preview.querySelector('xin-form')
-preview.querySelector('.submit').addEventListener('click', () => {
-  xinForm.submit()
-})
+const form = preview.querySelector('xin-form')
+preview.querySelector('.submit').addEventListener('click', form.submit)
 ```
 ```html
-<xin-form>
+<xin-form value='{"formInitializer": "initial value of the form"}'>
   <h3 slot="header">Example Form Header</h3>
   <xin-field caption="Required field" key="required"></xin-field>
   <xin-field optional key="optional"><i>Optional</i> Field</xin-field>
@@ -33,6 +31,8 @@ preview.querySelector('.submit').addEventListener('click', () => {
     Rate this form!
     <xin-rating slot="input"></xin-rating>
   </xin-field>
+  <xin-field key="valueInitializer" value="initial value of the field"></xin-field>
+  <xin-field key="formInitializer"></xin-field>
   <button slot="footer" class="submit">Submit</button>
 </xin-form>
 ```
@@ -132,6 +132,7 @@ export class XinField extends XinComponent {
   min = ''
   max = ''
   step = ''
+  value: any = null
 
   content = label(
     xinSlot({ part: 'caption' }),
@@ -170,21 +171,39 @@ export class XinField extends XinComponent {
     if (form && this.key !== '') {
       switch (this.type) {
         case 'checkbox':
-          form.value[this.key] = inputElement.checked
+          form.fields[this.key] = inputElement.checked
           break
         case 'number':
         case 'range':
-          form.value[this.key] = Number(inputElement.value)
+          form.fields[this.key] = Number(inputElement.value)
           break
         default:
-          form.value[this.key] = inputElement.value
+          form.fields[this.key] = inputElement.value
       }
+    }
+  }
+
+  initialize(form: XinForm) {
+    const { input, valueHolder } = this.parts as { input: HTMLElement, valueHolder: HTMLInputElement }
+    const initialValue = form.fields[this.key] !== undefined ? form.fields[this.key] : this.value
+    console.log(this.key, initialValue)
+    if (initialValue != null && initialValue !== '') {
+      if (form.fields[this.key] == null) form.fields[this.key] = initialValue
+      valueHolder.value = initialValue
+      const inputElement = input.children[0] as HTMLInputElement | undefined
+      if (inputElement) inputElement.value = initialValue
     }
   }
 
   connectedCallback(): void {
     super.connectedCallback()
-    const { input, valueHolder } = this.parts
+    const { input, valueHolder } = this.parts as { input: HTMLElement, valueHolder: HTMLInputElement }
+
+    const form = this.closest(XinForm.tagName!)
+    if (form instanceof XinForm) {
+      this.initialize(form)
+    }
+
     valueHolder.addEventListener('change', this.handleChange)
     input.addEventListener('change', this.handleChange, true)
   }
@@ -265,7 +284,20 @@ export class XinForm extends XinComponent {
     slot({ part: 'footer', name: 'footer' }),
   ]
 
-  submit() {
+  get fields(): any {
+    if (typeof this.value === 'string') {
+      try {
+        console.log(this.value)
+        this.value = JSON.parse(this.value)
+      } catch(e) {
+        console.log('<xin-form> could not use its value, expects valid JSON')
+        this.value = {}
+      }
+    }
+    return this.value
+  }
+
+  submit = () => {
     this.parts.form.dispatchEvent(new Event('submit'))
   }
 

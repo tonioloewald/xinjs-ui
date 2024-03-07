@@ -33,40 +33,76 @@ If you provide a `close` callback, it will be fired if the user closes the notif
 ```js
 const { postNotification } = xinjsui
 
-postNotification({
-	message: 'Welcome to xinjs-ui, this message will disappear in 2s',
-	duration: 2
-})
+const form = preview.querySelector('xin-form')
+const submit = preview.querySelector('.submit')
 
-postNotification({
-  type: 'log',
-  message: 'A log message…',
-})
-
-postNotification({
-  type: 'warn',
-  message: 'A warning!',
-})
-
-postNotification({
-  type: 'error',
-  message: 'An error!',
-})
-
-const start = Date.now()
-postNotification({
-  type: 'progress',
-  message: 'Something is happening!',
-  duration: 5,
-  progress() {
-    const completionPercentage = (Date.now() - start) / 50
-    console.log(completionPercentage)
-    return completionPercentage
-  },
-  close() {
-    postNotification('cancelled something!')
+form.onSubmit = (value, isValid) => {
+  if (!isValid) return
+  if (value.type === 'progress') {
+    startTime = Date.now()
+    const { message, duration } = value
+    postNotification({
+      message,
+      type: 'progress',
+      progress: () => (Date.now() - startTime) / (10 * duration),
+      close: () => { postNotification(`${value.message} cancelled`) },
+    })
+  } else {
+    postNotification(value)
   }
+}
+
+submit.addEventListener('click', form.submit)
+
+postNotification({
+  message: 'Welcome to xinjs-ui notifications, this message will disappear in 2s',
+  duration: 2
 })
+```
+```html
+<xin-form>
+  <h3 slot="header">Notification Test</h3>
+  <xin-field caption="Message" key="message" type="string" value="This is a test…"></xin-field>
+  <xin-field caption="Type" key="type" value="info">
+    <xin-select slot="input"
+      options="error,warn,info,success,log,,progress"
+    ></xin-select>
+  </xin-field>
+  <xin-field caption="Duration" key="duration" type="number" value="2"></xin-field>
+  <button slot="footer" class="submit">Post Notification</button>
+</xin-form>
+```
+```css
+xin-form {
+  margin: 10px;
+  display: block;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+xin-form::part(content) {
+  display: flex;
+  flex-direction: column;
+  padding: 10px;
+  gap: 10px;
+  background: var(--background);
+}
+
+xin-form::part(header),
+xin-form::part(footer) {
+  background: #eee;
+  justify-content: center;
+  padding: 10px;
+}
+
+xin-form h3 {
+  margin: 0;
+}
+
+xin-form label {
+  display: grid;
+  grid-template-columns: 120px 1fr;
+}
 ```
 
 ## `postNotification(spec: NotificationSpec | string)`
@@ -74,7 +110,7 @@ postNotification({
 This is simply a wrapper for `XinNotification.post()`.
 */
 
-import { Component, elements, vars } from 'xinjs'
+import { Component, elements, vars, ElementCreator } from 'xinjs'
 import { icons } from './icons'
 import { findHighestZ } from './track-drag'
 const { div, button } = elements
@@ -92,7 +128,12 @@ const COLOR_MAP = {
   warn: 'orange',
   info: 'royalblue',
   log: 'gray',
+  success: 'green',
   progress: 'royalblue',
+}
+
+interface NotificationParts {
+  progressBar: HTMLProgressElement
 }
 
 export class XinNotification extends Component {
@@ -109,7 +150,6 @@ export class XinNotification extends Component {
       _notificationIconSize: vars.notificationSpacing300,
       _notificationButtonSize: 48,
       _notificationBorderRadius: vars.notificationSpacing,
-      display: 'block',
       position: 'fixed',
       left: 0,
       right: 0,
@@ -194,8 +234,9 @@ export class XinNotification extends Component {
   }
 
   static handleClick = (event: Event) => {
-    if (event.target.classList.contains('close')) {
-      XinNotification.removeNote(event.target.closest('.note'))
+    const target = event.target as HTMLElement
+    if (target.classList.contains('close')) {
+      XinNotification.removeNote(target.closest('.note')!)
     }
   }
 
@@ -209,12 +250,14 @@ export class XinNotification extends Component {
       this.singleton = xinNotification()
     }
 
-    document.body.append(this.singleton)
-    this.singleton.style.zIndex = String(findHighestZ() + 1)
+    const singleton = this.singleton as HTMLElement
+
+    document.body.append(singleton)
+    singleton.style.zIndex = String(findHighestZ() + 1)
 
     const _notificationAccentColor = COLOR_MAP[type]
     const progressBar =
-      progress | (type === 'progress') ? elements.progress() : null
+      progress || (type === 'progress') ? elements.progress() : {}
     const note = div(
       {
         class: `note ${type}`,
@@ -245,19 +288,20 @@ export class XinNotification extends Component {
       )
     )
 
-    this.singleton.shadowRoot.append(note)
+    singleton.shadowRoot!.append(note)
 
-    if (progress) {
+    console.log(progressBar, progress)
+    if (progressBar instanceof HTMLProgressElement && progress instanceof Function) {
+      progressBar.setAttribute('max', String(100))
       progressBar.value = progress()
-      progressBar.setAttribute('max', 100)
       const interval = setInterval(() => {
-        if (!this.singleton.shadowRoot.contains(note)) {
+        if (!singleton.shadowRoot!.contains(note)) {
           clearInterval(interval)
           return
         }
         const percentage = progress()
         progressBar.value = percentage
-        if (percentage >= 0) {
+        if (percentage >= 100) {
           XinNotification.removeNote(note)
         }
       }, 1000)
@@ -277,7 +321,7 @@ export class XinNotification extends Component {
 
 export const xinNotification = XinNotification.elementCreator({
   tag: 'xin-notification',
-})
+}) as ElementCreator<XinNotification>
 
 export function postNotification(spec: NotificationSpec | string) {
   XinNotification.post(spec)
