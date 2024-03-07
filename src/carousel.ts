@@ -45,7 +45,8 @@ This is a minimalist carousel component that supports the usual stuff.
 - `arrows` (boolean, false by default) shows/hides the arrow paging controls
 - `dots` (boolean, false by default) shows/hides the dot progress indicators
 - `max-visible-items` (number, 1 by default) determines how many items are shown at once.
-- `snap-duration` (number, 0.25s by default) determines the time taken to scroll / snap scroll.
+- `snap-duration` (number, 0.25 [seconds] by default) determines the time taken to scroll / snap scroll.
+- `snap-delay` (number, 0.1 [seconds] by default)
 
 ## Styling
 
@@ -68,10 +69,11 @@ interface CarouselParts {
   forward: HTMLButtonElement
 }
 
-class XinCarousel extends WebComponent {
+export class XinCarousel extends WebComponent {
   arrows = false
   dots = false
   maxVisibleItems = 1
+  snapDelay = 0.1
   snapDuration = 0.25
   role = 'listbox'
 
@@ -195,7 +197,7 @@ class XinCarousel extends WebComponent {
       )
     })
     clearTimeout(this.snapTimer)
-    this.snapTimer = setTimeout(this.snapPosition, 30)
+    this.snapTimer = setTimeout(this.snapPosition, this.snapDelay * 1000)
     back.disabled = this.page <= 0
     forward.disabled = this.page >= this.lastPage
   }
@@ -306,7 +308,7 @@ class XinCarousel extends WebComponent {
     progress.append(...visibleItems.map(() => button({ class: 'dot' })))
 
     this.indicateCurrent()
-    progress.style.display = dots && lastPage > 0 ? '' : 'hidden'
+    progress.style.display = dots && lastPage > 0 ? '' : 'none'
     back.hidden = forward.hidden = !(arrows && lastPage > 0)
   }
 }
