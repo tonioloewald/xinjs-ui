@@ -1,5 +1,5 @@
 /*!
-# Segmented Select
+# segmented select
 
 This is a fairly general-purpose segmented select control.
 
@@ -16,7 +16,7 @@ Check the console to see the values being set.
 <segmented-select title="do you like?" choices="yes=Yes:thumbsUp, no=No:thumbsDown"></segmented-select>
 
 <segmented-select
-  style="--segment-direction: column; --segment-align-items: stretch" 
+  style="--segmented-direction: column; --segmented-align-items: stretch" 
   choices="in a relationship, single" other="it's complicated…" 
   placeholder="oooh… please elaborate"
   value="separated"
@@ -26,7 +26,7 @@ Check the console to see the values being set.
 
 <segmented-select 
   multiple 
-  style="--segment-direction: column; --segment-align-items: start" 
+  style="--segmented-direction: column; --segmented-align-items: start; --segmented-option-grid-columns: 24px 24px 100px" 
   choices="star=Star:star, game=Game:game, bug=Bug:bug, camera=Camera:camera"
   value="star,bug"
 >
@@ -77,13 +77,32 @@ You can set `choices` programmatically to an array of `Choice` objects:
 
 ## Styling
 
-Customization via CSS-variables.
+The following CSS variables can be used to control customize the `<segmented-select>` component.
+
+    --segmented-align-items
+    --segmented-direction
+    --segmented-option-color
+    --segmented-option-current-background
+    --segmented-option-current-color
+    --segmented-option-font-size
+    --segmented-option-gap
+    --segmented-option-grid-columns
+    --segmented-option-icon-color
+    --segmented-option-padding
+    --segmented-options-background
+    --segmented-options-border-radius
+    --segmented-placeholder-opacity
 */
 
-import { Component as WebComponent, ElementCreator, elements, vars, varDefault } from 'xinjs'
+import {
+  Component as WebComponent,
+  ElementCreator,
+  elements,
+  varDefault,
+} from 'xinjs'
 import { icons } from './icons'
 
-const {div, slot, label, span, input} = elements
+const { div, slot, label, span, input } = elements
 
 const OTHER = '_OTHER_'
 
@@ -107,26 +126,35 @@ class SegmentedSelect extends WebComponent {
 
   value = ''
 
-  get values (): string[] {
-    return this.value.split(',').map(v => v.trim()).filter(v => v !== '')
+  get values(): string[] {
+    return this.value
+      .split(',')
+      .map((v) => v.trim())
+      .filter((v) => v !== '')
   }
 
-  content = () => [ slot(), div({part: 'options'}, input({part: 'custom', hidden: true})) ]
+  content = () => [
+    slot(),
+    div({ part: 'options' }, input({ part: 'custom', hidden: true })),
+  ]
 
   static styleSpec = {
     ':host': {
       display: 'inline-flex',
-      flexDirection: varDefault.segmentDirection('row'),
-      alignItems: varDefault.segmentAlignItems('center'),
-      gap: varDefault.segmentedOGap('8px'),
+      gap: varDefault.segmentedOptionGap('8px'),
+    },
+    ':host, :host::part(options)': {
+      flexDirection: varDefault.segmentedDirection('row'),
+      alignItems: varDefault.segmentedAlignItems('center'),
     },
     ':host label': {
       display: 'inline-grid',
       alignItems: 'center',
-      gap: varDefault.segmentedOGap('8px'),
-      gridTemplateColumns: varDefault.segmentedOptionGridColumns('0px 24px 1fr'),
+      gap: varDefault.segmentedOptionGap('8px'),
+      gridTemplateColumns:
+        varDefault.segmentedOptionGridColumns('0px 24px 1fr'),
       padding: varDefault.segmentedOptionPadding('4px 12px'),
-      fontSize: varDefault.segmentedOptionFontSize('16px')
+      fontSize: varDefault.segmentedOptionFontSize('16px'),
     },
     ':host label:has(:checked)': {
       color: varDefault.segmentedOptionCurrentColor('#eee'),
@@ -141,7 +169,6 @@ class SegmentedSelect extends WebComponent {
     },
     ':host::part(options)': {
       display: 'flex',
-      flexDirection: varDefault.segmentDirection('row'),
       borderRadius: varDefault.segmentedOptionsBorderRadius('8px'),
       background: varDefault.segmentedOptionsBackground('#fff'),
       color: varDefault.segmentedOptionColor('#222'),
@@ -150,17 +177,28 @@ class SegmentedSelect extends WebComponent {
     ':host::part(custom)': {
       padding: varDefault.segmentedOptionPadding('4px 12px'),
       fontSize: varDefault.segmentedOptionFontSize('16px'),
-    },
-    ':host::part(custom):not(:disabled)': {
       color: varDefault.segmentedOptionCurrentColor('#eee'),
       background: varDefault.segmentedOptionCurrentBackground('#44a'),
-    }
+      border: '0',
+      outline: 'none',
+    },
+    ':host::part(custom)::placeholder': {
+      color: varDefault.segmentedOptionCurrentColor('#eee'),
+      opacity: varDefault.segmentedPlaceholderOpacity(0.75),
+    },
   }
 
   constructor() {
     super()
 
-    this.initAttributes('direction', 'choices', 'other', 'multiple', 'name', 'placeholder')
+    this.initAttributes(
+      'direction',
+      'choices',
+      'other',
+      'multiple',
+      'name',
+      'placeholder'
+    )
   }
 
   handleChange = (event: Event) => {
@@ -184,9 +222,9 @@ class SegmentedSelect extends WebComponent {
   }
 
   handleKey = (event: KeyboardEvent) => {
-    switch(event.code) {
+    switch (event.code) {
       case 'Space':
-        (event.target as HTMLLabelElement).click()
+        ;(event.target as HTMLLabelElement).click()
         break
     }
   }
@@ -203,27 +241,37 @@ class SegmentedSelect extends WebComponent {
     options.addEventListener('keydown', this.handleKey)
 
     if (this.other && this.multiple) {
-      console.warn(this, 'is set to [other] and [multiple]; [other] will be ignored')
+      console.warn(
+        this,
+        'is set to [other] and [multiple]; [other] will be ignored'
+      )
       this.other = ''
     }
   }
 
   private get _choices(): Choice[] {
-    const options: Choice[] = Array.isArray(this.choices) ? this.choices : this.choices.split(',').filter(c => c.trim() !== '').map(c => {
-      const [value, remains] = c.split('=').map(v => v.trim())
-      const [caption, iconName] = (remains || value).split(':').map(v => v.trim())
+    const options: Choice[] = Array.isArray(this.choices)
+      ? this.choices
+      : this.choices
+          .split(',')
+          .filter((c) => c.trim() !== '')
+          .map((c) => {
+            const [value, remains] = c.split('=').map((v) => v.trim())
+            const [caption, iconName] = (remains || value)
+              .split(':')
+              .map((v) => v.trim())
 
-      const icon = iconName ? icons[iconName]() : ''
-      const choice = { value, icon, caption } 
-      return choice
-    })
+            const icon = iconName ? icons[iconName]() : ''
+            const choice = { value, icon, caption }
+            return choice
+          })
 
     if (this.other && !this.multiple) {
       const [caption, icon] = this.other.split(':')
       options.push({
         value: OTHER,
         caption,
-        icon
+        icon,
       })
     }
 
@@ -231,7 +279,11 @@ class SegmentedSelect extends WebComponent {
   }
 
   get isOtherValue(): boolean {
-    return Boolean(this.value === OTHER || (this.value && !this._choices.find(choice => choice.value === this.value)))
+    return Boolean(
+      this.value === OTHER ||
+        (this.value &&
+          !this._choices.find((choice) => choice.value === this.value))
+    )
   }
 
   render() {
@@ -241,20 +293,24 @@ class SegmentedSelect extends WebComponent {
     options.textContent = ''
     const type = this.multiple ? 'checkbox' : 'radio'
     const { values, isOtherValue } = this
-    options.append(...this._choices.map(choice => {
-      return label(
-        {tabindex: 0},
-        input({
-          type, 
-          name: this.name, 
-          value: choice.value, 
-          checked: values.includes(choice.value) || (choice.value === OTHER && isOtherValue),
-          tabIndex: -1
-        }),
-        choice.icon || { class: 'no-icon' },
-        span(choice.caption)
-      )
-    }))
+    options.append(
+      ...this._choices.map((choice) => {
+        return label(
+          { tabindex: 0 },
+          input({
+            type,
+            name: this.name,
+            value: choice.value,
+            checked:
+              values.includes(choice.value) ||
+              (choice.value === OTHER && isOtherValue),
+            tabIndex: -1,
+          }),
+          choice.icon || { class: 'no-icon' },
+          span(choice.caption)
+        )
+      })
+    )
     if (this.other && !this.multiple && isOtherValue) {
       if (this.value !== OTHER && custom.value !== this.value) {
         custom.value = this.value
@@ -269,4 +325,6 @@ class SegmentedSelect extends WebComponent {
   }
 }
 
-export const segmentedSelect = SegmentedSelect.elementCreator({tag: 'segmented-select'}) as ElementCreator<SegmentedSelect>
+export const segmentedSelect = SegmentedSelect.elementCreator({
+  tag: 'segmented-select',
+}) as ElementCreator<SegmentedSelect>
