@@ -85,7 +85,7 @@ export class XinCarousel extends WebComponent {
 
   set page(p: number) {
     const { scroller } = this.parts
-    this._page = p
+    this._page = Math.max(0, Math.min(this.lastPage, p))
     this.animateScroll(this.page * scroller.offsetWidth)
   }
 
@@ -204,7 +204,10 @@ export class XinCarousel extends WebComponent {
 
   snapPosition = () => {
     const { scroller } = this.parts
-    this.page = Math.round(scroller.scrollLeft / scroller.offsetWidth)
+    const currentPosition = scroller.scrollLeft / scroller.offsetWidth
+    if (currentPosition !== this.page) {
+      this.page = currentPosition > this.page ? Math.ceil(currentPosition) : Math.floor(currentPosition)
+    }
   }
 
   back = () => {
