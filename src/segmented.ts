@@ -9,29 +9,29 @@ Check the console to see the values being set.
 </blockquote>
 
 <div class="grid">
-<segmented-select value="yes" choices="yes, no, don't care">
+<xin-segmented value="yes" choices="yes, no, don't care">
   Should we?
-</segmented-select>
+</xin-segmented>
 
-<segmented-select title="do you like?" choices="yes=Yes:thumbsUp, no=No:thumbsDown"></segmented-select>
+<xin-segmented title="do you like?" choices="yes=Yes:thumbsUp, no=No:thumbsDown"></xin-segmented>
 
-<segmented-select
+<xin-segmented
   style="--segmented-direction: column; --segmented-align-items: stretch" 
   choices="in a relationship, single" other="it's complicated…" 
   placeholder="oooh… please elaborate"
   value="separated"
 >
   Relationship Status
-</segmented-select>
+</xin-segmented>
 
-<segmented-select 
+<xin-segmented 
   multiple 
   style="--segmented-direction: column; --segmented-align-items: start; --segmented-option-grid-columns: 24px 24px 100px" 
   choices="star=Star:star, game=Game:game, bug=Bug:bug, camera=Camera:camera"
   value="star,bug"
 >
   Pick all that apply
-</segmented-select>
+</xin-segmented>
 </div>
 ```
 ```css
@@ -45,7 +45,7 @@ Check the console to see the values being set.
 ```js
 function logEvent(event) {
   const { target } = event
-  if (target.tagName === 'SEGMENTED-SELECT') {
+  if (target.tagName === 'XIN-SEGMENTED') {
     console.log((target.textContent || target.title).trim(), target.value)
   }
 }
@@ -77,7 +77,7 @@ You can set `choices` programmatically to an array of `Choice` objects:
 
 ## Styling
 
-The following CSS variables can be used to control customize the `<segmented-select>` component.
+The following CSS variables can be used to control customize the `<xin-segmented>` component.
 
     --segmented-align-items
     --segmented-direction
@@ -117,7 +117,7 @@ interface SegmentParts {
   custom: HTMLInputElement
 }
 
-class SegmentedSelect extends WebComponent {
+class XinSegmented extends WebComponent {
   choices: string | Choice[] = ''
   other: string = ''
   multiple = false
@@ -325,6 +325,6 @@ class SegmentedSelect extends WebComponent {
   }
 }
 
-export const segmentedSelect = SegmentedSelect.elementCreator({
-  tag: 'segmented-select',
-}) as ElementCreator<SegmentedSelect>
+export const xinSegmented = XinSegmented.elementCreator({
+  tag: 'xin-segmented',
+}) as ElementCreator<XinSegmented>
