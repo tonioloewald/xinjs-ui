@@ -31,6 +31,13 @@ preview.querySelector('.submit').addEventListener('click', form.submit)
     Rate this form!
     <xin-rating slot="input"></xin-rating>
   </xin-field>
+  <xin-field key="like">
+    Do you like it?
+    <xin-segmented
+      choices="yes=Yes:thumbsUp,no=No:thumbsDown"
+      slot="input"
+    ></xin-segmented>
+  </xin-field>
   <xin-field key="amount" fixed-precision="2" type="number" prefix="$" suffix="(USD)">
     What's it worth?
   </xin-field>
