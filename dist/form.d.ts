@@ -5,13 +5,11 @@
 [client-side validation](https://developer.mozilla.org/en-US/docs/Learn/Forms/Form_validation#built-in_form_validation_examples).
 
 ```js
-const xinForm = preview.querySelector('xin-form')
-preview.querySelector('.submit').addEventListener('click', () => {
-  xinForm.submit()
-})
+const form = preview.querySelector('xin-form')
+preview.querySelector('.submit').addEventListener('click', form.submit)
 ```
 ```html
-<xin-form>
+<xin-form value='{"formInitializer": "initial value of the form"}'>
   <h3 slot="header">Example Form Header</h3>
   <xin-field caption="Required field" key="required"></xin-field>
   <xin-field optional key="optional"><i>Optional</i> Field</xin-field>
@@ -32,6 +30,15 @@ preview.querySelector('.submit').addEventListener('click', () => {
   <xin-field key="rating">
     Rate this form!
     <xin-rating slot="input"></xin-rating>
+  </xin-field>
+  <xin-field key="amount" fixed-precision="2" type="number" prefix="$" suffix="(USD)">
+    What's it worth?
+  </xin-field>
+  <xin-field key="valueInitializer" value="initial value of the field">
+    Initialized by field
+  </xin-field>
+  <xin-field key="formInitializer">
+    Initialized by form
   </xin-field>
   <button slot="footer" class="submit">Submit</button>
 </xin-form>
@@ -120,9 +127,12 @@ export declare class XinField extends XinComponent {
     min: string;
     max: string;
     step: string;
+    fixedPrecision: number;
+    value: any;
     content: any;
     constructor();
     handleChange: () => void;
+    initialize(form: XinForm): void;
     connectedCallback(): void;
     render(): void;
 }
@@ -159,7 +169,8 @@ export declare class XinForm extends XinComponent {
         };
     };
     content: any[];
-    submit(): void;
+    get fields(): any;
+    submit: () => void;
     handleSubmit: (event: SubmitEvent) => void;
     onSubmit: (value: {
         [key: string]: any;

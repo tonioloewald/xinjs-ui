@@ -132,10 +132,6 @@ const COLOR_MAP = {
   progress: 'royalblue',
 }
 
-interface NotificationParts {
-  progressBar: HTMLProgressElement
-}
-
 export class XinNotification extends Component {
   private static singleton?: XinNotification
 
@@ -257,7 +253,7 @@ export class XinNotification extends Component {
 
     const _notificationAccentColor = COLOR_MAP[type]
     const progressBar =
-      progress || (type === 'progress') ? elements.progress() : {}
+      progress || type === 'progress' ? elements.progress() : {}
     const note = div(
       {
         class: `note ${type}`,
@@ -290,8 +286,10 @@ export class XinNotification extends Component {
 
     singleton.shadowRoot!.append(note)
 
-    console.log(progressBar, progress)
-    if (progressBar instanceof HTMLProgressElement && progress instanceof Function) {
+    if (
+      progressBar instanceof HTMLProgressElement &&
+      progress instanceof Function
+    ) {
       progressBar.setAttribute('max', String(100))
       progressBar.value = progress()
       const interval = setInterval(() => {
