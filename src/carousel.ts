@@ -275,12 +275,13 @@ export class XinCarousel extends WebComponent {
     super()
 
     this.initAttributes('dots', 'arrows', 'maxVisibleItems', 'snapDuration')
-    this.ariaOrientation = 'horizontal'
-    this.ariaReadOnly = 'true'
   }
 
   connectedCallback() {
     super.connectedCallback()
+
+    this.ariaOrientation = 'horizontal'
+    this.ariaReadOnly = 'true'
 
     const { back, forward, scroller, progress } = this.parts
     back.addEventListener('click', this.back)
