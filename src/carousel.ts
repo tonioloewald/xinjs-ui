@@ -206,7 +206,10 @@ export class XinCarousel extends WebComponent {
     const { scroller } = this.parts
     const currentPosition = scroller.scrollLeft / scroller.offsetWidth
     if (currentPosition !== this.page) {
-      this.page = currentPosition > this.page ? Math.ceil(currentPosition) : Math.floor(currentPosition)
+      this.page =
+        currentPosition > this.page
+          ? Math.ceil(currentPosition)
+          : Math.floor(currentPosition)
     }
   }
 
