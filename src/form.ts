@@ -31,8 +31,15 @@ preview.querySelector('.submit').addEventListener('click', form.submit)
     Rate this form!
     <xin-rating slot="input"></xin-rating>
   </xin-field>
-  <xin-field key="valueInitializer" value="initial value of the field"></xin-field>
-  <xin-field key="formInitializer"></xin-field>
+  <xin-field key="amount" fixed-precision="2" type="number" prefix="$" suffix="(USD)">
+    What's it worth?
+  </xin-field>
+  <xin-field key="valueInitializer" value="initial value of the field">
+    Initialized by field
+  </xin-field>
+  <xin-field key="formInitializer">
+    Initialized by form
+  </xin-field>
   <button slot="footer" class="submit">Submit</button>
 </xin-form>
 ```
@@ -110,7 +117,7 @@ is used to drive form-validation.)
 The `text` type actually populates the `input` slot with a `<textarea>` element.
 */
 
-import { Component as XinComponent, ElementCreator, elements } from 'xinjs'
+import { Component as XinComponent, ElementCreator, elements, varDefault } from 'xinjs'
 
 const { form, slot, xinSlot, label, input, span } = elements
 
@@ -132,6 +139,7 @@ export class XinField extends XinComponent {
   min = ''
   max = ''
   step = ''
+  fixedPrecision = -1
   value: any = null
 
   content = label(
@@ -139,7 +147,7 @@ export class XinField extends XinComponent {
     span(
       { part: 'field' },
       input({ part: 'valueHolder' }),
-      xinSlot({ part: 'input', name: 'input' })
+      xinSlot({ part: 'input', name: 'input' }),
     )
   )
 
@@ -154,7 +162,10 @@ export class XinField extends XinComponent {
       'placeholder',
       'min',
       'max',
-      'step'
+      'step',
+      'fixedPrecision',
+      'prefix',
+      'suffix'
     )
   }
 
@@ -175,7 +186,12 @@ export class XinField extends XinComponent {
           break
         case 'number':
         case 'range':
-          form.fields[this.key] = Number(inputElement.value)
+          if (this.fixedPrecision > -1) {
+            inputElement.value = Number(inputElement.value).toFixed(this.fixedPrecision)
+            form.fields[this.key] = Number(inputElement.value)
+          } else {
+            form.fields[this.key] = Number(inputElement.value)
+          }
           break
         default:
           form.fields[this.key] = inputElement.value
@@ -209,8 +225,9 @@ export class XinField extends XinComponent {
   }
 
   render() {
-    const { input, caption, valueHolder } = this.parts as {
+    const { input, caption, valueHolder, field } = this.parts as {
       input: HTMLElement
+      field: HTMLElement
       caption: HTMLElement
       valueHolder: HTMLInputElement
     }
@@ -232,6 +249,10 @@ export class XinField extends XinComponent {
       attr(valueHolder, 'max', this.max)
       attr(valueHolder, 'step', this.step)
     }
+
+    this.prefix ? field.setAttribute('prefix', this.prefix) : field.removeAttribute('prefix')
+    this.suffix ? field.setAttribute('suffix', this.suffix) : field.removeAttribute('suffix')
+
     valueHolder.classList.toggle('hidden', input.children.length > 0)
     if (input.children.length > 0) {
       valueHolder.setAttribute('tabindex', '-1')
@@ -322,10 +343,18 @@ export const xinField = XinField.elementCreator({
   styleSpec: {
     ':host [part="field"]': {
       position: 'relative',
+      display: 'flex',
+      alignItems: 'center',
+      gap: varDefault.flexGap('8px')
+    },
+    ':host [part="field"][prefix]::before': {
+      content: 'attr(prefix)'
+    },
+    ':host [part="field"][suffix]::after': {
+      content: 'attr(suffix)'
     },
     ':host [part="field"] > *, :host [part="input"] > *': {
-      display: 'block',
-      width: '100%',
+      width: '100%'
     },
     ':host textarea': {
       resize: 'none',
