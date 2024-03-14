@@ -229,9 +229,14 @@ class XinSegmented extends WebComponent {
     }
   }
 
+  private _customBlurred = false
+  preventRefocus = () => {
+    this._customBlurred = true
+  }
+
   connectedCallback(): void {
     super.connectedCallback()
-    const { options } = this.parts
+    const { custom, options } = this.parts
 
     if (this.name === '') {
       this.name = this.instanceId
@@ -239,6 +244,7 @@ class XinSegmented extends WebComponent {
 
     options.addEventListener('change', this.handleChange)
     options.addEventListener('keydown', this.handleKey)
+    custom.addEventListener('blur', this.preventRefocus)
 
     if (this.other && this.multiple) {
       console.warn(
@@ -289,6 +295,8 @@ class XinSegmented extends WebComponent {
   render() {
     super.render()
 
+    console.log('rendering')
+
     const { options, custom } = this.parts as SegmentParts
     options.textContent = ''
     const type = this.multiple ? 'checkbox' : 'radio'
@@ -320,7 +328,10 @@ class XinSegmented extends WebComponent {
       custom.hidden = false
       custom.placeholder = this.placeholder
       options.append(custom)
-      custom.focus()
+      if (!this._customBlurred) {
+        custom.focus()
+      }
+      this._customBlurred = false
     }
   }
 }
