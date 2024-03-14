@@ -26,7 +26,12 @@ Check the console to see the values being set.
 
 <xin-segmented
   multiple
-  style="--segmented-direction: column; --segmented-align-items: start; --segmented-option-grid-columns: 24px 24px 100px"
+  style="
+    --segmented-direction: column;
+    --segmented-align-items: start;
+    --segmented-option-grid-columns: 24px 24px 100px;
+    --segmented-input-visibility: visible;
+  "
   choices="star=Star:star, game=Game:game, bug=Bug:bug, camera=Camera:camera"
   value="star,bug"
 >
@@ -130,11 +135,15 @@ declare class XinSegmented extends WebComponent {
             background: any;
         };
         ':host svg': {
+            height: any;
             fill: any;
         };
         ':host label.no-icon': {
             gap: number;
             gridTemplateColumns: any;
+        };
+        ':host input[type="radio"], :host input[type="checkbox"]': {
+            visibility: any;
         };
         ':host::part(options)': {
             display: string;
