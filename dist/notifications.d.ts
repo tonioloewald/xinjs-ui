@@ -33,40 +33,76 @@ If you provide a `close` callback, it will be fired if the user closes the notif
 ```js
 const { postNotification } = xinjsui
 
-postNotification({
-    message: 'Welcome to xinjs-ui, this message will disappear in 2s',
-    duration: 2
-})
+const form = preview.querySelector('xin-form')
+const submit = preview.querySelector('.submit')
 
-postNotification({
-  type: 'log',
-  message: 'A log message…',
-})
-
-postNotification({
-  type: 'warn',
-  message: 'A warning!',
-})
-
-postNotification({
-  type: 'error',
-  message: 'An error!',
-})
-
-const start = Date.now()
-postNotification({
-  type: 'progress',
-  message: 'Something is happening!',
-  duration: 5,
-  progress() {
-    const completionPercentage = (Date.now() - start) / 50
-    console.log(completionPercentage)
-    return completionPercentage
-  },
-  close() {
-    postNotification('cancelled something!')
+form.onSubmit = (value, isValid) => {
+  if (!isValid) return
+  if (value.type === 'progress') {
+    startTime = Date.now()
+    const { message, duration } = value
+    postNotification({
+      message,
+      type: 'progress',
+      progress: () => (Date.now() - startTime) / (10 * duration),
+      close: () => { postNotification(`${value.message} cancelled`) },
+    })
+  } else {
+    postNotification(value)
   }
+}
+
+submit.addEventListener('click', form.submit)
+
+postNotification({
+  message: 'Welcome to xinjs-ui notifications, this message will disappear in 2s',
+  duration: 2
 })
+```
+```html
+<xin-form>
+  <h3 slot="header">Notification Test</h3>
+  <xin-field caption="Message" key="message" type="string" value="This is a test…"></xin-field>
+  <xin-field caption="Type" key="type" value="info">
+    <xin-select slot="input"
+      options="error,warn,info,success,log,,progress"
+    ></xin-select>
+  </xin-field>
+  <xin-field caption="Duration" key="duration" type="number" value="2"></xin-field>
+  <button slot="footer" class="submit">Post Notification</button>
+</xin-form>
+```
+```css
+xin-form {
+  margin: 10px;
+  display: block;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+xin-form::part(content) {
+  display: flex;
+  flex-direction: column;
+  padding: 10px;
+  gap: 10px;
+  background: var(--background);
+}
+
+xin-form::part(header),
+xin-form::part(footer) {
+  background: #eee;
+  justify-content: center;
+  padding: 10px;
+}
+
+xin-form h3 {
+  margin: 0;
+}
+
+xin-form label {
+  display: grid;
+  grid-template-columns: 120px 1fr;
+}
 ```
 
 ## `postNotification(spec: NotificationSpec | string)`
@@ -94,13 +130,13 @@ export declare class XinNotification extends Component {
             _notificationIconSize: any;
             _notificationButtonSize: number;
             _notificationBorderRadius: any;
-            display: string;
             position: string;
             left: number;
             right: number;
             bottom: number;
             paddingBottom: any;
             width: any;
+            display: string;
             flexDirection: string;
             margin: string;
             gap: any;
@@ -171,6 +207,6 @@ export declare class XinNotification extends Component {
     static post(spec: NotificationSpec | string): void;
     content: any;
 }
-export declare const xinNotification: any;
+export declare const xinNotification: ElementCreator<XinNotification>;
 export declare function postNotification(spec: NotificationSpec | string): void;
 export {};

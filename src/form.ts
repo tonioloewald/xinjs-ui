@@ -117,7 +117,12 @@ is used to drive form-validation.)
 The `text` type actually populates the `input` slot with a `<textarea>` element.
 */
 
-import { Component as XinComponent, ElementCreator, elements, varDefault } from 'xinjs'
+import {
+  Component as XinComponent,
+  ElementCreator,
+  elements,
+  varDefault,
+} from 'xinjs'
 
 const { form, slot, xinSlot, label, input, span } = elements
 
@@ -147,7 +152,7 @@ export class XinField extends XinComponent {
     span(
       { part: 'field' },
       input({ part: 'valueHolder' }),
-      xinSlot({ part: 'input', name: 'input' }),
+      xinSlot({ part: 'input', name: 'input' })
     )
   )
 
@@ -187,7 +192,9 @@ export class XinField extends XinComponent {
         case 'number':
         case 'range':
           if (this.fixedPrecision > -1) {
-            inputElement.value = Number(inputElement.value).toFixed(this.fixedPrecision)
+            inputElement.value = Number(inputElement.value).toFixed(
+              this.fixedPrecision
+            )
             form.fields[this.key] = Number(inputElement.value)
           } else {
             form.fields[this.key] = Number(inputElement.value)
@@ -200,8 +207,12 @@ export class XinField extends XinComponent {
   }
 
   initialize(form: XinForm) {
-    const { input, valueHolder } = this.parts as { input: HTMLElement, valueHolder: HTMLInputElement }
-    const initialValue = form.fields[this.key] !== undefined ? form.fields[this.key] : this.value
+    const { input, valueHolder } = this.parts as {
+      input: HTMLElement
+      valueHolder: HTMLInputElement
+    }
+    const initialValue =
+      form.fields[this.key] !== undefined ? form.fields[this.key] : this.value
     console.log(this.key, initialValue)
     if (initialValue != null && initialValue !== '') {
       if (form.fields[this.key] == null) form.fields[this.key] = initialValue
@@ -213,7 +224,10 @@ export class XinField extends XinComponent {
 
   connectedCallback(): void {
     super.connectedCallback()
-    const { input, valueHolder } = this.parts as { input: HTMLElement, valueHolder: HTMLInputElement }
+    const { input, valueHolder } = this.parts as {
+      input: HTMLElement
+      valueHolder: HTMLInputElement
+    }
 
     const form = this.closest(XinForm.tagName!)
     if (form instanceof XinForm) {
@@ -250,8 +264,12 @@ export class XinField extends XinComponent {
       attr(valueHolder, 'step', this.step)
     }
 
-    this.prefix ? field.setAttribute('prefix', this.prefix) : field.removeAttribute('prefix')
-    this.suffix ? field.setAttribute('suffix', this.suffix) : field.removeAttribute('suffix')
+    this.prefix
+      ? field.setAttribute('prefix', this.prefix)
+      : field.removeAttribute('prefix')
+    this.suffix
+      ? field.setAttribute('suffix', this.suffix)
+      : field.removeAttribute('suffix')
 
     valueHolder.classList.toggle('hidden', input.children.length > 0)
     if (input.children.length > 0) {
@@ -310,7 +328,7 @@ export class XinForm extends XinComponent {
       try {
         console.log(this.value)
         this.value = JSON.parse(this.value)
-      } catch(e) {
+      } catch (e) {
         console.log('<xin-form> could not use its value, expects valid JSON')
         this.value = {}
       }
@@ -345,16 +363,16 @@ export const xinField = XinField.elementCreator({
       position: 'relative',
       display: 'flex',
       alignItems: 'center',
-      gap: varDefault.flexGap('8px')
+      gap: varDefault.flexGap('8px'),
     },
     ':host [part="field"][prefix]::before': {
-      content: 'attr(prefix)'
+      content: 'attr(prefix)',
     },
     ':host [part="field"][suffix]::after': {
-      content: 'attr(suffix)'
+      content: 'attr(suffix)',
     },
     ':host [part="field"] > *, :host [part="input"] > *': {
-      width: '100%'
+      width: '100%',
     },
     ':host textarea': {
       resize: 'none',
