@@ -41,6 +41,8 @@ Check the console to see the values being set.
 ```
 ```css
 .preview .grid {
+  --segmented-option-current-background: var(--brand-color);
+  --segmented-option-current-color: var(--brand-text-color);
   padding: 16px;
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -89,7 +91,7 @@ The following CSS variables can be used to control customize the `<xin-segmented
     --segmented-option-color
     --segmented-option-current-background
     --segmented-option-current-color
-    --segmented-option-font-size
+    --segmented-option-font
     --segmented-option-gap
     --segmented-option-grid-columns
     --segmented-option-icon-color
@@ -110,7 +112,7 @@ declare class XinSegmented extends WebComponent {
     multiple: boolean;
     name: string;
     placeholder: string;
-    value: string;
+    value: null | string;
     get values(): string[];
     content: () => any[];
     static styleSpec: {
@@ -128,7 +130,7 @@ declare class XinSegmented extends WebComponent {
             gap: any;
             gridTemplateColumns: any;
             padding: any;
-            fontSize: any;
+            font: any;
         };
         ':host label:has(:checked)': {
             color: any;
@@ -154,9 +156,9 @@ declare class XinSegmented extends WebComponent {
         };
         ':host::part(custom)': {
             padding: any;
-            fontSize: any;
             color: any;
             background: any;
+            font: any;
             border: string;
             outline: string;
         };
@@ -166,10 +168,9 @@ declare class XinSegmented extends WebComponent {
         };
     };
     constructor();
-    handleChange: (event: Event) => void;
+    private valueChanged;
+    handleChange: () => void;
     handleKey: (event: KeyboardEvent) => void;
-    private _customBlurred;
-    preventRefocus: () => void;
     connectedCallback(): void;
     private get _choices();
     get isOtherValue(): boolean;

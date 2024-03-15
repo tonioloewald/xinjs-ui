@@ -214,11 +214,15 @@ class XinSegmented extends WebComponent {
   handleChange = () => {
     const { options, custom } = this.parts as SegmentParts
     if (this.multiple) {
-      const inputs = [...options.querySelectorAll('input:checked')] as HTMLInputElement[]
-      this.value = inputs.map(input => input.value).join(',')
+      const inputs = [
+        ...options.querySelectorAll('input:checked'),
+      ] as HTMLInputElement[]
+      this.value = inputs.map((input) => input.value).join(',')
     } else {
-      const input = options.querySelector('input:checked') as HTMLInputElement | null
-      if (! input) {
+      const input = options.querySelector(
+        'input:checked'
+      ) as HTMLInputElement | null
+      if (!input) {
         this.value = null
       } else if (input.value) {
         custom.setAttribute('hidden', '')
@@ -242,7 +246,7 @@ class XinSegmented extends WebComponent {
 
   connectedCallback(): void {
     super.connectedCallback()
-    const { custom, options } = this.parts
+    const { options } = this.parts
 
     if (this.name === '') {
       this.name = this.instanceId
@@ -329,7 +333,7 @@ class XinSegmented extends WebComponent {
     )
     if (this.other && !this.multiple) {
       custom.hidden = !isOtherValue
-      custom.value = isOtherValue ? this.value as string : ''
+      custom.value = isOtherValue ? (this.value as string) : ''
       custom.placeholder = this.placeholder
       options.append(custom)
     }
