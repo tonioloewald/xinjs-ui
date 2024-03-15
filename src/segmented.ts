@@ -226,10 +226,11 @@ class XinSegmented extends WebComponent {
         this.value = null
       } else if (input.value) {
         custom.setAttribute('hidden', '')
-        custom.focus()
         this.value = input.value
       } else {
         custom.removeAttribute('hidden')
+        custom.focus()
+        custom.select()
         this.value = custom.value
       }
     }
