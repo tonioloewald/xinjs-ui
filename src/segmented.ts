@@ -41,6 +41,8 @@ Check the console to see the values being set.
 ```
 ```css
 .preview .grid {
+  --segmented-option-current-background: var(--brand-color);
+  --segmented-option-current-color: var(--brand-text-color);
   padding: 16px;
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -89,7 +91,7 @@ The following CSS variables can be used to control customize the `<xin-segmented
     --segmented-option-color
     --segmented-option-current-background
     --segmented-option-current-color
-    --segmented-option-font-size
+    --segmented-option-font
     --segmented-option-gap
     --segmented-option-grid-columns
     --segmented-option-icon-color
@@ -109,8 +111,6 @@ import { icons } from './icons'
 
 const { div, slot, label, span, input } = elements
 
-const OTHER = '_OTHER_'
-
 interface Choice {
   icon?: string | SVGElement
   value: string
@@ -129,10 +129,10 @@ class XinSegmented extends WebComponent {
   name = ''
   placeholder = 'Please specify…'
 
-  value = ''
+  value: null | string = null
 
   get values(): string[] {
-    return this.value
+    return (this.value || '')
       .split(',')
       .map((v) => v.trim())
       .filter((v) => v !== '')
@@ -159,7 +159,7 @@ class XinSegmented extends WebComponent {
       gridTemplateColumns:
         varDefault.segmentedOptionGridColumns('0px 24px 1fr'),
       padding: varDefault.segmentedOptionPadding('4px 12px'),
-      fontSize: varDefault.segmentedOptionFontSize('16px'),
+      font: varDefault.segmentedOptionFont('16px'),
     },
     ':host label:has(:checked)': {
       color: varDefault.segmentedOptionCurrentColor('#eee'),
@@ -185,9 +185,9 @@ class XinSegmented extends WebComponent {
     },
     ':host::part(custom)': {
       padding: varDefault.segmentedOptionPadding('4px 12px'),
-      fontSize: varDefault.segmentedOptionFontSize('16px'),
       color: varDefault.segmentedOptionCurrentColor('#eee'),
       background: varDefault.segmentedOptionCurrentBackground('#44a'),
+      font: varDefault.segmentedOptionFont('16px'),
       border: '0',
       outline: 'none',
     },
@@ -210,24 +210,26 @@ class XinSegmented extends WebComponent {
     )
   }
 
-  handleChange = (event: Event) => {
-    const { target } = event
-
-    if (target instanceof HTMLInputElement) {
-      if (this.multiple) {
-        const values = new Set(this.values)
-        if (target.checked) {
-          values.add(target.value)
-        } else {
-          values.delete(target.value)
-        }
-        this.value = [...values].join(',')
+  private valueChanged = false
+  handleChange = () => {
+    const { options, custom } = this.parts as SegmentParts
+    if (this.multiple) {
+      const inputs = [...options.querySelectorAll('input:checked')] as HTMLInputElement[]
+      this.value = inputs.map(input => input.value).join(',')
+    } else {
+      const input = options.querySelector('input:checked') as HTMLInputElement | null
+      if (! input) {
+        this.value = null
+      } else if (input.value) {
+        custom.setAttribute('hidden', '')
+        custom.focus()
+        this.value = input.value
       } else {
-        if ((target.type !== 'radio' && !target.disabled) || target.checked) {
-          this.value = target.value
-        }
+        custom.removeAttribute('hidden')
+        this.value = custom.value
       }
     }
+    this.valueChanged = true
   }
 
   handleKey = (event: KeyboardEvent) => {
@@ -236,11 +238,6 @@ class XinSegmented extends WebComponent {
         ;(event.target as HTMLLabelElement).click()
         break
     }
-  }
-
-  private _customBlurred = false
-  preventRefocus = () => {
-    this._customBlurred = true
   }
 
   connectedCallback(): void {
@@ -253,7 +250,6 @@ class XinSegmented extends WebComponent {
 
     options.addEventListener('change', this.handleChange)
     options.addEventListener('keydown', this.handleKey)
-    custom.addEventListener('blur', this.preventRefocus)
 
     if (this.other && this.multiple) {
       console.warn(
@@ -284,7 +280,7 @@ class XinSegmented extends WebComponent {
     if (this.other && !this.multiple) {
       const [caption, icon] = this.other.split(':')
       options.push({
-        value: OTHER,
+        value: '',
         caption,
         icon,
       })
@@ -295,7 +291,7 @@ class XinSegmented extends WebComponent {
 
   get isOtherValue(): boolean {
     return Boolean(
-      this.value === OTHER ||
+      this.value === '' ||
         (this.value &&
           !this._choices.find((choice) => choice.value === this.value))
     )
@@ -304,7 +300,10 @@ class XinSegmented extends WebComponent {
   render() {
     super.render()
 
-    console.log('rendering')
+    if (this.valueChanged) {
+      this.valueChanged = false
+      return
+    }
 
     const { options, custom } = this.parts as SegmentParts
     options.textContent = ''
@@ -320,7 +319,7 @@ class XinSegmented extends WebComponent {
             value: choice.value,
             checked:
               values.includes(choice.value) ||
-              (choice.value === OTHER && isOtherValue),
+              (choice.value === '' && isOtherValue),
             tabIndex: -1,
           }),
           choice.icon || { class: 'no-icon' },
@@ -328,19 +327,11 @@ class XinSegmented extends WebComponent {
         )
       })
     )
-    if (this.other && !this.multiple && isOtherValue) {
-      if (this.value !== OTHER && custom.value !== this.value) {
-        custom.value = this.value
-      } else if (this.value === OTHER && custom.value) {
-        this.value = custom.value
-      }
-      custom.hidden = false
+    if (this.other && !this.multiple) {
+      custom.hidden = !isOtherValue
+      custom.value = isOtherValue ? this.value as string : ''
       custom.placeholder = this.placeholder
       options.append(custom)
-      if (!this._customBlurred) {
-        custom.focus()
-      }
-      this._customBlurred = false
     }
   }
 }
