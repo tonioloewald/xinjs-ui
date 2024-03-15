@@ -38,6 +38,15 @@ preview.querySelector('.submit').addEventListener('click', form.submit)
       slot="input"
     ></xin-segmented>
   </xin-field>
+  <xin-field key="relationship">
+    Relationship Status
+    <xin-segmented
+      style="--segmented-direction: column; --segmented-align-items: stretch"
+      choices="couple=In a relationship,single=Single"
+      other="It's complicated…"
+      slot="input"
+    ></xin-segmented>
+  </xin-field>
   <xin-field key="amount" fixed-precision="2" type="number" prefix="$" suffix="(USD)">
     What's it worth?
   </xin-field>
