@@ -86,7 +86,7 @@ export class XinCarousel extends WebComponent {
   set page(p: number) {
     const { scroller } = this.parts
     this._page = Math.max(0, Math.min(this.lastPage, p))
-    this.animateScroll(this.page * scroller.offsetWidth)
+    this.animateScroll(this._page * scroller.offsetWidth)
   }
 
   get visibleItems(): HTMLElement[] {
