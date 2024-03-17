@@ -3,6 +3,7 @@ export * from './babylon-3d';
 export * from './bodymovin-player';
 export * from './carousel';
 export * from './code-editor';
+export * from './color-input';
 export * from './data-table';
 export * from './editable-rect';
 export * from './filter-builder';
