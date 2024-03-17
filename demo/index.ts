@@ -21,6 +21,7 @@ import {
 import * as xinjs from 'xinjs'
 import * as xinjsui from '../src/'
 
+import './css-var-editor'
 import docs from './docs.json'
 
 console.log(document.referrer)

@@ -48,9 +48,7 @@ This is a minimalist carousel component that supports the usual stuff.
 - `snap-duration` (number, 0.25 [seconds] by default) determines the time taken to scroll / snap scroll.
 - `snap-delay` (number, 0.1 [seconds] by default)
 
-## Styling
-
-Inspect the DOM to see all the CSS-variables available for styling this component.
+<xin-css-var-editor element-selector="xin-carousel"></xin-css-var-editor>
 */
 import { Component as WebComponent } from 'xinjs';
 export declare class XinCarousel extends WebComponent {

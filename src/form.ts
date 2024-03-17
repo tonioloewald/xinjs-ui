@@ -19,6 +19,9 @@ preview.querySelector('.submit').addEventListener('click', form.submit)
   <xin-field caption="Number" key="number" type="number"></xin-field>
   <xin-field caption="Range" key="range" type="range" min="0" max="10"></xin-field>
   <xin-field key="boolean" type="checkbox">😃 <b>Agreed?!</b></xin-field>
+  <xin-field type="color" value="pink">
+    favorite color
+  </xin-field>
   <xin-field key="select">
     Custom Field
     <select slot="input">
@@ -125,7 +128,7 @@ is used to drive form-validation.)
 
 - `caption` labels the field
 - `key` determines the form property the field will populate
-- `type` determines the data-type: '' | 'checkbox' | 'number' | 'range' | 'date' | 'text'
+- `type` determines the data-type: '' | 'checkbox' | 'number' | 'range' | 'date' | 'text' | 'color'
 - `optional` turns off the `required` attribute (fields are required by default)
 - `pattern` is an (optional) regex pattern
 - `placeholder` is an (optional) placeholder
@@ -140,6 +143,8 @@ import {
   varDefault,
 } from 'xinjs'
 
+import { colorInput } from './color-input'
+
 const { form, slot, xinSlot, label, input, span } = elements
 
 function attr(element: HTMLElement, name: string, value: any): void {
@@ -153,7 +158,7 @@ function attr(element: HTMLElement, name: string, value: any): void {
 export class XinField extends XinComponent {
   caption = ''
   key = ''
-  type: '' | 'checkbox' | 'number' | 'range' | 'date' | 'text' = ''
+  type: '' | 'checkbox' | 'number' | 'range' | 'date' | 'text' | 'color' = ''
   optional = false
   pattern = ''
   placeholder = ''
@@ -223,18 +228,15 @@ export class XinField extends XinComponent {
   }
 
   initialize(form: XinForm) {
-    const { input, valueHolder } = this.parts as {
-      input: HTMLElement
+    const { valueHolder } = this.parts as {
       valueHolder: HTMLInputElement
     }
     const initialValue =
       form.fields[this.key] !== undefined ? form.fields[this.key] : this.value
-    console.log(this.key, initialValue)
+
     if (initialValue != null && initialValue !== '') {
       if (form.fields[this.key] == null) form.fields[this.key] = initialValue
       valueHolder.value = initialValue
-      const inputElement = input.children[0] as HTMLInputElement | undefined
-      if (inputElement) inputElement.value = initialValue
     }
   }
 
@@ -265,12 +267,16 @@ export class XinField extends XinComponent {
       caption.append(this.caption !== '' ? this.caption : this.key)
     }
     if (this.type === 'text') {
-      const textarea =
-        (input.children[0] as HTMLTextAreaElement) || elements.textarea()
-      if (input.children.length === 0) {
-        input.append(textarea)
-      }
-      attr(textarea, 'placeholder', this.placeholder)
+      input.textContent = ''
+      input.append(
+        elements.textarea({
+          placeholder: this.placeholder || false,
+          value: this.value,
+        })
+      )
+    } else if (this.type === 'color') {
+      input.textContent = ''
+      input.append(colorInput({ value: this.value }))
     } else if (input.children.length === 0) {
       attr(valueHolder, 'placeholder', this.placeholder)
       attr(valueHolder, 'type', this.type)

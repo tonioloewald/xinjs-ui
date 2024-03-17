@@ -19,6 +19,9 @@ preview.querySelector('.submit').addEventListener('click', form.submit)
   <xin-field caption="Number" key="number" type="number"></xin-field>
   <xin-field caption="Range" key="range" type="range" min="0" max="10"></xin-field>
   <xin-field key="boolean" type="checkbox">😃 <b>Agreed?!</b></xin-field>
+  <xin-field type="color" value="pink">
+    favorite color
+  </xin-field>
   <xin-field key="select">
     Custom Field
     <select slot="input">
@@ -125,7 +128,7 @@ is used to drive form-validation.)
 
 - `caption` labels the field
 - `key` determines the form property the field will populate
-- `type` determines the data-type: '' | 'checkbox' | 'number' | 'range' | 'date' | 'text'
+- `type` determines the data-type: '' | 'checkbox' | 'number' | 'range' | 'date' | 'text' | 'color'
 - `optional` turns off the `required` attribute (fields are required by default)
 - `pattern` is an (optional) regex pattern
 - `placeholder` is an (optional) placeholder
@@ -136,7 +139,7 @@ import { Component as XinComponent } from 'xinjs';
 export declare class XinField extends XinComponent {
     caption: string;
     key: string;
-    type: '' | 'checkbox' | 'number' | 'range' | 'date' | 'text';
+    type: '' | 'checkbox' | 'number' | 'range' | 'date' | 'text' | 'color';
     optional: boolean;
     pattern: string;
     placeholder: string;
