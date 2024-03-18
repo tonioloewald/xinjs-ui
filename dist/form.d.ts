@@ -9,7 +9,7 @@ const form = preview.querySelector('xin-form')
 preview.querySelector('.submit').addEventListener('click', form.submit)
 ```
 ```html
-<xin-form value='{"formInitializer": "initial value of the form"}'>
+<xin-form value='{"formInitializer": "initial value from form"}'>
   <h3 slot="header">Example Form Header</h3>
   <xin-field caption="Required field" key="required"></xin-field>
   <xin-field optional key="optional"><i>Optional</i> Field</xin-field>
@@ -53,7 +53,7 @@ preview.querySelector('.submit').addEventListener('click', form.submit)
   <xin-field key="amount" fixed-precision="2" type="number" prefix="$" suffix="(USD)">
     What's it worth?
   </xin-field>
-  <xin-field key="valueInitializer" value="initial value of the field">
+  <xin-field key="valueInitializer" value="initial value from field">
     Initialized by field
   </xin-field>
   <xin-field key="formInitializer">
@@ -157,6 +157,7 @@ export declare class XinField extends XinComponent {
     value: any;
     content: any;
     constructor();
+    private valueChanged;
     handleChange: () => void;
     initialize(form: XinForm): void;
     connectedCallback(): void;
