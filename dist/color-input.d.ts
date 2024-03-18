@@ -35,8 +35,8 @@ declare class ColorInput extends WebComponent {
         };
     };
     content: any[];
-    update: () => void;
-    updateCss: () => void;
+    private valueChanged;
+    update: (event: Event) => void;
     connectedCallback(): void;
     render(): void;
 }

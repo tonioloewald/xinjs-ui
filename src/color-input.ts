@@ -68,21 +68,19 @@ class ColorInput extends WebComponent {
     input({ part: 'css' }),
   ]
 
-  update = () => {
+  private valueChanged = false
+  update = (event: Event) => {
     const { rgb, alpha, css } = this.parts as ColorParts
-    this.color = Color.fromCss(rgb.value)
-    this.color.a = Number(alpha.value)
-    css.value = this.color.html
-    this._value = this.color.rgba
+    if (event.type === 'input') {
+      this.color = Color.fromCss(rgb.value)
+      this.color.a = Number(alpha.value)
+      css.value = this.color.html
+    } else {
+      this.color = Color.fromCss(css.value)
+    }
     rgb.style.opacity = String(this.color.a)
-    this.dispatchEvent(new Event('change'))
-  }
-
-  updateCss = () => {
-    const { rgb, alpha, css } = this.parts as ColorParts
-    this.color = Color.fromCss(css.value)
-    rgb.value = this.color.html.substring(0, 7)
-    alpha.value = String(this.color.a)
+    this.value = this.color.rgba
+    this.valueChanged = true
   }
 
   connectedCallback() {
@@ -91,10 +89,14 @@ class ColorInput extends WebComponent {
     const { rgb, alpha, css } = this.parts as ColorParts
     rgb.addEventListener('input', this.update)
     alpha.addEventListener('input', this.update)
-    css.addEventListener('change', this.updateCss)
+    css.addEventListener('change', this.update)
   }
 
   render() {
+    if (this.valueChanged) {
+      this.valueChanted = false
+      return
+    }
     const { rgb, alpha, css } = this.parts as ColorParts
     this.color = Color.fromCss(this.value)
 
