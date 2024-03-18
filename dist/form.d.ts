@@ -110,6 +110,9 @@ preview.querySelector('.submit').addEventListener('click', form.submit)
 form contents (generating feedback if desired) and calls its `submitCallback(value: {[key: string]: any}, isValid: boolean): void`
 method.
 
+`<xin-form>` offers a `fields` proxy that allows values stored in the form to be updated. Any changes will trigger a `change`
+event on the `<xin-form>` (in addition to any events fired by form fields).
+
 `<xin-form>` instances have `value` and `isValid` properties you can access any time. Note that `isValid` is computed
 and triggers form validation.
 
@@ -133,7 +136,9 @@ is used to drive form-validation.)
 - `pattern` is an (optional) regex pattern
 - `placeholder` is an (optional) placeholder
 
-The `text` type actually populates the `input` slot with a `<textarea>` element.
+The `text` type populates the `input` slot with a `<textarea>` element.
+
+The `color` type populates the `input` slot with a `<xin-color>` element (and thus supports colors with alpha values).
 
 <xin-css-var-editor element-selector="xin-field" target-selector=".preview"></xin-css-var-editor>
 */
