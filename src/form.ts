@@ -357,7 +357,7 @@ export class XinForm extends XinComponent {
         this.value = {}
       }
     }
-    const form = this
+    const dispatch = this.dispatchEvent.bind(this)
     return new Proxy(this.value, {
       get(target, prop: string): any {
         return target[prop]
@@ -366,10 +366,10 @@ export class XinForm extends XinComponent {
       set(target, prop: string, newValue: any): boolean {
         if (target[prop] !== newValue) {
           target[prop] = newValue
-          form.dispatchEvent(new Event('true'))
+          dispatch(new Event('true'))
         }
         return true
-      }
+      },
     })
   }
 
@@ -384,7 +384,10 @@ export class XinForm extends XinComponent {
   }
 
   submitCallback = (value: { [key: string]: any }, isValid: boolean): void => {
-    console.log('override submitCallback to handle this data', { value, isValid })
+    console.log('override submitCallback to handle this data', {
+      value,
+      isValid,
+    })
   }
 
   connectedCallback(): void {
