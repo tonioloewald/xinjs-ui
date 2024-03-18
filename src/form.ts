@@ -9,7 +9,7 @@ const form = preview.querySelector('xin-form')
 preview.querySelector('.submit').addEventListener('click', form.submit)
 ```
 ```html
-<xin-form value='{"formInitializer": "initial value of the form"}'>
+<xin-form value='{"formInitializer": "initial value from form"}'>
   <h3 slot="header">Example Form Header</h3>
   <xin-field caption="Required field" key="required"></xin-field>
   <xin-field optional key="optional"><i>Optional</i> Field</xin-field>
@@ -53,7 +53,7 @@ preview.querySelector('.submit').addEventListener('click', form.submit)
   <xin-field key="amount" fixed-precision="2" type="number" prefix="$" suffix="(USD)">
     What's it worth?
   </xin-field>
-  <xin-field key="valueInitializer" value="initial value of the field">
+  <xin-field key="valueInitializer" value="initial value from field">
     Initialized by field
   </xin-field>
   <xin-field key="formInitializer">
@@ -202,6 +202,7 @@ export class XinField extends XinComponent {
     )
   }
 
+  private valueChanged = false
   handleChange = () => {
     const { input, valueHolder } = this.parts as {
       input: HTMLElement
@@ -211,6 +212,8 @@ export class XinField extends XinComponent {
     if (inputElement !== valueHolder) {
       valueHolder.value = inputElement.value
     }
+    this.value = inputElement.value
+    this.valueChanged = true
     const form = this.closest('xin-form') as XinForm
     if (form && this.key !== '') {
       switch (this.type) {
@@ -235,15 +238,12 @@ export class XinField extends XinComponent {
   }
 
   initialize(form: XinForm) {
-    const { valueHolder } = this.parts as {
-      valueHolder: HTMLInputElement
-    }
     const initialValue =
       form.fields[this.key] !== undefined ? form.fields[this.key] : this.value
 
     if (initialValue != null && initialValue !== '') {
       if (form.fields[this.key] == null) form.fields[this.key] = initialValue
-      valueHolder.value = initialValue
+      this.value = initialValue
     }
   }
 
@@ -264,6 +264,10 @@ export class XinField extends XinComponent {
   }
 
   render() {
+    if (this.valueChanged) {
+      this.valueChanged = false
+      return
+    }
     const { input, caption, valueHolder, field } = this.parts as {
       input: HTMLElement
       field: HTMLElement
@@ -291,6 +295,7 @@ export class XinField extends XinComponent {
       attr(valueHolder, 'max', this.max)
       attr(valueHolder, 'step', this.step)
     }
+    valueHolder.value = this.value
 
     this.prefix
       ? field.setAttribute('prefix', this.prefix)
