@@ -275,12 +275,11 @@ export class XinField extends XinComponent {
     }
     if (this.type === 'text') {
       input.textContent = ''
-      input.append(
-        elements.textarea({
-          placeholder: this.placeholder || false,
-          value: this.value,
-        })
-      )
+      const textarea = elements.textarea({ value: this.value })
+      if (this.placeholder) {
+        textarea.setAttribute('placeholder', this.placeholder)
+      }
+      input.append(textarea)
     } else if (this.type === 'color') {
       input.textContent = ''
       input.append(colorInput({ value: this.value }))
