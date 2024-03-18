@@ -40,6 +40,7 @@ class ColorInput extends WebComponent {
       _gap: 8,
       _swatchSize: 32,
       _cssWidth: 72,
+      _alphaWidth: 72,
       display: 'inline-flex',
       gap: vars.gap,
       alignItems: 'center',
@@ -48,6 +49,9 @@ class ColorInput extends WebComponent {
       border: 0,
       width: vars.swatchSize,
       height: vars.swatchSize,
+    },
+    ':host::part(alpha)': {
+      width: vars.alphaWidth,
     },
     ':host::part(css)': {
       width: vars.cssWidth,
@@ -104,8 +108,6 @@ class ColorInput extends WebComponent {
     alpha.style.opacity = String(this.color.a)
     alpha.value = String(this.color.a)
     css.value = this.color.html
-
-    console.log(this.value, this.color.html, this.color.a)
   }
 }
 
