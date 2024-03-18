@@ -60,7 +60,8 @@ class XinCssVarEditor extends WebComponent {
     }
   }
 
-  update = () => {
+  update = (event: Event) => {
+    console.log(event)
     const selector = this.targetSelector || this.elementSelector
     if (selector) {
       const target = document.querySelector(selector) as HTMLElement | null
@@ -80,7 +81,7 @@ class XinCssVarEditor extends WebComponent {
 
     this.loadVars()
 
-    this.parts.variables.addEventListener('change', this.update)
+    this.parts.variables.addEventListener('change', this.update, true)
   }
 }
 
