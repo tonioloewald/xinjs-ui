@@ -107,7 +107,7 @@ preview.querySelector('.submit').addEventListener('click', form.submit)
 ## `<xin-form>`
 
 `<xin-form>` prevents the default form behavior when a `submit` event is triggered and instead validates the
-form contents (generating feedback if desired) and calls its `onSubmit(value: {[key: string]: any}, isValid: boolean): void`
+form contents (generating feedback if desired) and calls its `submitCallback(value: {[key: string]: any}, isValid: boolean): void`
 method.
 
 `<xin-form>` instances have `value` and `isValid` properties you can access any time. Note that `isValid` is computed
@@ -134,6 +134,8 @@ is used to drive form-validation.)
 - `placeholder` is an (optional) placeholder
 
 The `text` type actually populates the `input` slot with a `<textarea>` element.
+
+<xin-css-var-editor element-selector="xin-field" target-selector=".preview"></xin-css-var-editor>
 */
 import { Component as XinComponent } from 'xinjs';
 export declare class XinField extends XinComponent {
@@ -191,7 +193,7 @@ export declare class XinForm extends XinComponent {
     get fields(): any;
     submit: () => void;
     handleSubmit: (event: SubmitEvent) => void;
-    onSubmit: (value: {
+    submitCallback: (value: {
         [key: string]: any;
     }, isValid: boolean) => void;
     connectedCallback(): void;
