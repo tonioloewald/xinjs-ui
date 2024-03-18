@@ -107,7 +107,7 @@ preview.querySelector('.submit').addEventListener('click', form.submit)
 ## `<xin-form>`
 
 `<xin-form>` prevents the default form behavior when a `submit` event is triggered and instead validates the
-form contents (generating feedback if desired) and calls its `onSubmit(value: {[key: string]: any}, isValid: boolean): void`
+form contents (generating feedback if desired) and calls its `submitCallback(value: {[key: string]: any}, isValid: boolean): void`
 method.
 
 `<xin-form>` instances have `value` and `isValid` properties you can access any time. Note that `isValid` is computed
@@ -134,6 +134,8 @@ is used to drive form-validation.)
 - `placeholder` is an (optional) placeholder
 
 The `text` type actually populates the `input` slot with a `<textarea>` element.
+
+<xin-css-var-editor element-selector="xin-field" target-selector=".preview"></xin-css-var-editor>
 */
 
 import {
@@ -355,7 +357,20 @@ export class XinForm extends XinComponent {
         this.value = {}
       }
     }
-    return this.value
+    const form = this
+    return new Proxy(this.value, {
+      get(target, prop: string): any {
+        return target[prop]
+      },
+
+      set(target, prop: string, newValue: any): boolean {
+        if (target[prop] !== newValue) {
+          target[prop] = newValue
+          form.dispatchEvent(new Event('true'))
+        }
+        return true
+      }
+    })
   }
 
   submit = () => {
@@ -365,11 +380,11 @@ export class XinForm extends XinComponent {
   handleSubmit = (event: SubmitEvent) => {
     event.preventDefault()
     event.stopPropagation()
-    this.onSubmit(this.value, this.isValid)
+    this.submitCallback(this.value, this.isValid)
   }
 
-  onSubmit = (value: { [key: string]: any }, isValid: boolean): void => {
-    console.log('override onSubmit to handle this data', { value, isValid })
+  submitCallback = (value: { [key: string]: any }, isValid: boolean): void => {
+    console.log('override submitCallback to handle this data', { value, isValid })
   }
 
   connectedCallback(): void {
@@ -385,7 +400,7 @@ export const xinField = XinField.elementCreator({
       position: 'relative',
       display: 'flex',
       alignItems: 'center',
-      gap: varDefault.flexGap('8px'),
+      gap: varDefault.prefixSuffixGap('8px'),
     },
     ':host [part="field"][prefix]::before': {
       content: 'attr(prefix)',
@@ -409,6 +424,7 @@ export const xinField = XinField.elementCreator({
     },
   },
 }) as ElementCreator<XinField>
+
 export const xinForm = XinForm.elementCreator({
   tag: 'xin-form',
 }) as ElementCreator<XinForm>
