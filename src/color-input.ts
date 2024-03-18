@@ -81,6 +81,8 @@ class ColorInput extends WebComponent {
       css.value = this.color.html
     } else {
       this.color = Color.fromCss(css.value)
+      rgb.value = this.color.html.substring(0, 7)
+      alpha.value = String(this.color.a)
     }
     rgb.style.opacity = String(this.color.a)
     this.value = this.color.rgba
@@ -105,7 +107,7 @@ class ColorInput extends WebComponent {
     this.color = Color.fromCss(this.value)
 
     rgb.value = this.color.html.substring(0, 7)
-    alpha.style.opacity = String(this.color.a)
+    rgb.style.opacity = String(this.color.a)
     alpha.value = String(this.color.a)
     css.value = this.color.html
   }
