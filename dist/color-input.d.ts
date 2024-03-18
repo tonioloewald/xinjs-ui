@@ -20,6 +20,7 @@ declare class ColorInput extends WebComponent {
             _gap: number;
             _swatchSize: number;
             _cssWidth: number;
+            _alphaWidth: number;
             display: string;
             gap: any;
             alignItems: string;
@@ -28,6 +29,9 @@ declare class ColorInput extends WebComponent {
             border: number;
             width: any;
             height: any;
+        };
+        ':host::part(alpha)': {
+            width: any;
         };
         ':host::part(css)': {
             width: any;

@@ -36,7 +36,7 @@ const { postNotification } = xinjsui
 const form = preview.querySelector('xin-form')
 const submit = preview.querySelector('.submit')
 
-form.onSubmit = (value, isValid) => {
+form.submitCallback = (value, isValid) => {
   if (!isValid) return
   if (value.type === 'progress') {
     startTime = Date.now()

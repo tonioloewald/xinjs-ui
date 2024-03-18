@@ -35,7 +35,9 @@ class XinCssVarEditor extends WebComponent {
         setTimeout(this.loadVars, 250)
         return
       }
-      const styleNode = element.shadowRoot ? element.shadowRoot.querySelector('style') : document.querySelector(`style#${this.elementSelector}-component`)
+      const styleNode = element.shadowRoot
+        ? element.shadowRoot.querySelector('style')
+        : document.querySelector(`style#${this.elementSelector}-component`)
       const computedStyle = getComputedStyle(element)
       if (styleNode && styleNode.textContent) {
         const cssVars = [
@@ -50,12 +52,10 @@ class XinCssVarEditor extends WebComponent {
           if (type === 'color') {
             value = Color.fromCss(value).html
           }
-          variables.append(
-            xinField(code(cssVar), { key: cssVar, value, type })
-          )
+          variables.append(xinField(code(cssVar), { key: cssVar, value, type }))
         }
       }
-    } 
+    }
   }
 
   update = () => {
