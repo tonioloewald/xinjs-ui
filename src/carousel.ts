@@ -83,7 +83,8 @@ export class XinCarousel extends WebComponent {
 
   set page(p: number) {
     const { scroller } = this.parts
-    this._page = Math.max(0, Math.min(this.lastPage, p))
+    p = Math.max(0, Math.min(this.lastPage, p))
+    this._page = isNaN(p) ? 0 : p
     this.animateScroll(this._page * scroller.offsetWidth)
   }
 
@@ -95,7 +96,7 @@ export class XinCarousel extends WebComponent {
 
   get lastPage(): number {
     return Math.max(
-      Math.ceil(this.visibleItems.length / this.maxVisibleItems) - 1,
+      Math.ceil(this.visibleItems.length / (this.maxVisibleItems || 1)) - 1,
       0
     )
   }
