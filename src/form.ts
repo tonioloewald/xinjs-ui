@@ -19,7 +19,7 @@ preview.querySelector('.submit').addEventListener('click', form.submit)
   <xin-field caption="Number" key="number" type="number"></xin-field>
   <xin-field caption="Range" key="range" type="range" min="0" max="10"></xin-field>
   <xin-field key="boolean" type="checkbox">😃 <b>Agreed?!</b></xin-field>
-  <xin-field type="color" value="pink">
+  <xin-field key="color" type="color" value="pink">
     favorite color
   </xin-field>
   <xin-field key="select">
@@ -36,8 +36,8 @@ preview.querySelector('.submit').addEventListener('click', form.submit)
   </xin-field>
   <xin-field key="like">
     Do you like it?
-    <xin-segmented 
-      choices="yes=Yes:thumbsUp,no=No:thumbsDown" 
+    <xin-segmented
+      choices="yes=Yes:thumbsUp,no=No:thumbsDown"
       slot="input"
     ></xin-segmented>
   </xin-field>
@@ -162,6 +162,45 @@ function attr(element: HTMLElement, name: string, value: any): void {
   }
 }
 
+function getInputValue(input: HTMLInputElement): any {
+  switch (input.type) {
+    case 'checkbox':
+      return input.checked
+    case 'radio':
+      {
+        const picked = input.parentElement?.querySelector(
+          `input[type="radio"][name="${input.name}"]:checked`
+        ) as HTMLInputElement | null
+        return picked ? picked.value : null
+      }
+      return
+    case 'range':
+    case 'number':
+      return Number(input.value)
+    default:
+      return input.value
+  }
+}
+
+function setElementValue(input: HTMLElement | null | undefined, value: any) {
+  if (!(input instanceof HTMLElement)) {
+    // do nothing
+  } else if (input instanceof HTMLInputElement) {
+    switch (input.type) {
+      case 'checkbox':
+        input.checked = value
+        break
+      case 'radio':
+        input.checked = value === input.value
+        break
+      default:
+        input.value = String(value || '')
+    }
+  } else {
+    ;(input as HTMLInputElement).value = value
+  }
+}
+
 export class XinField extends XinComponent {
   caption = ''
   key = ''
@@ -212,7 +251,7 @@ export class XinField extends XinComponent {
     if (inputElement !== valueHolder) {
       valueHolder.value = inputElement.value
     }
-    this.value = inputElement.value
+    this.value = getInputValue(inputElement)
     this.valueChanged = true
     const form = this.closest('xin-form') as XinForm
     if (form && this.key !== '') {
@@ -295,7 +334,8 @@ export class XinField extends XinComponent {
       attr(valueHolder, 'max', this.max)
       attr(valueHolder, 'step', this.step)
     }
-    valueHolder.value = this.value
+    setElementValue(valueHolder, this.value)
+    setElementValue(input.children[0], this.value)
 
     this.prefix
       ? field.setAttribute('prefix', this.prefix)
@@ -356,6 +396,10 @@ export class XinForm extends XinComponent {
     slot({ part: 'footer', name: 'footer' }),
   ]
 
+  getField = (key: string): XinField | null => {
+    return this.querySelector(`xin-field[key="${key}"]`) as XinField | null
+  }
+
   get fields(): any {
     if (typeof this.value === 'string') {
       try {
@@ -365,6 +409,7 @@ export class XinForm extends XinComponent {
         this.value = {}
       }
     }
+    const { getField } = this
     const dispatch = this.dispatchEvent.bind(this)
     return new Proxy(this.value, {
       get(target, prop: string): any {
@@ -374,11 +419,24 @@ export class XinForm extends XinComponent {
       set(target, prop: string, newValue: any): boolean {
         if (target[prop] !== newValue) {
           target[prop] = newValue
+          const field = getField(prop)
+          if (field) {
+            field.value = newValue
+          }
           dispatch(new Event('change'))
         }
         return true
       },
     })
+  }
+
+  set fields(values: { [key: string]: any }) {
+    const fields = [...this.querySelectorAll(XinField.tagName!)] as XinField[]
+    for (const field of fields) {
+      if (field.key && this.value[field.key] !== undefined) {
+        field.value = this.value[field.key]
+      }
+    }
   }
 
   submit = () => {
