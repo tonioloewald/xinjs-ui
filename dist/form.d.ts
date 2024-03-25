@@ -19,7 +19,7 @@ preview.querySelector('.submit').addEventListener('click', form.submit)
   <xin-field caption="Number" key="number" type="number"></xin-field>
   <xin-field caption="Range" key="range" type="range" min="0" max="10"></xin-field>
   <xin-field key="boolean" type="checkbox">😃 <b>Agreed?!</b></xin-field>
-  <xin-field type="color" value="pink">
+  <xin-field key="color" type="color" value="pink">
     favorite color
   </xin-field>
   <xin-field key="select">
@@ -196,7 +196,11 @@ export declare class XinForm extends XinComponent {
         };
     };
     content: any[];
+    getField: (key: string) => XinField | null;
     get fields(): any;
+    set fields(values: {
+        [key: string]: any;
+    });
     submit: () => void;
     handleSubmit: (event: SubmitEvent) => void;
     submitCallback: (value: {
