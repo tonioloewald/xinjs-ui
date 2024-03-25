@@ -197,7 +197,9 @@ function setElementValue(input: HTMLElement | null | undefined, value: any) {
         input.value = String(value || '')
     }
   } else {
-    ;(input as HTMLInputElement).value = value
+    if (value != null || (input as HTMLInputElement).value != null) {
+      ;(input as HTMLInputElement).value = String(value || '')
+    }
   }
 }
 
@@ -433,9 +435,7 @@ export class XinForm extends XinComponent {
   set fields(values: { [key: string]: any }) {
     const fields = [...this.querySelectorAll(XinField.tagName!)] as XinField[]
     for (const field of fields) {
-      if (field.key && this.value[field.key] !== undefined) {
-        field.value = this.value[field.key]
-      }
+      field.value = values[field.key]
     }
   }
 
