@@ -595,6 +595,7 @@ export const liveExample = LiveExample.elementCreator({
       width: '44px',
       height: '44px',
       lineHeight: '44px',
+      zIndex: '100',
     },
 
     ':host [part="exampleWidgets"] svg': {
