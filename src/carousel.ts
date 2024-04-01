@@ -47,6 +47,7 @@ This is a minimalist carousel component that supports the usual stuff.
 - `max-visible-items` (number, 1 by default) determines how many items are shown at once.
 - `snap-duration` (number, 0.25 [seconds] by default) determines the time taken to scroll / snap scroll.
 - `snap-delay` (number, 0.1 [seconds] by default)
+- `loop` (boolean, false by default) causes next/previous buttons to loop
 
 <xin-css-var-editor element-selector="xin-carousel"></xin-css-var-editor>
 */
@@ -70,6 +71,7 @@ interface CarouselParts {
 export class XinCarousel extends WebComponent {
   arrows = false
   dots = false
+  loop = false
   maxVisibleItems = 1
   snapDelay = 0.1
   snapDuration = 0.25
@@ -197,8 +199,9 @@ export class XinCarousel extends WebComponent {
     })
     clearTimeout(this.snapTimer)
     this.snapTimer = setTimeout(this.snapPosition, this.snapDelay * 1000)
-    back.disabled = this.page <= 0
-    forward.disabled = this.page >= this.lastPage
+    back.disabled = this.lastPage <= 0 || (this.page <= 0 && !this.loop)
+    forward.disabled =
+      this.lastPage <= 0 || (this.page >= this.lastPage && !this.loop)
   }
 
   snapPosition = () => {
@@ -214,12 +217,12 @@ export class XinCarousel extends WebComponent {
 
   back = () => {
     cancelAnimationFrame(this.animationFrame)
-    this.page = Math.max(0, this.page - 1)
+    this.page = this.page > 0 ? this.page - 1 : this.lastPage
   }
 
   forward = () => {
     cancelAnimationFrame(this.animationFrame)
-    this.page = Math.min(this.page + 1, this.lastPage)
+    this.page = this.page < this.lastPage ? this.page + 1 : 0
   }
 
   handleDotClick = (event: Event) => {
@@ -279,7 +282,13 @@ export class XinCarousel extends WebComponent {
   constructor() {
     super()
 
-    this.initAttributes('dots', 'arrows', 'maxVisibleItems', 'snapDuration')
+    this.initAttributes(
+      'dots',
+      'arrows',
+      'maxVisibleItems',
+      'snapDuration',
+      'loop'
+    )
   }
 
   connectedCallback() {
