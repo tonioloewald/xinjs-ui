@@ -47,6 +47,7 @@ This is a minimalist carousel component that supports the usual stuff.
 - `max-visible-items` (number, 1 by default) determines how many items are shown at once.
 - `snap-duration` (number, 0.25 [seconds] by default) determines the time taken to scroll / snap scroll.
 - `snap-delay` (number, 0.1 [seconds] by default)
+- `loop` (boolean, false by default) causes next/previous buttons to loop
 
 <xin-css-var-editor element-selector="xin-carousel"></xin-css-var-editor>
 */
@@ -54,6 +55,7 @@ import { Component as WebComponent } from 'xinjs';
 export declare class XinCarousel extends WebComponent {
     arrows: boolean;
     dots: boolean;
+    loop: boolean;
     maxVisibleItems: number;
     snapDelay: number;
     snapDuration: number;
