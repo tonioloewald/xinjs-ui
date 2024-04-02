@@ -84,10 +84,20 @@ export class XinCarousel extends WebComponent {
   }
 
   set page(p: number) {
-    const { scroller } = this.parts
-    p = Math.max(0, Math.min(this.lastPage, p))
-    this._page = isNaN(p) ? 0 : p
-    this.animateScroll(this._page * scroller.offsetWidth)
+    const { scroller, back, forward } = this.parts as CarouselParts
+    if (this.lastPage <= 0) {
+      forward.disabled = back.disabled = true
+      p = 0
+    } else {
+      p = Math.max(0, Math.min(this.lastPage, p))
+      p = isNaN(p) ? 0 : p
+    }
+    if (this._page !== p) {
+      this._page = isNaN(p) ? 0 : p
+      this.animateScroll(this._page * scroller.offsetWidth)
+      back.disabled = this.page <= 0 && !this.loop
+      forward.disabled = this.page >= this.lastPage && !this.loop
+    }
   }
 
   get visibleItems(): HTMLElement[] {
@@ -189,7 +199,7 @@ export class XinCarousel extends WebComponent {
   }
 
   indicateCurrent = () => {
-    const { scroller, progress, back, forward } = this.parts as CarouselParts
+    const { scroller, progress } = this.parts as CarouselParts
     const page = scroller.scrollLeft / scroller.offsetWidth
     ;[...progress.children].forEach((dot, index) => {
       dot.classList.toggle(
@@ -199,9 +209,6 @@ export class XinCarousel extends WebComponent {
     })
     clearTimeout(this.snapTimer)
     this.snapTimer = setTimeout(this.snapPosition, this.snapDelay * 1000)
-    back.disabled = this.lastPage <= 0 || (this.page <= 0 && !this.loop)
-    forward.disabled =
-      this.lastPage <= 0 || (this.page >= this.lastPage && !this.loop)
   }
 
   snapPosition = () => {
@@ -216,12 +223,10 @@ export class XinCarousel extends WebComponent {
   }
 
   back = () => {
-    cancelAnimationFrame(this.animationFrame)
     this.page = this.page > 0 ? this.page - 1 : this.lastPage
   }
 
   forward = () => {
-    cancelAnimationFrame(this.animationFrame)
     this.page = this.page < this.lastPage ? this.page + 1 : 0
   }
 
@@ -240,11 +245,9 @@ export class XinCarousel extends WebComponent {
     startingPosition: number = -1,
     timestamp: number = 0
   ) {
+    cancelAnimationFrame(this.animationFrame)
     const { scroller } = this.parts
     if (startingPosition === -1) {
-      if (this.animationFrame) {
-        return
-      }
       startingPosition = scroller.scrollLeft
       timestamp = Date.now()
       this.animationFrame = requestAnimationFrame(() => {
