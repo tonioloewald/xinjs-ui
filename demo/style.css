@@ -363,9 +363,12 @@ xin-example {
 [class*='icon-'],
 xin-icon {
   fill: var(--text-color);
-  vertical-align: text-bottom;
   height: var(--font-size);
   pointer-events: none;
+}
+
+[class*='icon-'] {
+  vertical-align: middle;
 }
 
 .icon-plus {
