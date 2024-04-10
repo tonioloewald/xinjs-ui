@@ -113,8 +113,6 @@ export class CodeEditor extends WebComponent {
         editor.session.getUndoManager().reset()
       })
     }
-
-    this.addEventListener('change', this.updateValue)
   }
 
   render(): void {
