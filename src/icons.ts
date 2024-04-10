@@ -67,7 +67,7 @@ probably be broken out as a standalone library to allow the use of whatever icon
 
 `defineIcon(name: string, icon: IconSpec | string)` adds or replaces your own icons
 
-The simplest option is simply to pass the `path` attribute (if the icon has a single path) while more 
+The simplest option is simply to pass the `path` attribute (if the icon has a single path) while more
 complex icons can be provide an `IconSpec` structure `{ p: string[]; w: number; h: number }` (specifying
 any number of paths and the size of the bounding box).
 
@@ -113,8 +113,8 @@ xin-icon.demo-2 > svg {
 }
 ```
 
-**CSS-to-SVG Gradient** support is work-in-progress and experimental (there seem to be 
-…issues… with how SVG  gradients behave). The goal is to be able to use CSS gradients 
+**CSS-to-SVG Gradient** support is work-in-progress and experimental (there seem to be
+…issues… with how SVG  gradients behave). The goal is to be able to use CSS gradients
 to generate SVG gradients (which are kind of a pain) on-the-fly. Use at your own risk.
 
 ## SVGs as data-urls
@@ -323,7 +323,7 @@ export const svgIcon = SvgIcon.elementCreator({
   tag: 'xin-icon',
   styleSpec: {
     ':host': {
-      verticalAlign: 'baseline',
+      verticalAlign: 'text-bottom',
     },
   },
 })

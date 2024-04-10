@@ -1,9 +1,10 @@
-@import url('https://fonts.googleapis.com/css2?family=Roboto+Slab:wght@100;200;300;400;500;600;700;800;900&family=Spline+Sans+Mono&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Aleo:ital,wght@0,100..900;1,100..900&famiSpline+Sans+Mono:ital,wght@0,300..700;1,300..700&display=swap');
 
 :root {
-  --font-family: 'Roboto Slab', sans-serif;
+  --font-family: 'Aleo', sans-serif;
   --code-font-family: 'Spline Sans Mono', monospace;
   --font-size: 16px;
+  --code-font-size: 14px;
   --text-color: #222;
   --brand-color: #088358;
   --background: #fafafa;
@@ -290,7 +291,7 @@ pre {
   padding: var(--spacing);
   border-radius: calc(var(--spacing) * 0.25);
   overflow: scroll;
-  font-size: 75%;
+  font-size: var(--code-font-size);
   line-height: calc(var(--font-size) * 1.2);
 }
 
@@ -362,7 +363,7 @@ xin-example {
 [class*='icon-'],
 xin-icon {
   fill: var(--text-color);
-  vertical-align: middle;
+  vertical-align: text-bottom;
   height: var(--font-size);
   pointer-events: none;
 }
