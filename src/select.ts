@@ -18,6 +18,11 @@ built in `<select>` element that addresses its various shortcomings.
   value="not an option!"
 ></xin-select><br>
 <xin-select
+  title="has captions"
+  class="captions"
+  value="this"
+></xin-select><br>
+<xin-select
   title="combo select"
   class="icons"
   editable
@@ -26,6 +31,24 @@ built in `<select>` element that addresses its various shortcomings.
 ```
 ```js
 const { icons } = xinjsui
+
+const captions = preview.querySelector('.captions')
+
+captions.options = [
+  {
+    caption: 'choose this',
+    value: 'this'
+  },
+  {
+    caption: 'choose that',
+    value: 'that'
+  },
+  null,
+  {
+    caption: 'choose the other',
+    value: 'other',
+  }
+]
 
 const iconsSelect = preview.querySelector('.icons')
 
@@ -101,14 +124,16 @@ export class XinSelect extends WebComponent {
     }
   }
 
-  get optionsMenu(): MenuItem[] {
-    const { setValue, options } = this
-    const selectOptions =
-      typeof options === 'string'
-        ? options.split(',').map((option) => option.trim() || null)
-        : options
+  get selectOptions(): SelectOptions {
+    return typeof this.options === 'string'
+      ? this.options.split(',').map((option) => option.trim() || null)
+      : this.options
+  }
 
-    return selectOptions.map((option) => {
+  get optionsMenu(): MenuItem[] {
+    const { setValue } = this
+
+    return this.selectOptions.map((option) => {
       if (option === null) {
         return null
       }
@@ -190,7 +215,14 @@ export class XinSelect extends WebComponent {
     super.render()
 
     const { value } = this.parts as { value: HTMLInputElement }
-    value.value = this.value
+    const option = this.selectOptions.find(
+      (option: string | null | SelectOption) =>
+        typeof option === 'string'
+          ? option === this.value
+          : option?.value === this.value
+    )
+    value.value =
+      option && typeof option === 'object' ? option.caption : this.value
     value.setAttribute('placeholder', this.placeholder)
     value.readOnly = !this.editable
   }
