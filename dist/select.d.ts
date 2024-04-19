@@ -18,6 +18,11 @@ built in `<select>` element that addresses its various shortcomings.
   value="not an option!"
 ></xin-select><br>
 <xin-select
+  title="has captions"
+  class="captions"
+  value="this"
+></xin-select><br>
+<xin-select
   title="combo select"
   class="icons"
   editable
@@ -26,6 +31,24 @@ built in `<select>` element that addresses its various shortcomings.
 ```
 ```js
 const { icons } = xinjsui
+
+const captions = preview.querySelector('.captions')
+
+captions.options = [
+  {
+    caption: 'choose this',
+    value: 'this'
+  },
+  {
+    caption: 'choose that',
+    value: 'that'
+  },
+  null,
+  {
+    caption: 'choose the other',
+    value: 'other',
+  }
+]
 
 const iconsSelect = preview.querySelector('.icons')
 
@@ -78,6 +101,7 @@ export declare class XinSelect extends WebComponent {
     value: string;
     placeholder: string;
     private setValue;
+    get selectOptions(): SelectOptions;
     get optionsMenu(): MenuItem[];
     handleChange: (event: Event) => void;
     handleKey: (event: KeyboardEvent) => void;
