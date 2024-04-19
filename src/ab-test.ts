@@ -6,25 +6,35 @@
 ```js
 const { AbTest } = xinjsui
 
-AbTest.conditions = {
+const conditions = {
   testA: true,
   testB: false,
   testC: Math.random() < 0.5
 }
+
+AbTest.conditions = conditions
+
+preview.querySelector('pre').innerText = JSON.stringify(conditions, null, 2)
 ```
 ```html
 <xin-ab condition="testA">
-  <p>Visible if conditions.testA === true</p>
+  <p>testA is true</p>
+</xin-ab>
+<xin-ab not condition="testA">
+  <p>not testA</p>
 </xin-ab>
 <xin-ab condition="testB">
-  <p>Visible if conditions.testB === true</p>
+  <p>testB is true</p>
 </xin-ab>
 <xin-ab not condition="testB">
-  <p>Visible if conditions.testB !== true</p>
+  <p>not testB</p>
 </xin-ab>
 <xin-ab condition="testC">
-  <p>Visible if conditions.testC === true (50/50 chance)</p>
+  <p>testC is true</p>
 </xin-ab>
+<h3>Conditions</h3>
+<pre>
+</pre>
 ```
 ```css
 .preview {
@@ -90,8 +100,8 @@ export class AbTest extends XinComponent {
     if (
       this.condition !== '' &&
       (this.not
-        ? abTestConditions[this.condition] === true
-        : abTestConditions[this.condition] !== true)
+        ? abTestConditions[this.condition] !== true
+        : abTestConditions[this.condition] === true)
     ) {
       this.toggleAttribute('hidden', false)
     } else {
