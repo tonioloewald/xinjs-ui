@@ -57,9 +57,6 @@ iconsSelect.options = Object.keys(icons).sort().map(icon =>({
   caption: icon,
   value: icon
 }))
-
-iconsSelect.addEventListener('action', event => console.log(event))
-iconsSelect.addEventListener('change', event => console.log(event))
 ```
 
 ## `options`
