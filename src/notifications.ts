@@ -13,7 +13,7 @@ You can post a notification simply with `XinNotification.post()` or `postNotific
 ```
 interface NotificationSpec {
   message: string
-  type?: 'info' | 'log' | 'warn' | 'error' // default 'info'
+  type?: 'success' | 'info' | 'log' | 'warn' | 'error' // default 'info'
   duration?: number
   progress?: () => number // return percentage completion
   close?: () => void
@@ -117,7 +117,7 @@ const { div, button } = elements
 
 interface NotificationSpec {
   message: string
-  type?: 'info' | 'log' | 'warn' | 'error' | 'progress' // default 'info'
+  type?: 'success' | 'info' | 'log' | 'warn' | 'error' | 'progress' // default 'info'
   duration?: number
   progress?: () => number
   close?: () => void
