@@ -91,16 +91,42 @@ preview.querySelector('.submit').addEventListener('click', form.submit)
 }
 
 .preview label [part="caption"] {
-  flex: 0 0 150px;
   text-align: right;
-}
-
-.preview :invalid {
-  box-shadow: inset 0 0 2px red;
 }
 
 .preview label:has(:invalid:required)::after {
   content: '* required'
+}
+
+@media (max-width: 500px) {
+  .preview label [part="caption"] {
+    text-align: center;
+  }
+
+  .preview label {
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    align-items: stretch;
+    gap: calc(var(--spacing) * 0.5);
+  }
+
+  .preview label:has(:invalid:required)::after {
+    position: absolute;
+    top: 0;
+    right: 0;
+    content: '*'
+  }
+
+  .preview xin-field [part="field"],
+  .preview xin-field [part="input"] > * {
+    display: flex;
+    justify-content: center;
+  }
+}
+
+.preview :invalid {
+  box-shadow: inset 0 0 2px red;
 }
 ```
 
@@ -385,7 +411,7 @@ export class XinForm extends XinComponent {
       boxSizing: 'border-box',
     },
     ':host form': {
-      display: 'block',
+      display: 'flex',
       flex: '1 1 auto',
       position: 'relative',
       overflow: 'hidden',
