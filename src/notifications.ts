@@ -13,7 +13,8 @@ You can post a notification simply with `XinNotification.post()` or `postNotific
 ```
 interface NotificationSpec {
   message: string
-  type?: 'success' | 'info' | 'log' | 'warn' | 'error' // default 'info'
+  type?: 'success' | 'info' | 'log' | 'warn' | 'error' | 'progress' // default 'info'
+  icon?: SVGElement | string // defaults to an info icon
   duration?: number
   progress?: () => number // return percentage completion
   close?: () => void
@@ -30,29 +31,44 @@ then an indefinite `<progress>` element will be displayed.
 
 If you provide a `close` callback, it will be fired if the user closes the notification.
 
+`postNotification` returns a callback function that closes the note programmatically (e.g.
+when an operation completes). This will *also* call any `close` callback function you
+provided. (The progress demos in the example exercise this functionality.)
+
 ```js
-const { postNotification } = xinjsui
+const { postNotification, icons } = xinjsui
 
 const form = preview.querySelector('xin-form')
 const submit = preview.querySelector('.submit')
+const closeButton = preview.querySelector('.close')
+
+let close
 
 form.submitCallback = (value, isValid) => {
   if (!isValid) return
-  if (value.type === 'progress') {
+  if (value.type.startsWith('progress')) {
     startTime = Date.now()
-    const { message, duration } = value
-    postNotification({
+    const { message, duration, icon } = value
+    close = postNotification({
       message,
       type: 'progress',
-      progress: () => (Date.now() - startTime) / (10 * duration),
+      icon,
+      progress: value.type === 'progress' ? () => (Date.now() - startTime) / (10 * duration) : undefined,
       close: () => { postNotification(`${value.message} cancelled`) },
     })
   } else {
-    postNotification(value)
+    close = postNotification(value)
   }
+  console.log(close)
+  closeButton.disabled = false
 }
 
 submit.addEventListener('click', form.submit)
+closeButton.addEventListener('click', () => {
+  if (close) {
+    close()
+  }
+})
 
 postNotification({
   message: 'Welcome to xinjs-ui notifications, this message will disappear in 2s',
@@ -65,19 +81,23 @@ postNotification({
   <xin-field caption="Message" key="message" type="string" value="This is a test…"></xin-field>
   <xin-field caption="Type" key="type" value="info">
     <xin-select slot="input"
-      options="error,warn,info,success,log,,progress"
+      options="error,warn,info,success,log,,progress,progress (indefinite)"
+    ></xin-select>
+  </xin-field>
+  <xin-field caption="Icon" key="icon" value="info">
+    <xin-select slot="input"
+      options="info,bug,thumbsUp,thumbsDown,message"
     ></xin-select>
   </xin-field>
   <xin-field caption="Duration" key="duration" type="number" value="2"></xin-field>
+  <button slot="footer" class="close" disabled>Close Last Notification</button>
+  <span slot="footer" class="elastic"></span>
   <button slot="footer" class="submit">Post Notification</button>
 </xin-form>
 ```
 ```css
 xin-form {
-  margin: 10px;
-  display: block;
-  border-radius: 4px;
-  overflow: hidden;
+  height: 100%;
 }
 
 xin-form::part(content) {
@@ -118,6 +138,7 @@ const { div, button } = elements
 interface NotificationSpec {
   message: string
   type?: 'success' | 'info' | 'log' | 'warn' | 'error' | 'progress' // default 'info'
+  icon?: SVGElement | string
   duration?: number
   progress?: () => number
   close?: () => void
@@ -131,6 +152,8 @@ const COLOR_MAP = {
   success: 'green',
   progress: 'royalblue',
 }
+
+type callback = () => void
 
 export class XinNotification extends Component {
   private static singleton?: XinNotification
@@ -229,15 +252,8 @@ export class XinNotification extends Component {
     setTimeout(remove, 1000)
   }
 
-  static handleClick = (event: Event) => {
-    const target = event.target as HTMLElement
-    if (target.classList.contains('close')) {
-      XinNotification.removeNote(target.closest('.note')!)
-    }
-  }
-
-  static post(spec: NotificationSpec | string) {
-    const { message, duration, type, close, progress } = Object.assign(
+  static post(spec: NotificationSpec | string): callback {
+    const { message, duration, type, close, progress, icon } = Object.assign(
       { type: 'info', duration: -1 },
       typeof spec === 'string' ? { message: spec } : spec
     )
@@ -254,6 +270,18 @@ export class XinNotification extends Component {
     const _notificationAccentColor = COLOR_MAP[type]
     const progressBar =
       progress || type === 'progress' ? elements.progress() : {}
+    const closeCallback = () => {
+      if (close) {
+        close()
+      }
+      XinNotification.removeNote(note)
+    }
+    const iconElement: SVGElement =
+      icon instanceof SVGElement
+        ? icon
+        : icon
+        ? icons[icon]({ class: 'icon' })
+        : icons.info({ class: 'icon' })
     const note = div(
       {
         class: `note ${type}`,
@@ -261,23 +289,15 @@ export class XinNotification extends Component {
           _notificationAccentColor,
         },
       },
-      icons.info({
-        class: 'icon',
-      }),
+      iconElement,
       div({ class: 'message' }, div(message), progressBar),
       button(
         {
           class: 'close',
           title: 'close',
+          // we can't use onClick because this lives inside a shadowDOM
           apply(elt) {
-            if (close) {
-              elt.addEventListener('click', (event: Event) => {
-                close()
-                XinNotification.handleClick(event)
-              })
-            } else {
-              elt.addEventListener('click', XinNotification.handleClick)
-            }
+            elt.addEventListener('click', closeCallback)
           },
         },
         icons.x()
@@ -312,6 +332,8 @@ export class XinNotification extends Component {
     }
 
     note.scrollIntoView()
+
+    return closeCallback
   }
 
   content = null
@@ -321,6 +343,6 @@ export const xinNotification = XinNotification.elementCreator({
   tag: 'xin-notification',
 }) as ElementCreator<XinNotification>
 
-export function postNotification(spec: NotificationSpec | string) {
-  XinNotification.post(spec)
+export function postNotification(spec: NotificationSpec | string): callback {
+  return XinNotification.post(spec)
 }
