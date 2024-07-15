@@ -13,7 +13,8 @@ You can post a notification simply with `XinNotification.post()` or `postNotific
 ```
 interface NotificationSpec {
   message: string
-  type?: 'success' | 'info' | 'log' | 'warn' | 'error' // default 'info'
+  type?: 'success' | 'info' | 'log' | 'warn' | 'error' | 'progress' // default 'info'
+  icon?: SVGElement | string // defaults to an info icon
   duration?: number
   progress?: () => number // return percentage completion
   close?: () => void
@@ -30,29 +31,44 @@ then an indefinite `<progress>` element will be displayed.
 
 If you provide a `close` callback, it will be fired if the user closes the notification.
 
+`postNotification` returns a callback function that closes the note programmatically (e.g.
+when an operation completes). This will *also* call any `close` callback function you
+provided. (The progress demos in the example exercise this functionality.)
+
 ```js
-const { postNotification } = xinjsui
+const { postNotification, icons } = xinjsui
 
 const form = preview.querySelector('xin-form')
 const submit = preview.querySelector('.submit')
+const closeButton = preview.querySelector('.close')
+
+let close
 
 form.submitCallback = (value, isValid) => {
   if (!isValid) return
-  if (value.type === 'progress') {
+  if (value.type.startsWith('progress')) {
     startTime = Date.now()
-    const { message, duration } = value
-    postNotification({
+    const { message, duration, icon } = value
+    close = postNotification({
       message,
       type: 'progress',
-      progress: () => (Date.now() - startTime) / (10 * duration),
+      icon,
+      progress: value.type === 'progress' ? () => (Date.now() - startTime) / (10 * duration) : undefined,
       close: () => { postNotification(`${value.message} cancelled`) },
     })
   } else {
-    postNotification(value)
+    close = postNotification(value)
   }
+  console.log(close)
+  closeButton.disabled = false
 }
 
 submit.addEventListener('click', form.submit)
+closeButton.addEventListener('click', () => {
+  if (close) {
+    close()
+  }
+})
 
 postNotification({
   message: 'Welcome to xinjs-ui notifications, this message will disappear in 2s',
@@ -65,19 +81,23 @@ postNotification({
   <xin-field caption="Message" key="message" type="string" value="This is a test…"></xin-field>
   <xin-field caption="Type" key="type" value="info">
     <xin-select slot="input"
-      options="error,warn,info,success,log,,progress"
+      options="error,warn,info,success,log,,progress,progress (indefinite)"
+    ></xin-select>
+  </xin-field>
+  <xin-field caption="Icon" key="icon" value="info">
+    <xin-select slot="input"
+      options="info,bug,thumbsUp,thumbsDown,message"
     ></xin-select>
   </xin-field>
   <xin-field caption="Duration" key="duration" type="number" value="2"></xin-field>
+  <button slot="footer" class="close" disabled>Close Last Notification</button>
+  <span slot="footer" class="elastic"></span>
   <button slot="footer" class="submit">Post Notification</button>
 </xin-form>
 ```
 ```css
 xin-form {
-  margin: 10px;
-  display: block;
-  border-radius: 4px;
-  overflow: hidden;
+  height: 100%;
 }
 
 xin-form::part(content) {
@@ -113,10 +133,12 @@ import { Component } from 'xinjs';
 interface NotificationSpec {
     message: string;
     type?: 'success' | 'info' | 'log' | 'warn' | 'error' | 'progress';
+    icon?: SVGElement | string;
     duration?: number;
     progress?: () => number;
     close?: () => void;
 }
+type callback = () => void;
 export declare class XinNotification extends Component {
     private static singleton?;
     static styleSpec: {
@@ -203,10 +225,9 @@ export declare class XinNotification extends Component {
         };
     };
     static removeNote(note: HTMLElement): void;
-    static handleClick: (event: Event) => void;
-    static post(spec: NotificationSpec | string): void;
+    static post(spec: NotificationSpec | string): callback;
     content: any;
 }
 export declare const xinNotification: ElementCreator<XinNotification>;
-export declare function postNotification(spec: NotificationSpec | string): void;
+export declare function postNotification(spec: NotificationSpec | string): callback;
 export {};
