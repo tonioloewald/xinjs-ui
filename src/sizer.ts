@@ -21,9 +21,10 @@ from the bottom-right.
 }
 ```
 
+<xin-css-var-editor element-selector="xin-sizer"></xin-css-var-editor>
 */
 
-import { Component as XinComponent, ElementCreator } from 'xinjs'
+import { Component as XinComponent, ElementCreator, vars } from 'xinjs'
 import { icons } from './icons'
 import { trackDrag } from './track-drag'
 
@@ -32,6 +33,7 @@ export class XinSizer extends XinComponent {
 
   static styleSpec = {
     ':host': {
+      _resizeIconFill: '#222',
       display: 'block',
       position: 'absolute',
       bottom: -7,
@@ -48,6 +50,7 @@ export class XinSizer extends XinComponent {
     ':host svg': {
       width: 16,
       height: 16,
+      fill: vars.resizeIconFill,
     },
   }
 
