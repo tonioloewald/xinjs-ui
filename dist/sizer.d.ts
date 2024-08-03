@@ -21,12 +21,14 @@ from the bottom-right.
 }
 ```
 
+<xin-css-var-editor element-selector="xin-sizer"></xin-css-var-editor>
 */
 import { Component as XinComponent } from 'xinjs';
 export declare class XinSizer extends XinComponent {
     target?: HTMLElement | null;
     static styleSpec: {
         ':host': {
+            _resizeIconFill: string;
             display: string;
             position: string;
             bottom: number;
@@ -43,6 +45,7 @@ export declare class XinSizer extends XinComponent {
         ':host svg': {
             width: number;
             height: number;
+            fill: any;
         };
     };
     content: any;
