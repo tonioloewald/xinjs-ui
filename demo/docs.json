@@ -157,7 +157,7 @@
     "path": "src/size-break.ts"
   },
   {
-    "text": "# sizer\n\nThis is a super-simple component that you can put in a fixed size element allowing it to be resized\nfrom the bottom-right.\n\n```html\n<div>\n  <xin-sizer></xin-sizer>\n</div>\n```\n```css\n.preview div {\n  position: absolute;\n  top: 10px;\n  left: 10px;\n  width: 200px;\n  height: 100px;\n  background: #ff02;\n  border: 1px solid #555;\n}\n```",
+    "text": "# sizer\n\nThis is a super-simple component that you can put in a fixed size element allowing it to be resized\nfrom the bottom-right.\n\n```html\n<div>\n  <xin-sizer></xin-sizer>\n</div>\n```\n```css\n.preview div {\n  position: absolute;\n  top: 10px;\n  left: 10px;\n  width: 200px;\n  height: 100px;\n  background: #ff02;\n  border: 1px solid #555;\n}\n```\n\n<xin-css-var-editor element-selector=\"xin-sizer\"></xin-css-var-editor>",
     "title": "sizer",
     "filename": "sizer.ts",
     "path": "src/sizer.ts"
