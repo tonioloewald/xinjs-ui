@@ -120,6 +120,8 @@ export class XinSelect extends WebComponent {
       this.dispatchEvent(new Event('action'))
     }
   }
+  
+  private getValue = () => this.value
 
   get selectOptions(): SelectOptions {
     return typeof this.options === 'string'
@@ -128,7 +130,7 @@ export class XinSelect extends WebComponent {
   }
 
   get optionsMenu(): MenuItem[] {
-    const { setValue } = this
+    const { setValue, getValue } = this
 
     return this.selectOptions.map((option) => {
       if (option === null) {
@@ -145,6 +147,7 @@ export class XinSelect extends WebComponent {
       return {
         icon,
         caption,
+        checked: () => getValue() === value,
         action() {
           setValue(typeof value === 'string' ? value : value(), true)
         },

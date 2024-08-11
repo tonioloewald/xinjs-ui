@@ -8,7 +8,7 @@ to be generated on-the-fly, and even supports hierarchical menus.
 const { popMenu } = xinjsui
 const { elements } = xinjs
 
-let number = 1
+let picked = ''
 
 preview.addEventListener('click', (event) => {
   if (!event.target.closest('button')) {
@@ -16,7 +16,6 @@ preview.addEventListener('click', (event) => {
   }
   popMenu({
     target: event.target,
-    fillWidthThreshold: 400,
     menuItems: [
       {
         icon: 'thumbsUp',
@@ -72,29 +71,23 @@ preview.addEventListener('click', (event) => {
         menuItems: [
           {
             caption: 'one',
+            checked: () => picked === 'one',
             action () {
-              number = 1
-            },
-            checked() {
-              return number === 1
+              picked = 'one'
             }
           },
           {
             caption: 'two',
+            checked: () => picked === 'two',
             action () {
-              number = 2
-            },
-            checked() {
-              return number === 2
+              picked = 'two'
             }
           },
           {
             caption: 'three',
+            checked: () => picked === 'three',
             action () {
-              number = 3
-            },
-            checked() {
-              return number === 3
+              picked = 'three'
             }
           }
         ]
@@ -139,26 +132,7 @@ preview.querySelector('button').addEventListener('click', (event) => {
 
 ## popMenu({target, width, menuItems…})
 
-`popMenu` will spawn a menu on a `target` element. A menu is just a `MenuItem[]`.
-
-The full set of options this function takes:
-
-```
-interface PopMenuOptions {
-  target: HTMLElement
-  menuItems: MenuItem[]
-  width?: string | number
-  fillWidthThreshold?: number
-  position?: FloatPosition
-}
-```
-
-- `target` is the element which will appear to display the menu.
-- `menuItems` are of course the items in the menu.
-- `width` will set the width of the menu (by default it will try to match the target's width)
-- `fillWidthThreshold` will cause the menu to fill the available horizontal space below a certain
-  threshold (useful for mobile devices such as phones).
-- `position` is a `FloatPosition` (see the `pop-float.ts` documentation).
+`popMenu` will spawn a menu on a target element. A menu is just a `MenuItem[]`.
 
 ## MenuItem
 
@@ -177,8 +151,8 @@ Note that popMenu does not implement shortcuts for you (yet!).
 interface MenuAction {
   caption: string
   shortcut?: string
-  enabled?: () => boolean
   checked?: () => boolean
+  enabled?: () => boolean
   action: ActionCallback | string
   icon?: string | Element
 }
@@ -221,8 +195,8 @@ export type ActionCallback = () => void | Promise<void>
 export interface MenuAction {
   caption: string
   shortcut?: string
-  enabled?: () => boolean
   checked?: () => boolean
+  enabled?: () => boolean
   action: ActionCallback | string
   icon?: string | Element
 }
@@ -290,22 +264,19 @@ StyleSheet('xin-menu-helper', {
   '.xin-menu-item svg': {
     fill: varDefault.menuItemIconColor('#222'),
   },
+  '.xin-menu-item.xin-menu-item-checked': {
+    background: varDefault.menuItemHoverBg('#eee'),
+  },
   '.xin-menu-item > span:nth-child(2)': {
     whiteSpace: 'nowrap',
     overflow: 'hidden',
     textOverflow: 'ellipsis',
     textAlign: 'left',
   },
-  '.xin-menu-item:not(.xin-checked):hover': {
+  '.xin-menu-item:hover': {
     // chrome rendering bug
     boxShadow: 'none !important',
     background: varDefault.menuItemHoverBg('#eee'),
-  },
-  '.xin-checked': {
-    // chrome rendering bug
-    boxShadow: 'none !important',
-    background: varDefault.menuItemCheckedBg('#ccc'),
-    color: varDefault.menuItemCheckedColor('#000'),
   },
   '.xin-menu-item:active': {
     // chrome rendering bug
@@ -319,7 +290,8 @@ StyleSheet('xin-menu-helper', {
 })
 
 export const createMenuAction = (item: MenuAction): HTMLElement => {
-  let icon = item?.icon || span(' ')
+  const checked = (item.checked && item.checked() && 'check') || false
+  let icon = item?.icon || checked || span(' ')
   if (typeof icon === 'string') {
     icon = icons[icon]()
   }
@@ -345,11 +317,10 @@ export const createMenuAction = (item: MenuAction): HTMLElement => {
       span(item.shortcut || ' ')
     )
   }
+  console.log(item, checked)
+  menuItem.classList.toggle('xin-menu-item-checked', checked)
   if (item?.enabled && !item.enabled()) {
     menuItem.setAttribute('disabled', '')
-  }
-  if (item.checked) {
-    menuItem.classList.add(item.checked() ? 'xin-checked' : 'xin-unchecked')
   }
   return menuItem
 }
@@ -400,7 +371,7 @@ export const createMenuItem = (
 
 export const menu = (options: PopMenuOptions): HTMLDivElement => {
   const { target, width, menuItems } = options
-  const hasIcons = menuItems.find((item) => item?.icon != null)
+  const hasIcons = menuItems.find((item) => item?.icon || item?.checked)
   return div(
     {
       class: hasIcons ? 'xin-menu xin-menu-with-icons' : 'xin-menu',
@@ -411,9 +382,7 @@ export const menu = (options: PopMenuOptions): HTMLDivElement => {
     div(
       {
         style: {
-          minWidth: target.matches('.xin-menu-item')
-            ? vars.touchSize
-            : target.offsetWidth + 'px',
+          minWidth: target.offsetWidth + 'px',
           width: typeof width === 'number' ? `${width}px` : width,
         },
         onMousedown(event: Event) {
@@ -446,7 +415,6 @@ export interface PopMenuOptions {
   target: HTMLElement
   menuItems: MenuItem[]
   width?: string | number
-  fillWidthThreshold?: number
   position?: FloatPosition
   submenuDepth?: number
   submenuOffset?: { x: number; y: number }
@@ -461,7 +429,7 @@ document.body.addEventListener('keydown', (event: KeyboardEvent) => {
 
 export const popMenu = (options: PopMenuOptions): void => {
   options = Object.assign({ submenuDepth: 0 }, options)
-  const { target, submenuDepth } = options
+  const { target, position, submenuDepth } = options
   if (lastPopped && !document.body.contains(lastPopped?.menu)) {
     lastPopped = undefined
   }
@@ -472,16 +440,6 @@ export const popMenu = (options: PopMenuOptions): void => {
     removeLastMenu()
     return
   }
-
-  if (
-    options.fillWidthThreshold &&
-    window.innerWidth <= options.fillWidthThreshold
-  ) {
-    options.width = window.innerWidth
-    options.position = 'auto'
-  }
-
-  const { position } = options
 
   const content = menu(options)
   const float = popFloat({
