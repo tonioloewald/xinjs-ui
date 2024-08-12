@@ -8,8 +8,9 @@ built in `<select>` element that addresses its various shortcomings.
 - it will retain and display a value even if the matching option is missing.
 - its displayed value can be made `editable` allowing use as a "combo box".
 - options can have icons.
-- options can have callbacks (e.g. an "Other…" that launches a dialog)
+- options can have callbacks (e.g. an "Other…" that launches a dialog).
 - picking an item triggers an `action` event even if the value hasn't changed.
+- available options are set via attribute or the element's `options` property
 
 ```html
 <xin-select
@@ -27,6 +28,11 @@ built in `<select>` element that addresses its various shortcomings.
   class="icons"
   editable
   placeholder="pick an icon"
+></xin-select><br>
+<xin-select
+  title="little women"
+  options="Meg,Jo,Beth,Amy"
+  placeholder="pick a child"
 ></xin-select>
 ```
 ```js
@@ -120,7 +126,7 @@ export class XinSelect extends WebComponent {
       this.dispatchEvent(new Event('action'))
     }
   }
-  
+
   private getValue = () => this.value
 
   get selectOptions(): SelectOptions {
