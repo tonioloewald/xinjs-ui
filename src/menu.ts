@@ -203,6 +203,7 @@ export interface MenuAction {
 
 export interface SubMenu {
   caption: string
+  checked?: () => boolean
   enabled?: () => boolean
   menuItems: MenuItem[]
   icon?: string | Element
@@ -317,8 +318,7 @@ export const createMenuAction = (item: MenuAction): HTMLElement => {
       span(item.shortcut || ' ')
     )
   }
-  console.log(item, checked)
-  menuItem.classList.toggle('xin-menu-item-checked', checked)
+  menuItem.classList.toggle('xin-menu-item-checked', checked !== false)
   if (item?.enabled && !item.enabled()) {
     menuItem.setAttribute('disabled', '')
   }
@@ -329,7 +329,8 @@ export const createSubMenu = (
   item: SubMenu,
   options: PopMenuOptions
 ): HTMLElement => {
-  let icon = item?.icon || span(' ')
+  const checked = (item.checked && item.checked() && 'check') || false
+  let icon = item?.icon || checked || span(' ')
   if (typeof icon === 'string') {
     icon = icons[icon]()
   }
@@ -371,7 +372,9 @@ export const createMenuItem = (
 
 export const menu = (options: PopMenuOptions): HTMLDivElement => {
   const { target, width, menuItems } = options
-  const hasIcons = menuItems.find((item) => item?.icon || item?.checked)
+  const hasIcons = menuItems.find(
+    (item) => item?.icon || (item as MenuAction)?.checked
+  )
   return div(
     {
       class: hasIcons ? 'xin-menu xin-menu-with-icons' : 'xin-menu',
