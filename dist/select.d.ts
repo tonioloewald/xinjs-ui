@@ -4,12 +4,13 @@
 `<xin-select>` (`xinSelect` is the `ElementCreator`) is a replacement for the lamentable
 built in `<select>` element that addresses its various shortcomings.
 
-- since `<xin-select>` is powered by `popMenu`, it supports separators.
-- it will retain and display a value even if the matching option is missing.
-- its displayed value can be made `editable` allowing use as a "combo box".
+- since `<xin-select>` is powered by `popMenu`, and supports separators and submenus.
 - options can have icons.
-- options can have callbacks (e.g. an "Other…" that launches a dialog)
+- `<xin-select>` will retain and display a value even if the matching option is missing.
+- its displayed value can be made `editable`, allowing use as a "combo box".
+- options can have `async` callbacks that return a value.
 - picking an item triggers an `action` event even if the value hasn't changed.
+- available options are set via the `options` attribute or the element's `options` property (not `<option>` elements)
 
 ```html
 <xin-select
@@ -28,6 +29,8 @@ built in `<select>` element that addresses its various shortcomings.
   editable
   placeholder="pick an icon"
 ></xin-select>
+<pre contenteditable>Select some text in here…
+…to check for focus stealing</pre>
 ```
 ```js
 const { icons } = xinjsui
@@ -45,8 +48,32 @@ captions.options = [
   },
   null,
   {
-    caption: 'choose the other',
-    value: 'other',
+    caption: 'choose some other',
+    options: [
+      {
+        caption: 'the other',
+        value: 'the other'
+      },
+      {
+        caption: 'another',
+        value: 'another',
+      },
+      {
+        caption: 'mother',
+        value: 'mother'
+      },
+      null,
+      {
+        caption: 'anything goes…',
+        value: () => prompt('Enter your other', 'other') || undefined
+      },
+      {
+        caption: 'brother… (after 1s delay)',
+        value: async () => new Promise(resolve => {
+          setTimeout(() => resolve('brother'), 1000)
+        })
+      }
+    ]
   }
 ]
 
@@ -61,18 +88,24 @@ iconsSelect.options = Object.keys(icons).sort().map(icon =>({
 
 ## `options`
 
+    type OptionRequest = () => Promise<string | undefined>
+
     export interface SelectOption {
       icon?: string | HTMLElement
       caption: string
       value: string | OptionRequest
     }
 
-    type OptionRequest = () => string
+    export interface SelectOptionSubmenu {
+      icon?: string | HTMLElement
+      caption: string
+      options: SelectOptions
+    }
 
-    export type SelectOptions = (string | null | SelectOption)[]
+    export type SelectOptions = Array<string | null | SelectOption | SelectOptionSubmenu>
 
 A `<xin-select>` can be assigned `options` as a string of comma-delimited choices,
-or be provided with an array of options.
+or be provided a `SelectOptions` array (which allows for submenus, separators, etc.).
 
 ## Events
 
@@ -85,25 +118,31 @@ You can look at the console to see the events triggered by the second example.
 */
 import { Component as WebComponent } from 'xinjs';
 import { MenuItem } from './menu';
-type OptionRequest = () => string;
+type OptionRequest = () => Promise<string | undefined>;
 export interface SelectOption {
     icon?: string | HTMLElement;
     caption: string;
     value: string | OptionRequest;
 }
-export type SelectOptions = (string | null | SelectOption)[];
+export interface SelectOptionSubmenu {
+    icon?: string | HTMLElement;
+    caption: string;
+    options: SelectOptions;
+}
+export type SelectOptions = Array<string | null | SelectOption | SelectOptionSubmenu>;
 export declare class XinSelect extends WebComponent {
     editable: boolean;
     options: string | SelectOptions;
     value: string;
     placeholder: string;
     private setValue;
+    private getValue;
     get selectOptions(): SelectOptions;
+    private buildOptionMenuItem;
     get optionsMenu(): MenuItem[];
     handleChange: (event: Event) => void;
     handleKey: (event: KeyboardEvent) => void;
     popOptions: () => void;
-    blockIfEditable: (event: Event) => void;
     content: () => any[];
     constructor();
     render(): void;

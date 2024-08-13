@@ -8,7 +8,7 @@ to be generated on-the-fly, and even supports hierarchical menus.
 const { popMenu } = xinjsui
 const { elements } = xinjs
 
-let number = 1
+let picked = ''
 
 preview.addEventListener('click', (event) => {
   if (!event.target.closest('button')) {
@@ -16,7 +16,6 @@ preview.addEventListener('click', (event) => {
   }
   popMenu({
     target: event.target,
-    fillWidthThreshold: 400,
     menuItems: [
       {
         icon: 'thumbsUp',
@@ -72,29 +71,23 @@ preview.addEventListener('click', (event) => {
         menuItems: [
           {
             caption: 'one',
+            checked: () => picked === 'one',
             action () {
-              number = 1
-            },
-            checked() {
-              return number === 1
+              picked = 'one'
             }
           },
           {
             caption: 'two',
+            checked: () => picked === 'two',
             action () {
-              number = 2
-            },
-            checked() {
-              return number === 2
+              picked = 'two'
             }
           },
           {
             caption: 'three',
+            checked: () => picked === 'three',
             action () {
-              number = 3
-            },
-            checked() {
-              return number === 3
+              picked = 'three'
             }
           }
         ]
@@ -139,26 +132,7 @@ preview.querySelector('button').addEventListener('click', (event) => {
 
 ## popMenu({target, width, menuItems…})
 
-`popMenu` will spawn a menu on a `target` element. A menu is just a `MenuItem[]`.
-
-The full set of options this function takes:
-
-```
-interface PopMenuOptions {
-  target: HTMLElement
-  menuItems: MenuItem[]
-  width?: string | number
-  fillWidthThreshold?: number
-  position?: FloatPosition
-}
-```
-
-- `target` is the element which will appear to display the menu.
-- `menuItems` are of course the items in the menu.
-- `width` will set the width of the menu (by default it will try to match the target's width)
-- `fillWidthThreshold` will cause the menu to fill the available horizontal space below a certain
-  threshold (useful for mobile devices such as phones).
-- `position` is a `FloatPosition` (see the `pop-float.ts` documentation).
+`popMenu` will spawn a menu on a target element. A menu is just a `MenuItem[]`.
 
 ## MenuItem
 
@@ -177,8 +151,8 @@ Note that popMenu does not implement shortcuts for you (yet!).
 interface MenuAction {
   caption: string
   shortcut?: string
-  enabled?: () => boolean
   checked?: () => boolean
+  enabled?: () => boolean
   action: ActionCallback | string
   icon?: string | Element
 }
@@ -216,13 +190,14 @@ export type ActionCallback = () => void | Promise<void>;
 export interface MenuAction {
     caption: string;
     shortcut?: string;
-    enabled?: () => boolean;
     checked?: () => boolean;
+    enabled?: () => boolean;
     action: ActionCallback | string;
     icon?: string | Element;
 }
 export interface SubMenu {
     caption: string;
+    checked?: () => boolean;
     enabled?: () => boolean;
     menuItems: MenuItem[];
     icon?: string | Element;
@@ -237,7 +212,6 @@ export interface PopMenuOptions {
     target: HTMLElement;
     menuItems: MenuItem[];
     width?: string | number;
-    fillWidthThreshold?: number;
     position?: FloatPosition;
     submenuDepth?: number;
     submenuOffset?: {
