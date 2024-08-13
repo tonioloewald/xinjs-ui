@@ -48,6 +48,8 @@ const currentDoc = docs.find((doc) => doc.filename === docName) || docs[0]
 const { app } = xinProxy({
   app: {
     title: PROJECT,
+    blogUrl: `https://loewald.com`,
+    discordUrl: `https://discord.com/invite/ramJ9rgky5`,
     githubUrl: `https://github.com/tonioloewald/${PROJECT}#readme`,
     npmUrl: `https://www.npmjs.com/package/${PROJECT}`,
     xinjsUrl: 'https://xinjs.net',
@@ -99,7 +101,7 @@ if (main)
       span({ class: 'elastic' }),
       sizeBreak(
         {
-          minWidth: 500,
+          minWidth: 600,
         },
         span(
           {
@@ -121,6 +123,16 @@ if (main)
         ),
         span({ slot: 'small' })
       ),
+      a(
+        { class: 'iconic', title: 'discord', target: '_blank' },
+        icons.discord(),
+        {
+          href: app.discordUrl,
+        }
+      ),
+      a({ class: 'iconic', title: 'blog', target: '_blank' }, icons.blog(), {
+        href: app.blogUrl,
+      }),
       a(
         { class: 'iconic', title: 'github', target: '_blank' },
         icons.github(),
