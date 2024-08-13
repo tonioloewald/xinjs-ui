@@ -4,13 +4,13 @@
 `<xin-select>` (`xinSelect` is the `ElementCreator`) is a replacement for the lamentable
 built in `<select>` element that addresses its various shortcomings.
 
-- since `<xin-select>` is powered by `popMenu`, it supports separators.
-- it will retain and display a value even if the matching option is missing.
-- its displayed value can be made `editable` allowing use as a "combo box".
+- since `<xin-select>` is powered by `popMenu`, and supports separators and submenus.
 - options can have icons.
-- options can have callbacks (e.g. an "Other…" that launches a dialog).
+- `<xin-select>` will retain and display a value even if the matching option is missing.
+- its displayed value can be made `editable`, allowing use as a "combo box".
+- options can have `async` callbacks that return a value.
 - picking an item triggers an `action` event even if the value hasn't changed.
-- available options are set via attribute or the element's `options` property
+- available options are set via the `options` attribute or the element's `options` property (not `<option>` elements)
 
 ```html
 <xin-select
@@ -28,12 +28,9 @@ built in `<select>` element that addresses its various shortcomings.
   class="icons"
   editable
   placeholder="pick an icon"
-></xin-select><br>
-<xin-select
-  title="little women"
-  options="Meg,Jo,Beth,Amy"
-  placeholder="pick a child"
 ></xin-select>
+<pre contenteditable>Select some text in here…
+…to check for focus stealing</pre>
 ```
 ```js
 const { icons } = xinjsui
@@ -51,8 +48,32 @@ captions.options = [
   },
   null,
   {
-    caption: 'choose the other',
-    value: 'other',
+    caption: 'choose some other',
+    options: [
+      {
+        caption: 'the other',
+        value: 'the other'
+      },
+      {
+        caption: 'another',
+        value: 'another',
+      },
+      {
+        caption: 'mother',
+        value: 'mother'
+      },
+      null,
+      {
+        caption: 'anything goes…',
+        value: () => prompt('Enter your other', 'other') || undefined
+      },
+      {
+        caption: 'brother… (after 1s delay)',
+        value: async () => new Promise(resolve => {
+          setTimeout(() => resolve('brother'), 1000)
+        })
+      }
+    ]
   }
 ]
 
@@ -67,18 +88,24 @@ iconsSelect.options = Object.keys(icons).sort().map(icon =>({
 
 ## `options`
 
+    type OptionRequest = () => Promise<string | undefined>
+
     export interface SelectOption {
       icon?: string | HTMLElement
       caption: string
       value: string | OptionRequest
     }
 
-    type OptionRequest = () => string
+    export interface SelectOptionSubmenu {
+      icon?: string | HTMLElement
+      caption: string
+      options: SelectOptions
+    }
 
-    export type SelectOptions = (string | null | SelectOption)[]
+    export type SelectOptions = Array<string | null | SelectOption | SelectOptionSubmenu>
 
 A `<xin-select>` can be assigned `options` as a string of comma-delimited choices,
-or be provided with an array of options.
+or be provided a `SelectOptions` array (which allows for submenus, separators, etc.).
 
 ## Events
 
@@ -101,7 +128,7 @@ import { popMenu, MenuItem } from './menu'
 
 const { button, input } = elements
 
-type OptionRequest = () => string
+type OptionRequest = () => Promise<string | undefined>
 
 export interface SelectOption {
   icon?: string | HTMLElement
@@ -109,7 +136,27 @@ export interface SelectOption {
   value: string | OptionRequest
 }
 
-export type SelectOptions = (string | null | SelectOption)[]
+export interface SelectOptionSubmenu {
+  icon?: string | HTMLElement
+  caption: string
+  options: SelectOptions
+}
+
+export type SelectOptions = Array<
+  string | null | SelectOption | SelectOptionSubmenu
+>
+
+const hasValue = (options: SelectOptions, value: string): boolean => {
+  return !!options.find((option) => {
+    if (option === null || value == null) {
+      return false
+    } else if (Array.isArray(option)) {
+      return hasValue(option, value)
+    } else if ((option as SelectOption).value === value || option === value) {
+      return true
+    }
+  })
+}
 
 export class XinSelect extends WebComponent {
   editable = false
@@ -135,30 +182,53 @@ export class XinSelect extends WebComponent {
       : this.options
   }
 
-  get optionsMenu(): MenuItem[] {
+  private buildOptionMenuItem = (
+    option: string | null | SelectOption | SelectOptionSubmenu
+  ): MenuItem => {
+    if (option === null) {
+      return null
+    }
     const { setValue, getValue } = this
+    let icon: string | HTMLElement | undefined
+    let caption: string
+    let value: string | OptionRequest
+    if (typeof option === 'string') {
+      caption = value = option
+    } else {
+      ;({ icon, caption, value } = option as SelectOption)
+    }
 
-    return this.selectOptions.map((option) => {
-      if (option === null) {
-        return null
-      }
-      let icon: string | HTMLElement | undefined
-      let caption: string
-      let value: string | OptionRequest
-      if (typeof option === 'string') {
-        caption = value = option
-      } else {
-        ;({ icon, caption, value } = option)
-      }
+    const { options } = option as SelectOptionSubmenu
+    if (options) {
       return {
         icon,
         caption,
-        checked: () => getValue() === value,
-        action() {
-          setValue(typeof value === 'string' ? value : value(), true)
-        },
+        checked: () => hasValue(options, getValue()),
+        menuItems: options.map(this.buildOptionMenuItem),
       }
-    })
+    }
+    return {
+      icon,
+      caption,
+      checked: () => getValue() === value,
+      action:
+        typeof value === 'function'
+          ? async () => {
+              const newValue = await (value as OptionRequest)()
+              if (newValue !== undefined) {
+                setValue(newValue, true)
+              }
+            }
+          : () => {
+              if (typeof value === 'string') {
+                setValue(value, true)
+              }
+            },
+    }
+  }
+
+  get optionsMenu(): MenuItem[] {
+    return this.selectOptions.map(this.buildOptionMenuItem)
   }
 
   handleChange = (event: Event) => {
@@ -184,13 +254,6 @@ export class XinSelect extends WebComponent {
       menuItems: this.optionsMenu,
     })
   }
-
-  blockIfEditable = (event: Event) => {
-    if (this.editable) {
-      event.stopPropagation()
-    }
-  }
-
   content = () => [
     button(
       {
@@ -200,12 +263,8 @@ export class XinSelect extends WebComponent {
         part: 'value',
         value: this.value,
         tabindex: 0,
-        class: 'not-visibly-disabled',
         onKeydown: this.handleKey,
         onChange: this.handleChange,
-        onMousedown: this.blockIfEditable,
-        onMouseup: this.blockIfEditable,
-        onClick: this.blockIfEditable,
       }),
       icons.chevronDown()
     ),
@@ -222,14 +281,15 @@ export class XinSelect extends WebComponent {
 
     const { value } = this.parts as { value: HTMLInputElement }
     const option = this.selectOptions.find(
-      (option: string | null | SelectOption) =>
+      (option: string | null | SelectOption | SelectOptionSubmenu) =>
         typeof option === 'string'
           ? option === this.value
-          : option?.value === this.value
+          : (option as SelectOption)?.value === this.value
     )
     value.value =
       option && typeof option === 'object' ? option.caption : this.value
     value.setAttribute('placeholder', this.placeholder)
+    value.style.pointerEvents = this.editable ? '' : 'none'
     value.readOnly = !this.editable
   }
 }
