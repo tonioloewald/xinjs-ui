@@ -68,7 +68,7 @@ function that will replace any sequence of
 elements with a `<xin-example>` instance.
 */
 
-import { Component as WebComponent, ElementCreator, elements } from 'xinjs'
+import { Component, ElementCreator, elements } from 'xinjs'
 import { codeEditor, CodeEditor } from './code-editor'
 import { tabSelector, TabSelector } from './tab-selector'
 import { icons } from './icons'
@@ -82,7 +82,7 @@ interface ExampleContext {
   [key: string]: any
 }
 
-export class LiveExample extends WebComponent {
+export class LiveExample extends Component {
   prettier = false
   prefix = 'lx'
   storageKey = 'live-example-payload'
