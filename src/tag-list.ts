@@ -81,8 +81,8 @@ import { icons } from './icons'
 const { div, input, span, button } = elements
 
 export class XinTag extends WebComponent {
-  caption: string = ''
-  removeable: boolean = false
+  caption = ''
+  removeable = false
   removeCallback: (event: Event) => void = () => {
     this.remove()
   }

@@ -363,7 +363,7 @@ export class XinField extends XinComponent {
       attr(valueHolder, 'step', this.step)
     }
     setElementValue(valueHolder, this.value)
-    setElementValue(input.children[0], this.value)
+    setElementValue(input.children[0] as HTMLElement, this.value)
 
     this.prefix
       ? field.setAttribute('prefix', this.prefix)

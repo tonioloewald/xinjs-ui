@@ -132,7 +132,9 @@ export class MarkdownViewer extends Component {
       }
     }
   }
-  didRender: (() => void) | (() => Promise<void>) = (): void => {}
+  didRender: (() => void) | (() => Promise<void>) = (): void => {
+    /* do not care */
+  }
   render() {
     super.render()
 

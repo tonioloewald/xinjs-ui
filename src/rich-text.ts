@@ -204,7 +204,9 @@ export class RichText extends WebComponent {
     return this.selectedBlocks.length ? selObject.toString() : ''
   }
 
-  selectionChange: (event: Event, editor: RichText) => void = () => {}
+  selectionChange: (event: Event, editor: RichText) => void = () => {
+    /* no not care */
+  }
 
   content = [
     xinSlot({

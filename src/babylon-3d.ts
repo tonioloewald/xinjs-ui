@@ -166,6 +166,10 @@ interface B3dUIOptions {
 
 type MeshProcessCallback = (meshes: any[]) => void
 
+const noop = () => {
+  /* do not care */
+}
+
 export class B3d extends WebComponent {
   babylonReady: Promise<any>
   BABYLON?: any
@@ -215,8 +219,8 @@ export class B3d extends WebComponent {
   scene: any
   engine: any
 
-  sceneCreated: B3dCallback = () => {}
-  update: B3dCallback = () => {}
+  sceneCreated: B3dCallback = noop
+  update: B3dCallback = noop
 
   private _update = () => {
     if (this.scene) {

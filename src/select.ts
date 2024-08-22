@@ -182,8 +182,8 @@ export class XinSelect extends WebComponent {
   showIcon = false
   hideCaption = false
   options: string | SelectOptions = ''
-  value: string = ''
-  placeholder: string = ''
+  value = ''
+  placeholder = ''
 
   private setValue = (value: string, triggerAction = false) => {
     if (this.value !== value) {

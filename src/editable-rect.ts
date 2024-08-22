@@ -353,7 +353,7 @@ export class EditableRect extends Component {
     if (!transformOrigin) {
       this.element.style.transformOrigin = '50% 50%'
     }
-    trackDrag(event as PointerEvent, (dx, dy, dragEvent: PointerEvent) => {
+    trackDrag(event as PointerEvent, (_dx, _dy, dragEvent: PointerEvent) => {
       const { clientX, clientY } = dragEvent
       const x = clientX - center.x
       const y = clientY - center.y

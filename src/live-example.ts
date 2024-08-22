@@ -76,7 +76,9 @@ import { popMenu } from './menu'
 
 const { div, xinSlot, style, button, h4 } = elements
 
-const AsyncFunction = (async () => {}).constructor
+const AsyncFunction = (async () => {
+  /* do not care */
+}).constructor
 
 interface ExampleContext {
   [key: string]: any

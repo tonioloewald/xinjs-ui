@@ -124,7 +124,7 @@ interface SegmentParts {
 
 class XinSegmented extends WebComponent {
   choices: string | Choice[] = ''
-  other: string = ''
+  other = ''
   multiple = false
   name = ''
   placeholder = 'Please specify…'

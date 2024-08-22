@@ -240,11 +240,7 @@ export class XinCarousel extends WebComponent {
 
   private snapTimer: any
   private animationFrame: any
-  animateScroll(
-    position: number,
-    startingPosition: number = -1,
-    timestamp: number = 0
-  ) {
+  animateScroll(position: number, startingPosition = -1, timestamp = 0) {
     cancelAnimationFrame(this.animationFrame)
     const { scroller } = this.parts
     if (startingPosition === -1) {

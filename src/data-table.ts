@@ -168,7 +168,9 @@ export type SelectCallback = (selected: any[]) => void
 export class DataTable extends WebComponent {
   select = false
   multiple = false
-  selectionChanged: SelectCallback = () => {}
+  selectionChanged: SelectCallback = () => {
+    /* do not care */
+  }
 
   private selectedKey = Symbol('selected')
   private selectBinding = (elt: HTMLElement, obj: any) => {
