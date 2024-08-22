@@ -16,7 +16,12 @@ import {
   sideNav,
   SideNav,
   sizeBreak,
+  initLocalization,
+  xinLocalized,
 } from '../src/'
+
+import localizedStrings from './localized-strings'
+initLocalization(localizedStrings)
 
 import * as xinjs from 'xinjs'
 import * as xinjsui from '../src/'
@@ -170,24 +175,26 @@ if (main)
           },
         },
         template(
-          a({
-            class: 'doc-link',
-            bindText: '^.title',
-            bindCurrent: 'app.currentDoc.filename',
-            bindDocLink: '^.filename',
-            onClick(event: Event) {
-              const a = event.target as HTMLAnchorElement
-              const doc = getListItem(event.target as HTMLElement)
-              const nav = (event.target as HTMLElement).closest(
-                'xin-sidenav'
-              ) as SideNav
-              nav.contentVisible = true
-              const { href } = a
-              window.history.pushState({ href }, '', href)
-              app.currentDoc = doc
-              event.preventDefault()
+          a(
+            {
+              class: 'doc-link',
+              bindCurrent: 'app.currentDoc.filename',
+              bindDocLink: '^.filename',
+              onClick(event: Event) {
+                const a = event.target as HTMLAnchorElement
+                const doc = getListItem(event.target as HTMLElement)
+                const nav = (event.target as HTMLElement).closest(
+                  'xin-sidenav'
+                ) as SideNav
+                nav.contentVisible = true
+                const { href } = a
+                window.history.pushState({ href }, '', href)
+                app.currentDoc = doc
+                event.preventDefault()
+              },
             },
-          })
+            xinLocalized({ bindText: '^.title' })
+          )
         )
       ),
       div(

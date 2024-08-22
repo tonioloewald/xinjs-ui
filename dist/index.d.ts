@@ -12,6 +12,7 @@ export * from './form';
 export * from './gamepad';
 export * from './icons';
 export * from './live-example';
+export * from './localize';
 export * from './mapbox';
 export * from './markdown-viewer';
 export * from './menu';

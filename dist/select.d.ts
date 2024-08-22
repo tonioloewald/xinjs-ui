@@ -24,9 +24,17 @@ built in `<select>` element that addresses its various shortcomings.
   value="this"
 ></xin-select><br>
 <xin-select
-  title="combo select"
+  show-icon
+  title="combo select with icons"
   class="icons"
   editable
+  placeholder="pick an icon"
+></xin-select><br>
+<xin-select
+  show-icon
+  hide-caption
+  title="icons only"
+  class="icons-only"
   placeholder="pick an icon"
 ></xin-select>
 <pre contenteditable>Select some text in here…
@@ -78,8 +86,9 @@ captions.options = [
 ]
 
 const iconsSelect = preview.querySelector('.icons')
+const iconsOnly = preview.querySelector('.icons-only')
 
-iconsSelect.options = Object.keys(icons).sort().map(icon =>({
+iconsSelect.options = iconsOnly.options = Object.keys(icons).sort().map(icon =>({
   icon,
   caption: icon,
   value: icon
@@ -107,6 +116,16 @@ iconsSelect.options = Object.keys(icons).sort().map(icon =>({
 A `<xin-select>` can be assigned `options` as a string of comma-delimited choices,
 or be provided a `SelectOptions` array (which allows for submenus, separators, etc.).
 
+## Attributes
+
+`<xin-select>` supports several attributes:
+
+- `editable` lets the user directly edit the value (like a "combo box").
+- `show-icon` displays the icon corresponding to the currently selected value.
+- `hide-caption` hides the caption.
+- `placeholder` allows you to set a placeholder.
+- `options` allows you to assign options as a comma-delimited string attribute.
+
 ## Events
 
 Picking an option triggers an `action` event (whether or not this changes the value).
@@ -132,6 +151,8 @@ export interface SelectOptionSubmenu {
 export type SelectOptions = Array<string | null | SelectOption | SelectOptionSubmenu>;
 export declare class XinSelect extends WebComponent {
     editable: boolean;
+    showIcon: boolean;
+    hideCaption: boolean;
     options: string | SelectOptions;
     value: string;
     placeholder: string;

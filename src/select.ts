@@ -24,9 +24,17 @@ built in `<select>` element that addresses its various shortcomings.
   value="this"
 ></xin-select><br>
 <xin-select
-  title="combo select"
+  show-icon
+  title="combo select with icons"
   class="icons"
   editable
+  placeholder="pick an icon"
+></xin-select><br>
+<xin-select
+  show-icon
+  hide-caption
+  title="icons only"
+  class="icons-only"
   placeholder="pick an icon"
 ></xin-select>
 <pre contenteditable>Select some text in here…
@@ -78,8 +86,9 @@ captions.options = [
 ]
 
 const iconsSelect = preview.querySelector('.icons')
+const iconsOnly = preview.querySelector('.icons-only')
 
-iconsSelect.options = Object.keys(icons).sort().map(icon =>({
+iconsSelect.options = iconsOnly.options = Object.keys(icons).sort().map(icon =>({
   icon,
   caption: icon,
   value: icon
@@ -107,6 +116,16 @@ iconsSelect.options = Object.keys(icons).sort().map(icon =>({
 A `<xin-select>` can be assigned `options` as a string of comma-delimited choices,
 or be provided a `SelectOptions` array (which allows for submenus, separators, etc.).
 
+## Attributes
+
+`<xin-select>` supports several attributes:
+
+- `editable` lets the user directly edit the value (like a "combo box").
+- `show-icon` displays the icon corresponding to the currently selected value.
+- `hide-caption` hides the caption.
+- `placeholder` allows you to set a placeholder.
+- `options` allows you to assign options as a comma-delimited string attribute.
+
 ## Events
 
 Picking an option triggers an `action` event (whether or not this changes the value).
@@ -126,7 +145,7 @@ import {
 import { icons } from './icons'
 import { popMenu, MenuItem } from './menu'
 
-const { button, input } = elements
+const { button, span, input } = elements
 
 type OptionRequest = () => Promise<string | undefined>
 
@@ -160,6 +179,8 @@ const hasValue = (options: SelectOptions, value: string): boolean => {
 
 export class XinSelect extends WebComponent {
   editable = false
+  showIcon = false
+  hideCaption = false
   options: string | SelectOptions = ''
   value: string = ''
   placeholder: string = ''
@@ -197,7 +218,6 @@ export class XinSelect extends WebComponent {
     } else {
       ;({ icon, caption, value } = option as SelectOption)
     }
-
     const { options } = option as SelectOptionSubmenu
     if (options) {
       return {
@@ -259,6 +279,7 @@ export class XinSelect extends WebComponent {
       {
         onClick: this.popOptions,
       },
+      span(),
       input({
         part: 'value',
         value: this.value,
@@ -273,21 +294,46 @@ export class XinSelect extends WebComponent {
   constructor() {
     super()
 
-    this.initAttributes('options', 'editable', 'placeholder')
+    this.initAttributes(
+      'options',
+      'editable',
+      'placeholder',
+      'showIcon',
+      'hideCaption'
+    )
   }
 
   render(): void {
     super.render()
 
-    const { value } = this.parts as { value: HTMLInputElement }
+    const { value } = this.parts as {
+      value: HTMLInputElement
+    }
+    const icon = value.previousElementSibling as HTMLElement
+
     const option = this.selectOptions.find(
       (option: string | null | SelectOption | SelectOptionSubmenu) =>
         typeof option === 'string'
           ? option === this.value
           : (option as SelectOption)?.value === this.value
     )
-    value.value =
-      option && typeof option === 'object' ? option.caption : this.value
+    let newIcon: Element = span()
+    console.log(this.value, this.selectOptions, option)
+    if (option) {
+      if (typeof option === 'object') {
+        value.value = option.caption
+        if (option.icon) {
+          if (option.icon instanceof HTMLElement) {
+            newIcon = option.icon.cloneNode(true) as HTMLElement
+          } else {
+            newIcon = icons[option.icon]()
+          }
+        }
+      } else {
+        value.value = this.value
+      }
+    }
+    icon.replaceWith(newIcon)
     value.setAttribute('placeholder', this.placeholder)
     value.style.pointerEvents = this.editable ? '' : 'none'
     value.readOnly = !this.editable
@@ -300,8 +346,8 @@ export const xinSelect = XinSelect.elementCreator({
     ':host': {
       '--gap': '8px',
       '--touch-size': '44px',
-      '--padding': '0 4px 0 0',
-      '--value-padding': '0 16px',
+      '--padding': '0 8px',
+      '--value-padding': '0 8px',
       '--icon-width': '24px',
       '--fieldWidth': '140px',
       display: 'inline-block',
@@ -316,6 +362,18 @@ export const xinSelect = XinSelect.elementCreator({
       padding: vars.padding,
       gridTemplateColumns: `auto ${vars.iconWidth}`,
       position: 'relative',
+    },
+    ':host[show-icon] button': {
+      gridTemplateColumns: `${vars.iconWidth} auto ${vars.iconWidth}`,
+    },
+    ':host[hide-caption] button': {
+      gridTemplateColumns: `${vars.iconWidth} ${vars.iconWidth}`,
+    },
+    ':host:not([show-icon]) button > :first-child': {
+      display: 'none',
+    },
+    ':host[hide-caption] button > :nth-child(2)': {
+      display: 'none',
     },
     ':host [part="value"]': {
       width: vars.fieldWidth,

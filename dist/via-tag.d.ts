@@ -11,47 +11,41 @@ elements.
 `scriptTag()` and `styleSheet()` return promises that resolve `globalThis` when the module in question
 has loaded and otherwise behave as much like `import()` as possible.
 
-Using `scriptTag`:
+This example uses `scriptTag` and `styleSheet` to load [quilljs](https://quilljs.com) on-the-fly.
 
-```html
-<!-- inline styles needed because chart.js overrides stylesheet -->
-<canvas style="height: 100%; width: 100%"></canvas>
-```
 ```js
-const { scriptTag } = xinjsui
+const { elements } = xinjs
+const { scriptTag, styleSheet } = xinjsui
 
-// Note that the current version of Chart.js is an ES6 module so you could just use `import()` instead
-const { Chart } = await scriptTag('https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.3/Chart.min.js')
-const data = {
-  labels: ['first', 'second', 'third'],
-  datasets: [
-    {
-      label: 'amazingness',
-      backgroundColor: '#fff4',
-      borderColor: '#f008',
-      borderWidth: 2,
-      data: [21, 27, 57]
-    }
-  ]
-}
-const options = {
-  scales: {
-    yAxes:[{
-      stacked:true,
-      gridLines: {
-        display:true,
-        color: '#00f2'
-      }
-    }],
-    xAxes:[{
-      gridLines: {
-        display:false
-      }
-    }]
-  }
-}
+const toolbarOptions = [
+  [{ header: [1, 2, 3, 4, false] }],
+  ['blockquote', 'code-block'],
+  [{ 'align': [] }],
+  ['bold', 'italic', 'strike'],
+  ['link', 'image', 'video'],
+  [{ 'list': 'ordered'}, { 'list': 'bullet' }, { 'list': 'check' }],
+  [{ 'indent': '-1'}, { 'indent': '+1' }],
+  ['clean']
+]
 
-Chart.Bar(preview.querySelector('canvas'), {data, options})
+;(async () => {
+  await Promise.all([
+    styleSheet('https://cdn.jsdelivr.net/npm/quill@2.0.2/dist/quill.core.css'),
+    styleSheet('https://cdn.jsdelivr.net/npm/quill@2.0.2/dist/quill.snow.css'),
+  ])
+
+  const container = elements.div()
+  const { Quill } = await scriptTag('https://cdn.jsdelivr.net/npm/quill@2.0.2/dist/quill.js')
+  preview.append(container)
+
+  const quill = new Quill(container, {
+    debug: 'info',
+    modules: {
+      toolbar: toolbarOptions,
+    },
+    theme: 'snow',
+  })
+})()
 ```
 
 Note that `scriptTag` will resolve `globalThis` so it behaves as much like async `import()`
