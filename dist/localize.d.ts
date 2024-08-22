@@ -36,6 +36,9 @@ using my [localized](https://docs.google.com/spreadsheets/d/1L0_4g_dDhVCwVVxLzYb
 Google Sheet which leverages `googletranslate` to automatically translate reference strings
 (and which you can manually override as you like).
 
+E.g. in this demo I've replaced the incorrect translation of "Finnish"
+(`googletranslate` used the word for Finnish nationality rather than the language).
+
 The format of the input data is a table in TSV format, that basically looks like this:
 
 en-US | fr | fi | sv | zh
