@@ -12,7 +12,6 @@
     "jsx": "preserve",
     "allowSyntheticDefaultImports": true,
     "forceConsistentCasingInFileNames": true,
-    "@typescript-eslint/no-non-null-assertion": false,
     "allowJs": true,
     "noEmit": true,
     "types": [
