@@ -69,7 +69,7 @@ i18n.locale = 'fr' // set localization to French (if available)
 ## Creating Localized String Data
 
 `localized.tsv` provides data for localizing strings. It can be created automatically
-using my [localized](https://docs.google.com/spreadsheets/d/1L0_4g_dDhVCwVVxLzYbMj_H86xSp9lsRCKj7IS9psso/edit?usp=sharing)
+using something like my [localized](https://docs.google.com/spreadsheets/d/1L0_4g_dDhVCwVVxLzYbMj_H86xSp9lsRCKj7IS9psso/edit?usp=sharing)
 Google Sheet which leverages `googletranslate` to automatically translate reference strings
 (and which you can manually override as you like).
 
@@ -87,7 +87,21 @@ Icon | Icône | Kuvake | Ikon | 图标
 Ok | D'accord | Ok | Ok | 好的
 Cancel | Annuler | Peruuttaa | Avboka | 取消
 
-So, create a `tsv` file and then turn that into a Typescript file by wrapping
+- Column 1 is your reference language.
+- Row 1 is [language code](https://en.wikipedia.org/wiki/List_of_ISO_639_language_codes).
+- Row 2 is the name of the language in your reference language.
+- Row 3 is the name of the language in itself (because it's silly to expect people
+  to know the name of their language in a language they don't know)
+- Row 4 is the flag emoji for that language (yes, that's problematic, but languages
+  do not have flags, per se)
+- Rows 5 and on are user interface strings you want to localize
+
+In the spreadsheet provided, each cell contains a formula that translates the term
+in the left-most column from the language in that column to the language in the
+destination column. Once you have an automatic translation, you can hand off the
+sheet to language experts to vet the translations.
+
+Finally, create a `tsv` file and then turn that into a Typescript file by wrapping
 the content thus:
 
 ```
@@ -166,7 +180,7 @@ export function initLocalization(localizedStrings: string) {
       {} as TranslationMap
     )
     i18n.localeOptions = locales.map((locale, index) => ({
-      icon: span(emoji[index]),
+      icon: span({ title: locales[index] }, emoji[index]),
       caption: languages[index],
       value: locale,
     }))

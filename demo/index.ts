@@ -107,7 +107,7 @@ if (main)
       span({ class: 'elastic' }),
       sizeBreak(
         {
-          minWidth: 600,
+          minWidth: 640,
         },
         span(
           {

@@ -1,6 +1,6 @@
 export default `en-US	fr	fi	sv	zh
-English (US)	French	Finnish	Swedish	Chinese (Mandarin)
-English (US)	Français	Suomi	Svenska	中文（普通话）
+English	French	Finnish	Swedish	Chinese
+English	Français	Suomi	Svenska	中国人
 🇺🇸	🇫🇷	🇫🇮	🇸🇪	🇨🇳
 Language	Langue	Kieli	Språk	语言
 Icon	Icône	Kuvake	Ikon	图标
