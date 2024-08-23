@@ -398,3 +398,12 @@ th,
 td {
   padding: calc(var(--spacing) * 0.5) var(--spacing);
 }
+
+header xin-locale-picker xin-select button {
+  --brand-color: var(--brand-text-color);
+  background: transparent;
+}
+
+header xin-locale-picker xin-select button svg {
+  fill: var(--brand-text-color) !important;
+}

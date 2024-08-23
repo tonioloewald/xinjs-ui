@@ -4,28 +4,65 @@
 `xinjs-ui` provides support for localization via the `localize` method and the `<xin-locale-picker>`
 and `<xin-localized>` custom-elements.
 
-You initialize localization using the `initLocalization()` function which takes data
-in tsv format (see below).
+> ### Important Note
+> This module deals with the **language** used in the user interface. "locale" is
+> *not the same thing*. The (usually) two-letter codes used designate **language**
+> and **not locale**.
+>
+> E.g. the US *locale* includes things like measurement systems
+> and date format. Most European locales use commas where we use decimal points in the US.
+>
+> Similarly, `ja` is the code for the Japanese **language** while `jp` is the **locale**.
 
-All of the data can be bound in the `i18n` proxy (`xin.i18n`), including the currently selected
-locale (which will default to `navigator.language`).
+## `initLocalization(localizationData: string)`
+
+Enables localization from TSV data.
+
+## XinLocalePicker
+
+A selector that lets the user pick from among supported languages.
+
+```html
+<h3>Locale Picker</h3>
+<xin-locale-picker></xin-locale-picker>
+
+<h3>Locale Picker with <code>hide-captions</code></h3>
+<xin-locale-picker hide-caption></xin-locale-picker>
+```
+
+## XinLocalized
+
+A span-replacement that automatically localizes its text content.
+By default the case in the localizad data is preseverved unless the
+reference text is all lowercase, in which case the localized text
+is also lowercased.
 
 While viewing this documentation, all `<xin-localized>` elements should display a **red
 underline**.
 
-Usage:
+```html
+<h3>Localized Widgets</h3>
+<button><xin-localized>Yes</xin-localized></button>
+<button><xin-localized>No</xin-localized></button>
+
+<h3>Lowercase is preserved</h3>
+<button><xin-localized>yes</xin-localized></button>
+<button><xin-localized>no</xin-localized></button>
+```
+```css
+xin-localized {
+  border-bottom: 2px solid red;
+}
+```
+
+## `i18n`
+
+All of the data can be bound in the `i18n` proxy (`xin.i18n`), including the currently selected
+locale (which will default to `navigator.language`).
+
+You can take a look at `xin.i18n` in the console (and use it to set locale directly).
 
 ```
-import { initLocalization, localize, xinLocalized, i18n } from 'xinjs-ui'
-
-initLocalization(... TSV data ...)
-
-localize('foo') // returns localized version of 'foo' if present,
-  // 'foo' otherwise
-
-xinLocalized('foo') // returns a `<xin-localized>` element
-  // that will display a localized 'foo' if available.
-
 i18n.locale = 'fr' // set localization to French (if available)
 ```
 
@@ -39,7 +76,7 @@ Google Sheet which leverages `googletranslate` to automatically translate refere
 E.g. in this demo I've replaced the incorrect translation of "Finnish"
 (`googletranslate` used the word for Finnish nationality rather than the language).
 
-The format of the input data is a table in TSV format, that basically looks like this:
+The format of the input data is a table in TSV format, that looks like this:
 
 en-US | fr | fi | sv | zh
 ------|----|----|----|----
@@ -50,41 +87,30 @@ Icon | Icône | Kuvake | Ikon | 图标
 Ok | D'accord | Ok | Ok | 好的
 Cancel | Annuler | Peruuttaa | Avboka | 取消
 
-So, basically create a `tsv` file and then turn that into a Typescript file by adding:
+So, create a `tsv` file and then turn that into a Typescript file by wrapping
+the content thus:
 
 ```
 export default `( content of tsv file )`
 ```
 
-```html
-<xin-locale-picker></xin-locale-picker>
-<p>We can hide the caption to make it more compact</p>
-<xin-locale-picker hide-caption></xin-locale-picker>
-<blockquote>
-  <h3>Localized Widgets</h3>
-  <button><xin-localized>Yes</xin-localized></button>
-  <button><xin-localized>No</xin-localized></button>
+## To Do
 
-  <h3>Lowercase is preserved</h3>
-  <button><xin-localized>yes</xin-localized></button>
-  <button><xin-localized>no</xin-localized></button>
-</blockquote>
-```
-```css
-xin-localized {
-  border-bottom: 2px solid red;
-}
-```
+- support for automated localization of attributes such as `title`
+- `data-xin-i18n` attribute to allow this (if present, text content localized
+   actual value of attribute can specify attributes needing localization)
+- DOM watcher looks for insertion of marked elements and localizes them
+)
 */
 import { Component } from 'xinjs';
 export declare const i18n: any;
+export declare const updateLocalized: () => void;
 export declare function initLocalization(localizedStrings: string): void;
 export declare function localize(ref: string): string;
 export declare class LocalePicker extends Component {
     hideCaption: boolean;
     content: () => any;
     constructor();
-    updateLocalized(): void;
     connectedCallback(): void;
     render(): void;
 }

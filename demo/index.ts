@@ -18,6 +18,7 @@ import {
   sizeBreak,
   initLocalization,
   xinLocalized,
+  localePicker,
 } from '../src/'
 
 import localizedStrings from './localized-strings'
@@ -147,6 +148,9 @@ if (main)
       ),
       a({ class: 'iconic', title: 'npmjs', target: '_blank' }, icons.npm(), {
         href: app.npmUrl,
+      }),
+      localePicker({
+        hideCaption: true,
       })
     ),
     sideNav(
