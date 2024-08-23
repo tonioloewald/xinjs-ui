@@ -33,7 +33,7 @@ A selector that lets the user pick from among supported languages.
 ## XinLocalized
 
 A span-replacement that automatically localizes its text content.
-By default the case in the localizad data is preseverved unless the
+By default the case in the localized data is preserved unless the
 reference text is all lowercase, in which case the localized text
 is also lowercased.
 
