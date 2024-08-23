@@ -1,10 +1,10 @@
 export default `en-US	fr	fi	sv	zh
 English	French	Finnish	Swedish	Chinese
-English	Français	Suomi	Svenska	中国人
+English	Français	suomi	svenska	中国人
 🇺🇸	🇫🇷	🇫🇮	🇸🇪	🇨🇳
 Language	Langue	Kieli	Språk	语言
 Icon	Icône	Kuvake	Ikon	图标
-Ok	D'accord	Ok	Ok	好的
+Okay	D'accord	Kunnossa	Okej	好的
 Cancel	Annuler	Peruuttaa	Avboka	取消
 Delete	Supprimer	Poistaa	Radera	删除
 Yes	Oui	Kyllä	Ja	是的
