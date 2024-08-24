@@ -118,7 +118,7 @@ export default `( content of tsv file )`
 */
 
 import { Component, xinProxy, elements, bindings } from 'xinjs'
-
+import { makeSorter } from './make-sorter'
 import { xinSelect, XinSelect } from './select'
 
 interface TranslationMap {
@@ -164,6 +164,10 @@ export const updateLocalized = () => {
   }
 }
 
+const captionSort = makeSorter((locale: { caption: string }) => [
+  locale.caption.toLocaleLowerCase(),
+])
+
 export function initLocalization(localizedStrings: string) {
   const [locales, , languages, emoji, ...strings] = localizedStrings
     .split('\n')
@@ -179,11 +183,13 @@ export function initLocalization(localizedStrings: string) {
       },
       {} as TranslationMap
     )
-    i18n.localeOptions = locales.map((locale, index) => ({
-      icon: span({ title: locales[index] }, emoji[index]),
-      caption: languages[index],
-      value: locale,
-    }))
+    i18n.localeOptions = locales
+      .map((locale, index) => ({
+        icon: span({ title: locales[index] }, emoji[index]),
+        caption: languages[index],
+        value: locale,
+      }))
+      .sort(captionSort)
 
     updateLocalized()
   }
