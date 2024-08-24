@@ -94,6 +94,7 @@ iconsSelect.options = iconsOnly.options = Object.keys(icons).sort().map(icon =>(
   value: icon
 }))
 ```
+<xin-css-var-editor element-selector="xin-select"></xin-css-var-editor>
 
 ## `options`
 
@@ -318,7 +319,6 @@ export class XinSelect extends WebComponent {
           : (option as SelectOption)?.value === this.value
     )
     let newIcon: Element = span()
-    console.log(this.value, this.selectOptions, option)
     if (option) {
       if (typeof option === 'object') {
         value.value = option.caption
