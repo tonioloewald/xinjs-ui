@@ -6,6 +6,7 @@ import {
   bindings,
   touch,
   getListItem,
+  StyleSheet,
 } from 'xinjs'
 
 import {
@@ -20,6 +21,9 @@ import {
   xinLocalized,
   localePicker,
 } from '../src/'
+
+import { styleSpec } from './style'
+StyleSheet('demo-style', styleSpec)
 
 import localizedStrings from './localized-strings'
 initLocalization(localizedStrings)
