@@ -61,13 +61,14 @@ class XinCssVarEditor extends WebComponent {
   update = () => {
     const selector = this.targetSelector || this.elementSelector
     if (selector) {
-      const target = document.querySelector(selector) as HTMLElement | null
-      if (!target) {
-        return
-      }
+      const targets = [
+        ...(document.querySelectorAll(selector) || []),
+      ] as HTMLElement[]
       const { value } = this.parts.variables as XinForm
-      for (const key of Object.keys(value)) {
-        target.style.setProperty(key, value[key])
+      for (const target of targets) {
+        for (const key of Object.keys(value)) {
+          target.style.setProperty(key, value[key])
+        }
       }
     }
   }
