@@ -1,10 +1,10 @@
 @font-face {
   font-family: 'icomoon';
-  src: url('fonts/icomoon.eot?nfnp53');
-  src: url('fonts/icomoon.eot?nfnp53#iefix') format('embedded-opentype'),
-    url('fonts/icomoon.ttf?nfnp53') format('truetype'),
-    url('fonts/icomoon.woff?nfnp53') format('woff'),
-    url('fonts/icomoon.svg?nfnp53#icomoon') format('svg');
+  src: url('fonts/icomoon.eot?396s9n');
+  src: url('fonts/icomoon.eot?396s9n#iefix') format('embedded-opentype'),
+    url('fonts/icomoon.ttf?396s9n') format('truetype'),
+    url('fonts/icomoon.woff?396s9n') format('woff'),
+    url('fonts/icomoon.svg?396s9n#icomoon') format('svg');
   font-weight: normal;
   font-style: normal;
   font-display: block;
@@ -26,59 +26,8 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
-.icon-discord:before {
-  content: '\e97c';
-}
-.icon-tiktok:before {
-  content: '\e978';
-}
-.icon-instagram:before {
-  content: '\e979';
-}
-.icon-linkedin:before {
-  content: '\e977';
-}
-.icon-eyedropper:before {
-  content: '\e97a';
-}
-.icon-heart:before {
-  content: '\ece9';
-}
-.icon-facebook:before {
-  content: '\eef0';
-}
-.icon-twitter:before {
-  content: '\eef5';
-}
-.icon-youtube:before {
-  content: '\eefc';
-}
-.icon-game:before {
-  content: '\e96d';
-}
-.icon-google:before {
-  content: '\eee9';
-}
-.icon-github:before {
-  content: '\ef0f';
-}
-.icon-npm:before {
-  content: '\ef10';
-}
-.icon-xr:before {
-  content: '\ef43';
-}
-.icon-xinjs:before {
-  content: '\ef45';
-}
-.icon-xinie:before {
-  content: '\ef46';
-}
-.icon-html5:before {
-  content: '\ef44';
-}
-.icon-bug:before {
-  content: '\e970';
+.icon-sidebar:before {
+  content: '\e97d';
 }
 .icon-calendar:before {
   content: '\e96e';
@@ -433,4 +382,58 @@
 }
 .icon-zoom-out:before {
   content: '\e95b';
+}
+.icon-discord:before {
+  content: '\e97c';
+}
+.icon-tiktok:before {
+  content: '\e978';
+}
+.icon-instagram:before {
+  content: '\e979';
+}
+.icon-linkedin:before {
+  content: '\e977';
+}
+.icon-eyedropper:before {
+  content: '\e97a';
+}
+.icon-heart:before {
+  content: '\ece9';
+}
+.icon-facebook:before {
+  content: '\eef0';
+}
+.icon-twitter:before {
+  content: '\eef5';
+}
+.icon-youtube:before {
+  content: '\eefc';
+}
+.icon-game:before {
+  content: '\e96d';
+}
+.icon-google:before {
+  content: '\eee9';
+}
+.icon-github:before {
+  content: '\ef0f';
+}
+.icon-npm:before {
+  content: '\ef10';
+}
+.icon-xr:before {
+  content: '\ef43';
+}
+.icon-xinjs:before {
+  content: '\ef45';
+}
+.icon-xinie:before {
+  content: '\ef46';
+}
+.icon-html5:before {
+  content: '\ef44';
+}
+.icon-bug:before {
+  content: '\e970';
 }
