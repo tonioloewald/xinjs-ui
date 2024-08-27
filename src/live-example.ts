@@ -94,7 +94,7 @@ export class LiveExample extends Component {
 
   // FIXME workarounds for StorageEvent issue on Quest
   lastUpdate = 0
-  interval?: Timer
+  interval?: any
 
   static insertExamples(
     element: HTMLElement,
@@ -215,6 +215,10 @@ export class LiveExample extends Component {
     return this.classList.contains('-maximize')
   }
 
+  flipLayout = () => {
+    this.classList.toggle('-vertical')
+  }
+
   exampleMenu = () => {
     popMenu({
       target: this.parts.exampleWidgets,
@@ -302,6 +306,14 @@ export class LiveExample extends Component {
               onClick: this.redo,
             },
             icons.redo()
+          ),
+          button(
+            {
+              title: 'flip direction',
+              class: 'transparent',
+              onClick: this.flipLayout,
+            },
+            icons.sidebar()
           ),
           button(
             {
@@ -413,6 +425,8 @@ export class LiveExample extends Component {
   }
 
   showCode = () => {
+    this.classList.add('-maximize')
+    this.classList.toggle('-vertical', this.offsetHeight > this.offsetWidth)
     this.parts.codeEditors.hidden = false
   }
 
@@ -420,6 +434,7 @@ export class LiveExample extends Component {
     if (this.remoteId !== '') {
       window.close()
     } else {
+      this.classList.remove('-maximize')
       this.parts.codeEditors.hidden = true
     }
   }
@@ -558,7 +573,19 @@ export const liveExample = LiveExample.elementCreator({
     },
 
     '.-maximize': {
-      zIndex: 10,
+      zIndex: 101,
+    },
+
+    ':host.-vertical': {
+      flexDirection: 'column',
+    },
+
+    ':host .icon-sidebar': {
+      transform: 'rotateZ(180deg)',
+    },
+
+    ':host.-vertical .icon-sidebar': {
+      transform: 'rotateZ(270deg)',
     },
 
     ':host.-maximize .hide-if-maximized, :host:not(.-maximize) .show-if-maximized':
@@ -613,7 +640,7 @@ export const liveExample = LiveExample.elementCreator({
       flex: '1 1 50%',
       height: '100%',
       flexDirection: 'column',
-      zIndex: 10,
+      zIndex: '10',
     },
 
     ':host .code-editors:not([hidden])': {
