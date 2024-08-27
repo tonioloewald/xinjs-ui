@@ -94,6 +94,7 @@ iconsSelect.options = iconsOnly.options = Object.keys(icons).sort().map(icon =>(
   value: icon
 }))
 ```
+<xin-css-var-editor element-selector="xin-select"></xin-css-var-editor>
 
 ## `options`
 
