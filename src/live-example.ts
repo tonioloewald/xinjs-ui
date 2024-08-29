@@ -416,7 +416,7 @@ export class LiveExample extends Component {
     if (close === true) {
       window.close()
     }
-    console.log('received new code from remote', sentAt, this.lastUpdate)
+    console.log('received new code', sentAt, this.lastUpdate)
     this.lastUpdate = sentAt
     this.css = css
     this.html = html

@@ -85,6 +85,14 @@ captions.options = [
   }
 ]
 
+preview.addEventListener('action', (event) => {
+  console.log(event.target.title, 'user picked', event.target.value)
+}, true)
+
+  console.log(event.target.title, 'changed to', event.target.value)
+preview.addEventListener('change', (event) => {
+}, true)
+
 const iconsSelect = preview.querySelector('.icons')
 const iconsOnly = preview.querySelector('.icons-only')
 

@@ -57,7 +57,9 @@ the `<xin-word>` component).
 import { Component as WebComponent, ElementCreator, elements } from 'xinjs'
 import { icons } from './icons'
 
-const { xinSlot, div, select, fragment, option, button, span } = elements
+import { xinSelect, XinSelect } from './select'
+
+const { xinSlot, div, fragment, option, button, span } = elements
 
 const blockStyles = [
   {
@@ -87,15 +89,15 @@ const blockStyles = [
 ]
 
 export function blockStyle(options = blockStyles) {
-  return fragment(
-    select(
-      { title: 'paragraph style', slot: 'toolbar', class: 'block-style' },
-      ...options.map(({ caption, tagType }) =>
-        option(caption, { value: `formatBlock,${tagType}` })
-      )
-    ),
-    icons.chevronDown()
-  )
+  return xinSelect({
+    title: 'paragraph style',
+    slot: 'toolbar',
+    class: 'block-style',
+    options: options.map(({ caption, tagType }) => ({
+      caption,
+      value: `formatBlock,${tagType}`,
+    })),
+  })
 }
 
 export function spacer(width = '10px') {
@@ -208,10 +210,32 @@ export class RichText extends WebComponent {
     /* no not care */
   }
 
+  handleSelectChange = (event: Event) => {
+    // @ts-expect-error Typescript is wrong about event.target lacking closest
+    const select = event.target.closest(XinSelect.tagName) as HTMLSelectElement
+    if (select == null) {
+      return
+    }
+
+    this.doCommand(select.value)
+  }
+
+  handleButtonClick = (event: Event) => {
+    // @ts-expect-error Typescript is wrong about event.target lacking closest
+    const button = event.target.closest('button')
+    if (button == null) {
+      return
+    }
+
+    this.doCommand(button.dataset.command)
+  }
+
   content = [
     xinSlot({
       name: 'toolbar',
       part: 'toolbar',
+      onClick: this.handleButtonClick,
+      onChange: this.handleSelectChange,
     }),
     div({
       part: 'doc',
@@ -241,29 +265,9 @@ export class RichText extends WebComponent {
     document.execCommand(args[0], false, ...args.slice(1))
   }
 
-  handleSelectChange = (event: Event) => {
-    // @ts-expect-error Typescript is wrong about event.target lacking closest
-    const select = event.target.closest('select') as HTMLSelectElement
-    if (select == null) {
-      return
-    }
-
-    this.doCommand(select.value)
-  }
-
-  handleButtonClick = (event: Event) => {
-    // @ts-expect-error Typescript is wrong about event.target lacking closest
-    const button = event.target.closest('button')
-    if (button == null) {
-      return
-    }
-
-    this.doCommand(button.dataset.command)
-  }
-
   updateBlockStyle() {
     const select = this.parts.toolbar.querySelector(
-      'select.block-style'
+      '.block-style'
     ) as HTMLSelectElement | null
     if (select === null) {
       return
@@ -278,15 +282,12 @@ export class RichText extends WebComponent {
   connectedCallback(): void {
     super.connectedCallback()
 
-    const { doc, content, toolbar } = this.parts
+    const { doc, content } = this.parts
     if (content.innerHTML !== '' && doc.innerHTML === '') {
       doc.innerHTML = content.innerHTML
       content.innerHTML = ''
     }
     content.style.display = 'none'
-
-    toolbar.addEventListener('click', this.handleButtonClick)
-    toolbar.addEventListener('change', this.handleSelectChange)
 
     document.addEventListener('selectionchange', (event: Event) => {
       this.updateBlockStyle()

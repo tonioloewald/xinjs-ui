@@ -70,11 +70,11 @@ export declare class RichText extends WebComponent {
     get selectedBlocks(): any[];
     get selectedText(): string;
     selectionChange: (event: Event, editor: RichText) => void;
+    handleSelectChange: (event: Event) => void;
+    handleButtonClick: (event: Event) => void;
     content: any[];
     constructor();
     doCommand(command?: string): void;
-    handleSelectChange: (event: Event) => void;
-    handleButtonClick: (event: Event) => void;
     updateBlockStyle(): void;
     connectedCallback(): void;
     render(): void;
