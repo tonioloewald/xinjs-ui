@@ -59,7 +59,7 @@ import { icons } from './icons'
 
 import { xinSelect, XinSelect } from './select'
 
-const { xinSlot, div, fragment, option, button, span } = elements
+const { xinSlot, div, button, span } = elements
 
 const blockStyles = [
   {
@@ -157,12 +157,20 @@ export const richTextWidgets = () => [
 export class RichText extends WebComponent {
   widgets: 'none' | 'minimal' | 'default' = 'default'
 
+  private isInitialized = false
+
   get value(): string {
-    return this.parts.doc.innerHTML
+    return this.isInitialized
+      ? this.parts.doc.innerHTML
+      : this.savedValue || this.innerHTML
   }
 
   set value(docHtml: string) {
-    this.parts.doc.innerHTML = docHtml
+    if (this.isInitialized) {
+      this.parts.doc.innerHTML = docHtml
+    } else {
+      this.innerHTML = docHtml
+    }
   }
 
   blockElement(elt: Node): Element | undefined {
@@ -287,6 +295,9 @@ export class RichText extends WebComponent {
       doc.innerHTML = content.innerHTML
       content.innerHTML = ''
     }
+
+    this.isInitialized = true
+
     content.style.display = 'none'
 
     document.addEventListener('selectionchange', (event: Event) => {

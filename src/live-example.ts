@@ -33,6 +33,26 @@ preview.append('Try editing some code and hitting refresh…')
 }
 ```
 
+You can also create a live-example from HTML. And if you add the `persist-to-dom`
+attribute, it will persist your code to the DOM.
+
+<xin-example persist-to-dom>
+  <pre class="language-html">
+    <h1 class="make-it-red">Pure HTML!</h1>
+    <button>Click Me!</button>
+  </pre>
+  <pre class="language-js">
+    preview.querySelector('button').addEventListener('click', () => {
+      alert('you clicked?')
+    })
+  </pre>
+  <pre class="language-css">
+    .make-it-red {
+      color: red;
+    }
+  </pre>
+</xin-example>
+
 You can simply wrap it around a sequence of code blocks in the DOM with the
 languages (js, html, css) as annotations or you can directly set the `js`, `html`,
 and `css` properties.
@@ -74,7 +94,7 @@ import { tabSelector, TabSelector } from './tab-selector'
 import { icons } from './icons'
 import { popMenu } from './menu'
 
-const { div, xinSlot, style, button, h4 } = elements
+const { div, xinSlot, style, button, h4, pre } = elements
 
 const AsyncFunction = (async () => {
   /* do not care */
@@ -85,6 +105,7 @@ interface ExampleContext {
 }
 
 export class LiveExample extends Component {
+  persistToDom = false
   prettier = false
   prefix = 'lx'
   storageKey = 'live-example-payload'
@@ -101,14 +122,14 @@ export class LiveExample extends Component {
     context: ExampleContext = {}
   ): void {
     const sources = [
-      ...element.querySelectorAll(
-        'pre code[class="language-html"],pre code[class="language-js"],pre code[class="language-css"]'
-      ),
-    ].map((code) => ({
-      block: code.parentElement as HTMLPreElement,
-      language: code.classList[0].split('-').pop(),
-      code: (code as HTMLElement).innerText,
-    }))
+      ...element.querySelectorAll('.language-html,.language-js,.language-css'),
+    ]
+      .filter((element) => !element.closest(LiveExample.tagName as string))
+      .map((code) => ({
+        block: code.parentElement as HTMLPreElement,
+        language: code.classList[0].split('-').pop(),
+        code: (code as HTMLElement).innerText,
+      }))
     for (let index = 0; index < sources.length; index += 1) {
       const exampleSources = [sources[index]]
       while (
@@ -118,7 +139,7 @@ export class LiveExample extends Component {
         exampleSources.push(sources[index + 1])
         index += 1
       }
-      const example = liveExample({ style: { margin: `1em -1em` }, context })
+      const example = liveExample({ context })
       ;(exampleSources[0].block.parentElement as HTMLElement).insertBefore(
         example,
         exampleSources[0].block
@@ -139,6 +160,12 @@ export class LiveExample extends Component {
       })
       example.showDefaultTab()
     }
+  }
+
+  constructor() {
+    super()
+
+    this.initAttributes('persistToDom', 'prettier')
   }
 
   get activeTab(): Element | undefined {
@@ -332,17 +359,6 @@ export class LiveExample extends Component {
             icons.refresh()
           )
         )
-        /*
-        button(
-          {
-            part: 'more',
-            slot: 'after-tabs',
-            title: 'code menu',
-            class: 'transparent',
-          },
-          icons.moreVertical()
-        )
-        */
       )
     ),
     xinSlot({ part: 'sources', hidden: true }),
@@ -351,6 +367,7 @@ export class LiveExample extends Component {
   connectedCallback(): void {
     super.connectedCallback()
     const { sources } = this.parts
+
     this.initFromElements([...sources.children] as HTMLElement[])
     addEventListener('storage', this.remoteChange)
 
@@ -463,6 +480,29 @@ export class LiveExample extends Component {
     )
   }
 
+  updateSources = () => {
+    if (this.persistToDom) {
+      const { sources } = this.parts
+      sources.innerText = ''
+      for (const language of ['js', 'css', 'html']) {
+        if (this[language]) {
+          sources.append(
+            pre({ class: `language-${language}`, innerHTML: this[language] })
+          )
+        }
+      }
+      /*
+      let sourceHTML = []
+      if (this.html)
+        sourceHTML.push(`<pre class="language-html">${this.html}</pre>`)
+      if (this.css)
+        sourceHTML.push(`<pre class="language-css">${this.css}</pre>`)
+      if (this.js) sourceHTML.push(`<pre class="language-js">${this.js}</pre>`)
+      sources.innerHTML = sourceHTML.join('\n')
+      */
+    }
+  }
+
   refresh = () => {
     if (this.remoteId !== '') {
       return
@@ -488,6 +528,9 @@ export class LiveExample extends Component {
       // @ts-expect-error ts is wrong and it makes me so mad
       const func = new AsyncFunction(...Object.keys(context), this.js)
       func(...Object.values(context)).catch((err: Error) => console.error(err))
+      if (this.persistToDom) {
+        this.updateSources()
+      }
     } catch (e) {
       console.error(e)
       window.alert(`Error: ${e}, the console may have more information…`)
@@ -507,6 +550,14 @@ export class LiveExample extends Component {
           minIndex > 0 ? lines.map((line) => line.substring(minIndex)) : lines
         ).join('\n')
         ;(this.parts[mode] as CodeEditor).value = source
+      } else {
+        const language = ['js', 'html', 'css'].find((language: string) =>
+          element.matches(`.language-${language}`)
+        )
+        if (language) {
+          ;(this.parts[language] as CodeEditor).value =
+            language === 'html' ? element.innerHTML : element.innerText
+        }
       }
     }
   }

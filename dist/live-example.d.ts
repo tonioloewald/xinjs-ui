@@ -33,6 +33,26 @@ preview.append('Try editing some code and hitting refresh…')
 }
 ```
 
+You can also create a live-example from HTML. And if you add the `persist-to-dom`
+attribute, it will persist your code to the DOM.
+
+<xin-example persist-to-dom>
+  <pre class="language-html">
+    <h1 class="make-it-red">Pure HTML!</h1>
+    <button>Click Me!</button>
+  </pre>
+  <pre class="language-js">
+    preview.querySelector('button').addEventListener('click', () => {
+      alert('you clicked?')
+    })
+  </pre>
+  <pre class="language-css">
+    .make-it-red {
+      color: red;
+    }
+  </pre>
+</xin-example>
+
 You can simply wrap it around a sequence of code blocks in the DOM with the
 languages (js, html, css) as annotations or you can directly set the `js`, `html`,
 and `css` properties.
@@ -72,6 +92,7 @@ interface ExampleContext {
     [key: string]: any;
 }
 export declare class LiveExample extends Component {
+    persistToDom: boolean;
     prettier: boolean;
     prefix: string;
     storageKey: string;
@@ -81,6 +102,7 @@ export declare class LiveExample extends Component {
     lastUpdate: number;
     interval?: any;
     static insertExamples(element: HTMLElement, context?: ExampleContext): void;
+    constructor();
     get activeTab(): Element | undefined;
     private getEditorValue;
     private setEditorValue;
@@ -107,6 +129,7 @@ export declare class LiveExample extends Component {
     closeCode: () => void;
     openEditorWindow: () => void;
     refreshRemote: () => void;
+    updateSources: () => void;
     refresh: () => void;
     initFromElements(elements: HTMLElement[]): void;
     showDefaultTab(): void;

@@ -64,6 +64,7 @@ export declare function commandButton(title: string, dataCommand: string, icon: 
 export declare const richTextWidgets: () => any[];
 export declare class RichText extends WebComponent {
     widgets: 'none' | 'minimal' | 'default';
+    private isInitialized;
     get value(): string;
     set value(docHtml: string);
     blockElement(elt: Node): Element | undefined;
