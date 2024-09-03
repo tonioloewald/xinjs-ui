@@ -9,7 +9,7 @@
     "prebuild": "rm -rf .parcel-cache && rm -rf www && rm -rf docs && mkdir www docs && bun docs.js && bun icons.js && bun format",
     "postbuild": "cp demo/static/* www && cp demo/static/* docs",
     "format": "bun eslint src demo --fix && bun prettier --write .",
-    "test": "bun test",
+    "tests": "bun test && bun playwright test",
     "latest": "rm -rf .parcel-cache && rm -rf node_modules && bun install && npm install"
   },
   "keywords": [
@@ -31,7 +31,9 @@
   "devDependencies": {
     "@parcel/packager-ts": "^2.10.3",
     "@parcel/transformer-typescript-types": "^2.10.3",
+    "@playwright/test": "^1.46.1",
     "@types/jsdom": "^21.1.1",
+    "@types/node": "^22.5.2",
     "@typescript-eslint/eslint-plugin": "^5.9.1",
     "@typescript-eslint/parser": "^5.9.1",
     "bun-types": "latest",
