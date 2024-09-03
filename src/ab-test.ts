@@ -41,7 +41,6 @@ randomize()
 <xin-ab class="not-c" not condition="testC">
   <p>not testC</p>
 </xin-ab>
-<h3>Conditions</h3>
 <pre>
 </pre>
 <button class="randomize-conditions">Randomize</button>
@@ -67,11 +66,10 @@ randomize()
 }
 ```
 
-1. Set `AbTest.conditions` to anything you like.
-2. Use `<xin-ab>` elements to display conditional content.
-
-If the value referenced by `condition` is `false` then the content
-of `<xin-ab>` will be hidden (this is reversed if `not` is set).
+- Set `AbTest.conditions` to anything you like.
+- Use `<xin-ab>` elements to display conditional content.
+- `condition` attribute determines which value in `AbTest.conditions` controls the element
+- `not` reverses the condition (so `<xin-ab not condition="foo">` will be visible if `conditions.foo` is `false`)
 */
 
 import { Component as XinComponent, xinProxy } from 'xinjs'
