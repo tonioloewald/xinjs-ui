@@ -295,7 +295,7 @@ export class XinCarousel extends WebComponent {
   connectedCallback() {
     super.connectedCallback()
 
-    this.ariaRoledescription = 'carousel'
+    this.ariaRoleDescription = 'carousel'
     this.ariaOrientation = 'horizontal'
     this.ariaReadOnly = 'true'
 
