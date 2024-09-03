@@ -34,7 +34,7 @@ that renders a rating using <xin-icon icon="star" color="red"></xin-icon>s.
 `<xin-rating>` should be fully keyboard navigable (and, I hope, accessible).
 
 The up key increases the rating, down descreases it. This is the same
-as the behavior of `<input type="number">`, [Shoelace's rating widget](https://shoelace.style/components/rating/), 
+as the behavior of `<input type="number">`, [Shoelace's rating widget](https://shoelace.style/components/rating/),
 and (in my opinion) common sense, but  not like [MUI's rating widget](https://mui.com/material-ui/react-rating/).
 */
 
@@ -198,9 +198,12 @@ export class XinRating extends Component {
     if (this.readonly) {
       this.role = 'image'
     } else {
-      this.role = 'input'
+      this.role = 'slider'
     }
     this.ariaLabel = `rating ${this.value} out of ${this.max}`
+    this.ariaValueMax = String(this.max)
+    this.ariaValueMin = String(this.min)
+    this.ariaValueNow = this.value === null ? String(-1) : String(this.value)
 
     const { empty, filled } = this.parts
     const height = this.iconSize + 'px'
