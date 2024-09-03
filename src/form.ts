@@ -246,8 +246,8 @@ export class XinField extends XinComponent {
     xinSlot({ part: 'caption' }),
     span(
       { part: 'field' },
-      input({ part: 'valueHolder' }),
-      xinSlot({ part: 'input', name: 'input' })
+      xinSlot({ part: 'input', name: 'input' }),
+      input({ part: 'valueHolder' })
     )
   )
 
