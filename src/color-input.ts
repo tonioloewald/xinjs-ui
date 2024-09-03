@@ -31,7 +31,6 @@ interface ColorParts extends PartsMap {
 }
 
 class ColorInput extends WebComponent {
-  role = 'input'
   value = defaultColor.rgba
   color = defaultColor
 
