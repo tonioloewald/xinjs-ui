@@ -19,13 +19,7 @@ test('carousel works', async ({ page }) => {
     'horizontal'
   )
 
-  // the locators do not work reliably across browsers
-  /*
-  await expect(page.locator('css=.green')).toBeVisible()
-  await expect(page.locator('.yellow')).not.toBeVisible()
-  await page.getByTitle('next slide').click()
-
-  await expect(page.locator('.green')).not.toBeVisible()
-  await expect(page.locator('.yellow')).toBeVisible()
-  */
+  await expect(page.getByText('item 2')).toBeVisible()
+  await page.getByRole('button', { name: 'Next Slide' }).click()
+  await expect(page.getByText('item 4')).toBeVisible()
 })
