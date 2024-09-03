@@ -75,7 +75,6 @@ export class XinCarousel extends WebComponent {
   maxVisibleItems = 1
   snapDelay = 0.1
   snapDuration = 0.25
-  role = 'listbox'
 
   private _page = 0
 
@@ -271,11 +270,14 @@ export class XinCarousel extends WebComponent {
   content = () => [
     div(
       { part: 'pager' },
-      button({ part: 'back' }, icons.chevronLeft()),
-      div({ part: 'scroller' }, div({ part: 'grid' }, slot())),
-      button({ part: 'forward' }, icons.chevronRight())
+      button({ title: 'previous slide', part: 'back' }, icons.chevronLeft()),
+      div(
+        { title: 'slides', role: 'group', part: 'scroller' },
+        div({ part: 'grid' }, slot())
+      ),
+      button({ title: 'next slide', part: 'forward' }, icons.chevronRight())
     ),
-    div({ part: 'progress' }),
+    div({ title: 'choose slide to display', role: 'group', part: 'progress' }),
   ]
 
   constructor() {
@@ -293,6 +295,7 @@ export class XinCarousel extends WebComponent {
   connectedCallback() {
     super.connectedCallback()
 
+    this.ariaRoledescription = 'carousel'
     this.ariaOrientation = 'horizontal'
     this.ariaReadOnly = 'true'
 
@@ -310,7 +313,7 @@ export class XinCarousel extends WebComponent {
     const { progress, back, forward, grid } = this.parts
 
     visibleItems.forEach((item) => {
-      item.role = 'option'
+      item.role = 'group'
     })
     grid.style.gridTemplateColumns = `${
       100 / this.maxVisibleItems / (1 + this.lastPage)
@@ -319,7 +322,11 @@ export class XinCarousel extends WebComponent {
       .trim()
     grid.style.width = (1 + this.lastPage) * 100 + '%'
     progress.textContent = ''
-    progress.append(...visibleItems.map(() => button({ class: 'dot' })))
+    progress.append(
+      ...visibleItems.map((_, index) =>
+        button({ title: `item ${index + 1}`, class: 'dot' })
+      )
+    )
 
     this.indicateCurrent()
     progress.style.display = dots && lastPage > 0 ? '' : 'none'
