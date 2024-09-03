@@ -6,35 +6,45 @@
 ```js
 const { AbTest } = xinjsui
 
-const conditions = {
-  testA: true,
-  testB: false,
-  testC: Math.random() < 0.5
+function randomize() {
+  const conditions = {
+    testA: Math.random() < 0.5,
+    testB: Math.random() < 0.5,
+    testC: Math.random() < 0.5
+  }
+
+  AbTest.conditions = conditions
+
+  preview.querySelector('pre').innerText = JSON.stringify(conditions, null, 2)
 }
 
-AbTest.conditions = conditions
+preview.querySelector('.randomize-conditions').addEventListener('click', randomize)
 
-preview.querySelector('pre').innerText = JSON.stringify(conditions, null, 2)
+randomize()
 ```
 ```html
-<xin-ab condition="testA">
-  <p>testA is true</p>
+<xin-ab class="a" condition="testA">
+  <p>testA</p>
 </xin-ab>
-<xin-ab not condition="testA">
+<xin-ab class="not-a" not condition="testA">
   <p>not testA</p>
 </xin-ab>
-<xin-ab condition="testB">
-  <p>testB is true</p>
+<xin-ab class="b" condition="testB">
+  <p>testB</p>
 </xin-ab>
-<xin-ab not condition="testB">
+<xin-ab class="not-b" not condition="testB">
   <p>not testB</p>
 </xin-ab>
-<xin-ab condition="testC">
-  <p>testC is true</p>
+<xin-ab class="c" condition="testC">
+  <p>testC</p>
+</xin-ab>
+<xin-ab class="not-c" not condition="testC">
+  <p>not testC</p>
 </xin-ab>
 <h3>Conditions</h3>
 <pre>
 </pre>
+<button class="randomize-conditions">Randomize</button>
 ```
 ```css
 .preview {
@@ -50,6 +60,10 @@ preview.querySelector('pre').innerText = JSON.stringify(conditions, null, 2)
   border-radius: 99px;
   padding: 4px 10px;
   margin: 0;
+}
+
+.preview xin-ab[not] p {
+  background: red;
 }
 ```
 

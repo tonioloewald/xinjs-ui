@@ -59,7 +59,6 @@ export declare class XinCarousel extends WebComponent {
     maxVisibleItems: number;
     snapDelay: number;
     snapDuration: number;
-    role: string;
     private _page;
     get page(): number;
     set page(p: number);

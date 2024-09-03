@@ -12,7 +12,6 @@ This is a color input field that supports opacity
 */
 import { Component as WebComponent } from 'xinjs';
 declare class ColorInput extends WebComponent {
-    role: string;
     value: any;
     color: any;
     static styleSpec: {
