@@ -81,7 +81,7 @@ The format of the input data is a table in TSV format, that looks like this:
 en-US | fr | fi | sv | zh
 ------|----|----|----|----
 English (US) | French | Finnish | Swedish | Chinese (Mandarin)
-English (US) | Français | Suomi | Svenska | 中文（普通话）
+English (US) | Français | suomi | svenska | 中文（普通话）
 🇺🇸 | 🇫🇷 | 🇫🇮 | 🇸🇪 | 🇨🇳
 Icon | Icône | Kuvake | Ikon | 图标
 Ok | D'accord | Ok | Ok | 好的
