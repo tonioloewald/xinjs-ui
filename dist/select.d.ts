@@ -19,9 +19,10 @@ built in `<select>` element that addresses its various shortcomings.
   value="not an option!"
 ></xin-select><br>
 <xin-select
+  show-icon
   title="has captions"
   class="captions"
-  value="this"
+  value="image"
 ></xin-select><br>
 <xin-select
   show-icon
@@ -47,28 +48,31 @@ const captions = preview.querySelector('.captions')
 
 captions.options = [
   {
-    caption: 'choose this',
-    value: 'this'
+    caption: 'a heading',
+    value: 'heading'
   },
   {
-    caption: 'choose that',
-    value: 'that'
+    caption: 'a paragraph',
+    value: 'paragraph'
   },
   null,
   {
     caption: 'choose some other',
     options: [
       {
-        caption: 'the other',
-        value: 'the other'
+        icon: 'image',
+        caption: 'an image',
+        value: 'image'
       },
       {
-        caption: 'another',
-        value: 'another',
+        icon: 'fileText',
+        caption: 'a text file',
+        value: 'text',
       },
       {
-        caption: 'mother',
-        value: 'mother'
+        icon: 'video',
+        caption: 'a video',
+        value: 'video'
       },
       null,
       {
@@ -175,6 +179,8 @@ export declare class XinSelect extends WebComponent {
     popOptions: () => void;
     content: () => any[];
     constructor();
+    get allOptions(): SelectOption[];
+    findOption(): SelectOption;
     render(): void;
 }
 export declare const xinSelect: ElementCreator<XinSelect>;
