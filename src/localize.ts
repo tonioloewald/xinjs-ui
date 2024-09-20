@@ -191,6 +191,13 @@ export function initLocalization(localizedStrings: string) {
       }))
       .sort(captionSort)
 
+    // if user locale isn't available, find the best match
+    if (!i18n.locales.includes(i18n.locale.valueOf())) {
+      const language = i18n.locale.substring(0, 2)
+      i18n.locale =
+        i18n.locales.find((locale) => locale.substring(0, 2) === language) ||
+        i18n.locales[0]
+    }
     updateLocalized()
   }
 }
