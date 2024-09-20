@@ -4,7 +4,11 @@
 This is an implemention of the Swiss Railway Clock adapted from an old
 [b8rjs demo component](https://b8rjs.com/?source=components/swiss-clock.js).
 It is implemented as a xinjs `blueprint` (i.e. a component definition with
-  no included code from xinjs).
+no included code from xinjs).
+
+> **Note** this is a blueprint, so it cannot be consumed the way other
+> custom-elements are consumed. Look at the first example to see how the
+> custom-element is loaded and registered using `makeComponent`.
 
 ```js
 const { swissClock } = xinjsui
@@ -13,22 +17,29 @@ const { makeComponent } = xinjs
 makeComponent('xin-swiss-clock', swissClock)
 ```
 ```html
-<xin-swiss-clock></xin-swiss-clock>
+<xin-swiss-clock update-interval=30></xin-swiss-clock>
 ```
+
+By default, the clock will update once per second, but you can set a
+different `update-interval` (in milliseconds) if so desired.
+
+If you set an `update-interval` that is over 1000, the second-hand will
+automatically be hidden.
 
 And you can set a timezone offset using the `timezone` (e.g. 'Europe/Helsinki') or `offset` (e.g. `3`).
 
-Here's the time in "Australia/Sydney" and "America/Denver":
+Here's the time in "Australia/Sydney" and "America/Denver". `update-interval` has been set
+to 10s (10000ms), so the second hands are not displayed.
 
 ```html
-<xin-swiss-clock timezone="Australia/Sydney">Sydney</xin-swiss-clock>
-<xin-swiss-clock timezone="America/Denver">Denver</xin-swiss-clock>
+<xin-swiss-clock update-interval=10000 timezone="Australia/Sydney">Sydney</xin-swiss-clock>
+<xin-swiss-clock update-interval=10000 timezone="America/Denver">Denver</xin-swiss-clock>
 ```
 
 You can display a fixed time using the `time` (assumed to be an ISO time stamp).
 
-(You can get a list of supported timezones using `Intl.supportedValuesOf('timeZone')`).
-The [documentation for the `Intl` object is here](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Intl).
+You can get a list of supported timezones using `Intl.supportedValuesOf('timeZone')`.
+[`Intl` Dodcumentation](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Intl)
 
 ```html
 <xin-swiss-clock time="1976-04-01T08:23:45.678Z" timezone="America/Los_Angeles"></xin-swiss-clock>
@@ -58,11 +69,12 @@ export const swissClock: XinBlueprint = (
     offset = 0
     time: string | null = null
     interval: any | null = null
+    updateInterval = 1000
 
     constructor() {
       super()
 
-      this.initAttributes('timezone', 'time', 'offset')
+      this.initAttributes('timezone', 'time', 'offset', 'updateInterval')
     }
 
     content = () => [
@@ -77,7 +89,6 @@ export const swissClock: XinBlueprint = (
           {
             part: 'assembly',
             stroke: 'none',
-            strokeWidth: 1,
             fill: 'none',
             fillRule: 'evenodd',
           },
@@ -112,12 +123,67 @@ export const swissClock: XinBlueprint = (
             fillRule: 'nonzero',
             cx: 300,
             cy: 300,
-            r: 1.23,
+            r: 3,
           })
         )
       ),
       div({ class: 'caption' }, xinSlot()),
     ]
+
+    timezoneOffset(timeNow: Date): number {
+      const offset = this.offset
+      if (!this.timezone) {
+        return offset
+      }
+      const localOffset = this.time ? 0 : timeNow.getTimezoneOffset() / 60
+      return (
+        offset +
+        Number(
+          Intl.DateTimeFormat('en-GB', {
+            hour: 'numeric',
+            minute: 'numeric',
+            timeZoneName: 'shortOffset',
+            timeZone: this.timezone,
+          })
+            .format(timeNow)
+            .split('GMT')
+            .pop()!
+            .replace(/:30/, '.5')
+        ) +
+        localOffset
+      )
+    }
+
+    update() {
+      if (this.time) {
+        this.killInterval
+      } else if (!this.interval) {
+        this.interval = setInterval(
+          this.queueRender.bind(this),
+          this.updateInterval
+        )
+      }
+
+      const { hour, minute, second } = this.parts as SwissClockParts
+      const time = this.time ? new Date(this.time) : new Date()
+      this.ariaLabel = time.toLocaleTimeString()
+      let s = time.getSeconds()
+      const offset = this.timezoneOffset(time)
+      const m = ((time.getMinutes() + 60 * offset) % 60) + s / 60
+      const h = time.getHours() + m / 60 + Math.floor(offset)
+      hour.setAttribute('transform', `rotate(${h * 30}, 300, 300)`)
+      minute.setAttribute('transform', `rotate(${m * 6}, 300, 300)`)
+      if (this.updateInterval > 1000) {
+        second.style.display = 'none'
+      } else {
+        second.style.display = ''
+        const ms =
+          Math.round(time.getMilliseconds() / this.updateInterval) *
+          this.updateInterval
+        s += ms * 0.001
+        second.setAttribute('transform', `rotate(${s * 6}, 300, 300)`)
+      }
+    }
 
     connectedCallback() {
       super.connectedCallback()
@@ -146,40 +212,20 @@ export const swissClock: XinBlueprint = (
         }
       }
 
-      this.interval = setInterval(this.queueRender.bind(this), 30)
+      this.update()
     }
 
-    disconnectedCallback(): void {
-      super.disconnectedCallback()
-
+    private killInterval() {
       if (this.interval) {
         clearInterval(this.interval)
         this.interval = null
       }
     }
 
-    timezoneOffset(timeNow: Date): number {
-      const offset = Number(this.offset)
-      if (!this.timezone) {
-        return offset
-      }
-      const localOffset = this.time ? 0 : timeNow.getTimezoneOffset() / 60
-      return (
-        offset +
-        Number(
-          Intl.DateTimeFormat('en-GB', {
-            hour: 'numeric',
-            minute: 'numeric',
-            timeZoneName: 'shortOffset',
-            timeZone: this.timezone,
-          })
-            .format(timeNow)
-            .split('GMT')
-            .pop()!
-            .replace(/:30/, '.5')
-        ) +
-        localOffset
-      )
+    disconnectedCallback(): void {
+      super.disconnectedCallback()
+
+      this.killInterval
     }
 
     role = 'time'
@@ -187,17 +233,7 @@ export const swissClock: XinBlueprint = (
     render() {
       super.render()
 
-      const { hour, minute, second } = this.parts as SwissClockParts
-      const time = this.time ? new Date(this.time) : new Date()
-      this.ariaLabel = time.toLocaleTimeString()
-      let s = time.getSeconds()
-      const offset = this.timezoneOffset(time)
-      const m = ((time.getMinutes() + 60 * offset) % 60) + s / 60
-      s += time.getMilliseconds() * 0.001
-      const h = time.getHours() + m / 60 + Math.floor(offset)
-      hour.setAttribute('transform', `rotate(${h * 30}, 300, 300)`)
-      minute.setAttribute('transform', `rotate(${m * 6}, 300, 300)`)
-      second.setAttribute('transform', `rotate(${s * 6}, 300, 300)`)
+      this.update()
     }
   }
 
@@ -212,6 +248,7 @@ export const swissClock: XinBlueprint = (
         _swissClockHourFill: '#202020',
         _swissClockMinuteFill: '#202020',
         _swissClockSecondFill: '#D02020',
+        _swissClockPinFill: '#707070',
         _swissClockSize: '256px',
       },
       ':host': {
@@ -247,6 +284,9 @@ export const swissClock: XinBlueprint = (
         right: 0,
         top: '70%',
         transform: 'translateY(-50%)',
+      },
+      ':host .pin': {
+        fill: vars.swissClockPinFill,
       },
     },
   }
