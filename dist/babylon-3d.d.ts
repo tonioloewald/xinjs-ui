@@ -92,10 +92,34 @@ but if `BABYLON` is already defined (e.g. if you've bundled it) then it will use
 
 If you need additional libraries, e.g. `https://cdn.babylonjs.com/loaders/babylonjs.loaders.min.js` for loading models such as `gltf` and `glb` files, you should load those in `sceneCreated`.
 
-Here's a simple example of a terrain mesh comprising 125k triangles.
+Here's a simple example of a terrain mesh comprising 125k triangles, 50% of which is being scaled using a `profileScale` function that
+takes an array of numbers that use a linear profile to change the landform.
 
 ```js
 const { b3d } = xinjsui
+const { MoreMath } = xinjs
+
+const debugCutoff = 0.5
+const defaultProfile = [0, 1, 5, 8, 10].map(x => x/10)
+
+const { clamp } = MoreMath
+function profileScale(t = 0, bypass = false, profile = defaultProfile) {
+  if (bypass) {
+    return t
+  }
+  const count = profile.length - 1
+  if (count < 1) {
+    throw new Error('profile must be of length ≥ 2')
+  }
+
+  const s = clamp(0, (t + 1) / 2, 1)
+  const index = Math.floor(s * count)
+  const dt = (s - index / count) * count
+  const min = profile[index]
+  const max = profile[index + 1]
+  const p = dt * (max - min) + min
+  return 2 * p - 1
+}
 
 preview.append(b3d({
   async sceneCreated(element, BABYLON) {
@@ -119,7 +143,8 @@ preview.append(b3d({
     const scale = t => t * gridSize / gridResolution - gridSize * 0.5
     for(let x = 0; x <= gridResolution; x++) {
       for(let z = 0; z <= gridResolution; z++) {
-        positions.push(scale(x), noise2D(scale(x) * noiseScale, scale(z) * noiseScale) * heightScale, scale(z))
+        const y =  profileScale(noise2D(scale(x) * noiseScale, scale(z) * noiseScale), x < gridResolution * debugCutoff)
+        positions.push(scale(x), y * heightScale, scale(z))
         if (x > 0 && z > 0) {
           const i = x * gridPoints + z
           indices.push(
@@ -149,7 +174,7 @@ be used to load `.glb` files.
 
 `<xin-3d>.loadUI(options: B3dUIOptions)` loads babylonjs guis, which you can create programmatically or using the [babylonjs gui tool](https://gui.babylonjs.com/).
 */
-import { Component as WebComponent } from 'xinjs';
+import { Component as WebComponent, ElementCreator } from 'xinjs';
 type B3dCallback = ((element: B3d, BABYLON: any) => void) | ((element: B3d, BABYLON: any) => Promise<void>);
 interface B3dUIOptions {
     snippetId?: string;

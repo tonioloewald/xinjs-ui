@@ -168,7 +168,7 @@ The `color` type populates the `input` slot with a `<xin-color>` element (and th
 
 <xin-css-var-editor element-selector="xin-field" target-selector=".preview"></xin-css-var-editor>
 */
-import { Component as XinComponent } from 'xinjs';
+import { Component as XinComponent, ElementCreator } from 'xinjs';
 export declare class XinField extends XinComponent {
     caption: string;
     key: string;

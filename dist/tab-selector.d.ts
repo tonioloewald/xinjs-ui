@@ -72,7 +72,7 @@ You can specify the exact content of the tab for a given body by
 adding a `<template role="tab">` to that body. The contents of that
 template will be cloned into the tab.
 */
-import { Component as WebComponent } from 'xinjs';
+import { Component as WebComponent, ElementCreator } from 'xinjs';
 export declare class TabSelector extends WebComponent {
     value: number;
     static makeTab(tabs: TabSelector, tabBody: HTMLElement, bodyId: string): HTMLElement;

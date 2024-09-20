@@ -67,7 +67,7 @@ If `editable`, an input field is provided for entering tags directly.
 
 Placeholder shown on input field.
 */
-import { Component as WebComponent } from 'xinjs';
+import { Component as WebComponent, ElementCreator } from 'xinjs';
 export declare class XinTag extends WebComponent {
     caption: string;
     removeable: boolean;

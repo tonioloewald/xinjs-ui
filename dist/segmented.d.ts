@@ -100,7 +100,7 @@ The following CSS variables can be used to control customize the `<xin-segmented
     --segmented-options-border-radius
     --segmented-placeholder-opacity
 */
-import { Component as WebComponent } from 'xinjs';
+import { Component as WebComponent, ElementCreator } from 'xinjs';
 interface Choice {
     icon?: string | SVGElement;
     value: string;

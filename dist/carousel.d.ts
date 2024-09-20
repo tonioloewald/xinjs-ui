@@ -51,7 +51,7 @@ This is a minimalist carousel component that supports the usual stuff.
 
 <xin-css-var-editor element-selector="xin-carousel"></xin-css-var-editor>
 */
-import { Component as WebComponent } from 'xinjs';
+import { Component as WebComponent, ElementCreator } from 'xinjs';
 export declare class XinCarousel extends WebComponent {
     arrows: boolean;
     dots: boolean;

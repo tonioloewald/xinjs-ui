@@ -88,7 +88,7 @@ if you want finer-grained disappearing behavior triggered by scrolling, you migh
 To prevent dragging for an interior element (e.g. if you want a floating palette with buttons or input fields)
 just add the `no-drag` class to an element or its container.
 */
-import { Component as WebComponent } from 'xinjs';
+import { Component as WebComponent, ElementCreator } from 'xinjs';
 export declare class XinFloat extends WebComponent {
     static floats: Set<XinFloat>;
     drag: boolean;

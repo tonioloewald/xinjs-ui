@@ -16,7 +16,7 @@ A [mapboxgl](https://docs.mapbox.com/mapbox-gl-js/api/) wrapper.
 There's no need to learn new APIs or write wrappers, just access the element's `map` property
 and [use the standard mapbox APIs directly](https://docs.mapbox.com/).
 */
-import { Component as WebComponent } from 'xinjs';
+import { Component as WebComponent, ElementCreator } from 'xinjs';
 export declare const MAPSTYLES: {
     name: string;
     url: string;

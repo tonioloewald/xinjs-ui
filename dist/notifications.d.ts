@@ -129,7 +129,7 @@ xin-form label {
 
 This is simply a wrapper for `XinNotification.post()`.
 */
-import { Component } from 'xinjs';
+import { Component, ElementCreator } from 'xinjs';
 interface NotificationSpec {
     message: string;
     type?: 'success' | 'info' | 'log' | 'warn' | 'error' | 'progress';
