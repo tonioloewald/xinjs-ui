@@ -19,7 +19,7 @@
     "path": "src/ab-test.ts"
   },
   {
-    "text": "# blueprint-loader\n\n`<cin-bp>` is a simple element provided by `xinjs` for the dynamic loading\nof component **blueprints**.\n\n```html\n<xin-bp\n  blueprint=\"https://loewald.com/lib/swiss-clock\"\n>\n  <code style=\"color: var(--brand-color)\">xinjs</code> rules!\n</xin-bp>\n```\n\n## Attributes\n\n- `blueprint` is the url of the `blueprint` javascript module (required)\n- `tag` is the tagName you wish to use. If the name of the blueprint is\n  hyphenated, then that will be used by default\n- `property` if the blueprint module exports the blueprint function as\n  a property, you can specify the property here.",
+    "text": "# blueprint-loader\n\n`<xin-bp>` is a simple element provided by `xinjs` for the dynamic loading\nof component **blueprints**.\n\n```html\n<xin-bp\n  blueprint=\"https://loewald.com/lib/swiss-clock\"\n>\n  <code style=\"color: var(--brand-color)\">xinjs</code> rules!\n</xin-bp>\n```\n\n## Attributes\n\n- `blueprint` is the url of the `blueprint` javascript module (required)\n- `tag` is the tagName you wish to use. If the name of the blueprint is\n  hyphenated, then that will be used by default\n- `property` if the blueprint module exports the blueprint function as\n  a property, you can specify the property here.",
     "title": "blueprint-loader",
     "filename": "bp-loader.ts",
     "path": "src/bp-loader.ts"
@@ -224,7 +224,7 @@
     "pin": "bottom"
   },
   {
-    "text": "# Work in Progress\n\n- Convert the various menu components as `<xin-menu>`, `<xin-menu-item>`, `<xin-menu-divider>`\n- `<xin-filter>`\n  - Leverage `<xin-select>` for picking fields etc.\n  - Leverage `<xin-tag-list>` for displaying filters compactly\n  - Leverage `popFloat` for disclosing filter-editor\n- `<xin-editable>`\n  - Add support for disabling / enabling options\n  - Hide lock icons while resizing\n  - Maybe show lines under locks indicating the parent\n  - Support snapping to sibling boundaries and centers\n- builds\n  - better leveraging of tree-shacking?\n  - pass xinjs thru?\n  - or do we need to import xinjs components through xinjs to avoid dynamic import issues?\n  <!--{\"pin\": \"bottom\"}-->\n",
+    "text": "# Work in Progress\n\n- `<xin-filter>`\n  - Leverage `<xin-select>` for picking fields etc.\n  - Leverage `<xin-tag-list>` for displaying filters compactly\n  - Leverage `popFloat` for disclosing filter-editor\n- `<xin-editable>`\n  - Add support for disabling / enabling options\n  - Hide lock icons while resizing\n  - Maybe show lines under locks indicating the parent\n  - Support snapping to sibling boundaries and centers\n- builds\n  - better leveraging of tree-shacking\n  <!--{\"pin\": \"bottom\"}-->\n",
     "title": "Work in Progress",
     "filename": "TODO.md",
     "path": "TODO.md",

@@ -1,7 +1,7 @@
 /*!
 # blueprint-loader
 
-`<cin-bp>` is a simple element provided by `xinjs` for the dynamic loading
+`<xin-bp>` is a simple element provided by `xinjs` for the dynamic loading
 of component **blueprints**.
 
 ```html
