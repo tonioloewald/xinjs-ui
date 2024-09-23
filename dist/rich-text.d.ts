@@ -53,7 +53,7 @@ you to easily perform operations on text selections, and a `selectionChange` cal
 simply passes through document `selectionchange` events, but also passes a reference to
 the `<xin-word>` component).
 */
-import { Component as WebComponent } from 'xinjs';
+import { Component as WebComponent, ElementCreator } from 'xinjs';
 export declare function blockStyle(options?: {
     caption: string;
     tagType: string;

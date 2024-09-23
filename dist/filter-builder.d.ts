@@ -143,7 +143,7 @@ interface FilterMaker {
 }
 ```
 */
-import { Component as WebComponent } from 'xinjs';
+import { Component as WebComponent, ElementCreator } from 'xinjs';
 type ObjectTest = (obj: any) => boolean;
 type ArrayFilter = (array: any[]) => any[];
 interface FilterMaker {

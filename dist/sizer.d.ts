@@ -23,7 +23,7 @@ from the bottom-right.
 
 <xin-css-var-editor element-selector="xin-sizer"></xin-css-var-editor>
 */
-import { Component as XinComponent } from 'xinjs';
+import { Component as XinComponent, ElementCreator } from 'xinjs';
 export declare class XinSizer extends XinComponent {
     target?: HTMLElement | null;
     static styleSpec: {

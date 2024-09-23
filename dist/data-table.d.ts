@@ -96,7 +96,7 @@ This property dictates the height of each row. It defaults to `30` (px).
 If you set the `<xin-table>`'s `rowHeight` to `0` it will render all its elements (i.e. not be virtual). This is
 useful for smaller tables, or tables with variable row-heights.
 */
-import { Component as WebComponent } from 'xinjs';
+import { Component as WebComponent, ElementCreator } from 'xinjs';
 export interface ColumnOptions {
     name?: string;
     prop: string;

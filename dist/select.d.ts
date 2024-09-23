@@ -148,7 +148,7 @@ value triggers a `change` event.
 
 You can look at the console to see the events triggered by the second example.
 */
-import { Component as WebComponent } from 'xinjs';
+import { Component as WebComponent, ElementCreator } from 'xinjs';
 import { MenuItem } from './menu';
 type OptionRequest = () => Promise<string | undefined>;
 export interface SelectOption {

@@ -11,7 +11,7 @@ the sidebar if so desired). `<xin-sidenav>` provides this functionality.
 sidebar and content, while `navSize` is the width of the sidebar. You can interrogate its `compact` property to find out if it's
 currently in `compact` form.
 */
-import { Component as WebComponent } from 'xinjs';
+import { Component as WebComponent, ElementCreator } from 'xinjs';
 export declare class SideNav extends WebComponent {
     minSize: number;
     navSize: number;

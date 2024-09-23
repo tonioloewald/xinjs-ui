@@ -1,4 +1,4 @@
-import { Component as WebComponent } from 'xinjs';
+import { Component as WebComponent, ElementCreator } from 'xinjs';
 /*!
 # size-break
 

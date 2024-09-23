@@ -10,7 +10,7 @@ This is a color input field that supports opacity
 
 <xin-css-var-editor element-selector="xin-color"></xin-css-var-editor>
 */
-import { Component as WebComponent } from 'xinjs';
+import { Component as WebComponent, ElementCreator } from 'xinjs';
 declare class ColorInput extends WebComponent {
     value: any;
     color: any;

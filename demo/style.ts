@@ -358,7 +358,7 @@ export const styleSpec: XinStyleSheet = {
   },
   '.thead': {
     background: vars.brandColor,
-    _textColor: vars.brandTextColor,
+    color: vars.brandTextColor,
   },
   '.th + .th': {
     border: '1px solid #fff4',

@@ -1,5 +1,6 @@
 export * from './ab-test';
 export * from './babylon-3d';
+export * from './bp-loader';
 export * from './bodymovin-player';
 export * from './carousel';
 export * from './code-editor';
@@ -25,6 +26,7 @@ export * from './rich-text';
 export * from './side-nav';
 export * from './size-break';
 export * from './sizer';
+export * from './swiss-clock.bp';
 export * from './tab-selector';
 export * from './tag-list';
 export { trackDrag, bringToFront, findHighestZ } from './track-drag';

@@ -87,7 +87,7 @@ function that will replace any sequence of
 `pre code[class="language-html"],pre code[class="language-js"],pre code[class="language-css"]`
 elements with a `<xin-example>` instance.
 */
-import { Component } from 'xinjs';
+import { Component, ElementCreator } from 'xinjs';
 interface ExampleContext {
     [key: string]: any;
 }

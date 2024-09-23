@@ -1,4 +1,4 @@
-import { Component } from 'xinjs';
+import { Component, ElementCreator } from 'xinjs';
 export declare class MarkdownViewer extends Component {
     src: string;
     value: string;
