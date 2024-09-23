@@ -7,6 +7,22 @@ A couple of utility functions for dealing with gamepads and XRInputs.
 
 `gamepadText()` provides the above in minimal text form for debugging
 
+```js
+const { elements } = xinjs
+const { gamepadText } = xinjsui
+
+const pre = elements.pre()
+preview.append(pre)
+
+const interval = setInterval(() => {
+  if (!pre.closest('body')) {
+    clearInterval(interval)
+  } else {
+    pre.textContent = gamepadText()
+  }
+}, 100)
+```
+
 ## XRInput Devices
 
 > This is experimental, the API is changing and stuff doesn't work. Hopefully it

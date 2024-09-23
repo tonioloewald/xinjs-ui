@@ -19,9 +19,10 @@ built in `<select>` element that addresses its various shortcomings.
   value="not an option!"
 ></xin-select><br>
 <xin-select
+  show-icon
   title="has captions"
   class="captions"
-  value="this"
+  value="image"
 ></xin-select><br>
 <xin-select
   show-icon
@@ -47,28 +48,31 @@ const captions = preview.querySelector('.captions')
 
 captions.options = [
   {
-    caption: 'choose this',
-    value: 'this'
+    caption: 'a heading',
+    value: 'heading'
   },
   {
-    caption: 'choose that',
-    value: 'that'
+    caption: 'a paragraph',
+    value: 'paragraph'
   },
   null,
   {
     caption: 'choose some other',
     options: [
       {
-        caption: 'the other',
-        value: 'the other'
+        icon: 'image',
+        caption: 'an image',
+        value: 'image'
       },
       {
-        caption: 'another',
-        value: 'another',
+        icon: 'fileText',
+        caption: 'a text file',
+        value: 'text',
       },
       {
-        caption: 'mother',
-        value: 'mother'
+        icon: 'video',
+        caption: 'a video',
+        value: 'video'
       },
       null,
       {
@@ -312,6 +316,29 @@ export class XinSelect extends WebComponent {
     )
   }
 
+  get allOptions(): SelectOption[] {
+    const all: SelectOption[] = []
+
+    function flatten(some: SelectOptions): void {
+      for (const option of some) {
+        if (typeof option === 'string') {
+          all.push({ caption: option, value: option })
+        } else if ((option as SelectOption)?.value) {
+          all.push(option as SelectOption)
+        } else if ((option as SelectOptionSubmenu)?.options) {
+          flatten((option as SelectOptionSubmenu).options)
+        }
+      }
+    }
+
+    flatten(this.selectOptions)
+    return all
+  }
+  findOption(): SelectOption {
+    const found = this.allOptions.find((option) => option.value === this.value)
+    return found || { caption: this.value, value: this.value }
+  }
+
   render(): void {
     super.render()
 
@@ -320,25 +347,14 @@ export class XinSelect extends WebComponent {
     }
     const icon = value.previousElementSibling as HTMLElement
 
-    const option = this.selectOptions.find(
-      (option: string | null | SelectOption | SelectOptionSubmenu) =>
-        typeof option === 'string'
-          ? option === this.value
-          : (option as SelectOption)?.value === this.value
-    )
+    const option = this.findOption()
     let newIcon: Element = span()
-    if (option) {
-      if (typeof option === 'object') {
-        value.value = option.caption
-        if (option.icon) {
-          if (option.icon instanceof HTMLElement) {
-            newIcon = option.icon.cloneNode(true) as HTMLElement
-          } else {
-            newIcon = icons[option.icon]()
-          }
-        }
+    value.value = option.caption
+    if (option.icon) {
+      if (option.icon instanceof HTMLElement) {
+        newIcon = option.icon.cloneNode(true) as HTMLElement
       } else {
-        value.value = this.value
+        newIcon = icons[option.icon]()
       }
     }
     icon.replaceWith(newIcon)
