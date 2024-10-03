@@ -438,7 +438,7 @@ export const styleSpec: XinStyleSheet = {
     margin: 'var(--spacing) 0',
   },
   "[class*='icon-'], xin-icon": {
-    fill: vars.textColor,
+    color: vars.textColor,
     height: vars.fontSize,
     pointerEvents: 'none',
   },
@@ -469,7 +469,7 @@ export const styleSpec: XinStyleSheet = {
     background: 'transparent',
     gap: '2px',
   },
-  'header xin-locale-picker xin-select button svg': {
-    fill: 'var(--brand-text-color) !important',
+  svg: {
+    fill: 'currentcolor',
   },
 }
