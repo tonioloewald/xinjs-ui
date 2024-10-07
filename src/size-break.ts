@@ -92,7 +92,7 @@ export class SizeBreak extends WebComponent {
   }
 
   onResize = () => {
-    const { normal, small } = this.parts
+    const { normal, small } = this.parts as { [key: string]: HTMLElement }
     const parent = this.offsetParent as HTMLElement | null
     if (!(parent instanceof HTMLElement)) {
       return

@@ -57,10 +57,8 @@ interface SwissClockParts extends PartsMap {
   second: SVGPathElement
 }
 
-export const swissClock: XinBlueprint = (
-  tag,
-  { Component, svgElements, elements, vars }
-) => {
+export const swissClock: XinBlueprint = (tag, factory) => {
+  const { Component, svgElements, elements, vars } = factory
   const { svg, g, circle, polygon, path } = svgElements
   const { div, xinSlot } = elements
 
