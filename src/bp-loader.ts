@@ -1,15 +1,14 @@
 /*!
-# blueprint-loader
+# blueprint loading
 
-`<xin-bp>` is a simple element provided by `xinjs` for the dynamic loading
+`<xin-loader>` and `<xin-blueprint>` are simple elements provided by `xinjs` for the dynamic loading
 of component **blueprints**.
 
 ```html
-<xin-bp
-  blueprint="https://loewald.com/lib/swiss-clock"
->
-  <code style="color: var(--brand-color)">xinjs</code> rules!
-</xin-bp>
+<xin-loader>
+  <xin-blueprint tag="swiss-clock" src="https://loewald.com/lib/swiss-clock"></xin-blueprint>
+</xin-loader>
+<swiss-clock></swiss-clock>
 ```
 
 ## Attributes
