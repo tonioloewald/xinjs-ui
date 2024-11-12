@@ -1,6 +1,6 @@
 {
   "name": "xinjs-ui",
-  "version": "0.7.0",
+  "version": "0.7.1",
   "description": "simple robust web-components for use with xinjs or anything else",
   "scripts": {
     "start": "bun pack && bun parcel demo/index.html --https --dist-dir www -p 8787",
