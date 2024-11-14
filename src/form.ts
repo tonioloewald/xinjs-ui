@@ -483,8 +483,8 @@ export class XinForm extends XinComponent {
   }
 
   connectedCallback(): void {
-    const { form } = this.parts as { form: HTMLFormElement }
     super.connectedCallback()
+    const { form } = this.parts as { form: HTMLFormElement }
     form.addEventListener('submit', this.handleSubmit)
   }
 }
