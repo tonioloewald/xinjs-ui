@@ -2,7 +2,7 @@
 # carousel
 
 ```html
-<xin-carousel arrows dots max-visible-items=2>
+<xin-carousel arrows dots max-visible-items=2 auto=2 loop>
   <div class="thing pink">item 1</div>
   <div class="thing green">item 2</div>
   <div class="thing blue">item 3</div>
@@ -48,6 +48,7 @@ This is a minimalist carousel component that supports the usual stuff.
 - `snap-duration` (number, 0.25 [seconds] by default) determines the time taken to scroll / snap scroll.
 - `snap-delay` (number, 0.1 [seconds] by default)
 - `loop` (boolean, false by default) causes next/previous buttons to loop
+- `auto` (number, 0 [seconds] by default) if > 0, automatically advances after that many seconds (always loops!)
 
 <xin-css-var-editor element-selector="xin-carousel"></xin-css-var-editor>
 */
@@ -75,6 +76,16 @@ export class XinCarousel extends WebComponent {
   maxVisibleItems = 1
   snapDelay = 0.1
   snapDuration = 0.25
+  auto = 0
+
+  private timeout?: Timer
+
+  private autoAdvance = () => {
+    clearTimeout(this.timeout)
+    if (this.auto > 0) {
+      this.timeout = setTimeout(this.forward, this.auto * 1000)
+    }
+  }
 
   private _page = 0
 
@@ -211,7 +222,7 @@ export class XinCarousel extends WebComponent {
   }
 
   snapPosition = () => {
-    const { scroller } = this.parts
+    const { scroller } = this.parts as CarouselParts
     const currentPosition = scroller.scrollLeft / scroller.offsetWidth
     if (currentPosition !== this.page) {
       this.page =
@@ -219,6 +230,7 @@ export class XinCarousel extends WebComponent {
           ? Math.ceil(currentPosition)
           : Math.floor(currentPosition)
     }
+    this.autoAdvance()
   }
 
   back = () => {
@@ -288,7 +300,8 @@ export class XinCarousel extends WebComponent {
       'arrows',
       'maxVisibleItems',
       'snapDuration',
-      'loop'
+      'loop',
+      'auto'
     )
   }
 
@@ -304,13 +317,19 @@ export class XinCarousel extends WebComponent {
     forward.addEventListener('click', this.forward)
     scroller.addEventListener('scroll', this.indicateCurrent)
     progress.addEventListener('click', this.handleDotClick)
+
+    this.autoAdvance()
+  }
+
+  disconnectedCallback() {
+    clearTimeout(this.timeout)
   }
 
   render() {
     super.render()
 
     const { dots, arrows, visibleItems, lastPage } = this
-    const { progress, back, forward, grid } = this.parts
+    const { progress, back, forward, grid } = this.parts as CarouselParts
 
     visibleItems.forEach((item) => {
       item.role = 'group'
