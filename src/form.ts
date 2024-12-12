@@ -192,14 +192,12 @@ function getInputValue(input: HTMLInputElement): any {
   switch (input.type) {
     case 'checkbox':
       return input.checked
-    case 'radio':
-      {
-        const picked = input.parentElement?.querySelector(
-          `input[type="radio"][name="${input.name}"]:checked`
-        ) as HTMLInputElement | null
-        return picked ? picked.value : null
-      }
-      return
+    case 'radio': {
+      const picked = input.parentElement?.querySelector(
+        `input[type="radio"][name="${input.name}"]:checked`
+      ) as HTMLInputElement | null
+      return picked ? picked.value : null
+    }
     case 'range':
     case 'number':
       return Number(input.value)
