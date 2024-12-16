@@ -7,21 +7,25 @@ Building a tag-list from standard HTML elements is a bit of a nightmare.
 as a comma-delimited string or an array of strings).
 
 ```html
-<b>Display Only</b>
-<xin-tag-list
-  value="this,that,,the-other"
-></xin-tag-list>
+<label>
+  <b>Display Only</b>
+  <xin-tag-list
+    value="this,that,,the-other"
+  ></xin-tag-list>
+</label>
 <xin-tag-list
   class="compact"
   value="this,that,,the-other"
 ></xin-tag-list>
 <br>
-<b>Editable</b>
-<xin-tag-list
-  value="belongs,also belongs,custom"
-  editable
-  available-tags="belongs,also belongs,not initially chosen"
-></xin-tag-list>
+<label>
+  <b>Editable</b>
+  <xin-tag-list
+    value="belongs,also belongs,custom"
+    editable
+    available-tags="belongs,also belongs,not initially chosen"
+  ></xin-tag-list>
+</label>
 
 <br>
 <b>Text-Entry</b>
@@ -37,6 +41,11 @@ as a comma-delimited string or an array of strings).
   --spacing: 8px;
   --font-size: 12px;
   --line-height: 18px;
+}
+.preview label {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
 }
 ```
 
@@ -83,6 +92,7 @@ const { div, input, span, button } = elements
 export class XinTag extends WebComponent {
   caption = ''
   removeable = false
+
   removeCallback: (event: Event) => void = () => {
     this.remove()
   }
@@ -279,6 +289,10 @@ export class XinTagList extends WebComponent {
     div({
       part: 'tagContainer',
       class: 'row',
+      onClick(event) {
+        event.stopPropagation()
+        event.preventDefault()
+      },
     }),
     input({
       part: 'tagInput',
