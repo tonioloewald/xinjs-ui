@@ -6,7 +6,7 @@ of component **blueprints**.
 
 ```html
 <xin-loader>
-  <xin-blueprint tag="swiss-clock" src="https://loewald.com/lib/swiss-clock"></xin-blueprint>
+  <xin-blueprint tag="swiss-clock" src=" https://tonioloewald.github.io/xin-clock/dist/blueprint.js"></xin-blueprint>
 </xin-loader>
 <swiss-clock></swiss-clock>
 ```

@@ -2,7 +2,7 @@
 # carousel
 
 ```html
-<xin-carousel arrows dots max-visible-items=2>
+<xin-carousel arrows dots max-visible-items=2 auto=2 loop>
   <div class="thing pink">item 1</div>
   <div class="thing green">item 2</div>
   <div class="thing blue">item 3</div>
@@ -48,6 +48,7 @@ This is a minimalist carousel component that supports the usual stuff.
 - `snap-duration` (number, 0.25 [seconds] by default) determines the time taken to scroll / snap scroll.
 - `snap-delay` (number, 0.1 [seconds] by default)
 - `loop` (boolean, false by default) causes next/previous buttons to loop
+- `auto` (number, 0 [seconds] by default) if > 0, automatically advances after that many seconds (always loops!)
 
 <xin-css-var-editor element-selector="xin-carousel"></xin-css-var-editor>
 */
@@ -59,6 +60,9 @@ export declare class XinCarousel extends WebComponent {
     maxVisibleItems: number;
     snapDelay: number;
     snapDuration: number;
+    auto: number;
+    private timeout?;
+    private autoAdvance;
     private _page;
     get page(): number;
     set page(p: number);
@@ -156,6 +160,7 @@ export declare class XinCarousel extends WebComponent {
     content: () => any[];
     constructor();
     connectedCallback(): void;
+    disconnectedCallback(): void;
     render(): void;
 }
 export declare const xinCarousel: ElementCreator<XinCarousel>;

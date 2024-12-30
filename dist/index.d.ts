@@ -28,6 +28,7 @@ export * from './size-break';
 export * from './sizer';
 export * from './tab-selector';
 export * from './tag-list';
+export * as dragAndDrop from './drag-and-drop';
 export { trackDrag, bringToFront, findHighestZ } from './track-drag';
 export { scriptTag, styleSheet } from './via-tag';
 export { makeSorter } from './make-sorter';

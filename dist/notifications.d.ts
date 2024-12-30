@@ -151,6 +151,7 @@ export declare class XinNotification extends Component {
             _notificationTextColor: string;
             _notificationIconSize: any;
             _notificationButtonSize: number;
+            _notificationBorderWidth: string;
             _notificationBorderRadius: any;
             position: string;
             left: number;
@@ -178,6 +179,9 @@ export declare class XinNotification extends Component {
             alignItems: string;
             borderRadius: any;
             boxShadow: string;
+            borderColor: any;
+            borderWidth: any;
+            borderStyle: string;
             transition: string;
             transitionProperty: string;
             zIndex: number;
