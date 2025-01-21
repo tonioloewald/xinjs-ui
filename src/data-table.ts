@@ -305,7 +305,7 @@ export class DataTable extends WebComponent {
   private resizeColumn = (event: any) => {
     const column = this.getColumn(event)
     if (column !== undefined) {
-      const origWidth = column.width
+      const origWidth = Number(column.width)
       const isTouchEvent = event.touches !== undefined
       const touchIdentifier = isTouchEvent
         ? event.touches[0].identifier
