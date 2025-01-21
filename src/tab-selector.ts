@@ -99,6 +99,7 @@ export class TabSelector extends WebComponent {
     const tab = div(
       tabContent,
       {
+        part: 'tab',
         tabindex: 0,
         role: 'tab',
         ariaControls: bodyId,
