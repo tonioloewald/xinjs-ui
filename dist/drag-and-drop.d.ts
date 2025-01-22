@@ -6,6 +6,9 @@
 
 A lightweight library building on top of HTML5 drag and drop behavior.
 
+To use it, simply call `dragAndDrop.init()` (it only needs to be called once,
+but calling it again is harmless).
+
 This module sets up some global event handlers and *just works*&trade; (arguably, it merely does things
 that the browser should do, such as add a CSS selector for drop zones that are compatible
 with what's being dragged).
@@ -138,11 +141,19 @@ the drop zone node) simply using data-event="drop:path.to.drop_handler" as usual
   border-radius: 5px;
 }
 ```
+```js
+const { dragAndDrop } = xinjsui
+
+dragAndDrop.init()
+```
 
 ### Reorderable List Example
 
 ```js
 const { elements, xinProxy, getListItem } = xinjs
+const { dragAndDrop } = xinjsui
+
+dragAndDrop.init()
 
 const shuffle = (deck) => {
   var shuffled = [];
@@ -171,17 +182,12 @@ let dragged = null
 
 const dropColor = (event) => {
   const dropped = getListItem(event.target)
-  console.log(dragged, dropped)
-  if (dragged !== dropped) {
-    const draggedIndex = spectrum.indexOf(dragged)
-    spectrum.splice(draggedIndex, 1)
-    if (!dropped) {
-      spectrum.push(dragged)
-    } else {
-      const droppedIndex = spectrum.indexOf(dropped)
-      spectrum.splice(droppedIndex, 0, dragged)
-    }
-  }
+  const draggedIndex = spectrum.indexOf(dragged)
+  const droppedIndex = spectrum.indexOf(dropped)
+  spectrum.splice(draggedIndex, 1)
+  spectrum.splice(droppedIndex, 0, dragged)
+
+  console.log({dragged, draggedIndex, dropped, droppedIndex})
 
   event.preventDefault()
   event.stopPropagation()
@@ -193,39 +199,30 @@ preview.append(
       bindList: { value: spectrum, idPath: 'color' }
     },
     template(
-      div(
-        div({
-          dataDrop: 'reorderable/spectrum',
-          onDrop: dropColor
-        }),
-        div({
-          bindText: '^.color',
-          draggable: 'true',
-          dataDrag: 'reorderable/spectrum',
-          bind: {
-            value: '^.color',
-            binding(element, value) {
-              element.style.backgroundColor = value
-            }
-          },
-          onDragstart(event) {
-            dragged = getListItem(event.target)
+      div({
+        bindText: '^.color',
+        draggable: 'true',
+        dataDrag: 'reorderable/spectrum',
+        dataDrop: 'reorderable/spectrum',
+        onDrop: dropColor,
+        bind: {
+          value: '^.color',
+          binding(element, value) {
+            element.style.backgroundColor = value
           }
-        })
-      )
+        },
+        onDragstart(event) {
+          dragged = getListItem(event.target)
+        }
+      })
     )
   ),
-  div({
-    dataDrop: 'reorderable/spectrum',
-    onDrop: dropColor
-  }),
 )
 ```
 ```css
 [data-drop="reorderable/spectrum"] {
-  height: 12px;
+  height: 36px;
   z-index: 10;
-  margin: -4px 4px;
 }
 ```
 */
@@ -234,3 +231,4 @@ export declare function drag(evt: DragEvent): void;
 export declare function leave(): void;
 export declare function drop(evt: DragEvent): void;
 export declare const draggedElement: () => Element;
+export declare const init: () => void;
