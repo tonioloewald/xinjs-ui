@@ -9,6 +9,23 @@ A lightweight library building on top of HTML5 drag and drop behavior.
 To use it, simply call `dragAndDrop.init()` (it only needs to be called once,
 but calling it again is harmless).
 
+```
+import { dragAndDrop } from 'xinjs-ui'
+
+dragAndDrop.init()
+```
+
+The library just sets up some event listeners.
+
+You can use `dragAndDrop.draggedElement()` to get the element being dragged (if it's
+actually from the page you're in).
+
+> ### Important Note
+>
+> The nice thing about HTML5 drag-and-drop is that it leverages the OS's drag and
+> drop support. This means you can drag from one window to another, from the desktop
+> to your app and vice versa. It's all a matter of configuring the DOM elements.
+
 This module sets up some global event handlers and *just works*&trade; (arguably, it merely does things
 that the browser should do, such as add a CSS selector for drop zones that are compatible
 with what's being dragged).
@@ -147,6 +164,9 @@ const { dragAndDrop } = xinjsui
 dragAndDrop.init()
 ```
 
+> Note that you can drag between two browser tabs containing this
+> example (or between two different browsers) and it will work.
+
 ### Reorderable List Example
 
 ```js
@@ -193,6 +213,8 @@ const dropColor = (event) => {
   event.stopPropagation()
 }
 
+const dragId = 'spectrum/' + Math.floor(Math.random() * 1e9)
+
 preview.append(
   div(
     {
@@ -202,8 +224,8 @@ preview.append(
       div({
         bindText: '^.color',
         draggable: 'true',
-        dataDrag: 'reorderable/spectrum',
-        dataDrop: 'reorderable/spectrum',
+        dataDrag: dragId,
+        dataDrop: dragId,
         onDrop: dropColor,
         bind: {
           value: '^.color',
@@ -225,10 +247,11 @@ preview.append(
   z-index: 10;
 }
 ```
+
+> To prevent this example from allowing drags between windows (which
+> wouldn't make sense) a random dragId is assigned to `data-drag` and
+> `data-drop` in this example.
+)
 */
-export declare function start(evt: DragEvent): void;
-export declare function drag(evt: DragEvent): void;
-export declare function leave(): void;
-export declare function drop(evt: DragEvent): void;
 export declare const draggedElement: () => Element;
 export declare const init: () => void;
