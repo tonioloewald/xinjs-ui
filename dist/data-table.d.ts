@@ -42,7 +42,7 @@ const columns = [
   },
 ]
 
-preview.append(dataTable({ multiple: true, array: emojiData, columns }))
+preview.append(dataTable({ multiple: true, array: emojiData, columns, rowHeight: 40 }))
 ```
 ```css
 .preview input.td {
@@ -89,12 +89,15 @@ The following methods are also provided:
 
 These are rather fine-grained but they're used internally by the selection code so they may as well be documented.
 
-## rowHeight
-
-This property dictates the height of each row. It defaults to `30` (px).
+## Row Height
 
 If you set the `<xin-table>`'s `rowHeight` to `0` it will render all its elements (i.e. not be virtual). This is
 useful for smaller tables, or tables with variable row-heights.
+
+## Styling
+
+Aside from row height (see previous) the component doesn't use the shadowDOM, so it's easy to override
+its styles.
 */
 import { Component as WebComponent, ElementCreator } from 'xinjs';
 export interface ColumnOptions {
@@ -150,17 +153,6 @@ export declare class DataTable extends WebComponent {
     private updateSelection;
     connectedCallback(): void;
     setColumnWidths(): void;
-    get rowStyle(): {
-        display: string;
-        gridTemplateColumns: any;
-        height: string;
-        lineHeight: string;
-    };
-    get cellStyle(): {
-        overflow: string;
-        whiteSpace: string;
-        textOverflow: string;
-    };
     headerCell: (options: ColumnOptions) => any;
     dataCell: (options: ColumnOptions) => any;
     get visibleRows(): any[];
