@@ -21,6 +21,7 @@ as a comma-delimited string or an array of strings).
 <label>
   <b>Editable</b>
   <xin-tag-list
+    class="editable-tag-list"
     value="belongs,also belongs,custom"
     editable
     available-tags="belongs,also belongs,not initially chosen"
@@ -47,6 +48,11 @@ as a comma-delimited string or an array of strings).
   flex-direction: column;
   align-items: flex-start;
 }
+```
+```js
+preview.addEventListener('change', (event) => {
+  console.log(event.target, event.target.value)
+}, true)
 ```
 
 ## Properties
