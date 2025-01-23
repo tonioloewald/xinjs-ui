@@ -437,6 +437,10 @@ export class DataTable extends WebComponent {
       '--grid-columns',
       this.visibleColumns.map((c) => c.width + 'px').join(' ')
     )
+    this.style.setProperty(
+      '--grid-row-width',
+      this.visibleColumns.reduce((w, c) => w + c.width, 0) + 'px'
+    )
   }
 
   headerCell = (options: ColumnOptions) =>
@@ -543,6 +547,12 @@ export class DataTable extends WebComponent {
 export const dataTable = DataTable.elementCreator({
   tag: 'xin-table',
   styleSpec: {
+    ':host': {
+      overflow: 'auto hidden',
+    },
+    ':host .thead, :host .tbody': {
+      width: vars.gridRowWidth,
+    },
     ':host .tr': {
       display: 'grid',
       gridTemplateColumns: vars.gridColumns,
