@@ -42,7 +42,14 @@ const columns = [
   },
 ]
 
-preview.append(dataTable({ multiple: true, array: emojiData, columns, rowHeight: 40 }))
+preview.append(dataTable({
+  multiple: true,
+  array: emojiData,
+  columns,
+  rowHeight: 40,
+  pinnedTop: 1,
+  pinnedBottom: 2
+}))
 ```
 ```css
 .preview input.td {
@@ -54,6 +61,11 @@ preview.append(dataTable({ multiple: true, array: emojiData, columns, rowHeight:
 
 .preview xin-table {
   height: 100%;
+}
+
+.preview xin-table [part="pinnedTopRows"],
+.preview xin-table [part="pinnedBottomRows"] {
+  background: #ddd;
 }
 ```
 
@@ -71,7 +83,7 @@ You can set the `<xin-table>`'s `array`, `columns`, and `filter` properties dire
 }
 ```
 
-## selection
+## Selection
 
 `<xin-table>` supports `select` and `multiple` boolean properties allowing rows to be selectable. Selected rows will
 be given the `[aria-selected]` attribute, so style them as you wish.
@@ -98,6 +110,11 @@ useful for smaller tables, or tables with variable row-heights.
 
 Aside from row height (see previous) the component doesn't use the shadowDOM, so it's easy to override
 its styles.
+
+## Pinned Rows
+
+The table supports two attributes, `pinnedTop` and `pinnedBottom` that let you pin the specified number
+of top and bottom rows.
 */
 import { Component as WebComponent, ElementCreator } from 'xinjs';
 export interface ColumnOptions {
@@ -122,9 +139,12 @@ export declare class DataTable extends WebComponent {
     selectionChanged: SelectCallback;
     private selectedKey;
     private selectBinding;
+    pinnedTop: number;
+    pinnedBottom: number;
     maxVisibleRows: number;
     get value(): TableData;
     set value(data: TableData);
+    private rowData;
     private _array;
     private _columns;
     private _filter;

@@ -42,7 +42,14 @@ const columns = [
   },
 ]
 
-preview.append(dataTable({ multiple: true, array: emojiData, columns, rowHeight: 40 }))
+preview.append(dataTable({ 
+  multiple: true, 
+  array: emojiData, 
+  columns, 
+  rowHeight: 40,
+  pinnedTop: 1,
+  pinnedBottom: 2
+}))
 ```
 ```css
 .preview input.td {
@@ -54,6 +61,11 @@ preview.append(dataTable({ multiple: true, array: emojiData, columns, rowHeight:
 
 .preview xin-table {
   height: 100%;
+}
+
+.preview xin-table [part="pinnedTopRows"],
+.preview xin-table [part="pinnedBottomRows"] {
+  background: #ddd;
 }
 ```
 
@@ -71,7 +83,7 @@ You can set the `<xin-table>`'s `array`, `columns`, and `filter` properties dire
 }
 ```
 
-## selection
+## Selection
 
 `<xin-table>` supports `select` and `multiple` boolean properties allowing rows to be selectable. Selected rows will
 be given the `[aria-selected]` attribute, so style them as you wish.
@@ -98,17 +110,21 @@ useful for smaller tables, or tables with variable row-heights.
 
 Aside from row height (see previous) the component doesn't use the shadowDOM, so it's easy to override
 its styles.
+
+## Pinned Rows
+
+The table supports two attributes, `pinnedTop` and `pinnedBottom` that let you pin the specified number
+of top and bottom rows.
 */
 
 import {
   Component as WebComponent,
   ElementCreator,
   elements,
-  xin,
   vars,
   xinValue,
   getListItem,
-  touch,
+  xinProxy,
 } from 'xinjs'
 import { trackDrag } from './track-drag'
 
@@ -180,6 +196,8 @@ export class DataTable extends WebComponent {
     elt.toggleAttribute('aria-selected', obj[this.selectedKey] === true)
   }
 
+  pinnedTop = 0
+  pinnedBottom = 0
   maxVisibleRows = 10000
 
   get value(): TableData {
@@ -204,6 +222,12 @@ export class DataTable extends WebComponent {
     this._filter = filter || passThru
   }
 
+  private rowData = {
+    visible: [] as [],
+    pinnedTop: [] as [],
+    pinnedBottom: [] as [],
+  }
+
   private _array: any[] = []
   private _columns: ColumnOptions[] | null = null
   private _filter: ArrayFilter = passThru
@@ -218,12 +242,21 @@ export class DataTable extends WebComponent {
   constructor() {
     super()
 
+    this.rowData = xinProxy(
+      {
+        [this.instanceId]: this.rowData,
+      },
+      true
+    )[this.instanceId]
+
     this.initAttributes(
       'rowHeight',
       'charWidth',
       'minColumnWidth',
       'select',
-      'multiple'
+      'multiple',
+      'pinnedTop',
+      'pinnedBottom'
     )
   }
 
@@ -419,7 +452,6 @@ export class DataTable extends WebComponent {
       pickedItem[this.selectedKey] = true
     }
     this.selectionChanged(this.visibleSelectedRows)
-    touch(this.instanceId)
   }
 
   connectedCallback(): void {
@@ -475,7 +507,7 @@ export class DataTable extends WebComponent {
   }
 
   get visibleRows(): any[] {
-    return xinValue(xin[this.instanceId]) as any[]
+    return xinValue(this.rowData.visible) as any[]
   }
 
   get visibleSelectedRows(): any[] {
@@ -490,7 +522,13 @@ export class DataTable extends WebComponent {
     super.render()
 
     const found = this.filter(this._array)
-    xin[this.instanceId] = found.slice(0, this.maxVisibleRows)
+    this.rowData.pinnedTop =
+      this.pinnedTop > 0 ? found.splice(0, this.pinnedTop) : []
+    this.rowData.pinnedBottom =
+      this.pinnedBottom > 0
+        ? found.splice(found.length - this.pinnedBottom)
+        : []
+    this.rowData.visible = found.slice(0, this.maxVisibleRows)
 
     this.textContent = ''
 
@@ -512,17 +550,73 @@ export class DataTable extends WebComponent {
       ),
       div(
         {
+          part: 'pinnedTopRows',
+          class: 'tbody',
+          role: 'rowgroup',
+          style: {
+            flex: '0 0 auto',
+            overflow: 'hidden',
+          },
+          bindList: {
+            value: this.rowData.pinnedTop,
+            virtual: this.virtual,
+          },
+        },
+        template(
+          div(
+            {
+              class: 'tr',
+              role: 'row',
+              bind: {
+                value: '^',
+                binding: { toDOM: this.selectBinding },
+              },
+            },
+            ...visibleColumns.map(this.dataCell)
+          )
+        )
+      ),
+      div(
+        {
+          part: 'visibleRows',
           class: 'tbody',
           role: 'rowgroup',
           style: {
             content: ' ',
             minHeight: '100px',
             flex: '1 1 100px',
-            overflow: 'hidden',
-            overflowY: 'scroll',
+            overflow: 'hidden scroll',
           },
           bindList: {
-            value: this.instanceId,
+            value: this.rowData.visible,
+            virtual: this.virtual,
+          },
+        },
+        template(
+          div(
+            {
+              class: 'tr',
+              role: 'row',
+              bind: {
+                value: '^',
+                binding: { toDOM: this.selectBinding },
+              },
+            },
+            ...visibleColumns.map(this.dataCell)
+          )
+        )
+      ),
+      div(
+        {
+          part: 'pinnedBottomRows',
+          class: 'tbody',
+          role: 'rowgroup',
+          style: {
+            flex: '0 0 auto',
+            overflow: 'hidden',
+          },
+          bindList: {
+            value: this.rowData.pinnedBottom,
             virtual: this.virtual,
           },
         },
