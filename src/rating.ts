@@ -38,10 +38,15 @@ as the behavior of `<input type="number">`, [Shoelace's rating widget](https://s
 and (in my opinion) common sense, but  not like [MUI's rating widget](https://mui.com/material-ui/react-rating/).
 */
 
-import { Component, elements, ElementCreator, vars } from 'xinjs'
+import { Component, elements, ElementCreator, vars, PartsMap } from 'xinjs'
 import { icons } from './icons'
 
 const { span } = elements
+
+interface RatingParts extends PartsMap {
+  empty: HTMLElement
+  filled: HTMLElement
+}
 
 export class XinRating extends Component {
   iconSize = 24
@@ -118,7 +123,7 @@ export class XinRating extends Component {
   content = () => [span({ part: 'empty' }), span({ part: 'filled' })]
 
   displayValue(value: number | null) {
-    const { empty, filled } = this.parts
+    const { empty, filled } = this.parts as RatingParts
     const roundedValue = Math.round((value || 0) / this.step) * this.step
     filled.style.width = (roundedValue / this.max) * empty.offsetWidth + 'px'
   }
@@ -128,7 +133,7 @@ export class XinRating extends Component {
       return
     }
 
-    const { empty } = this.parts
+    const { empty } = this.parts as RatingParts
 
     const x = event instanceof MouseEvent ? event.offsetX : 0
     const value = Math.max(
