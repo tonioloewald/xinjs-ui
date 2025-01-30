@@ -136,11 +136,14 @@ export class XinRating extends Component {
     const { empty } = this.parts as RatingParts
 
     const x = event instanceof MouseEvent ? event.offsetX : 0
-    const value = Math.max(
-      this.min,
-      Math.round(
-        ((x / empty.offsetWidth) * this.max) / this.step + this.step * 0.5
-      ) * this.step
+    const value = Math.min(
+      Math.max(
+        this.min,
+        Math.round(
+          ((x / empty.offsetWidth) * this.max) / this.step + this.step * 0.5
+        ) * this.step
+      ),
+      this.max
     )
     if (event.type === 'click') {
       this.value = value
