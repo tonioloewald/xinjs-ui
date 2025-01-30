@@ -523,12 +523,16 @@ export class DataTable extends WebComponent {
 
     const found = this.filter(this._array)
     this.rowData.pinnedTop =
-      this.pinnedTop > 0 ? found.splice(0, this.pinnedTop) : []
+      this.pinnedTop > 0 ? found.slice(0, this.pinnedTop) : []
     this.rowData.pinnedBottom =
-      this.pinnedBottom > 0
-        ? found.splice(found.length - this.pinnedBottom)
-        : []
-    this.rowData.visible = found.slice(0, this.maxVisibleRows)
+      this.pinnedBottom > 0 ? found.slice(found.length - this.pinnedBottom) : []
+    this.rowData.visible = found.slice(
+      this.pinnedTop,
+      Math.min(
+        this.maxVisibleRows,
+        found.length - this.pinnedTop - this.pinnedBottom
+      )
+    )
 
     this.textContent = ''
 
@@ -585,7 +589,7 @@ export class DataTable extends WebComponent {
             content: ' ',
             minHeight: '100px',
             flex: '1 1 100px',
-            overflow: 'hidden scroll',
+            overflow: 'hidden auto',
           },
           bindList: {
             value: this.rowData.visible,
