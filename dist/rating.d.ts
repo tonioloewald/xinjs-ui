@@ -56,6 +56,10 @@ export declare class XinRating extends Component {
             position: string;
             width: string;
         };
+        ':host::part(container)': {
+            position: string;
+            display: string;
+        };
         ':host::part(empty), :host::part(filled)': {
             height: string;
             whiteSpace: string;
@@ -93,7 +97,7 @@ export declare class XinRating extends Component {
         };
     };
     constructor();
-    content: () => any[];
+    content: () => any;
     displayValue(value: number | null): void;
     update: (event: Event) => void;
     handleKey: (event: KeyboardEvent) => void;
