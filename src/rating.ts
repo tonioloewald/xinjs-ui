@@ -46,6 +46,7 @@ const { span } = elements
 interface RatingParts extends PartsMap {
   empty: HTMLElement
   filled: HTMLElement
+  container: HTMLElement
 }
 
 export class XinRating extends Component {
@@ -66,6 +67,10 @@ export class XinRating extends Component {
       display: 'inline-block',
       position: 'relative',
       width: 'fit-content',
+    },
+    ':host::part(container)': {
+      position: 'relative',
+      display: 'inline-block',
     },
     ':host::part(empty), :host::part(filled)': {
       height: '100%',
@@ -120,7 +125,12 @@ export class XinRating extends Component {
     )
   }
 
-  content = () => [span({ part: 'empty' }), span({ part: 'filled' })]
+  content = () =>
+    span(
+      { part: 'container' },
+      span({ part: 'empty' }),
+      span({ part: 'filled' })
+    )
 
   displayValue(value: number | null) {
     const { empty, filled } = this.parts as RatingParts
@@ -135,7 +145,10 @@ export class XinRating extends Component {
 
     const { empty } = this.parts as RatingParts
 
-    const x = event instanceof MouseEvent ? event.offsetX : 0
+    const x =
+      event instanceof MouseEvent
+        ? event.pageX - empty.getBoundingClientRect().x
+        : 0
     const value = Math.min(
       Math.max(
         this.min,
@@ -182,13 +195,15 @@ export class XinRating extends Component {
   connectedCallback() {
     super.connectedCallback()
 
-    this.tabIndex = 0
-    this.addEventListener('mousemove', this.update)
-    this.addEventListener('mouseleave', this.update)
-    this.addEventListener('blur', this.update)
-    this.addEventListener('click', this.update)
+    const { container, empty } = this.parts as RatingParts
 
-    this.addEventListener('keydown', this.handleKey)
+    container.tabIndex = 0
+    container.addEventListener('mousemove', this.update, true)
+    container.addEventListener('mouseleave', this.update)
+    container.addEventListener('blur', this.update)
+    container.addEventListener('click', this.update)
+
+    container.addEventListener('keydown', this.handleKey)
   }
 
   private _renderedIcon = ''
