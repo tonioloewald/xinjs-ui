@@ -38,10 +38,16 @@ as the behavior of `<input type="number">`, [Shoelace's rating widget](https://s
 and (in my opinion) common sense, but  not like [MUI's rating widget](https://mui.com/material-ui/react-rating/).
 */
 
-import { Component, elements, ElementCreator, vars } from 'xinjs'
+import { Component, elements, ElementCreator, vars, PartsMap } from 'xinjs'
 import { icons } from './icons'
 
 const { span } = elements
+
+interface RatingParts extends PartsMap {
+  empty: HTMLElement
+  filled: HTMLElement
+  container: HTMLElement
+}
 
 export class XinRating extends Component {
   iconSize = 24
@@ -61,6 +67,10 @@ export class XinRating extends Component {
       display: 'inline-block',
       position: 'relative',
       width: 'fit-content',
+    },
+    ':host::part(container)': {
+      position: 'relative',
+      display: 'inline-block',
     },
     ':host::part(empty), :host::part(filled)': {
       height: '100%',
@@ -115,10 +125,15 @@ export class XinRating extends Component {
     )
   }
 
-  content = () => [span({ part: 'empty' }), span({ part: 'filled' })]
+  content = () =>
+    span(
+      { part: 'container' },
+      span({ part: 'empty' }),
+      span({ part: 'filled' })
+    )
 
   displayValue(value: number | null) {
-    const { empty, filled } = this.parts
+    const { empty, filled } = this.parts as RatingParts
     const roundedValue = Math.round((value || 0) / this.step) * this.step
     filled.style.width = (roundedValue / this.max) * empty.offsetWidth + 'px'
   }
@@ -128,14 +143,20 @@ export class XinRating extends Component {
       return
     }
 
-    const { empty } = this.parts
+    const { empty } = this.parts as RatingParts
 
-    const x = event instanceof MouseEvent ? event.offsetX : 0
-    const value = Math.max(
-      this.min,
-      Math.round(
-        ((x / empty.offsetWidth) * this.max) / this.step + this.step * 0.5
-      ) * this.step
+    const x =
+      event instanceof MouseEvent
+        ? event.pageX - empty.getBoundingClientRect().x
+        : 0
+    const value = Math.min(
+      Math.max(
+        this.min,
+        Math.round(
+          ((x / empty.offsetWidth) * this.max) / this.step + this.step * 0.5
+        ) * this.step
+      ),
+      this.max
     )
     if (event.type === 'click') {
       this.value = value
@@ -174,13 +195,15 @@ export class XinRating extends Component {
   connectedCallback() {
     super.connectedCallback()
 
-    this.tabIndex = 0
-    this.addEventListener('mousemove', this.update)
-    this.addEventListener('mouseleave', this.update)
-    this.addEventListener('blur', this.update)
-    this.addEventListener('click', this.update)
+    const { container, empty } = this.parts as RatingParts
 
-    this.addEventListener('keydown', this.handleKey)
+    container.tabIndex = 0
+    container.addEventListener('mousemove', this.update, true)
+    container.addEventListener('mouseleave', this.update)
+    container.addEventListener('blur', this.update)
+    container.addEventListener('click', this.update)
+
+    container.addEventListener('keydown', this.handleKey)
   }
 
   private _renderedIcon = ''
