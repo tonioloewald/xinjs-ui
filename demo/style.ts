@@ -438,7 +438,7 @@ export const styleSpec: XinStyleSheet = {
     margin: 'var(--spacing) 0',
   },
   "[class*='icon-'], xin-icon": {
-    color: vars.textColor,
+    color: 'currentcolor',
     height: vars.fontSize,
     pointerEvents: 'none',
   },
