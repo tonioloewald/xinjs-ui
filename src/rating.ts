@@ -195,7 +195,7 @@ export class XinRating extends Component {
   connectedCallback() {
     super.connectedCallback()
 
-    const { container, empty } = this.parts as RatingParts
+    const { container } = this.parts as RatingParts
 
     container.tabIndex = 0
     container.addEventListener('mousemove', this.update, true)
