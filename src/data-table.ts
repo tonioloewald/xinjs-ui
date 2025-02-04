@@ -16,7 +16,8 @@ const columns = [
     name: "emoji",
     prop: "chars",
     align: "center",
-    width: 80
+    width: 80,
+    sort: false,
   },
   {
     prop: "name",
@@ -34,6 +35,7 @@ const columns = [
   },
   {
     prop: "category",
+    sort: "ascending",
     width: 150
   },
   {
@@ -83,6 +85,23 @@ You can set the `<xin-table>`'s `array`, `columns`, and `filter` properties dire
 }
 ```
 
+## `ColumnOptions`
+
+You can configure the table's columns by providing it an array of `ColumnOptions`:
+
+```
+export interface ColumnOptions {
+  name?: string
+  prop: string
+  width: number
+  visible?: boolean
+  align?: string
+  sort?: false | 'ascending' | 'descending'
+  headerCell?: (options: ColumnOptions) => HTMLElement
+  dataCell?: (options: ColumnOptions) => HTMLElement
+}
+```
+
 ## Selection
 
 `<xin-table>` supports `select` and `multiple` boolean properties allowing rows to be selectable. Selected rows will
@@ -100,6 +119,19 @@ The following methods are also provided:
 - `<xin-table>.deSelect(rows?: any[])` deselects all or specified rows.
 
 These are rather fine-grained but they're used internally by the selection code so they may as well be documented.
+
+## Sorting
+
+By default, the user can sort the table by any column which doesn't have a `sort === false`.
+
+You can set the initial sort by setting the `sort` value of a specific column to `ascending`
+or `descending`.
+
+You can override this by setting the table's sort function (it's an `Array.sort()` callback)
+to whatever you like, and you can replace the `headerCell` or set the `sort` of each column
+to `false` if you have some specific sorting in mind.
+
+You can turn off the default sorting controls by adding the `nosort` attribute to the `<xin-table>`.
 
 ## Row Height
 
@@ -127,6 +159,8 @@ import {
   xinProxy,
 } from 'xinjs'
 import { trackDrag } from './track-drag'
+import { makeSorter } from './make-sorter'
+import { icons } from './icons'
 
 function defaultWidth(
   array: any[],
@@ -160,7 +194,7 @@ function defaultWidth(
   return false
 }
 
-const { div, span, template } = elements
+const { div, span, button, template } = elements
 
 export interface ColumnOptions {
   name?: string
@@ -168,6 +202,7 @@ export interface ColumnOptions {
   width: number
   visible?: boolean
   align?: string
+  sort?: false | 'ascending' | 'descending'
   headerCell?: (options: ColumnOptions) => HTMLElement
   dataCell?: (options: ColumnOptions) => HTMLElement
 }
@@ -187,6 +222,7 @@ export type SelectCallback = (selected: any[]) => void
 export class DataTable extends WebComponent {
   select = false
   multiple = false
+  nosort = false
   selectionChanged: SelectCallback = () => {
     /* do not care */
   }
@@ -256,7 +292,8 @@ export class DataTable extends WebComponent {
       'select',
       'multiple',
       'pinnedTop',
-      'pinnedBottom'
+      'pinnedBottom',
+      'nosort'
     )
   }
 
@@ -276,6 +313,28 @@ export class DataTable extends WebComponent {
   set filter(filterFunc: ArrayFilter) {
     if (this._filter !== filterFunc) {
       this._filter = filterFunc
+      this.queueRender()
+    }
+  }
+
+  get sort(): ArrayFilter {
+    if (this._sort) {
+      return this._sort
+    }
+    const sortColumn = this._columns.find(
+      (c) => c.sort === 'ascending' || c.sort === 'descending'
+    )
+    if (!sortColumn) {
+      return passThru
+    }
+    return makeSorter(
+      (a: any) => a[sortColumn.prop],
+      sortColumn.sort === 'ascending'
+    )
+  }
+  set sort(sortFunc: ArrayFilter) {
+    if (this._sort !== sortFunc) {
+      this._sort = sortFunc
       this.queueRender()
     }
   }
@@ -403,6 +462,9 @@ export class DataTable extends WebComponent {
       return
     }
     const pickedItem = getListItem(tr)
+    if (pickedItem === false) {
+      return
+    }
     const mouseEvent = event as MouseEvent
     // prevent ugly selection artifacts
     const selection = window.getSelection()
@@ -475,21 +537,76 @@ export class DataTable extends WebComponent {
     )
   }
 
-  headerCell = (options: ColumnOptions) =>
-    options.headerCell !== undefined
+  sortByColumn = (
+    columnOptions: ColumnOptions,
+    direction: 'ascending' | 'descending' | 'auto' = 'auto'
+  ) => {
+    for (const column of this.columns.filter(
+      (c) => xinValue(c.sort) !== false
+    )) {
+      if (xinValue(column) === columnOptions) {
+        if (direction === 'auto') {
+          column.sort = column.sort === 'ascending' ? 'descending' : 'ascending'
+        } else {
+          column.sort = direction
+        }
+        this.queueRender()
+      } else {
+        delete column.sort
+      }
+    }
+  }
+
+  headerCell = (options: ColumnOptions) => {
+    const { sortByColumn } = this
+    let ariaSort = 'none'
+    let sortArrow = '↕︎'
+    switch (options.sort) {
+      case 'ascending':
+        sortArrow = 'ꜛ'
+        ariaSort = 'descending'
+        break
+      case false:
+        break
+      default:
+        break
+      case 'descending':
+        ariaSort = 'ascending'
+        sortArrow = 'ꜜ'
+    }
+
+    const sortButton =
+      options.sort !== false && !this.nosort
+        ? button(
+            {
+              class: 'sort',
+              part: 'sort',
+              onClick(event: Event) {
+                sortByColumn(options)
+                event.stopPropagation()
+              },
+            },
+            sortArrow
+          )
+        : {}
+
+    return options.headerCell !== undefined
       ? options.headerCell(options)
       : span(
           {
             class: 'th',
             role: 'columnheader',
-            ariaSort: 'none',
+            ariaSort,
             style: {
               ...this.cellStyle,
               textAlign: options.align || 'left',
             },
           },
-          typeof options.name === 'string' ? options.name : options.prop
+          span(typeof options.name === 'string' ? options.name : options.prop),
+          span({ style: 'flex: 1' }),
+          sortButton
         )
+  }
 
   dataCell = (options: ColumnOptions) => {
     if (options.dataCell !== undefined) {
@@ -518,10 +635,26 @@ export class DataTable extends WebComponent {
     return this.array.filter((obj) => obj[this.selectedKey])
   }
 
+  rowTemplate(columns: ColumnOptions[]): HTMLTemplateElement {
+    return template(
+      div(
+        {
+          class: 'tr',
+          role: 'row',
+          bind: {
+            value: '^',
+            binding: { toDOM: this.selectBinding },
+          },
+        },
+        ...columns.map(this.dataCell)
+      )
+    )
+  }
+
   render() {
     super.render()
 
-    const found = this.filter(this._array)
+    const found = this.filter(this._array).sort(this.sort)
     this.rowData.pinnedTop =
       this.pinnedTop > 0 ? found.slice(0, this.pinnedTop) : []
     this.rowData.pinnedBottom =
@@ -541,6 +674,7 @@ export class DataTable extends WebComponent {
     const { visibleColumns } = this
     this.style.setProperty('--row-height', `${this.rowHeight}px`)
     this.setColumnWidths()
+
     this.append(
       div(
         { class: 'thead', role: 'rowgroup', style: { touchAction: 'none' } },
@@ -552,34 +686,24 @@ export class DataTable extends WebComponent {
           ...visibleColumns.map(this.headerCell)
         )
       ),
-      div(
-        {
-          part: 'pinnedTopRows',
-          class: 'tbody',
-          role: 'rowgroup',
-          style: {
-            flex: '0 0 auto',
-            overflow: 'hidden',
-          },
-          bindList: {
-            value: this.rowData.pinnedTop,
-            virtual: this.virtual,
-          },
-        },
-        template(
-          div(
-            {
-              class: 'tr',
-              role: 'row',
-              bind: {
-                value: '^',
-                binding: { toDOM: this.selectBinding },
-              },
+      this.pinnedTop > 0 &&
+        div(
+          {
+            part: 'pinnedTopRows',
+            class: 'tbody',
+            role: 'rowgroup',
+            style: {
+              flex: '0 0 auto',
+              overflow: 'hidden',
+              height: `${this.rowHeight * this.pinnedTop}px`,
             },
-            ...visibleColumns.map(this.dataCell)
-          )
-        )
-      ),
+            bindList: {
+              value: this.rowData.pinnedTop,
+              virtual: this.virtual,
+            },
+          },
+          this.rowTemplate(visibleColumns)
+        ),
       div(
         {
           part: 'visibleRows',
@@ -596,48 +720,26 @@ export class DataTable extends WebComponent {
             virtual: this.virtual,
           },
         },
-        template(
-          div(
-            {
-              class: 'tr',
-              role: 'row',
-              bind: {
-                value: '^',
-                binding: { toDOM: this.selectBinding },
-              },
-            },
-            ...visibleColumns.map(this.dataCell)
-          )
-        )
+        this.rowTemplate(visibleColumns)
       ),
-      div(
-        {
-          part: 'pinnedBottomRows',
-          class: 'tbody',
-          role: 'rowgroup',
-          style: {
-            flex: '0 0 auto',
-            overflow: 'hidden',
-          },
-          bindList: {
-            value: this.rowData.pinnedBottom,
-            virtual: this.virtual,
-          },
-        },
-        template(
-          div(
-            {
-              class: 'tr',
-              role: 'row',
-              bind: {
-                value: '^',
-                binding: { toDOM: this.selectBinding },
-              },
+      this.pinnedBottom > 0 &&
+        div(
+          {
+            part: 'pinnedBottomRows',
+            class: 'tbody',
+            role: 'rowgroup',
+            style: {
+              flex: '0 0 auto',
+              overflow: 'hidden',
+              height: `${this.rowHeight * this.pinnedBottom}px`,
             },
-            ...visibleColumns.map(this.dataCell)
-          )
+            bindList: {
+              value: this.rowData.pinnedBottom,
+              virtual: this.virtual,
+            },
+          },
+          this.rowTemplate(visibleColumns)
         )
-      )
     )
   }
 }
@@ -661,6 +763,16 @@ export const dataTable = DataTable.elementCreator({
       overflow: 'hidden',
       whiteSpace: 'nowrap',
       textOverflow: 'ellipsis',
+      display: 'flex',
+      alignItems: 'center',
+    },
+    ':host .th .sort': {
+      color: 'currentColor',
+      background: 'none',
+      padding: 0,
+      lineHeight: vars.touchSize,
+      height: vars.touchSize,
+      width: vars.touchSize,
     },
   },
 }) as ElementCreator<DataTable>
