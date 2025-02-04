@@ -16,7 +16,8 @@ const columns = [
     name: "emoji",
     prop: "chars",
     align: "center",
-    width: 80
+    width: 80,
+    sort: false,
   },
   {
     prop: "name",
@@ -34,6 +35,7 @@ const columns = [
   },
   {
     prop: "category",
+    sort: "ascending",
     width: 150
   },
   {
@@ -83,6 +85,23 @@ You can set the `<xin-table>`'s `array`, `columns`, and `filter` properties dire
 }
 ```
 
+## `ColumnOptions`
+
+You can configure the table's columns by providing it an array of `ColumnOptions`:
+
+```
+export interface ColumnOptions {
+  name?: string
+  prop: string
+  width: number
+  visible?: boolean
+  align?: string
+  sort?: false | 'ascending' | 'descending'
+  headerCell?: (options: ColumnOptions) => HTMLElement
+  dataCell?: (options: ColumnOptions) => HTMLElement
+}
+```
+
 ## Selection
 
 `<xin-table>` supports `select` and `multiple` boolean properties allowing rows to be selectable. Selected rows will
@@ -100,6 +119,19 @@ The following methods are also provided:
 - `<xin-table>.deSelect(rows?: any[])` deselects all or specified rows.
 
 These are rather fine-grained but they're used internally by the selection code so they may as well be documented.
+
+## Sorting
+
+By default, the user can sort the table by any column which doesn't have a `sort === false`.
+
+You can set the initial sort by setting the `sort` value of a specific column to `ascending`
+or `descending`.
+
+You can override this by setting the table's sort function (it's an `Array.sort()` callback)
+to whatever you like, and you can replace the `headerCell` or set the `sort` of each column
+to `false` if you have some specific sorting in mind.
+
+You can turn off the default sorting controls by adding the `nosort` attribute to the `<xin-table>`.
 
 ## Row Height
 
@@ -123,6 +155,7 @@ export interface ColumnOptions {
     width: number;
     visible?: boolean;
     align?: string;
+    sort?: false | 'ascending' | 'descending';
     headerCell?: (options: ColumnOptions) => HTMLElement;
     dataCell?: (options: ColumnOptions) => HTMLElement;
 }
@@ -136,6 +169,7 @@ export type SelectCallback = (selected: any[]) => void;
 export declare class DataTable extends WebComponent {
     select: boolean;
     multiple: boolean;
+    nosort: boolean;
     selectionChanged: SelectCallback;
     private selectedKey;
     private selectBinding;
@@ -159,6 +193,8 @@ export declare class DataTable extends WebComponent {
     set array(newArray: any[]);
     get filter(): ArrayFilter;
     set filter(filterFunc: ArrayFilter);
+    get sort(): ArrayFilter;
+    set sort(sortFunc: ArrayFilter);
     get columns(): ColumnOptions[];
     set columns(newColumns: ColumnOptions[]);
     get visibleColumns(): ColumnOptions[];
@@ -173,11 +209,13 @@ export declare class DataTable extends WebComponent {
     private updateSelection;
     connectedCallback(): void;
     setColumnWidths(): void;
+    sortByColumn: (columnOptions: ColumnOptions, direction?: "ascending" | "descending" | "auto") => void;
     headerCell: (options: ColumnOptions) => any;
     dataCell: (options: ColumnOptions) => any;
     get visibleRows(): any[];
     get visibleSelectedRows(): any[];
     get selectedRows(): any[];
+    rowTemplate(columns: ColumnOptions[]): HTMLTemplateElement;
     render(): void;
 }
 export declare const dataTable: ElementCreator<DataTable>;
