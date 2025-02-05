@@ -9,6 +9,7 @@ const { popMenu } = xinjsui
 const { elements } = xinjs
 
 let picked = ''
+let testingEnabled = false
 
 preview.addEventListener('click', (event) => {
   if (!event.target.closest('button')) {
@@ -67,7 +68,17 @@ preview.addEventListener('click', (event) => {
         ]
       },
       {
+        icon: testingEnabled ? 'check' : '',
+        caption: 'Testing Enabled',
+        action() {
+          testingEnabled = !testingEnabled
+        }
+      },
+      {
         caption: 'Testing…',
+        enabled() {
+          return testingEnabled
+        },
         menuItems: [
           {
             caption: 'one',
@@ -337,6 +348,7 @@ export const createSubMenu = (
   const submenuItem = button(
     {
       class: 'xin-menu-item',
+      disabled: !(!item.enabled || item.enabled()),
       onClick(event: Event) {
         popMenu(
           Object.assign({}, options, {
