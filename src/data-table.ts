@@ -49,7 +49,6 @@ preview.append(dataTable({
   array: emojiData, 
   columns, 
   rowHeight: 40,
-  pinnedTop: 1,
   pinnedBottom: 2
 }))
 ```
@@ -603,7 +602,7 @@ export class DataTable extends WebComponent {
             },
           },
           span(typeof options.name === 'string' ? options.name : options.prop),
-          span({ style: 'flex: 1' }),
+          span({ style: { flex: '1' } }),
           sortButton
         )
   }
@@ -685,8 +684,10 @@ export class DataTable extends WebComponent {
           },
           ...visibleColumns.map(this.headerCell)
         )
-      ),
-      this.pinnedTop > 0 &&
+      )
+    )
+    if (this.pinnedTop > 0) {
+      this.append(
         div(
           {
             part: 'pinnedTopRows',
@@ -703,7 +704,10 @@ export class DataTable extends WebComponent {
             },
           },
           this.rowTemplate(visibleColumns)
-        ),
+        )
+      )
+    }
+    this.append(
       div(
         {
           part: 'visibleRows',
@@ -721,8 +725,10 @@ export class DataTable extends WebComponent {
           },
         },
         this.rowTemplate(visibleColumns)
-      ),
-      this.pinnedBottom > 0 &&
+      )
+    )
+    if (this.pinnedBottom > 0) {
+      this.append(
         div(
           {
             part: 'pinnedBottomRows',
@@ -740,7 +746,8 @@ export class DataTable extends WebComponent {
           },
           this.rowTemplate(visibleColumns)
         )
-    )
+      )
+    }
   }
 }
 
