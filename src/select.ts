@@ -154,9 +154,10 @@ import {
   ElementCreator,
   elements,
   vars,
+  throttle,
 } from 'xinjs'
 import { icons } from './icons'
-import { popMenu, MenuItem } from './menu'
+import { popMenu, MenuItem, SubMenu, removeLastMenu } from './menu'
 
 const { button, span, input } = elements
 
@@ -261,7 +262,23 @@ export class XinSelect extends WebComponent {
   }
 
   get optionsMenu(): MenuItem[] {
-    return this.selectOptions.map(this.buildOptionMenuItem)
+    const options = this.selectOptions.map(this.buildOptionMenuItem)
+    if (this.filter === '') {
+      return options
+    }
+    const showOption = (option: MenuItem) => {
+      if (option === null) {
+        return true
+      } else if ((option as SubMenu).menuItems) {
+        ;(option as SubMenu).menuItems = (option as SubMenu).menuItems.filter(
+          showOption
+        )
+        return (option as SubMenu).menuItems.length > 0
+      } else {
+        return option.caption.toLocaleLowerCase().includes(this.filter)
+      }
+    }
+    return options.filter(showOption)
   }
 
   handleChange = (event: Event) => {
@@ -271,6 +288,7 @@ export class XinSelect extends WebComponent {
       this.value = newValue
       this.dispatchEvent(new Event('change'))
     }
+    this.filter = ''
     event.stopPropagation()
     event.preventDefault()
   }
@@ -281,10 +299,22 @@ export class XinSelect extends WebComponent {
     }
   }
 
-  popOptions = () => {
+  filterMenu = throttle(() => {
+    this.filter = (
+      this.parts.value as HTMLInputElement
+    ).value.toLocaleLowerCase()
+    removeLastMenu(0)
+    this.popOptions()
+  })
+
+  popOptions = (event?: Event) => {
+    if (event && event.type === 'click') {
+      this.filter = ''
+    }
+    this.poppedOptions = this.optionsMenu
     popMenu({
       target: this,
-      menuItems: this.optionsMenu,
+      menuItems: this.poppedOptions,
     })
   }
   content = () => [
@@ -298,6 +328,7 @@ export class XinSelect extends WebComponent {
         value: this.value,
         tabindex: 0,
         onKeydown: this.handleKey,
+        onInput: this.filterMenu,
         onChange: this.handleChange,
       }),
       icons.chevronDown()

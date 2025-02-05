@@ -417,7 +417,7 @@ interface PoppedMenu {
 let lastPopped: PoppedMenu | undefined
 const poppedMenus: PoppedMenu[] = []
 
-const removeLastMenu = (depth = 0): PoppedMenu | undefined => {
+export const removeLastMenu = (depth = 0): PoppedMenu | undefined => {
   const toBeRemoved = poppedMenus.splice(depth)
   for (const popped of toBeRemoved) {
     popped.menu.remove()
