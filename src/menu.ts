@@ -435,7 +435,14 @@ export interface PopMenuOptions {
   submenuOffset?: { x: number; y: number }
 }
 
-document.body.addEventListener('mousedown', () => removeLastMenu(0))
+document.body.addEventListener('mousedown', (event: Event) => {
+  if (
+    event.target &&
+    !poppedMenus.find((popped) => popped.target.contains(event.target as Node))
+  ) {
+    removeLastMenu(0)
+  }
+})
 document.body.addEventListener('keydown', (event: KeyboardEvent) => {
   if (event.key === 'Escape') {
     removeLastMenu(0)
