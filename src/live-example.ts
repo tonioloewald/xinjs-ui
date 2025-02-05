@@ -711,7 +711,7 @@ export const liveExample = LiveExample.elementCreator({
       position: 'absolute',
       top: '0',
       right: '0',
-      '--text-color': 'var(--code-editors-bar-color)',
+      color: 'var(--code-editors-bar-color)',
     },
 
     ':host button.transparent, :host .sizer': {
