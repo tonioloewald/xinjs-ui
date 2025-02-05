@@ -160,6 +160,7 @@ export const styleSpec: XinStyleSheet = {
     _codeFontSize: '14px',
     _textColor: '#222',
     _brandColor: '#088358',
+    _linkColor: vars.brandColor,
     _background: '#fafafa',
     _backgroundShaded: '#f5f5f5',
     _navBg: '#efefeed2',
@@ -204,6 +205,7 @@ export const styleSpec: XinStyleSheet = {
     background: vars.brandColor,
     color: vars.brandTextColor,
     _textColor: vars.brandTextColor,
+    _linkColor: vars.transTextColor,
     display: 'flex',
     alignItems: 'center',
     padding: '0 calc(var(--spacing) * 1.5)',
@@ -269,7 +271,7 @@ export const styleSpec: XinStyleSheet = {
   },
   a: {
     textDecoration: 'none',
-    color: vars.brandColor,
+    color: vars.linkColor,
     opacity: '0.9',
     borderBottom: '1px solid var(--brand-color)',
   },
@@ -465,7 +467,7 @@ export const styleSpec: XinStyleSheet = {
     padding: 'calc(var(--spacing) * 0.5) var(--spacing)',
   },
   'header xin-locale-picker xin-select button': {
-    _brandColor: vars.brandTextColor,
+    color: 'currentcolor',
     background: 'transparent',
     gap: '2px',
   },
