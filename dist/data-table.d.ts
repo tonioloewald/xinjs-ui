@@ -49,7 +49,6 @@ preview.append(dataTable({
   array: emojiData,
   columns,
   rowHeight: 40,
-  pinnedTop: 1,
   pinnedBottom: 2
 }))
 ```
