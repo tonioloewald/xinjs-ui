@@ -219,6 +219,11 @@ export declare const createMenuAction: (item: MenuAction) => HTMLElement;
 export declare const createSubMenu: (item: SubMenu, options: PopMenuOptions) => HTMLElement;
 export declare const createMenuItem: (item: MenuItem, options: PopMenuOptions) => HTMLElement;
 export declare const menu: (options: PopMenuOptions) => HTMLDivElement;
+interface PoppedMenu {
+    target: HTMLElement;
+    menu: HTMLElement;
+}
+export declare const removeLastMenu: (depth?: number) => PoppedMenu | undefined;
 export interface PopMenuOptions {
     target: HTMLElement;
     menuItems: MenuItem[];
@@ -231,3 +236,4 @@ export interface PopMenuOptions {
     };
 }
 export declare const popMenu: (options: PopMenuOptions) => void;
+export {};
