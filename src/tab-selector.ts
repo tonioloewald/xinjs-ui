@@ -12,6 +12,12 @@
 const { div, button } = xinjs.elements
 const tabSelector = preview.querySelector('xin-tabs')
 
+tabSelector.onCloseTab = body => {
+  if (!confirm(`Are you sure you want to close the ${body.getAttribute('name')} tab?`)) {
+    return false
+  }
+}
+
 let bodycount = 0
 preview.querySelector('.add').addEventListener('click', () => {
   const name = `new tab ${++bodycount}`
@@ -66,6 +72,16 @@ The `<xin-tabs>`s `value` is the index of its active body.
 A `<xin-tabs>` has `addTabBody(body: HTMLElement, select?: boolean)` and
 `removeTabBody(body: number | HTMLElement)` methods for updating its content.
 
+You can also just insert or remove tab bodies directly and call `setupTabs()`.
+
+## Closeable Tabs
+
+Adding the `data-close` attribute to a tab will make it closeable.
+
+When a tab is closed, the `<xin-tabs>` element's `onCloseTab: (tabBody: Element) => boolean | undefined | void`
+will be called. If you override this method and return `false`, the tab will
+not be closed (e.g. if you want to implement save/cancel behavior).
+
 ## Custom Tab Content
 
 You can specify the exact content of the tab for a given body by
@@ -78,11 +94,19 @@ import {
   ElementCreator,
   elements,
   vars,
+  PartsMap,
 } from 'xinjs'
 
 import { icons } from '../src'
 
 const { div, slot, span, button } = elements
+
+type TabCloseHandler = (tabBody: Element) => boolean | undefined | void
+
+interface TabsParts extends PartsMap {
+  tabs: HTMLElement
+  selected: HTMLElement
+}
 
 export class TabSelector extends WebComponent {
   value = 0
@@ -184,6 +208,8 @@ export class TabSelector extends WebComponent {
     },
   }
 
+  onCloseTab: TabCloseHandler = (tabBody: Element) => {}
+
   content = [
     div(
       { class: 'tab-holder', role: 'tabpanel' },
@@ -222,10 +248,10 @@ export class TabSelector extends WebComponent {
     this.queueRender()
   }
 
-  keyTab = (event: KeyboardEvent): void => {
+  keyTab = (event: Event): void => {
     const { tabs } = this.parts
     const tabIndex = [...tabs.children].indexOf(event.target as HTMLElement)
-    switch (event.key) {
+    switch ((event as KeyboardEvent).key) {
       case 'ArrowLeft':
         this.value =
           (tabIndex + Number(tabs.children.length) - 1) % tabs.children.length
@@ -257,7 +283,10 @@ export class TabSelector extends WebComponent {
     const tab = target.closest('.tabs > div') as HTMLElement
     const tabIndex = [...tabs.children].indexOf(tab)
     if (isCloseEvent) {
-      this.removeTabBody(this.bodies[tabIndex] as HTMLElement)
+      const body = this.bodies[tabIndex]
+      if (this.onCloseTab(body) !== false) {
+        this.removeTabBody(this.bodies[tabIndex] as HTMLElement)
+      }
     } else {
       if (tabIndex > -1) {
         this.value = tabIndex
@@ -296,15 +325,15 @@ export class TabSelector extends WebComponent {
   }
 
   render(): void {
-    const { tabs, selected } = this.parts
+    const { tabs, selected } = this.parts as TabsParts
     const tabBodies = this.bodies
     for (let i = 0; i < tabBodies.length; i++) {
       const tabBody = tabBodies[i]
       const tab = tabs.children[i] as HTMLElement
       if (this.value === Number(i)) {
         tab.setAttribute('aria-selected', 'true')
-        selected.style.marginLeft = `${tab.offsetLeft - tabs.offsetLeft}px`
-        selected.style.width = `${tab.offsetWidth}px`
+        selected.style!.marginLeft = `${tab.offsetLeft - tabs.offsetLeft}px`
+        selected.style!.width = `${tab.offsetWidth}px`
         tabBody.toggleAttribute('hidden', false)
       } else {
         tab.toggleAttribute('aria-selected', false)
