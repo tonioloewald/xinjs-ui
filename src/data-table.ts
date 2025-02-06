@@ -44,10 +44,10 @@ const columns = [
   },
 ]
 
-preview.append(dataTable({ 
-  multiple: true, 
-  array: emojiData, 
-  columns, 
+preview.append(dataTable({
+  multiple: true,
+  array: emojiData,
+  columns,
   rowHeight: 40,
   pinnedBottom: 2
 }))
@@ -159,7 +159,6 @@ import {
 } from 'xinjs'
 import { trackDrag } from './track-drag'
 import { makeSorter } from './make-sorter'
-import { icons } from './icons'
 
 function defaultWidth(
   array: any[],

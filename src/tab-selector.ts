@@ -208,7 +208,7 @@ export class TabSelector extends WebComponent {
     },
   }
 
-  onCloseTab: TabCloseHandler = (tabBody: Element) => {}
+  onCloseTab: TabCloseHandler | null = null
 
   content = [
     div(
@@ -284,7 +284,7 @@ export class TabSelector extends WebComponent {
     const tabIndex = [...tabs.children].indexOf(tab)
     if (isCloseEvent) {
       const body = this.bodies[tabIndex]
-      if (this.onCloseTab(body) !== false) {
+      if (!this.onCloseTab || this.onCloseTab(body) !== false) {
         this.removeTabBody(this.bodies[tabIndex] as HTMLElement)
       }
     } else {
