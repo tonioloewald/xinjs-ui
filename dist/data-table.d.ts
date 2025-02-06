@@ -18,6 +18,7 @@ const columns = [
     align: "center",
     width: 80,
     sort: false,
+    visible: true
   },
   {
     prop: "name",
@@ -132,6 +133,11 @@ to `false` if you have some specific sorting in mind.
 
 You can turn off the default sorting controls by adding the `nosort` attribute to the `<xin-table>`.
 
+## Hiding (and Showing) Columns
+
+By default, the user can show / hide columns by clicking via the column header menu.
+You can turn off this by adding the `nohide` attribute to the `<xin-table>`
+
 ## Row Height
 
 If you set the `<xin-table>`'s `rowHeight` to `0` it will render all its elements (i.e. not be virtual). This is
@@ -148,6 +154,7 @@ The table supports two attributes, `pinnedTop` and `pinnedBottom` that let you p
 of top and bottom rows.
 */
 import { Component as WebComponent, ElementCreator } from 'xinjs';
+import { SortCallback } from './make-sorter';
 export interface ColumnOptions {
     name?: string;
     prop: string;
@@ -169,6 +176,7 @@ export declare class DataTable extends WebComponent {
     select: boolean;
     multiple: boolean;
     nosort: boolean;
+    nohide: boolean;
     selectionChanged: SelectCallback;
     private selectedKey;
     private selectBinding;
@@ -192,7 +200,7 @@ export declare class DataTable extends WebComponent {
     set array(newArray: any[]);
     get filter(): ArrayFilter;
     set filter(filterFunc: ArrayFilter);
-    get sort(): ArrayFilter;
+    get sort(): SortCallback | undefined;
     set sort(sortFunc: ArrayFilter);
     get columns(): ColumnOptions[];
     set columns(newColumns: ColumnOptions[]);
@@ -209,6 +217,7 @@ export declare class DataTable extends WebComponent {
     connectedCallback(): void;
     setColumnWidths(): void;
     sortByColumn: (columnOptions: ColumnOptions, direction?: "ascending" | "descending" | "auto") => void;
+    popColumnMenu: (target: HTMLElement, options: ColumnOptions) => void;
     headerCell: (options: ColumnOptions) => any;
     dataCell: (options: ColumnOptions) => any;
     get visibleRows(): any[];
