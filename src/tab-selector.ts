@@ -141,6 +141,7 @@ export class TabSelector extends WebComponent {
     ':host .tab-holder': {
       display: 'flex',
       flexDirection: 'column',
+      overflowX: 'auto',
     },
     ':host .tab-row': {
       display: 'flex',

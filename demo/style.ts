@@ -316,9 +316,14 @@ export const styleSpec: XinStyleSheet = {
     minHeight: 'calc(var(--spacing) + var(--line-height) * 4)',
   },
   "input[type='number']": {
-    paddingRight: 'calc(var(--spacing) * 0.5)',
+    paddingRight: 0,
     width: '6em',
     textAlign: 'right',
+  },
+  'input[type=number]::-webkit-inner-spin-button': {
+    margin: '1px 3px 1px 0.5em',
+    opacity: 1,
+    inset: 1,
   },
   "input[type='checkbox'], input[type='radio']": {
     maxWidth: vars.lineHeight,
