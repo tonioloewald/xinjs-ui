@@ -131,12 +131,17 @@ You can override this by setting the table's sort function (it's an `Array.sort(
 to whatever you like, and you can replace the `headerCell` or set the `sort` of each column
 to `false` if you have some specific sorting in mind.
 
-You can turn off the default sorting controls by adding the `nosort` attribute to the `<xin-table>`.
+You can disable sorting controls by adding the `nosort` attribute to the `<xin-table>`.
 
 ## Hiding (and Showing) Columns
 
 By default, the user can show / hide columns by clicking via the column header menu.
-You can turn off this by adding the `nohide` attribute to the `<xin-table>`
+You can remove this option by adding the `nohide` attribute to the `<xin-table>`
+
+## Reordering Columns
+
+By default, the user can reorder columns by dragging them around. You can disable this
+by adding the `noreorder` attribute to the `<xin-table>`.
 
 ## Row Height
 
@@ -159,6 +164,7 @@ import {
   ElementCreator,
   elements,
   vars,
+  varDefault,
   xinValue,
   getListItem,
   xinProxy,
@@ -168,6 +174,7 @@ import { makeSorter } from './make-sorter'
 import { SortCallback } from './make-sorter'
 import { icons } from './icons'
 import { popMenu, MenuItem } from './menu'
+import * as dragAndDrop from './drag-and-drop'
 
 function defaultWidth(
   array: any[],
@@ -231,6 +238,7 @@ export class DataTable extends WebComponent {
   multiple = false
   nosort = false
   nohide = false
+  noreorder = false
   selectionChanged: SelectCallback = () => {
     /* do not care */
   }
@@ -302,7 +310,8 @@ export class DataTable extends WebComponent {
       'pinnedTop',
       'pinnedBottom',
       'nosort',
-      'nohide'
+      'nohide',
+      'noreorder'
     )
   }
 
@@ -646,7 +655,7 @@ export class DataTable extends WebComponent {
         sortIcon = icons.sortDescending()
     }
 
-    const sortButton = !(this.nosort && this.nohide)
+    const menuButton = !(this.nosort && this.nohide)
       ? button(
           {
             class: 'menu-trigger',
@@ -673,7 +682,7 @@ export class DataTable extends WebComponent {
           },
           span(typeof options.name === 'string' ? options.name : options.prop),
           span({ style: { flex: '1' } }),
-          sortButton
+          menuButton
         )
   }
 
@@ -720,6 +729,24 @@ export class DataTable extends WebComponent {
     )
   }
 
+  private draggedColumn?: ColumnOptions
+
+  private dropColumn = (event: Event) => {
+    const target = event.target as HTMLElement
+    const targetIndex = Array.from(target.parentElement!.children).indexOf(
+      target
+    )
+    const dropped = this.visibleColumns[targetIndex]
+    const draggedIndex = this.columns.indexOf(this.draggedColumn!)
+    const droppedIndex = this.columns.indexOf(dropped)
+    this.columns.splice(draggedIndex, 1)
+    this.columns.splice(droppedIndex, 0, this.draggedColumn!)
+    this.queueRender()
+
+    event.preventDefault()
+    event.stopPropagation()
+  }
+
   render() {
     super.render()
 
@@ -752,6 +779,23 @@ export class DataTable extends WebComponent {
     this.style.setProperty('--row-height', `${this.rowHeight}px`)
     this.setColumnWidths()
 
+    if (!this.noreorder) {
+      dragAndDrop.init()
+    }
+    const dragId = this.instanceId + '-column-header'
+    const columnHeaders = visibleColumns.map((column) => {
+      const header = this.headerCell(column)
+      if (!this.noreorder) {
+        header.setAttribute('draggable', 'true')
+        header.dataset.drag = dragId
+        header.dataset.drop = dragId
+        header.addEventListener('dragstart', () => {
+          this.draggedColumn = column
+        })
+        header.addEventListener('drop', this.dropColumn)
+      }
+      return header
+    })
     this.append(
       div(
         { class: 'thead', role: 'rowgroup', style: { touchAction: 'none' } },
@@ -760,7 +804,7 @@ export class DataTable extends WebComponent {
             class: 'tr',
             role: 'row',
           },
-          ...visibleColumns.map(this.headerCell)
+          ...columnHeaders
         )
       )
     )
@@ -858,6 +902,16 @@ export const dataTable = DataTable.elementCreator({
       lineHeight: vars.touchSize,
       height: vars.touchSize,
       width: vars.touchSize,
+    },
+    ':host [draggable="true"]': {
+      cursor: 'ew-resize',
+    },
+    ':host [draggable="true"]:active': {
+      background: varDefault.draggedHeaderBg('#0004'),
+      color: varDefault.draggedHeaderColor('#fff'),
+    },
+    ':host .drag-over': {
+      background: varDefault.dropHeaderBg('#fff4'),
     },
   },
 }) as ElementCreator<DataTable>
