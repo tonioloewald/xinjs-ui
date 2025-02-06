@@ -1,6 +1,6 @@
-export type SortValuator<T> = (f: T) => (string | number)[]
+export type SortValuator<T = object> = (f: T) => (string | number)[]
 
-export type SortCallback<T> = (p: T, q: T) => number
+export type SortCallback<T = object> = (p: T, q: T) => number
 
 /*!
 # makeSorter
