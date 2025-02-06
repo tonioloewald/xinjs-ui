@@ -18,6 +18,7 @@ const columns = [
     align: "center",
     width: 80,
     sort: false,
+    visible: true
   },
   {
     prop: "name",
@@ -132,6 +133,11 @@ to `false` if you have some specific sorting in mind.
 
 You can turn off the default sorting controls by adding the `nosort` attribute to the `<xin-table>`.
 
+## Hiding (and Showing) Columns
+
+By default, the user can show / hide columns by clicking via the column header menu.
+You can turn off this by adding the `nohide` attribute to the `<xin-table>`
+
 ## Row Height
 
 If you set the `<xin-table>`'s `rowHeight` to `0` it will render all its elements (i.e. not be virtual). This is
@@ -159,6 +165,9 @@ import {
 } from 'xinjs'
 import { trackDrag } from './track-drag'
 import { makeSorter } from './make-sorter'
+import { SortCallback } from './make-sorter'
+import { icons } from './icons'
+import { popMenu, MenuItem } from './menu'
 
 function defaultWidth(
   array: any[],
@@ -221,6 +230,7 @@ export class DataTable extends WebComponent {
   select = false
   multiple = false
   nosort = false
+  nohide = false
   selectionChanged: SelectCallback = () => {
     /* do not care */
   }
@@ -257,9 +267,9 @@ export class DataTable extends WebComponent {
   }
 
   private rowData = {
-    visible: [] as [],
-    pinnedTop: [] as [],
-    pinnedBottom: [] as [],
+    visible: [] as any[],
+    pinnedTop: [] as any[],
+    pinnedBottom: [] as any[],
   }
 
   private _array: any[] = []
@@ -291,7 +301,8 @@ export class DataTable extends WebComponent {
       'multiple',
       'pinnedTop',
       'pinnedBottom',
-      'nosort'
+      'nosort',
+      'nohide'
     )
   }
 
@@ -315,15 +326,15 @@ export class DataTable extends WebComponent {
     }
   }
 
-  get sort(): ArrayFilter {
+  get sort(): SortCallback | undefined {
     if (this._sort) {
       return this._sort
     }
-    const sortColumn = this._columns.find(
+    const sortColumn = this._columns?.find(
       (c) => c.sort === 'ascending' || c.sort === 'descending'
     )
     if (!sortColumn) {
-      return passThru
+      return undefined
     }
     return makeSorter(
       (a: any) => a[sortColumn.prop],
@@ -555,13 +566,75 @@ export class DataTable extends WebComponent {
     }
   }
 
-  headerCell = (options: ColumnOptions) => {
+  popColumnMenu = (target: HTMLElement, options: ColumnOptions) => {
     const { sortByColumn } = this
+    const hiddenColumns = this.columns.filter(
+      (column) => column.visible === false
+    )
+    const queueRender = this.queueRender.bind(this)
+    const menu: MenuItem[] = []
+    if (!this.nosort && options.sort !== false) {
+      menu.push(
+        {
+          caption: 'Sort Ascending',
+          icon: 'sortAscending',
+          action() {
+            sortByColumn(options)
+          },
+        },
+        {
+          caption: 'Sort Descending',
+          icon: 'sortDescending',
+          action() {
+            sortByColumn(options, 'descending')
+          },
+        }
+      )
+    }
+    if (!this.nohide) {
+      if (menu.length) {
+        menu.push(null)
+      }
+      menu.push(
+        {
+          caption: 'Hide Column',
+          icon: 'eyeOff',
+          enabled: () => options.visible !== true,
+          action() {
+            options.visible = false
+            queueRender()
+          },
+        },
+        {
+          caption: 'Show Column',
+          icon: 'eye',
+          enabled: () => hiddenColumns.length > 0,
+          menuItems: hiddenColumns.map((column) => {
+            return {
+              caption: column.name || column.prop,
+              action() {
+                delete column.visible
+                queueRender()
+              },
+            }
+          }),
+        }
+      )
+    }
+
+    popMenu({
+      target,
+      menuItems: menu,
+    })
+  }
+
+  headerCell = (options: ColumnOptions) => {
+    const { popColumnMenu } = this
     let ariaSort = 'none'
-    let sortArrow = '↕︎'
+    let sortIcon: SVGElement | undefined
     switch (options.sort) {
       case 'ascending':
-        sortArrow = 'ꜛ'
+        sortIcon = icons.sortAscending()
         ariaSort = 'descending'
         break
       case false:
@@ -570,23 +643,21 @@ export class DataTable extends WebComponent {
         break
       case 'descending':
         ariaSort = 'ascending'
-        sortArrow = 'ꜜ'
+        sortIcon = icons.sortDescending()
     }
 
-    const sortButton =
-      options.sort !== false && !this.nosort
-        ? button(
-            {
-              class: 'sort',
-              part: 'sort',
-              onClick(event: Event) {
-                sortByColumn(options)
-                event.stopPropagation()
-              },
+    const sortButton = !(this.nosort && this.nohide)
+      ? button(
+          {
+            class: 'menu-trigger',
+            onClick(event: Event) {
+              popColumnMenu(event.target as HTMLElement, options)
+              event.stopPropagation()
             },
-            sortArrow
-          )
-        : {}
+          },
+          sortIcon || icons.moreVertical()
+        )
+      : {}
 
     return options.headerCell !== undefined
       ? options.headerCell(options)
@@ -652,18 +723,26 @@ export class DataTable extends WebComponent {
   render() {
     super.render()
 
-    const found = this.filter(this._array).sort(this.sort)
     this.rowData.pinnedTop =
-      this.pinnedTop > 0 ? found.slice(0, this.pinnedTop) : []
+      this.pinnedTop > 0 ? this._array.slice(0, this.pinnedTop) : []
     this.rowData.pinnedBottom =
-      this.pinnedBottom > 0 ? found.slice(found.length - this.pinnedBottom) : []
-    this.rowData.visible = found.slice(
-      this.pinnedTop,
-      Math.min(
-        this.maxVisibleRows,
-        found.length - this.pinnedTop - this.pinnedBottom
+      this.pinnedBottom > 0
+        ? this._array.slice(this._array.length - this.pinnedBottom)
+        : []
+    this.rowData.visible = this._array
+      .filter(this.filter)
+      .slice(
+        this.pinnedTop,
+        Math.min(
+          this.maxVisibleRows,
+          this._array.length - this.pinnedTop - this.pinnedBottom
+        )
       )
-    )
+
+    const { sort } = this
+    if (sort) {
+      this.rowData.visible.sort(sort)
+    }
 
     this.textContent = ''
 
@@ -772,7 +851,7 @@ export const dataTable = DataTable.elementCreator({
       display: 'flex',
       alignItems: 'center',
     },
-    ':host .th .sort': {
+    ':host .th .menu-trigger': {
       color: 'currentColor',
       background: 'none',
       padding: 0,
