@@ -94,6 +94,7 @@ desired).
 
 This utility loads SVG files (they should only contain paths with no strokes, transforms, or nesting)
 and generates an `IconSpec`. It renders the original icon side-by-side with the `<xin-icon>` version.
+**If the icon on the right appears garbled, it probably needs to be simplified**.
 
 ```js
 const { defineIcon, xinIcon } = xinjsui
@@ -144,9 +145,8 @@ fileInput.addEventListener('change', () => {
           spec.c = paths.map(path => path.c)
         }
         iconSpec.value = jsObject(spec)
-        const { name } = fileInput.files[0]
-        defineIcon(name, spec)
-        icon.setAttribute('icon', name)
+        defineIcon('svgLoader', spec)
+        icon.setAttribute('icon', 'svgLoader')
         fileInput.value = ''
       }
     };
