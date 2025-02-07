@@ -222,6 +222,7 @@ preview.append(
     },
     template(
       div({
+        class: 'spectrum',
         bindText: '^.color',
         draggable: 'true',
         dataDrag: dragId,
@@ -242,9 +243,16 @@ preview.append(
 )
 ```
 ```css
-[data-drop="reorderable/spectrum"] {
+.spectrum {
   height: 36px;
-  z-index: 10;
+  color: white;
+  font-weight: 700;
+  text-shadow: 1px 2px 0 black;
+  padding-left: 10px;
+}
+
+.spectrum.drag-over {
+  box-shadow: 0 0 0 4px blue;
 }
 ```
 
@@ -280,13 +288,15 @@ const isTypeAllowed = (
   }
 }
 
+const removeClass = (className: string) => {
+  for (const elt of [...document.querySelectorAll(`.${className}`)]) {
+    elt.classList.remove(className)
+  }
+}
 const end = () => {
-  ;[...document.querySelectorAll('.drag-source')].forEach((elt) =>
-    elt.classList.remove('drag-source')
-  )
-  ;[...document.querySelectorAll('.drag-target')].forEach((elt) =>
-    elt.classList.remove('drag-target')
-  )
+  removeClass('drag-over')
+  removeClass('drag-source')
+  removeClass('drag-target')
 }
 
 const stringToTypes = (s: string | undefined, delimiter = ';'): string[] => {
@@ -347,9 +357,7 @@ function drag(evt: DragEvent) {
 }
 
 function leave() {
-  for (const element of Array.from(document.querySelectorAll('.drag-over'))) {
-    element.classList.remove('drag-over')
-  }
+  removeClass('drag-over')
 }
 
 function drop(evt: DragEvent) {
