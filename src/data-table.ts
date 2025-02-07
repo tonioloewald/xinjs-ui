@@ -759,15 +759,15 @@ export class DataTable extends WebComponent {
       this.pinnedBottom > 0
         ? this._array.slice(this._array.length - this.pinnedBottom)
         : []
-    this.rowData.visible = this._array
-      .filter(this.filter)
-      .slice(
+    this.rowData.visible = this.filter(
+      this._array.slice(
         this.pinnedTop,
         Math.min(
           this.maxVisibleRows,
           this._array.length - this.pinnedTop - this.pinnedBottom
         )
       )
+    )
 
     const { sort } = this
     if (sort) {
