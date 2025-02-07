@@ -732,7 +732,9 @@ export class DataTable extends WebComponent {
   private draggedColumn?: ColumnOptions
 
   private dropColumn = (event: Event) => {
-    const target = event.target as HTMLElement
+    const target = (event.target as HTMLElement).closest(
+      '.drag-over'
+    ) as HTMLElement
     const targetIndex = Array.from(target.parentElement!.children).indexOf(
       target
     )
@@ -741,6 +743,7 @@ export class DataTable extends WebComponent {
     const droppedIndex = this.columns.indexOf(dropped)
     this.columns.splice(draggedIndex, 1)
     this.columns.splice(droppedIndex, 0, this.draggedColumn!)
+    console.log({ event, target, targetIndex, draggedIndex, droppedIndex })
     this.queueRender()
 
     event.preventDefault()
