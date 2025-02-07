@@ -102,6 +102,7 @@ const fileInput = preview.querySelector('input')
 const icon = preview.querySelector('.icon')
 const svgContainer = preview.querySelector('.svg')
 const iconSpec = preview.querySelector('textarea')
+const simplify = preview.querySelector('.simplify')
 
 function jsObject(o) {
   let json = JSON.stringify(o, null, 2)
@@ -119,7 +120,17 @@ fileInput.addEventListener('change', () => {
         c: path.style.fill
       }))
       const isMulticolor = [...new Set(paths.map(path => path.c))].length > 1
-      const { width, height } = svg.viewBox.baseVal
+      let { width, height } = svg.viewBox.baseVal
+
+      if (simplify.checked) {
+        const scale = 1024 / height
+        height = 1024
+        width = width * scale
+
+        paths.forEach(path => {
+          path.p = path.p.replace(/\d+\.\d+/g, x => (Number(x) * scale).toFixed(0))
+        })
+      }
 
       if (width === 1024 && height === 1024 && paths.length === 1) {
         iconSpec.value = jsObject(paths[0])
@@ -136,6 +147,7 @@ fileInput.addEventListener('change', () => {
         const { name } = fileInput.files[0]
         defineIcon(name, spec)
         icon.setAttribute('icon', name)
+        fileInput.value = ''
       }
     };
     reader.readAsText(fileInput.files[0]);
@@ -147,6 +159,10 @@ fileInput.addEventListener('change', () => {
   <label>
     <span>Load an SVG file</span>
     <input accept="image/svg+xml" type="file">
+  </label>
+  <label style="flex-direction: row">
+    <input type="checkbox" class="simplify" checked>
+    <span>Scale to 1024 high and round floats?</span>
   </label>
   <div class="side-by-side">
     <label>
