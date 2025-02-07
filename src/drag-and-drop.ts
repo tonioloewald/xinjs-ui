@@ -347,9 +347,8 @@ function drag(evt: DragEvent) {
 }
 
 function leave() {
-  const target = document.querySelector('.drag-over')
-  if (target) {
-    target.classList.remove('drag-over')
+  for (const element of Array.from(document.querySelectorAll('.drag-over'))) {
+    element.classList.remove('drag-over')
   }
 }
 
