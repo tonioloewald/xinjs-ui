@@ -433,6 +433,8 @@ export const styleSpec: XinStyleSheet = {
   '.doc-link': {
     cursor: 'pointer',
     borderBottom: 'none',
+    transition: '0.15s ease-out',
+    marginLeft: '20px',
     padding: 'calc(var(--spacing) * 0.5) calc(var(--spacing) * 1.5)',
   },
   '.doc-link:not(.current):hover': {
@@ -440,6 +442,7 @@ export const styleSpec: XinStyleSheet = {
   },
   '.doc-link:not(.current)': {
     opacity: '0.8',
+    marginLeft: 0,
   },
   'xin-example': {
     margin: 'var(--spacing) 0',
