@@ -1,10 +1,3 @@
-type IconSpec = string | {
-    w?: number;
-    h?: number;
-    p: string[];
-};
-type IconData = {
-    [key: string]: IconSpec;
-};
+import { IconData } from './icon-types';
 declare const _default: IconData;
 export default _default;
