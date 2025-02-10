@@ -286,7 +286,7 @@ export class XinTagList extends WebComponent {
     })
 
     popMenu({
-      target: tagMenu,
+      target: tagMenu as HTMLElement,
       width: 'auto',
       menuItems,
     })
