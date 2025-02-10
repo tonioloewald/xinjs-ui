@@ -387,7 +387,7 @@ export const xinTagList = XinTagList.elementCreator({
       overflow: 'auto hidden',
       gap: vars.spacing25,
       minHeight: `calc(${vars.lineHeight} + ${vars.spacing})`,
-      padding: vars.spacing50,
+      padding: vars.spacing25,
     },
     ':host [part="tagMenu"]': {
       width: vars.touchSize,
