@@ -1,6 +1,6 @@
 {
   "name": "xinjs-ui",
-  "version": "0.8.7",
+  "version": "0.8.9",
   "description": "simple robust web-components for use with xinjs or anything else",
   "scripts": {
     "start": "bun pack && bun parcel demo/index.html --https --dist-dir www -p 8787",
@@ -10,7 +10,8 @@
     "postbuild": "cp demo/static/* www && cp demo/static/* docs",
     "format": "bun eslint src demo --fix && bun prettier --write .",
     "tests": "bun test && bun playwright test",
-    "latest": "rm -rf .parcel-cache && rm -rf node_modules && bun install && npm install"
+    "latest": "rm -rf .parcel-cache && rm -rf node_modules && bun install && npm install",
+    "publish": "npm publish"
   },
   "keywords": [
     "xinjs",

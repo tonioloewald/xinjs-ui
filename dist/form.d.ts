@@ -30,6 +30,10 @@ preview.querySelector('.submit').addEventListener('click', form.submit)
       <option>The Other</option>
     </select>
   </xin-field>
+  <xin-field key="tags">
+    Tag List
+    <xin-tag-list editable slot="input" available-tags="pick me,no pick me"></xin-tag-list>
+  </xin-field>
   <xin-field key="rating">
     Rate this form!
     <xin-rating slot="input"></xin-rating>
