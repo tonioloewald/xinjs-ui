@@ -1,7 +1,9 @@
 /*!
 # password strength
 
-Just wrap it around an `<input type="password">` and it will gauge its content strength as a password.
+Just wrap it a `<xin-password-strength>` element around an `<input>`
+and it will gauge its content strength as a password. It will also
+let you **securely verify** that the password hasn't been breached.
 
 ```html
 <xin-password-strength>
@@ -11,6 +13,7 @@ Just wrap it around an `<input type="password">` and it will gauge its content s
   </button>
 </xin-password-strength>
 
+<br><br>
 <button class="breach">Check if breached</button>
 
 ```
@@ -46,11 +49,23 @@ input[type="password"] {
 }
 ```
 
+## Algorithm
+
+The password is assessed to have a strength based on:
+
+- **length** one point for at least `goodLength` characters long.
+- **[a-z]** one point for containing a lowercase letter
+- **[A-Z]** one point for containing an uppercase letter
+- **[0-9]** one point for containing a numeric character
+- **^[a-zA-Z0-9]]** one point for containing some other kind of character
+
+A password smaller than `minLength` is an automatic `0`.
+
 ## Attributes
 
-- `minLength` password scores 1 point for equalling or exceeding this (default 8)
-- `goodLength` password scores 1 point for equalling or exceeding this (default 12)
-- `indicatorColors` is a list of six HTML colors, separated by commas (default '#f00,#f40,#f80,#ef0,#8f0,#0d4')
+- `minLength` defaults to `8`
+- `goodLength` defaults to `12`
+- `indicatorColors` six HTML colors, separated by commas, defaults to `'#f00,#f40,#f80,#ef0,#8f0,#0d4'`
 
 ## Properties
 
@@ -148,7 +163,9 @@ export class XinPasswordStrength extends Component {
       noSpecial: !password.match(/[^a-zA-Z0-9]/),
     }
 
-    return Object.values(this.issues).filter((v) => !v).length - 1
+    return this.issues.tooShort
+      ? 0
+      : Object.values(this.issues).filter((v) => !v).length - 1
   }
 
   async isBreached(): Promise<boolean> {
