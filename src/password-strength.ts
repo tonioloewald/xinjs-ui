@@ -5,23 +5,12 @@ Just wrap it a `<xin-password-strength>` element around an `<input>`
 and it will gauge its content strength as a password. It will also
 let you **securely verify** that the password hasn't been breached.
 
-```html
-<xin-password-strength>
-  <input type="password">
-  <button class="toggle">
-    <xin-icon icon="eye"></xin-icon>
-  </button>
-</xin-password-strength>
-
-<br><br>
-<button class="breach">Check if breached</button>
-
-```
 ```js
 const toggle = preview.querySelector('.toggle')
 const icon = preview.querySelector('xin-icon')
 const input = preview.querySelector('input')
 const breach = preview.querySelector('.breach')
+const output = preview.querySelector('.output')
 
 toggle.addEventListener('click', () => {
   if (icon.icon === 'eye') {
@@ -35,17 +24,34 @@ toggle.addEventListener('click', () => {
 
 breach.addEventListener('click', async () => {
   preview.querySelector('xin-password-strength').isBreached().then(isBreached => {
-    alert(
+    output.textContent =
       isBreached
       ? 'This password has been breached, look at console for details'
       : 'Seems OK'
-    )
+    output.classList.toggle('breached', isBreached)
   })
 })
 ```
+```html
+<xin-password-strength>
+  <input class="password" type="password">
+  <button class="toggle">
+    <xin-icon icon="eye"></xin-icon>
+  </button>
+</xin-password-strength>
+
+<br><br>
+<button class="breach">Check if breached</button>
+<div class="output"></div>
+```
 ```css
-input[type="password"] {
+input.password {
   box-shadow: inset 0 0 0 2px var(--indicator-color);
+}
+
+.breached {
+  color: white;
+  background: red;
 }
 ```
 
@@ -66,6 +72,7 @@ A password smaller than `minLength` is an automatic `0`.
 - `minLength` defaults to `8`
 - `goodLength` defaults to `12`
 - `indicatorColors` six HTML colors, separated by commas, defaults to `'#f00,#f40,#f80,#ef0,#8f0,#0d4'`
+- `descriptionColors` six HTML colors, sepeated by commans, defaults to `'#000,#000,#000,#000,#000,#fff'`
 
 ## Properties
 
@@ -136,7 +143,8 @@ const { span, xinSlot } = elements
 export class XinPasswordStrength extends Component {
   minLength = 8
   goodLength = 12
-  indicatorColors = '#f00,#f40,#f80,#ef0,#8f0,#0d4'
+  indicatorColors = '#f00,#f40,#f80,#ef0,#8f0,#0a2'
+  descriptionColors = '#000,#000,#000,#000,#000,#fff'
   issues = {
     tooShort: true,
     short: true,
@@ -145,7 +153,23 @@ export class XinPasswordStrength extends Component {
     noNumber: true,
     noSpecial: true,
   }
+  issueDescriptions = {
+    tooShort: 'too short',
+    short: 'short',
+    noUpper: 'no upper case',
+    noLower: 'no lower case',
+    noNumber: 'no digits',
+    noSpecial: 'no unusual characters',
+  }
   value = 0
+  strengthDescriptions = [
+    'unacceptable',
+    'very weak',
+    'weak',
+    'moderate',
+    'strong',
+    'very strong',
+  ]
 
   constructor() {
     super()
@@ -179,18 +203,21 @@ export class XinPasswordStrength extends Component {
   }
 
   updateIndicator = (password: string) => {
-    const { level } = this.parts as { level: HTMLSpanElement }
+    const { level, description } = this.parts as {
+      level: HTMLSpanElement
+      description: HTMLSpanElement
+    }
     const colors = this.indicatorColors.split(',')
+    const descriptionColors = this.descriptionColors.split(',')
     const strength = this.strength(password)
     if (this.value !== strength) {
       this.value = strength
       this.dispatchEvent(new Event('change'))
     }
-    level.style.width = `${strength * 20}%`
-    this.style.setProperty(
-      '--indicator-color',
-      strength < 0 ? 'transparent' : colors[strength]
-    )
+    level.style.width = `${(strength + 1) * 16.67}%`
+    this.style.setProperty('--indicator-color', colors[strength])
+    this.style.setProperty('--description-color', descriptionColors[strength])
+    description.textContent = this.strengthDescriptions[strength]
   }
 
   update = (event: Event) => {
@@ -201,7 +228,11 @@ export class XinPasswordStrength extends Component {
 
   content = () => [
     xinSlot({ onInput: this.update }),
-    span({ part: 'meter' }, span({ part: 'level' })),
+    span(
+      { part: 'meter' },
+      span({ part: 'level' }),
+      span({ part: 'description' })
+    ),
   ]
 
   render() {
@@ -229,14 +260,28 @@ export const xinPasswordStrength = XinPasswordStrength.elementCreator({
       position: 'relative',
       height: varDefault.meterHeight('24px'),
       background: varDefault.indicatorBg('white'),
+      borderRadius: varDefault.meterRadius('4px'),
+      boxShadow: varDefault.meterShadow(
+        `inset 0 0 0 2px ${vars.indicatorColor}`
+      ),
     },
     ':host [part="level"]': {
-      height: '100%',
+      height: varDefault.levelHeight('20px'),
       content: '" "',
       display: 'inline-block',
       width: 0,
       transition: '0.15s ease-out',
       background: vars.indicatorColor,
+      margin: varDefault.levelMargin('2px'),
+      borderRadius: varDefault.levelRadius('2px'),
+    },
+    ':host [part="description"]': {
+      position: 'absolute',
+      inset: '0',
+      color: vars.descriptionColor,
+      height: varDefault.meterHeight('24px'),
+      lineHeight: varDefault.meterHeight('24px'),
+      textAlign: 'center',
     },
   },
 })
