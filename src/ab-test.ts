@@ -72,13 +72,13 @@ randomize()
 - `not` reverses the condition (so `<xin-ab not condition="foo">` will be visible if `conditions.foo` is `false`)
 */
 
-import { Component as XinComponent, xinProxy } from 'xinjs'
+import { Component, xinProxy } from 'xinjs'
 
 const { abTestConditions } = xinProxy({
   abTestConditions: {} as { [key: string]: any },
 })
 
-export class AbTest extends XinComponent {
+export class AbTest extends Component {
   static set conditions(context: { [key: string]: any }) {
     Object.assign(abTestConditions, context)
 
