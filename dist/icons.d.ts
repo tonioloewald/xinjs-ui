@@ -2,7 +2,9 @@
 # icons
 
 <center>
-  <xin-icon icon="rgb" style="--font-size: 160px"></xin-icon>
+  <xin-icon icon="settings" style="--font-size: 128px"></xin-icon>
+  <xin-icon icon="xr" style="--font-size: 128px"></xin-icon>
+  <xin-icon icon="rgb" style="--font-size: 128px"></xin-icon>
 </center>
 
 A library that provides `ElementCreator` functions that produce SVG icons. It leverages `xinjs`'s
@@ -12,10 +14,10 @@ applications along with being very easy to extend and maintain.
 > ### Supported Use Cases
 > - inline SVGs in buttons, etc.
 > - easily allow SVGs to be styled by CSS
-> - not require any special build process (it's just javascript)
-> - render SVGs (as data urls), e.g. to insert into CSS
+> - not require build process magic (it's "just javascript")
+> - render SVGs as data urls, e.g. to insert into CSS
 > - highly optimized and compressible
-> - color icons
+> - support for color icons with CSS overrides
 
 ## icons
 

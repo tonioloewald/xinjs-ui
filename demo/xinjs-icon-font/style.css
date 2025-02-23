@@ -1,10 +1,10 @@
 @font-face {
   font-family: 'icomoon';
-  src: url('fonts/icomoon.eot?6dn2y2');
-  src: url('fonts/icomoon.eot?6dn2y2#iefix') format('embedded-opentype'),
-    url('fonts/icomoon.ttf?6dn2y2') format('truetype'),
-    url('fonts/icomoon.woff?6dn2y2') format('woff'),
-    url('fonts/icomoon.svg?6dn2y2#icomoon') format('svg');
+  src: url('fonts/icomoon.eot?4ybqdo');
+  src: url('fonts/icomoon.eot?4ybqdo#iefix') format('embedded-opentype'),
+    url('fonts/icomoon.ttf?4ybqdo') format('truetype'),
+    url('fonts/icomoon.woff?4ybqdo') format('woff'),
+    url('fonts/icomoon.svg?4ybqdo#icomoon') format('svg');
   font-weight: normal;
   font-style: normal;
   font-display: block;
@@ -26,6 +26,104 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
+.icon-xinjs-ui-color .path1:before {
+  content: '\e9a6';
+  color: rgb(64, 64, 64);
+}
+.icon-xinjs-ui-color .path2:before {
+  content: '\e9a7';
+  margin-left: -1em;
+  color: rgb(255, 28, 36);
+}
+.icon-xinjs-ui-color .path3:before {
+  content: '\e9a8';
+  margin-left: -1em;
+  color: rgb(8, 131, 87);
+}
+.icon-xinjs-ui-color .path4:before {
+  content: '\e9a9';
+  margin-left: -1em;
+  color: rgb(8, 131, 87);
+}
+.icon-xinjs-ui-color .path5:before {
+  content: '\e9aa';
+  margin-left: -1em;
+  color: rgb(140, 198, 63);
+}
+.icon-xinjs-ui-color .path6:before {
+  content: '\e9ab';
+  margin-left: -1em;
+  color: rgb(61, 168, 244);
+}
+.icon-xinjs-ui-color .path7:before {
+  content: '\e9ac';
+  margin-left: -1em;
+  color: rgb(255, 147, 29);
+}
+.icon-xinjs-ui-color .path8:before {
+  content: '\e9ad';
+  margin-left: -1em;
+  color: rgb(251, 237, 33);
+}
+.icon-xinjs-ui-color .path9:before {
+  content: '\e9ae';
+  margin-left: -1em;
+  color: rgb(255, 255, 255);
+}
+.icon-xinjs-ui-color .path10:before {
+  content: '\e9af';
+  margin-left: -1em;
+  color: rgb(0, 0, 0);
+}
+.icon-xinjs-ui .path1:before {
+  content: '\e9b0';
+  color: rgb(237, 242, 221);
+}
+.icon-xinjs-ui .path2:before {
+  content: '\e9b1';
+  margin-left: -1em;
+  color: rgb(8, 131, 87);
+}
+.icon-xinjs-ui .path3:before {
+  content: '\e9b2';
+  margin-left: -1em;
+  color: rgb(8, 131, 87);
+}
+.icon-xinjs-ui .path4:before {
+  content: '\e9b3';
+  margin-left: -1em;
+  color: rgb(8, 131, 87);
+}
+.icon-xinjs-ui .path5:before {
+  content: '\e9b4';
+  margin-left: -1em;
+  color: rgb(8, 131, 87);
+}
+.icon-xinjs-ui .path6:before {
+  content: '\e9b5';
+  margin-left: -1em;
+  color: rgb(8, 131, 87);
+}
+.icon-xinjs-ui .path7:before {
+  content: '\e9b6';
+  margin-left: -1em;
+  color: rgb(8, 131, 87);
+}
+.icon-xinjs-ui .path8:before {
+  content: '\e9b7';
+  margin-left: -1em;
+  color: rgb(8, 131, 87);
+}
+.icon-xinjs-ui .path9:before {
+  content: '\e9b8';
+  margin-left: -1em;
+  color: rgb(236, 243, 221);
+}
+.icon-xinjs-ui .path10:before {
+  content: '\e9b9';
+  margin-left: -1em;
+  color: rgb(8, 131, 87);
+}
 .icon-cmy .path1:before {
   content: '\e998';
   color: rgb(86, 206, 255);

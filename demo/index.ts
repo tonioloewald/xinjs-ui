@@ -110,11 +110,11 @@ if (main)
           href: '/',
           style: {
             display: 'flex',
+            alignItems: 'center',
           },
         },
-        img({
-          src: '/xinjs-ui-favicon-light.svg',
-          style: { width: 40, marginRight: 10 },
+        icons.xinjsUiColor({
+          style: { _fontSize: 40, marginRight: 10 },
         }),
         h2({ bindText: 'app.title' })
       ),
