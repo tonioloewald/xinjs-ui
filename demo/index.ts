@@ -34,8 +34,6 @@ import * as xinjsui from '../src/'
 import './css-var-editor'
 import docs from './docs.json'
 
-console.log(document.referrer)
-
 setTimeout(() => {
   const brandColor = getComputedStyle(document.body).getPropertyValue(
     '--brand-color'

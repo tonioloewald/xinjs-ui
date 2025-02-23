@@ -71,8 +71,8 @@ randomize()
 - `condition` attribute determines which value in `AbTest.conditions` controls the element
 - `not` reverses the condition (so `<xin-ab not condition="foo">` will be visible if `conditions.foo` is `false`)
 */
-import { Component as XinComponent } from 'xinjs';
-export declare class AbTest extends XinComponent {
+import { Component } from 'xinjs';
+export declare class AbTest extends Component {
     static set conditions(context: {
         [key: string]: any;
     });
