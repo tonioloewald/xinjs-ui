@@ -111,6 +111,7 @@ if (main)
           style: {
             display: 'flex',
             alignItems: 'center',
+            borderBottom: 'none',
           },
         },
         icons.xinjsUiColor({

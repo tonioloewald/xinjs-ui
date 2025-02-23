@@ -3,7 +3,7 @@
 
 <center>
   <xin-icon icon="settings" style="--font-size: 128px"></xin-icon>
-  <xin-icon icon="xr" style="--font-size: 128px"></xin-icon>
+  <xin-icon icon="xr" style="--font-size: 96px"></xin-icon>
   <xin-icon icon="rgb" style="--font-size: 128px"></xin-icon>
 </center>
 
