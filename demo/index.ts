@@ -105,7 +105,19 @@ if (main)
   main.append(
     header(
       // img({src: favicon}),
-      h2({ bindText: 'app.title' }),
+      a(
+        {
+          href: '/',
+          style: {
+            display: 'flex',
+          },
+        },
+        img({
+          src: '/xinjs-ui-favicon-light.svg',
+          style: { width: 40, marginRight: 10 },
+        }),
+        h2({ bindText: 'app.title' })
+      ),
       span({ class: 'elastic' }),
       sizeBreak(
         {
