@@ -63,6 +63,11 @@ A list of tags
 
 ### `tags`: string[]
 
+## `popSelectMenu`: () => void
+
+This is the method called when the user clicks the menu button. By default is displays a
+pick list of tags, but if you wish to customize the behavior, just replace this method.
+
 A read-only property giving the value as an array.
 
 ### `available-tags`: string | string[]
@@ -252,7 +257,7 @@ export class XinTagList extends WebComponent {
     }
   }
 
-  popAddMenu = () => {
+  popSelectMenu = () => {
     const { toggleTag } = this
     const { tagMenu } = this.parts
     const tags: TagList =
@@ -310,17 +315,21 @@ export class XinTagList extends WebComponent {
       {
         title: 'add tag',
         part: 'tagMenu',
-        onClick: this.popAddMenu,
+        onClick: this.popSelectMenu,
       },
       icons.chevronDown()
     ),
   ]
 
   removeTag = (event: Event) => {
-    const tag = (event.target as HTMLElement).closest(XinTag.tagName!) as XinTag
-    this.value = this.tags.filter((value) => value !== tag.caption)
-    tag.remove()
-    this.queueRender(true)
+    if (this.editable) {
+      const tag = (event.target as HTMLElement).closest(
+        XinTag.tagName!
+      ) as XinTag
+      this.value = this.tags.filter((value) => value !== tag.caption)
+      tag.remove()
+      this.queueRender(true)
+    }
     event.stopPropagation()
     event.preventDefault()
   }

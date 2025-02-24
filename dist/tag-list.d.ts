@@ -63,6 +63,11 @@ A list of tags
 
 ### `tags`: string[]
 
+## `popSelectMenu`: () => void
+
+This is the method called when the user clicks the menu button. By default is displays a
+pick list of tags, but if you wish to customize the behavior, just replace this method.
+
 A read-only property giving the value as an array.
 
 ### `available-tags`: string | string[]
@@ -111,7 +116,7 @@ export declare class XinTagList extends WebComponent {
     addTag: (tag: string) => void;
     toggleTag: (toggled: string) => void;
     enterTag: (event: KeyboardEvent) => void;
-    popAddMenu: () => void;
+    popSelectMenu: () => void;
     content: () => any[];
     removeTag: (event: Event) => void;
     render(): void;
