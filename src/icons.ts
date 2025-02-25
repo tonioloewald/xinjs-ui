@@ -12,12 +12,11 @@ A library that provides `ElementCreator` functions that produce SVG icons. It le
 applications along with being very easy to extend and maintain.
 
 > ### Supported Use Cases
-> - inline SVGs in buttons, etc.
-> - easily allow SVGs to be styled by CSS
-> - not require build process magic (it's "just javascript")
-> - render SVGs as data urls, e.g. to insert into CSS
+> - inline SVGs that can be styled by CSS (for buttons, etc.)
+> - No build process magic needed (it's "just javascript")
+> - icons can be rendered  as data urls, e.g. to insert into CSS
 > - highly optimized and compressible
-> - support for color icons with CSS overrides
+> - support for color icons (still allowing with CSS styling)
 
 ## icons
 
