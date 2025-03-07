@@ -482,4 +482,15 @@ export const styleSpec: XinStyleSheet = {
   svg: {
     fill: 'currentcolor',
   },
+  'img.logo': {
+    animation: '2s ease-in-out 0s infinite alternate logo-swing',
+  },
+  '@keyframes logo-swing': {
+    '0%': {
+      transform: 'perspective(1000px) rotateY(15deg)',
+    },
+    '100%': {
+      transform: 'perspective(1000px) rotateY(-15deg)',
+    },
+  },
 }
