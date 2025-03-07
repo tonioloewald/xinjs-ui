@@ -345,11 +345,13 @@ export class DataTable extends WebComponent {
     if (!sortColumn) {
       return undefined
     }
-    return makeSorter(
-      (a: any) => a[sortColumn.prop],
-      sortColumn.sort === 'ascending'
-    )
+    const { prop } = sortColumn
+
+    return sortColumn.sort === 'ascending'
+      ? (a: any, b: any) => (a[prop] > b[prop] ? 1 : -1)
+      : (a: any, b: any) => (a[prop] > b[prop] ? -1 : 1)
   }
+
   set sort(sortFunc: ArrayFilter) {
     if (this._sort !== sortFunc) {
       this._sort = sortFunc
