@@ -10,8 +10,7 @@
     "postbuild": "cp demo/static/* www && cp demo/static/* docs",
     "format": "bun eslint src demo --fix && bun prettier --write .",
     "tests": "bun test && bun playwright test",
-    "latest": "rm -rf .parcel-cache && rm -rf node_modules && bun install && npm install",
-    "publish": "npm publish"
+    "latest": "rm -rf .parcel-cache && rm -rf node_modules && bun install && npm install"
   },
   "keywords": [
     "xinjs",
