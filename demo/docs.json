@@ -37,7 +37,7 @@
     "path": "src/code-editor.ts"
   },
   {
-    "text": "# color input field\n\nThis is a color input field that supports opacity\n\n```html\n<xin-color value=\"red\"></xin-color>\n```\n\n<xin-css-var-editor element-selector=\"xin-color\"></xin-css-var-editor>",
+    "text": "# color input field\n\nThis is a color input field that supports opacity\n\n```js\nconst colorInput = preview.querySelector('xin-color')\nconst circle = preview.querySelector('div')\n\ncolorInput.addEventListener('change', () => {\n  console.log(colorInput.value)\n  circle.style.background = colorInput.value\n})\n```\n```html\n<xin-color value=\"red\"></xin-color>\n<div\n  style=\"\n    width: 200px;\n    height: 200px;\n    background: red;\n    border-radius: 100px;\n  \"\n></div>\n```\n\n\n<xin-css-var-editor element-selector=\"xin-color\"></xin-css-var-editor>",
     "title": "color input field",
     "filename": "color-input.ts",
     "path": "src/color-input.ts"

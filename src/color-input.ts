@@ -4,9 +4,27 @@
 
 This is a color input field that supports opacity
 
+```js
+const colorInput = preview.querySelector('xin-color')
+const circle = preview.querySelector('div')
+
+colorInput.addEventListener('change', () => {
+  console.log(colorInput.value)
+  circle.style.background = colorInput.value
+})
+```
 ```html
 <xin-color value="red"></xin-color>
+<div
+  style="
+    width: 200px;
+    height: 200px;
+    background: red;
+    border-radius: 100px;
+  "
+></div>
 ```
+
 
 <xin-css-var-editor element-selector="xin-color"></xin-css-var-editor>
 */
@@ -59,7 +77,7 @@ class ColorInput extends WebComponent {
   }
 
   content = [
-    input({ type: 'color', part: 'rgb' }),
+    input({ title: 'base color', type: 'color', part: 'rgb' }),
     input({
       type: 'range',
       title: 'opacity',
@@ -68,7 +86,7 @@ class ColorInput extends WebComponent {
       max: 1,
       step: 0.05,
     }),
-    input({ part: 'css' }),
+    input({ title: 'css color spec', part: 'css' }),
   ]
 
   private valueChanged = false
