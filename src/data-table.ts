@@ -170,7 +170,6 @@ import {
   xinProxy,
 } from 'xinjs'
 import { trackDrag } from './track-drag'
-import { makeSorter } from './make-sorter'
 import { SortCallback } from './make-sorter'
 import { icons } from './icons'
 import { popMenu, MenuItem } from './menu'
