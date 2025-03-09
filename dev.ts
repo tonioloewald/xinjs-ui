@@ -36,7 +36,7 @@ async function build() {
     outdir: DIST,
     sourcemap: 'linked',
     format: 'esm',
-    // minify: true,
+    minify: true,
   })
   if (!result.success) {
     console.error('dist build failed')
