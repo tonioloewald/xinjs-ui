@@ -117,7 +117,7 @@ export default `( content of tsv file )`
 )
 */
 
-import { Component, xinProxy, elements, bindings } from 'xinjs'
+import { Component, boxedProxy, elements, bindings } from 'xinjs'
 import { makeSorter } from './make-sorter'
 import { xinSelect, XinSelect } from './select'
 
@@ -127,25 +127,22 @@ interface TranslationMap {
 
 const { span } = elements
 
-export const { i18n } = xinProxy(
-  {
-    i18n: {
-      locale: window.navigator.language,
-      locales: [window.navigator.language],
-      languages: [window.navigator.language],
-      emoji: [''],
-      stringMap: {} as TranslationMap,
-      localeOptions: [
-        {
-          icon: span(),
-          caption: window.navigator.language,
-          value: window.navigator.language,
-        },
-      ],
-    },
+export const { i18n } = boxedProxy({
+  i18n: {
+    locale: window.navigator.language,
+    locales: [window.navigator.language],
+    languages: [window.navigator.language],
+    emoji: [''],
+    stringMap: {} as TranslationMap,
+    localeOptions: [
+      {
+        icon: span(),
+        caption: window.navigator.language,
+        value: window.navigator.language,
+      },
+    ],
   },
-  true
-)
+})
 
 bindings.localeOptions = {
   toDOM(select, options) {

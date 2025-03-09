@@ -3,14 +3,10 @@
   "version": "0.9.5",
   "description": "simple robust web-components for use with xinjs or anything else",
   "scripts": {
-    "start": "bun pack && bun parcel demo/index.html --https --dist-dir www -p 8787",
-    "pack": "bun prebuild && bun test && bun icons.js && bun docs.js && bun parcel build --public-url . && bun types; bun postbuild",
-    "types": "echo 'ignore the error...' && bun tsc ./src/index.ts --declaration --emitDeclarationOnly --target esnext --outDir dist > tsc.log || true",
-    "prebuild": "rm -rf .parcel-cache && rm -rf www && rm -rf docs && mkdir www docs && bun docs.js && bun icons.js && bun format",
-    "postbuild": "cp demo/static/* www && cp demo/static/* docs",
+    "start": "bun dev.ts",
     "format": "bun eslint src demo --fix && bun prettier --write .",
     "tests": "bun test && bun playwright test",
-    "latest": "rm -rf .parcel-cache && rm -rf node_modules && bun install && npm install"
+    "latest": "rm -rf node_modules && bun install"
   },
   "keywords": [
     "xinjs",
@@ -29,8 +25,6 @@
     "url": "https://github.com/tonioloewald/xinjs-ui.git"
   },
   "devDependencies": {
-    "@parcel/packager-ts": "^2.13.3",
-    "@parcel/transformer-typescript-types": "^2.13.3",
     "@playwright/test": "^1.50.1",
     "@types/jsdom": "^21.1.7",
     "@types/node": "^22.13.1",
@@ -38,14 +32,14 @@
     "@typescript-eslint/parser": "^5.62.0",
     "bun-types": "latest",
     "caniuse-lite": "^1.0.30001699",
+    "chokidar": "^4.0.3",
     "eslint": "^8.57.1",
-    "parcel": "^2.13.3",
     "prettier": "^2.8.8",
     "typescript": "^5.7.3"
   },
   "peerDependencies": {
     "marked": "^5.1.2",
-    "xinjs": "0.8.0"
+    "xinjs": "^0.8.1"
   },
   "files": [
     "/dist",
@@ -54,23 +48,6 @@
   ],
   "main": "dist/index.js",
   "source": "src/index.ts",
-  "type": "module",
-  "targets": {
-    "docs": {
-      "context": "browser",
-      "distDir": "docs",
-      "source": "demo/index.html",
-      "isLibrary": false,
-      "optimize": true
-    },
-    "dist": {
-      "context": "browser",
-      "isLibrary": true,
-      "source": "src/index.ts",
-      "distDir": "dist",
-      "includeNodeModules": false,
-      "outputFormat": "esmodule",
-      "optimize": true
-    }
+  "type": "module"
   }
 }

@@ -54,7 +54,7 @@ setTimeout(
 ```html
 <xin-lottie
   style="height: 100%; max-width: 100%"
-  src="https://raw.githubusercontent.com/tonioloewald/xinjs-ui/main/demo/88140-rocket-livetrade.json"
+  src="88140-rocket-livetrade.json"
 ></xin-lottie>
 <div class="caption">
   Animation by <a target="_blank" href="https://lottiefiles.com/dvskjbicfc">chiến lê hồng</a>

@@ -20,7 +20,7 @@ import {
   initLocalization,
   xinLocalized,
   localePicker,
-} from '../src/'
+} from '../../dist'
 
 import { styleSpec } from './style'
 StyleSheet('demo-style', styleSpec)
@@ -29,10 +29,10 @@ import localizedStrings from './localized-strings'
 initLocalization(localizedStrings)
 
 import * as xinjs from 'xinjs'
-import * as xinjsui from '../src/'
+import * as xinjsui from '../../src/'
 
 import './css-var-editor'
-import docs from './docs.json'
+import docs from '../docs.json'
 
 setTimeout(() => {
   const brandColor = getComputedStyle(document.body).getPropertyValue(

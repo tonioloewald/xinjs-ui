@@ -4,7 +4,7 @@ import {
   elements,
   Color,
 } from 'xinjs'
-import { xinForm, XinForm, xinField } from '../src'
+import { xinForm, XinForm, xinField } from '../../dist'
 
 const { h2, code } = elements
 
