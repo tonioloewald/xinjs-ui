@@ -65,6 +65,13 @@ preview.querySelector('.add').addEventListener('click', () => {
     height: 100%;
     font-size: 200%;
   }
+
+  .preview .add {
+    width: 38px;
+    line-height: 38px;
+    height: 38px;
+    padding: 0;
+  }
 ```
 
 The `<xin-tabs>`s `value` is the index of its active body.
@@ -152,7 +159,7 @@ export class TabSelector extends WebComponent {
     slot: {
       position: 'relative',
       display: 'block',
-      flex: '1 1 auto',
+      flex: '1',
       overflow: 'hidden',
       overflowY: 'auto',
     },
@@ -162,12 +169,12 @@ export class TabSelector extends WebComponent {
     '::slotted([hidden])': {
       display: 'none !important',
     },
-    ':host .tab-holder': {
+    ':host::part(tabpanel)': {
       display: 'flex',
       flexDirection: 'column',
       overflowX: 'auto',
     },
-    ':host .tab-row': {
+    ':host::part(tabrow)': {
       display: 'flex',
     },
     ':host .tabs': {
@@ -184,6 +191,9 @@ export class TabSelector extends WebComponent {
     ':host .tabs > [aria-selected="true"]': {
       '--text-color': vars.xinTabsSelectedColor,
       color: vars.textColor,
+    },
+    ':host .elastic': {
+      flex: '1',
     },
     ':host .border': {
       background: 'var(--xin-tabs-bar-color, #ccc)',
@@ -212,11 +222,11 @@ export class TabSelector extends WebComponent {
 
   content = [
     div(
-      { class: 'tab-holder', role: 'tabpanel' },
+      { role: 'tabpanel', part: 'tabpanel' },
       div(
-        { class: 'tab-row' },
+        { part: 'tabrow' },
         div({ class: 'tabs', part: 'tabs' }),
-        div({ style: { flex: '1 1 auto' } }),
+        div({ class: 'elastic' }),
         slot({ name: 'after-tabs' })
       ),
       div({ class: 'border' }, div({ class: 'selected', part: 'selected' }))

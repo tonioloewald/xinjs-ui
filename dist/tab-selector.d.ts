@@ -65,6 +65,13 @@ preview.querySelector('.add').addEventListener('click', () => {
     height: 100%;
     font-size: 200%;
   }
+
+  .preview .add {
+    width: 38px;
+    line-height: 38px;
+    height: 38px;
+    padding: 0;
+  }
 ```
 
 The `<xin-tabs>`s `value` is the index of its active body.
@@ -114,12 +121,12 @@ export declare class TabSelector extends WebComponent {
         '::slotted([hidden])': {
             display: string;
         };
-        ':host .tab-holder': {
+        ':host::part(tabpanel)': {
             display: string;
             flexDirection: string;
             overflowX: string;
         };
-        ':host .tab-row': {
+        ':host::part(tabrow)': {
             display: string;
         };
         ':host .tabs': {
@@ -136,6 +143,9 @@ export declare class TabSelector extends WebComponent {
         ':host .tabs > [aria-selected="true"]': {
             '--text-color': any;
             color: any;
+        };
+        ':host .elastic': {
+            flex: string;
         };
         ':host .border': {
             background: string;
