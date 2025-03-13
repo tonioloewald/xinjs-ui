@@ -363,6 +363,7 @@ import {
   Component as WebComponent,
   XinStyleRule,
   Color,
+  varDefault,
 } from 'xinjs'
 import { IconSpec, SVGIconMap } from './icon-types'
 import iconData from './icon-data'
@@ -425,6 +426,9 @@ export const icons = new Proxy(iconData, {
                   /([a-z])([A-Z])/g,
                   (_, a, b) => a + '-' + b.toLocaleLowerCase()
                 ),
+              style: {
+                height: varDefault.uiIconHeight('24px'),
+              },
             },
             ...parts,
             ...iconSpec.p.map((d: string, index: number) => {

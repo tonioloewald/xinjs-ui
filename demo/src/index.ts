@@ -20,7 +20,7 @@ import {
   initLocalization,
   xinLocalized,
   localePicker,
-} from '../../dist'
+} from '../../src'
 
 import { styleSpec } from './style'
 StyleSheet('demo-style', styleSpec)

@@ -11,6 +11,13 @@ const isSPA = true
 
 async function prebuild() {
   console.time('prebuild')
+  const config = JSON.parse(await Bun.file('package.json').text())
+  await Bun.write(
+    'src/version.ts',
+    `export const version = '${config.version}'`
+  )
+  console.log(config.version)
+
   let output = await $`rm -rf ${PUBLIC}`.text()
   output = await $`mkdir ${PUBLIC}`.text()
   output = await $`bun docs.js`.text()
@@ -37,6 +44,7 @@ async function build() {
     sourcemap: 'linked',
     format: 'esm',
     minify: true,
+    external: ['xinjs', 'marked'],
   })
   if (!result.success) {
     console.error('dist build failed')
@@ -50,8 +58,6 @@ async function build() {
     entrypoints: ['./demo/src/index.ts'],
     outdir: PUBLIC,
     target: 'browser',
-    sourcemap: 'linked',
-    minify: true,
   })
   if (!result.success) {
     console.error('demo build failed')
