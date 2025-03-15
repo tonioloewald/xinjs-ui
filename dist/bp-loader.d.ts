@@ -1,6 +1,10 @@
 /*!
 # blueprint loading
 
+<center>
+  <xin-icon icon="blueprint" style="--font-size: 256px"></xin-icon>
+</center>
+
 `<xin-loader>` and `<xin-blueprint>` are simple elements provided by `xinjs` for the dynamic loading
 of component **blueprints**.
 
