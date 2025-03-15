@@ -427,7 +427,7 @@ export const icons = new Proxy(iconData, {
                   (_, a, b) => a + '-' + b.toLocaleLowerCase()
                 ),
               style: {
-                height: varDefault.uiIconHeight('24px'),
+                height: varDefault.uiIconHeight('16px'),
               },
             },
             ...parts,

@@ -1400,7 +1400,7 @@ var Io = (n = () => true) => {
   }, 500);
   N(n, c);
 };
-var Kn = "0.8.5";
+var Kn = "0.8.8";
 function fn(n) {
   return Object.assign(I, n), I;
 }
@@ -2507,7 +2507,7 @@ var icons = new Proxy(icon_data_default, {
         viewBox: `0 0 ${w2} ${h}`,
         class: "icon-" + prop.replace(/([a-z])([A-Z])/g, (_2, a2, b2) => a2 + "-" + b2.toLocaleLowerCase()),
         style: {
-          height: wn.uiIconHeight("24px")
+          height: wn.uiIconHeight("16px")
         }
       }, ...parts, ...iconSpec.p.map((d2, index) => {
         const uniqueColors = Array.from(new Set(iconSpec.c));
@@ -13000,7 +13000,7 @@ var xinTagList = XinTagList.elementCreator({
   }
 });
 // src/version.ts
-var version = "0.9.6";
+var version = "0.9.7";
 // demo/src/style.ts
 /*!
 # style
