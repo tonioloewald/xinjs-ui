@@ -296,6 +296,15 @@ preview.append(
       background: svg2DataUrl(icons.star(), 'gold', 'orange', 2)
     }
   }),
+  elements.span({
+    style: {
+      display: 'inline-block',
+      width: '100px',
+      height: '200px',
+      content: '" "',
+      background: svg2DataUrl(icons.xinjsColor())
+    }
+  }),
 )
 ```
 
@@ -407,7 +416,15 @@ export const svg2DataUrl = (
   }
 
   svg.setAttribute('xmlns', 'http://www.w3.org/2000/svg')
+  const styled = svg.querySelectorAll('[style]')
   svg.removeAttribute('style')
+  for (const item of [...styled]) {
+    const [color] = item.getAttribute('style')?.match(/rgb\([^)]+\)/) || []
+    item.removeAttribute('style')
+    if (color && !fill) {
+      item.setAttribute('fill', Color.fromCss(color).html)
+    }
+  }
   const text = encodeURIComponent(svg.outerHTML)
   return `url(data:image/svg+xml;charset=UTF-8,${text})`
 }
