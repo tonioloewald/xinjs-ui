@@ -296,6 +296,15 @@ preview.append(
       background: svg2DataUrl(icons.star(), 'gold', 'orange', 2)
     }
   }),
+  elements.span({
+    style: {
+      display: 'inline-block',
+      width: '100px',
+      height: '200px',
+      content: '" "',
+      background: svg2DataUrl(icons.xinjsColor())
+    }
+  }),
 )
 ```
 

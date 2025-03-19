@@ -213,7 +213,7 @@ export class B3d extends WebComponent {
       width: 80,
       backgroundColor: 'transparent',
       filter: 'drop-shadow(0 0 4px #000c)',
-      backgroundImage: svg2DataUrl(icons.xr(), '#fffd'),
+      backgroundImage: svg2DataUrl(icons.xrColor()),
       backgroundPosition: 'center',
       backgroundRepeat: 'no-repeat',
       border: 'none',

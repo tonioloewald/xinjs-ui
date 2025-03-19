@@ -1771,6 +1771,31 @@ function styleSheet(href) {
 
 // src/icon-data.ts
 var icon_data_default = {
+  xrColor: {
+    p: [
+      "M801 116c-0-0-1-0-1-0-473 0-734 64-734 396 0 254 135 396 349 396s279-164 385-164c0 0 1-0 1-0 0 0 1 0 1 0 107 0 172 164 385 164s349-142 349-396c0-332-261-396-734-396-0 0-1 0-1 0 0 0-0 0-0 0z",
+      "M482 822c147-18 199-134 280-134 0 0 1-0 1-0 0 0 1 0 1 0 14 0 26 3 39 9 13-5 25-9 39-9 0 0 1-0 1-0 0 0 1 0 1 0 81 0 134 116 280 134 153-17 247-132 247-325 0-266-202-324-568-327-367 4-568 62-568 327 0 193 95 308 247 325z",
+      "M482 822c13 1 27 2 41 2 149-0 211-97 280-127-13-5-25-9-39-9-0 0-1-0-1-0-0 0-1 0-1 0-81 0-134 116-280 134z",
+      "M803 169c13-0 26-0 39-0 0 0 1 0 1 0 0 0 0 0 0 0 0-0 1-0 1-0 392 0 607 53 607 328 0 210-112 328-289 328-13-0-26-1-38-2 153-17 247-132 247-325 0-266-202-324-568-327 0 0 0 0 0 0z",
+      "M803 697c69 30 130 127 280 127 14 0 28-1 41-2-147-18-199-134-280-134-0 0-1-0-1-0-0 0-1 0-1 0-14 0-26 3-39 9z",
+      "M482 822c-12 1-25 2-38 2-177 0-289-118-289-328 0-275 216-328 607-328 0 0 1 0 1 0 0 0 0 0 0 0 0-0 1-0 1-0 13 0 26 0 39 0-367 4-568 62-568 327 0 193 95 308 247 325z",
+      "M929 246c0 0 6 0 6 0 18 7 11 3 22 12 3 3 3 3 14 14 0 0 308 308 308 308 12 12 12 12 14 14 16 16 16 43 0 60-16 16-43 16-60 0 0 0-337-337-337-337-16-16-16-43 0-60 10-10 18-11 32-12z",
+      "M801 245c23 0 42 19 42 42 0 336 0 223 0 337 0 23-19 42-42 42-23 0-42-19-42-42 0 0 0-337 0-337 0-23 19-42 42-42z",
+      "M346 246c18 7 11 3 22 12 0 0 139 139 139 139s124-124 124-124c12-12 12-12 14-14 10-10 18-11 32-12 0 0 6 0 6 0 18 7 11 3 22 12 16 16 16 43 0 60-3 3-3 3-14 14 0 0-124 124-124 124s139 139 139 139c16 16 16 43 0 60-16 16-43 16-60 0 0 0-139-139-139-139s-65 65-65 65c0 0-60 60-60 60-12 12-12 12-14 14-16 16-43 16-60 0-16-16-16-43 0-60 3-3 3-3 14-14 0 0 124-124 124-124s-139-139-139-139c-16-16-16-43 0-60 10-10 18-11 32-12 0 0 6 0 6 0z"
+    ],
+    c: [
+      "rgb(0, 0, 0)",
+      "rgb(251, 237, 33)",
+      "rgb(140, 198, 63)",
+      "rgb(140, 198, 63)",
+      "rgb(255, 28, 36)",
+      "rgb(255, 28, 36)",
+      "rgb(61, 168, 244)",
+      "rgb(140, 198, 63)",
+      "rgb(255, 28, 36)"
+    ],
+    w: 1600
+  },
   blueprint: {
     p: [
       "M976 0c4 0 8 2 11 5 4 4 7 7 11 11 0 0 21 21 21 21 3 3 5 7 5 11 0 0 0 928 0 928 0 4-2 8-5 11-4 4-7 7-11 11-5 5-9 9-14 14 0 0-7 7-7 7-3 3-7 5-11 5 0 0-928 0-928 0-4 0-8-2-11-5-4-4-7-7-11-11 0 0-21-21-21-21-3-3-5-7-5-11 0 0 0-928 0-928 0-4 2-8 5-11 4-4 7-7 11-11 5-5 9-9 14-14 0 0 7-7 7-7 3-3 7-5 11-5 0 0 928 0 928 0z",
@@ -2480,6 +2505,15 @@ preview.append(
       background: svg2DataUrl(icons.star(), 'gold', 'orange', 2)
     }
   }),
+  elements.span({
+    style: {
+      display: 'inline-block',
+      width: '100px',
+      height: '200px',
+      content: '" "',
+      background: svg2DataUrl(icons.xinjsColor())
+    }
+  }),
 )
 ```
 
@@ -2566,7 +2600,15 @@ var svg2DataUrl = (svg2, fill, stroke, strokeWidth = 1) => {
     }
   }
   svg2.setAttribute("xmlns", "http://www.w3.org/2000/svg");
+  const styled = svg2.querySelectorAll("[style]");
   svg2.removeAttribute("style");
+  for (const item of [...styled]) {
+    const [color] = item.getAttribute("style")?.match(/rgb\([^)]+\)/) || [];
+    item.removeAttribute("style");
+    if (color && !fill) {
+      item.setAttribute("fill", $.fromCss(color).html);
+    }
+  }
   const text = encodeURIComponent(svg2.outerHTML);
   return `url(data:image/svg+xml;charset=UTF-8,${text})`;
 };
@@ -2847,7 +2889,7 @@ class B3d extends G {
       width: 80,
       backgroundColor: "transparent",
       filter: "drop-shadow(0 0 4px #000c)",
-      backgroundImage: svg2DataUrl(icons.xr(), "#fffd"),
+      backgroundImage: svg2DataUrl(icons.xrColor()),
       backgroundPosition: "center",
       backgroundRepeat: "no-repeat",
       border: "none",
@@ -13097,7 +13139,7 @@ var xinTagList = XinTagList.elementCreator({
   }
 });
 // src/version.ts
-var version = "0.9.7";
+var version = "0.9.8";
 // demo/src/style.ts
 /*!
 # style
@@ -15373,6 +15415,15 @@ preview.append(
       height: '24px',
       content: '" "',
       background: svg2DataUrl(icons.star(), 'gold', 'orange', 2)
+    }
+  }),
+  elements.span({
+    style: {
+      display: 'inline-block',
+      width: '100px',
+      height: '200px',
+      content: '" "',
+      background: svg2DataUrl(icons.xinjsColor())
     }
   }),
 )
