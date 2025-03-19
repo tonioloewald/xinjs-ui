@@ -2566,6 +2566,7 @@ var svg2DataUrl = (svg2, fill, stroke, strokeWidth = 1) => {
     }
   }
   svg2.setAttribute("xmlns", "http://www.w3.org/2000/svg");
+  svg2.removeAttribute("style");
   const text = encodeURIComponent(svg2.outerHTML);
   return `url(data:image/svg+xml;charset=UTF-8,${text})`;
 };
@@ -2947,7 +2948,7 @@ of component **blueprints**.
 
 ```html
 <xin-loader>
-  <xin-blueprint tag="swiss-clock" src=" https://tonioloewald.github.io/xin-clock/dist/blueprint.js"></xin-blueprint>
+  <xin-blueprint tag="swiss-clock" src="https://tonioloewald.github.io/xin-clock/dist/blueprint.js"></xin-blueprint>
 </xin-loader>
 <swiss-clock></swiss-clock>
 ```
@@ -14063,7 +14064,7 @@ of component **blueprints**.
 
 \`\`\`html
 <xin-loader>
-  <xin-blueprint tag="swiss-clock" src=" https://tonioloewald.github.io/xin-clock/dist/blueprint.js"></xin-blueprint>
+  <xin-blueprint tag="swiss-clock" src="https://tonioloewald.github.io/xin-clock/dist/blueprint.js"></xin-blueprint>
 </xin-loader>
 <swiss-clock></swiss-clock>
 \`\`\`

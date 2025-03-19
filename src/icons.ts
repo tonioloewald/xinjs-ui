@@ -360,6 +360,7 @@ import {
   svgElements,
   ElementCreator,
   ElementPart,
+  ElementProps,
   Component as WebComponent,
   XinStyleRule,
   Color,
@@ -406,12 +407,16 @@ export const svg2DataUrl = (
   }
 
   svg.setAttribute('xmlns', 'http://www.w3.org/2000/svg')
+  svg.removeAttribute('style')
   const text = encodeURIComponent(svg.outerHTML)
   return `url(data:image/svg+xml;charset=UTF-8,${text})`
 }
 
 export const icons = new Proxy(iconData, {
-  get(target, prop: string): ElementCreator<SVGElement> | undefined {
+  get(
+    target,
+    prop: string
+  ): ElementCreator<SVGElement, ElementProps> | undefined {
     const iconSpec = getIconSpec(prop)
     return iconSpec === undefined
       ? undefined
