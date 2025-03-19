@@ -3237,11 +3237,11 @@ class XinCarousel extends G {
   snapDelay = 0.1;
   snapDuration = 0.25;
   auto = 0;
-  timeout;
+  lastAutoAdvance = Date.now();
+  interval;
   autoAdvance = () => {
-    clearTimeout(this.timeout);
-    if (this.auto > 0) {
-      this.timeout = setTimeout(this.forward, this.auto * 1000);
+    if (this.auto > 0 && this.auto * 1000 < Date.now() - this.lastAutoAdvance) {
+      this.forward();
     }
   };
   _page = 0;
@@ -3359,6 +3359,7 @@ class XinCarousel extends G {
     [...progress.children].forEach((dot, index) => {
       dot.classList.toggle("current", Math.floor(index / this.maxVisibleItems - page) === 0);
     });
+    this.lastAutoAdvance = Date.now();
     clearTimeout(this.snapTimer);
     this.snapTimer = setTimeout(this.snapPosition, this.snapDelay * 1000);
   };
@@ -3368,7 +3369,7 @@ class XinCarousel extends G {
     if (currentPosition !== this.page) {
       this.page = currentPosition > this.page ? Math.ceil(currentPosition) : Math.floor(currentPosition);
     }
-    this.autoAdvance();
+    this.lastAutoAdvance = Date.now();
   };
   back = () => {
     this.page = this.page > 0 ? this.page - 1 : this.lastPage;
@@ -3425,10 +3426,11 @@ class XinCarousel extends G {
     forward.addEventListener("click", this.forward);
     scroller.addEventListener("scroll", this.indicateCurrent);
     progress.addEventListener("click", this.handleDotClick);
-    this.autoAdvance();
+    this.lastAutoAdvance = Date.now();
+    this.interval = setInterval(this.autoAdvance, 100);
   }
   disconnectedCallback() {
-    clearTimeout(this.timeout);
+    clearInterval(this.interval);
   }
   render() {
     super.render();
@@ -8612,9 +8614,11 @@ export default `( content of tsv file )`
 
 - support for automated localization of attributes such as `title`
 - `data-xin-i18n` attribute to allow this (if present, text content localized
-   actual value of attribute can specify attributes needing localization)
+  actual value of attribute can specify attributes needing localization)
+  - `data-xin-i18n="placeholder,text,title,value"` would indicate what
+    needs localizing; it could use a WeakMap to track original strings
 - DOM watcher looks for insertion of marked elements and localizes them
-)
+
 */
 var { span: span7 } = S;
 var { i18n } = fn({
@@ -15605,9 +15609,10 @@ export default \`( content of tsv file )\`
 
 - support for automated localization of attributes such as \`title\`
 - \`data-xin-i18n\` attribute to allow this (if present, text content localized
-   actual value of attribute can specify attributes needing localization)
-- DOM watcher looks for insertion of marked elements and localizes them
-)`,
+  actual value of attribute can specify attributes needing localization)
+  - \`data-xin-i18n="placeholder,text,title,value"\` would indicate what
+    needs localizing; it could use a WeakMap to track original strings
+- DOM watcher looks for insertion of marked elements and localizes them`,
     title: "localize",
     filename: "localize.ts",
     path: "src/localize.ts"

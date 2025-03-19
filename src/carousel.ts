@@ -78,12 +78,12 @@ export class XinCarousel extends WebComponent {
   snapDuration = 0.25
   auto = 0
 
-  private timeout?: Timer
+  private lastAutoAdvance = Date.now()
+  private interval?: Timer
 
   private autoAdvance = () => {
-    clearTimeout(this.timeout)
-    if (this.auto > 0) {
-      this.timeout = setTimeout(this.forward, this.auto * 1000)
+    if (this.auto > 0 && this.auto * 1000 < Date.now() - this.lastAutoAdvance) {
+      this.forward()
     }
   }
 
@@ -217,6 +217,7 @@ export class XinCarousel extends WebComponent {
         Math.floor(index / this.maxVisibleItems - page) === 0
       )
     })
+    this.lastAutoAdvance = Date.now()
     clearTimeout(this.snapTimer)
     this.snapTimer = setTimeout(this.snapPosition, this.snapDelay * 1000)
   }
@@ -230,7 +231,7 @@ export class XinCarousel extends WebComponent {
           ? Math.ceil(currentPosition)
           : Math.floor(currentPosition)
     }
-    this.autoAdvance()
+    this.lastAutoAdvance = Date.now()
   }
 
   back = () => {
@@ -318,11 +319,12 @@ export class XinCarousel extends WebComponent {
     scroller.addEventListener('scroll', this.indicateCurrent)
     progress.addEventListener('click', this.handleDotClick)
 
-    this.autoAdvance()
+    this.lastAutoAdvance = Date.now()
+    this.interval = setInterval(this.autoAdvance, 100)
   }
 
   disconnectedCallback() {
-    clearTimeout(this.timeout)
+    clearInterval(this.interval)
   }
 
   render() {

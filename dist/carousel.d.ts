@@ -61,7 +61,8 @@ export declare class XinCarousel extends WebComponent {
     snapDelay: number;
     snapDuration: number;
     auto: number;
-    private timeout?;
+    private lastAutoAdvance;
+    private interval?;
     private autoAdvance;
     private _page;
     get page(): number;
