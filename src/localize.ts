@@ -112,9 +112,11 @@ export default `( content of tsv file )`
 
 - support for automated localization of attributes such as `title`
 - `data-xin-i18n` attribute to allow this (if present, text content localized
-   actual value of attribute can specify attributes needing localization)
+  actual value of attribute can specify attributes needing localization)
+  - `data-xin-i18n="placeholder,text,title,value"` would indicate what
+    needs localizing; it could use a WeakMap to track original strings
 - DOM watcher looks for insertion of marked elements and localizes them
-)
+
 */
 
 import { Component, boxedProxy, elements, bindings } from 'xinjs'
