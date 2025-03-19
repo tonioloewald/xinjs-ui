@@ -2212,7 +2212,7 @@ var icon_data_default = {
 
 <center>
   <xin-icon icon="settings" style="--font-size: 128px"></xin-icon>
-  <xin-icon icon="xr" style="--font-size: 96px"></xin-icon>
+  <xin-icon icon="xrColor" style="--font-size: 96px"></xin-icon>
   <xin-icon icon="rgb" style="--font-size: 128px"></xin-icon>
 </center>
 
@@ -4574,6 +4574,9 @@ var popMenu = (options) => {
   const { target, position, submenuDepth } = options;
   if (lastPopped && !document.body.contains(lastPopped?.menu)) {
     lastPopped = undefined;
+  }
+  if (poppedMenus.length && !document.body.contains(poppedMenus[0].menu)) {
+    poppedMenus.splice(0);
   }
   if (submenuDepth === 0 && lastPopped?.target === target)
     return;
@@ -15124,7 +15127,7 @@ which is useful when debugging.`,
 
 <center>
   <xin-icon icon="settings" style="--font-size: 128px"></xin-icon>
-  <xin-icon icon="xr" style="--font-size: 96px"></xin-icon>
+  <xin-icon icon="xrColor" style="--font-size: 96px"></xin-icon>
   <xin-icon icon="rgb" style="--font-size: 128px"></xin-icon>
 </center>
 

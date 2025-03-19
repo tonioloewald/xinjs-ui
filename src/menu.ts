@@ -455,6 +455,9 @@ export const popMenu = (options: PopMenuOptions): void => {
   if (lastPopped && !document.body.contains(lastPopped?.menu)) {
     lastPopped = undefined
   }
+  if (poppedMenus.length && !document.body.contains(poppedMenus[0].menu)) {
+    poppedMenus.splice(0)
+  }
   if (submenuDepth === 0 && lastPopped?.target === target) return
   const popped = removeLastMenu(submenuDepth)
   if (lastPopped?.target === target) return
