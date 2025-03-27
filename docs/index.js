@@ -12808,6 +12808,10 @@ Building a tag-list from standard HTML elements is a bit of a nightmare.
 as a comma-delimited string or an array of strings).
 
 ```html
+<label style="position: absolute; right: 10px; top: 10px; display: block">
+  <input type="checkbox" class="disable-toggle">
+  <b>Disable All</b>
+</label>
 <label>
   <b>Display Only</b>
   <xin-tag-list
@@ -12828,7 +12832,6 @@ as a comma-delimited string or an array of strings).
     available-tags="belongs,also belongs,not initially chosen"
   ></xin-tag-list>
 </label>
-
 <br>
 <b>Text-Entry</b>
 <xin-tag-list
@@ -12854,6 +12857,12 @@ as a comma-delimited string or an array of strings).
 preview.addEventListener('change', (event) => {
   console.log(event.target, event.target.value)
 }, true)
+preview.querySelector('.disable-toggle').addEventListener('change', (event) => {
+  const tagLists = Array.from(preview.querySelectorAll('xin-tag-list'))
+  for(const tagList of tagLists) {
+    tagList.disabled = event.target.checked
+  }
+})
 ```
 
 ## Properties
@@ -12960,6 +12969,7 @@ var xinTag = XinTag.elementCreator({
 });
 
 class XinTagList extends G {
+  disabled = false;
   name = "";
   availableTags = [];
   value = [];
@@ -12971,7 +12981,7 @@ class XinTagList extends G {
   }
   constructor() {
     super();
-    this.initAttributes("name", "value", "textEntry", "availableTags", "editable", "placeholder");
+    this.initAttributes("name", "value", "textEntry", "availableTags", "editable", "placeholder", "disabled");
   }
   addTag = (tag2) => {
     if (tag2.trim() === "") {
@@ -13068,7 +13078,7 @@ class XinTagList extends G {
     }, icons.chevronDown())
   ];
   removeTag = (event) => {
-    if (this.editable) {
+    if (this.editable && !this.disabled) {
       const tag2 = event.target.closest(XinTag.tagName);
       this.value = this.tags.filter((value) => value !== tag2.caption);
       tag2.remove();
@@ -13080,9 +13090,10 @@ class XinTagList extends G {
   render() {
     super.render();
     const { tagContainer, tagMenu, tagInput } = this.parts;
+    tagMenu.disabled = this.disabled;
     tagInput.value = "";
     tagInput.setAttribute("placeholder", this.placeholder);
-    if (this.editable) {
+    if (this.editable && !this.disabled) {
       tagMenu.toggleAttribute("hidden", false);
       tagInput.toggleAttribute("hidden", !this.textEntry);
     } else {
@@ -13094,7 +13105,7 @@ class XinTagList extends G {
     for (const tag2 of tags) {
       tagContainer.append(xinTag({
         caption: tag2,
-        removeable: this.editable,
+        removeable: this.editable && !this.disabled,
         removeCallback: this.removeTag
       }));
     }
@@ -17328,6 +17339,10 @@ Building a tag-list from standard HTML elements is a bit of a nightmare.
 as a comma-delimited string or an array of strings).
 
 \`\`\`html
+<label style="position: absolute; right: 10px; top: 10px; display: block">
+  <input type="checkbox" class="disable-toggle">
+  <b>Disable All</b>
+</label>
 <label>
   <b>Display Only</b>
   <xin-tag-list
@@ -17348,7 +17363,6 @@ as a comma-delimited string or an array of strings).
     available-tags="belongs,also belongs,not initially chosen"
   ></xin-tag-list>
 </label>
-
 <br>
 <b>Text-Entry</b>
 <xin-tag-list
@@ -17374,6 +17388,12 @@ as a comma-delimited string or an array of strings).
 preview.addEventListener('change', (event) => {
   console.log(event.target, event.target.value)
 }, true)
+preview.querySelector('.disable-toggle').addEventListener('change', (event) => {
+  const tagLists = Array.from(preview.querySelectorAll('xin-tag-list'))
+  for(const tagList of tagLists) {
+    tagList.disabled = event.target.checked
+  }
+})
 \`\`\`
 
 ## Properties
