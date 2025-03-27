@@ -12855,7 +12855,9 @@ as a comma-delimited string or an array of strings).
 ```
 ```js
 preview.addEventListener('change', (event) => {
-  console.log(event.target, event.target.value)
+  if (event.target.matches('xin-tag-list')) {
+    console.log(event.target, event.target.value) 
+  }
 }, true)
 preview.querySelector('.disable-toggle').addEventListener('change', (event) => {
   const tagLists = Array.from(preview.querySelectorAll('xin-tag-list'))
@@ -17386,7 +17388,9 @@ as a comma-delimited string or an array of strings).
 \`\`\`
 \`\`\`js
 preview.addEventListener('change', (event) => {
-  console.log(event.target, event.target.value)
+  if (event.target.matches('xin-tag-list')) {
+    console.log(event.target, event.target.value) 
+  }
 }, true)
 preview.querySelector('.disable-toggle').addEventListener('change', (event) => {
   const tagLists = Array.from(preview.querySelectorAll('xin-tag-list'))
