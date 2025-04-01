@@ -361,8 +361,36 @@ Basically, I wanted an icon solution that "just works" and this is it.
 
 Internally, icons are stored as javascript path data.
 
-These icons are mainly sourced from [feather](https://github.com/feathericons/feather), but
+Many of these icons are sourced from [Feather Icons](https://github.com/feathericons/feather), but
 all the icons have been processed to have integer coordinates in a `viewBox` typically scaled to 1024  &times; 1024.
+
+## Is this efficient?
+
+I use [icomoon](https://icomoon.com/app) to manage my icon libraries. Its method of distributing icons
+is to create custom fonts and an accompanying stylesheet.
+
+- the iconData file, compressed is ~23kB
+- icomoon's equivalent CSS file is ~3kB and the font files are 21kB
+
+But these fonts are less flexible, harder to distribute as part of a library, you need to
+distribute three versions for compatibility, and the color icons are very flaky and cannot
+be styled.
+
+## Feather Icons Copyright Notice
+
+The MIT License (MIT)
+
+Copyright (c) 2013-2023 Cole Bemis
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
 */
 
 import {
@@ -530,7 +558,7 @@ export const svgIcon = SvgIcon.elementCreator({
   tag: 'xin-icon',
   styleSpec: {
     ':host': {
-      verticalAlign: 'text-bottom',
+      display: 'inline-flex',
     },
   },
 })
