@@ -13159,7 +13159,7 @@ var xinTagList = XinTagList.elementCreator({
   }
 });
 // src/version.ts
-var version = "0.9.8";
+var version = "0.9.9";
 // demo/src/style.ts
 /*!
 # style

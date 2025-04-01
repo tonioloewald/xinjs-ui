@@ -83,7 +83,6 @@ export function scriptTag(
 ): Promise<any> {
   if (loadedScripts[src] === undefined) {
     if (existingSymbolName !== undefined) {
-      // @ts-expect-error eslint is just wrong
       const existing = globalThis[existingSymbolName]
       loadedScripts[src] = Promise.resolve({ [existingSymbolName]: existing })
     }
