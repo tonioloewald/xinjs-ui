@@ -411,7 +411,9 @@ const { svg, path } = svgElements
 function getIconSpec(name: string): IconSpec {
   let data = iconData[name]
   if (data === undefined) {
-    console.warn(`icon ${name} not found`)
+    if (name) {
+      console.warn(`icon ${name} not found`)
+    }
     data = iconData.square
   }
   return typeof data !== 'string'
