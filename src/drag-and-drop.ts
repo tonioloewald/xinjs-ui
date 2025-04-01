@@ -170,7 +170,7 @@ dragAndDrop.init()
 ### Reorderable List Example
 
 ```js
-const { elements, xinProxy, getListItem } = xinjs
+const { elements, boxedProxy, getListItem } = xinjs
 const { dragAndDrop } = xinjsui
 
 dragAndDrop.init()
@@ -192,9 +192,9 @@ const colors = [
   'indigo',
   'violet',
 ]
-const { spectrum } = xinProxy({
+const { spectrum } = boxedProxy({
   spectrum: shuffle(colors).map(color => ({color}))
-}, true)
+})
 
 const { div, template } = elements
 
