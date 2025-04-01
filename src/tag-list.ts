@@ -7,6 +7,10 @@ Building a tag-list from standard HTML elements is a bit of a nightmare.
 as a comma-delimited string or an array of strings).
 
 ```html
+<label style="position: absolute; right: 10px; top: 10px; display: block">
+  <input type="checkbox" class="disable-toggle">
+  <b>Disable All</b>
+</label>
 <label>
   <b>Display Only</b>
   <xin-tag-list
@@ -27,7 +31,6 @@ as a comma-delimited string or an array of strings).
     available-tags="belongs,also belongs,not initially chosen"
   ></xin-tag-list>
 </label>
-
 <br>
 <b>Text-Entry</b>
 <xin-tag-list
@@ -51,8 +54,16 @@ as a comma-delimited string or an array of strings).
 ```
 ```js
 preview.addEventListener('change', (event) => {
-  console.log(event.target, event.target.value)
+  if (event.target.matches('xin-tag-list')) {
+    console.log(event.target, event.target.value) 
+  }
 }, true)
+preview.querySelector('.disable-toggle').addEventListener('change', (event) => {
+  const tagLists = Array.from(preview.querySelectorAll('xin-tag-list'))
+  for(const tagList of tagLists) {
+    tagList.disabled = event.target.checked
+  }
+})
 ```
 
 ## Properties
@@ -185,6 +196,7 @@ interface Tag {
 type TagList = (string | Tag | null)[]
 
 export class XinTagList extends WebComponent {
+  disabled = false
   name = ''
   availableTags: string | TagList = []
   value: string | string[] = []
@@ -210,7 +222,8 @@ export class XinTagList extends WebComponent {
       'textEntry',
       'availableTags',
       'editable',
-      'placeholder'
+      'placeholder',
+      'disabled'
     )
   }
 
@@ -322,7 +335,7 @@ export class XinTagList extends WebComponent {
   ]
 
   removeTag = (event: Event) => {
-    if (this.editable) {
+    if (this.editable && !this.disabled) {
       const tag = (event.target as HTMLElement).closest(
         XinTag.tagName!
       ) as XinTag
@@ -342,9 +355,10 @@ export class XinTagList extends WebComponent {
       tagInput: HTMLInputElement
     }
 
+    tagMenu.disabled = this.disabled
     tagInput.value = ''
     tagInput.setAttribute('placeholder', this.placeholder)
-    if (this.editable) {
+    if (this.editable && !this.disabled) {
       tagMenu.toggleAttribute('hidden', false)
       tagInput.toggleAttribute('hidden', !this.textEntry)
     } else {
@@ -358,7 +372,7 @@ export class XinTagList extends WebComponent {
       tagContainer.append(
         xinTag({
           caption: tag,
-          removeable: this.editable,
+          removeable: this.editable && !this.disabled,
           removeCallback: this.removeTag,
         })
       )
