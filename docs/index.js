@@ -1544,7 +1544,6 @@ __export(exports_src, {
   RichText: () => RichText,
   MarkdownViewer: () => MarkdownViewer,
   MapBox: () => MapBox,
-  MAPSTYLES: () => MAPSTYLES,
   LocalePicker: () => LocalePicker,
   LiveExample: () => LiveExample,
   FilterPart: () => FilterPart,
@@ -2570,14 +2569,44 @@ Basically, I wanted an icon solution that "just works" and this is it.
 
 Internally, icons are stored as javascript path data.
 
-These icons are mainly sourced from [feather](https://github.com/feathericons/feather), but
+Many of these icons are sourced from [Feather Icons](https://github.com/feathericons/feather), but
 all the icons have been processed to have integer coordinates in a `viewBox` typically scaled to 1024  &times; 1024.
+
+## Is this efficient?
+
+I use [icomoon](https://icomoon.com/app) to manage my icon libraries. Its method of distributing icons
+is to create custom fonts and an accompanying stylesheet.
+
+- the iconData file, compressed is ~23kB
+- icomoon's equivalent CSS file is ~3kB and the font files are 21kB
+
+But these fonts are less flexible, harder to distribute as part of a library, you need to
+distribute three versions for compatibility, and the color icons are very flaky and cannot
+be styled.
+
+## Feather Icons Copyright Notice
+
+The MIT License (MIT)
+
+Copyright (c) 2013-2023 Cole Bemis
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
 */
 var { svg, path } = Un;
 function getIconSpec(name) {
   let data = icon_data_default[name];
   if (data === undefined) {
-    console.warn(`icon ${name} not found`);
+    if (name) {
+      console.warn(`icon ${name} not found`);
+    }
     data = icon_data_default.square;
   }
   return typeof data !== "string" ? data : {
@@ -2688,7 +2717,7 @@ var svgIcon = SvgIcon.elementCreator({
   tag: "xin-icon",
   styleSpec: {
     ":host": {
-      verticalAlign: "text-bottom"
+      display: "inline-flex"
     }
   }
 });
@@ -4780,7 +4809,7 @@ dragAndDrop.init()
 ### Reorderable List Example
 
 ```js
-const { elements, xinProxy, getListItem } = xinjs
+const { elements, boxedProxy, getListItem } = xinjs
 const { dragAndDrop } = xinjsui
 
 dragAndDrop.init()
@@ -4802,9 +4831,9 @@ const colors = [
   'indigo',
   'violet',
 ]
-const { spectrum } = xinProxy({
+const { spectrum } = boxedProxy({
   spectrum: shuffle(colors).map(color => ({color}))
-}, true)
+})
 
 const { div, template } = elements
 
@@ -8747,8 +8776,50 @@ A [mapboxgl](https://docs.mapbox.com/mapbox-gl-js/api/) wrapper.
 ```js
 const pickStyle = preview.querySelector('select')
 const mapbox = preview.querySelector('xin-map')
+const here = preview.querySelector('button')
+
 pickStyle.addEventListener('change', () => {
   mapbox.mapStyle = pickStyle.value
+})
+
+function getUserGPSCoordinates() {
+  return new Promise((resolve) => {
+    // Check if geolocation is supported
+    if (!navigator.geolocation) {
+      console.log("Geolocation is not supported by this browser.");
+      resolve(null);
+      return;
+    }
+
+    // Request position with options
+    navigator.geolocation.getCurrentPosition(
+      // Success callback
+      (position) => {
+        resolve({
+          latitude: position.coords.latitude,
+          longitude: position.coords.longitude
+        });
+      },
+      // Error callback
+      (error) => {
+        console.log(`Error getting location: ${error.message}`);
+        resolve(null);
+      },
+      // Options
+      {
+        enableHighAccuracy: true,  // Request high accuracy if available
+        timeout: 10000,            // Time to wait for position (10 seconds)
+        maximumAge: 0              // Don't use cached position
+      }
+    );
+  });
+}
+
+here.addEventListener('click', async () => {
+  const location = await getUserGPSCoordinates()
+  if (location) {
+    mapbox.coords = `${location.latitude},${location.longitude},12`
+  }
 })
 ```
 ```html
@@ -8757,17 +8828,30 @@ pickStyle.addEventListener('change', () => {
   style="width: 100%; height: 100%"
   coords="14.0093606,120.995083,17"
   token="pk.eyJ1IjoicG9kcGVyc29uIiwiYSI6ImNqc2JlbWU0bjA1ZmY0YW5ycHZod3VhbWcifQ.arvqfpOqMgFYkKgQ35UScA"
-  map-style="mapbox://styles/mapbox/satellite-v9"
+  map-style="mapbox://styles/mapbox/streets-v12"
 ></xin-map>
 <select>
-  <option selected value="mapbox://styles/mapbox/satellite-v9">Satellite</option>
-  <option value="mapbox://styles/mapbox/streets-v12">Streets</option>
+  <option selected value="mapbox://styles/mapbox/streets-v12">Streets</option>
+  <option value="mapbox://styles/mapbox/satellite-v9">Satellite</option>
   <option value="mapbox://styles/mapbox/light-v11">Light</option>
   <option value="mapbox://styles/mapbox/dark-v11">Dark</option>
   <option value="mapbox://styles/mapbox/outdoors-v12">Outdoors</option>
 </select>
+<button>
+  <xin-icon icon="mapPin"></xin-icon>
+  <span>Your Location</span>
+</button>
 ```
 ```css
+.preview button {
+  position: absolute;
+  right: 10px;
+  top: 10px;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
 .preview select {
   position: absolute;
   bottom: 10px;
@@ -8776,50 +8860,8 @@ pickStyle.addEventListener('change', () => {
 ```
 
 There's no need to learn new APIs or write wrappers, just access the element's `map` property
-and [use the standard mapbox APIs directly](https://docs.mapbox.com/).
+and [use the standard mapbox APIs directly](https://docs.mapbox.com/api/maps/styles/).
 */
-var MAPSTYLES = [
-  {
-    name: "streets",
-    url: "mapbox://styles/mapbox/streets-v10"
-  },
-  {
-    name: "outdoors",
-    url: "mapbox://styles/mapbox/outdoors-v10"
-  },
-  {
-    name: "light",
-    url: "mapbox://styles/mapbox/light-v9"
-  },
-  {
-    name: "dark",
-    url: "mapbox://styles/mapbox/dark-v9"
-  },
-  {
-    name: "satellite",
-    url: "mapbox://styles/mapbox/satellite-v9"
-  },
-  {
-    name: "sateliite + streets",
-    url: "mapbox://styles/mapbox/satellite-streets-v10"
-  },
-  {
-    name: "preview day",
-    url: "mapbox://styles/mapbox/navigation-preview-day-v2"
-  },
-  {
-    name: "preview night",
-    url: "mapbox://styles/mapbox/navigation-preview-night-v2"
-  },
-  {
-    name: "guidance day",
-    url: "mapbox://styles/mapbox/navigation-guidance-day-v2"
-  },
-  {
-    name: "guidance night",
-    url: "mapbox://styles/mapbox/navigation-guidance-night-v2"
-  }
-];
 var { div: div8 } = S;
 
 class MapBox extends G {
@@ -8828,7 +8870,7 @@ class MapBox extends G {
   get map() {
     return this._map;
   }
-  mapStyle = MAPSTYLES[0].url;
+  mapStyle = "mapbox://styles/mapbox/streets-v12";
   token = "";
   static mapboxCSSAvailable;
   static mapboxAvailable;
@@ -13159,7 +13201,7 @@ var xinTagList = XinTagList.elementCreator({
   }
 });
 // src/version.ts
-var version = "0.9.8";
+var version = "0.9.9";
 // demo/src/style.ts
 /*!
 # style
@@ -14424,7 +14466,7 @@ dragAndDrop.init()
 ### Reorderable List Example
 
 \`\`\`js
-const { elements, xinProxy, getListItem } = xinjs
+const { elements, boxedProxy, getListItem } = xinjs
 const { dragAndDrop } = xinjsui
 
 dragAndDrop.init()
@@ -14446,9 +14488,9 @@ const colors = [
   'indigo',
   'violet',
 ]
-const { spectrum } = xinProxy({
+const { spectrum } = boxedProxy({
   spectrum: shuffle(colors).map(color => ({color}))
-}, true)
+})
 
 const { div, template } = elements
 
@@ -15502,8 +15544,36 @@ Basically, I wanted an icon solution that "just works" and this is it.
 
 Internally, icons are stored as javascript path data.
 
-These icons are mainly sourced from [feather](https://github.com/feathericons/feather), but
-all the icons have been processed to have integer coordinates in a \`viewBox\` typically scaled to 1024  &times; 1024.`,
+Many of these icons are sourced from [Feather Icons](https://github.com/feathericons/feather), but
+all the icons have been processed to have integer coordinates in a \`viewBox\` typically scaled to 1024  &times; 1024.
+
+## Is this efficient?
+
+I use [icomoon](https://icomoon.com/app) to manage my icon libraries. Its method of distributing icons
+is to create custom fonts and an accompanying stylesheet.
+
+- the iconData file, compressed is ~23kB
+- icomoon's equivalent CSS file is ~3kB and the font files are 21kB
+
+But these fonts are less flexible, harder to distribute as part of a library, you need to
+distribute three versions for compatibility, and the color icons are very flaky and cannot
+be styled.
+
+## Feather Icons Copyright Notice
+
+The MIT License (MIT)
+
+Copyright (c) 2013-2023 Cole Bemis
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.`,
     title: "icons",
     filename: "icons.ts",
     path: "src/icons.ts"
@@ -15845,8 +15915,50 @@ A [mapboxgl](https://docs.mapbox.com/mapbox-gl-js/api/) wrapper.
 \`\`\`js
 const pickStyle = preview.querySelector('select')
 const mapbox = preview.querySelector('xin-map')
+const here = preview.querySelector('button')
+
 pickStyle.addEventListener('change', () => {
   mapbox.mapStyle = pickStyle.value
+})
+
+function getUserGPSCoordinates() {
+  return new Promise((resolve) => {
+    // Check if geolocation is supported
+    if (!navigator.geolocation) {
+      console.log("Geolocation is not supported by this browser.");
+      resolve(null);
+      return;
+    }
+
+    // Request position with options
+    navigator.geolocation.getCurrentPosition(
+      // Success callback
+      (position) => {
+        resolve({
+          latitude: position.coords.latitude,
+          longitude: position.coords.longitude
+        });
+      },
+      // Error callback
+      (error) => {
+        console.log(\`Error getting location: \${error.message}\`);
+        resolve(null);
+      },
+      // Options
+      {
+        enableHighAccuracy: true,  // Request high accuracy if available
+        timeout: 10000,            // Time to wait for position (10 seconds)
+        maximumAge: 0              // Don't use cached position
+      }
+    );
+  });
+}
+
+here.addEventListener('click', async () => {
+  const location = await getUserGPSCoordinates()
+  if (location) {
+    mapbox.coords = \`\${location.latitude},\${location.longitude},12\`
+  }
 })
 \`\`\`
 \`\`\`html
@@ -15855,17 +15967,30 @@ pickStyle.addEventListener('change', () => {
   style="width: 100%; height: 100%"
   coords="14.0093606,120.995083,17"
   token="pk.eyJ1IjoicG9kcGVyc29uIiwiYSI6ImNqc2JlbWU0bjA1ZmY0YW5ycHZod3VhbWcifQ.arvqfpOqMgFYkKgQ35UScA"
-  map-style="mapbox://styles/mapbox/satellite-v9"
+  map-style="mapbox://styles/mapbox/streets-v12"
 ></xin-map>
 <select>
-  <option selected value="mapbox://styles/mapbox/satellite-v9">Satellite</option>
-  <option value="mapbox://styles/mapbox/streets-v12">Streets</option>
+  <option selected value="mapbox://styles/mapbox/streets-v12">Streets</option>
+  <option value="mapbox://styles/mapbox/satellite-v9">Satellite</option>
   <option value="mapbox://styles/mapbox/light-v11">Light</option>
   <option value="mapbox://styles/mapbox/dark-v11">Dark</option>
   <option value="mapbox://styles/mapbox/outdoors-v12">Outdoors</option>
 </select>
+<button>
+  <xin-icon icon="mapPin"></xin-icon>
+  <span>Your Location</span>
+</button>
 \`\`\`
 \`\`\`css
+.preview button {
+  position: absolute;
+  right: 10px;
+  top: 10px;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
 .preview select {
   position: absolute;
   bottom: 10px;
@@ -15874,7 +15999,7 @@ pickStyle.addEventListener('change', () => {
 \`\`\`
 
 There's no need to learn new APIs or write wrappers, just access the element's \`map\` property
-and [use the standard mapbox APIs directly](https://docs.mapbox.com/).`,
+and [use the standard mapbox APIs directly](https://docs.mapbox.com/api/maps/styles/).`,
     title: "map",
     filename: "mapbox.ts",
     path: "src/mapbox.ts"
