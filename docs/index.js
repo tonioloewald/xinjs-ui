@@ -5339,8 +5339,8 @@ class DataTable extends G {
       const isTouchEvent = event.touches !== undefined;
       const touchIdentifier = isTouchEvent ? event.touches[0].identifier : undefined;
       trackDrag(event, (dx, _dy, event2) => {
-        const touch = isTouchEvent ? [...event2.touches].find((touch2) => touch2.identifier === touchIdentifier) : true;
-        if (touch === undefined) {
+        const touch2 = isTouchEvent ? [...event2.touches].find((touch3) => touch3.identifier === touchIdentifier) : true;
+        if (touch2 === undefined) {
           return true;
         }
         const width = origWidth + dx;
@@ -5417,9 +5417,13 @@ class DataTable extends G {
     } else {
       this.rangeStart = pickedItem;
       this.deSelect();
-      pickedItem[this.selectedKey] = true;
+      this.selectRow(pickedItem, true);
     }
     this.selectionChanged(this.visibleSelectedRows);
+    for (const row of Array.from(this.querySelectorAll(".tr"))) {
+      const item = Tn(row);
+      this.selectBinding(row, item);
+    }
   };
   connectedCallback() {
     super.connectedCallback();
@@ -13202,7 +13206,7 @@ var xinTagList = XinTagList.elementCreator({
   }
 });
 // src/version.ts
-var version = "0.9.9";
+var version = "0.9.10";
 // demo/src/style.ts
 /*!
 # style
