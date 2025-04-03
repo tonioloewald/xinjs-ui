@@ -168,6 +168,7 @@ import {
   xinValue,
   getListItem,
   xinProxy,
+  touch,
 } from 'xinjs'
 import { trackDrag } from './track-drag'
 import { SortCallback } from './make-sorter'
@@ -533,7 +534,10 @@ export class DataTable extends WebComponent {
       this.selectRow(pickedItem, true)
     }
     this.selectionChanged(this.visibleSelectedRows)
-    this.queueRender()
+    for (const row of Array.from(this.querySelectorAll('.tr'))) {
+      const item = getListItem(row)
+      this.selectBinding(row, item)
+    }
   }
 
   connectedCallback(): void {
