@@ -530,9 +530,10 @@ export class DataTable extends WebComponent {
     } else {
       this.rangeStart = pickedItem
       this.deSelect()
-      pickedItem[this.selectedKey] = true
+      this.selectRow(pickedItem, true)
     }
     this.selectionChanged(this.visibleSelectedRows)
+    this.queueRender()
   }
 
   connectedCallback(): void {
