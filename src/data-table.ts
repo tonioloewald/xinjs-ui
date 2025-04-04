@@ -167,7 +167,7 @@ import {
   varDefault,
   xinValue,
   getListItem,
-  xinProxy,
+  boxedProxy,
   touch,
 } from 'xinjs'
 import { trackDrag } from './track-drag'
@@ -294,12 +294,9 @@ export class DataTable extends WebComponent {
   constructor() {
     super()
 
-    this.rowData = xinProxy(
-      {
-        [this.instanceId]: this.rowData,
-      },
-      true
-    )[this.instanceId]
+    this.rowData = boxedProxy({
+      [this.instanceId]: this.rowData,
+    })[this.instanceId]
 
     this.initAttributes(
       'rowHeight',
