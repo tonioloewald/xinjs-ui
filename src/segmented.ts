@@ -122,7 +122,7 @@ interface SegmentParts {
   custom: HTMLInputElement
 }
 
-class XinSegmented extends WebComponent {
+export class XinSegmented extends WebComponent {
   choices: string | Choice[] = ''
   other = ''
   multiple = false

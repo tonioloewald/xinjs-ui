@@ -70,9 +70,16 @@ function css2js () {
   }
   output.push('}')
   let code = output.join('\n')
-  code = code.replace(/'var\(--([^)]*)\)'/g, (_,v) => `vars.${kebabToCamel(v)}`)
+  code = code.replace(/'var\(--([^)]*)\)'/g, (_,v) => {
+    if (v.includes(',')) {
+      const [variable, content] = v.split(',', 2)
+      return `varDefault.${kebabToCamel(variable)}('${content.trim()}')`
+    } else {
+      return `vars.${kebabToCamel(v)}`
+    }
+  })
 
-  js.value = `import { vars } from 'xinjs'\n\nexport const styleSpec = ${code}`
+  js.value = `import { vars, varDefault } from 'xinjs'\n\nexport const styleSpec = ${code}`
 }
 
 convertButton.addEventListener('click', () => {

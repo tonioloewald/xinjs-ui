@@ -7,6 +7,7 @@ import {
   touch,
   getListItem,
   StyleSheet,
+  version,
 } from 'xinjs'
 
 import {
@@ -20,6 +21,7 @@ import {
   initLocalization,
   xinLocalized,
   localePicker,
+  version as uiVersion,
 } from '../../src'
 
 import { styleSpec } from './style'
@@ -113,6 +115,7 @@ if (main)
             alignItems: 'center',
             borderBottom: 'none',
           },
+          title: `xinjs ${version}, xinjs-ui ${uiVersion}`,
         },
         icons.xinjsUiColor({
           style: { _fontSize: 40, marginRight: 10 },

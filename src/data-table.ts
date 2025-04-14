@@ -167,7 +167,8 @@ import {
   varDefault,
   xinValue,
   getListItem,
-  xinProxy,
+  boxedProxy,
+  touch,
 } from 'xinjs'
 import { trackDrag } from './track-drag'
 import { SortCallback } from './make-sorter'
@@ -293,12 +294,9 @@ export class DataTable extends WebComponent {
   constructor() {
     super()
 
-    this.rowData = xinProxy(
-      {
-        [this.instanceId]: this.rowData,
-      },
-      true
-    )[this.instanceId]
+    this.rowData = boxedProxy({
+      [this.instanceId]: this.rowData,
+    })[this.instanceId]
 
     this.initAttributes(
       'rowHeight',
@@ -530,9 +528,13 @@ export class DataTable extends WebComponent {
     } else {
       this.rangeStart = pickedItem
       this.deSelect()
-      pickedItem[this.selectedKey] = true
+      this.selectRow(pickedItem, true)
     }
     this.selectionChanged(this.visibleSelectedRows)
+    for (const row of Array.from(this.querySelectorAll('.tr'))) {
+      const item = getListItem(row)
+      this.selectBinding(row, item)
+    }
   }
 
   connectedCallback(): void {

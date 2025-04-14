@@ -106,7 +106,7 @@ interface Choice {
     value: string;
     caption: string;
 }
-declare class XinSegmented extends WebComponent {
+export declare class XinSegmented extends WebComponent {
     choices: string | Choice[];
     other: string;
     multiple: boolean;

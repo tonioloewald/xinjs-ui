@@ -6,11 +6,30 @@ and it will gauge its content strength as a password. It will also
 let you **securely verify** that the password hasn't been breached.
 
 ```js
+const { xinLocalized, localize } = xinjsui
+
 const toggle = preview.querySelector('.toggle')
 const icon = preview.querySelector('xin-icon')
 const input = preview.querySelector('input')
 const breach = preview.querySelector('.breach')
 const output = preview.querySelector('.output')
+const passwordStrength = preview.querySelector('xin-password-strength')
+
+// Localization Example
+passwordStrength.append(xinLocalized({
+  refString: 'Yes',
+  localeChanged () {
+    this.parentElement.strengthDescriptions = [
+      'unacceptable',
+      'very weak',
+      'weak',
+      'moderate',
+      'strong',
+      'very strong',
+    ].map(localize)
+    this.parentElement.queueRender()
+  }
+}))
 
 toggle.addEventListener('click', () => {
   if (icon.icon === 'eye') {
@@ -41,7 +60,9 @@ breach.addEventListener('click', async () => {
 </xin-password-strength>
 
 <br><br>
-<button class="breach">Check if breached</button>
+<button class="breach">
+  <xin-localized>Check if breached</xin-localized>
+</button>
 <div class="output"></div>
 ```
 ```css
@@ -88,6 +109,32 @@ A password smaller than `minLength` is an automatic `0`.
   noNumber: boolean,
   noSpecial: boolean,
 }
+```
+
+## Customizing / Localizing Strings
+
+The following properties control the feedback generated.
+
+```
+issueDescriptions = {
+  tooShort: 'too short',
+  short: 'short',
+  noUpper: 'no upper case',
+  noLower: 'no lower case',
+  noNumber: 'no digits',
+  noSpecial: 'no unusual characters',
+}
+```
+
+```
+strengthDescriptions = [
+  'unacceptable',
+  'very weak',
+  'weak',
+  'moderate',
+  'strong',
+  'very strong',
+]
 ```
 
 ## `isBreached()`
