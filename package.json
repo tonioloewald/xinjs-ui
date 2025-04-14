@@ -1,6 +1,6 @@
 {
   "name": "xinjs-ui",
-  "version": "0.9.10",
+  "version": "0.9.11",
   "description": "simple robust web-components for use with xinjs or anything else",
   "scripts": {
     "start": "bun --watch dev.ts",

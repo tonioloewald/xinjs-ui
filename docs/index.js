@@ -5248,9 +5248,9 @@ class DataTable extends G {
   }
   constructor() {
     super();
-    this.rowData = Rn({
+    this.rowData = fn({
       [this.instanceId]: this.rowData
-    }, true)[this.instanceId];
+    })[this.instanceId];
     this.initAttributes("rowHeight", "charWidth", "minColumnWidth", "select", "multiple", "pinnedTop", "pinnedBottom", "nosort", "nohide", "noreorder");
   }
   get array() {
@@ -8552,7 +8552,7 @@ and `<xin-localized>` custom-elements.
 
 ## `initLocalization(localizationData: string)`
 
-Enables localization from TSV data.
+Enables localization from TSV string data.
 
 ## XinLocalePicker
 
@@ -8565,6 +8565,16 @@ A selector that lets the user pick from among supported languages.
 <h3>Locale Picker with <code>hide-captions</code></h3>
 <xin-locale-picker hide-caption></xin-locale-picker>
 ```
+
+## `localize()`
+
+If you just want to localize a string with code, use `localize(s: string): string`.
+
+If the reference string only matches when both are converted to
+lowercase, the output string will also be lowercase.
+
+E.g. if you have localized `Cancel` as `Annuler`, then `localize("cancel")
+will output `annuler`.
 
 ## XinLocalized
 
@@ -8584,27 +8594,53 @@ underline**.
 <h3>Lowercase is preserved</h3>
 <button><xin-localized>yes</xin-localized></button>
 <button><xin-localized>no</xin-localized></button>
+
+<h3>Localized Attribute</h3>
+<input>
 ```
 ```css
 xin-localized {
   border-bottom: 2px solid red;
 }
 ```
+```js
+const { xinLocalized, localize } = xinjsui
+
+preview.append(xinLocalized({
+  refString: 'localized placeholder',
+  localeChanged() {
+    this.previousElementSibling.setAttribute('placeholder', localize(this.refString))
+  }
+}))
+```
+
+`<xin-localized>` has a `refString` attribute (which defaults to its initial `textContent`)
+which is the text that it localizes. You can set it directly.
+
+It also has an `localeChanged` method which defaults to setting the content of the element
+to the localized reference string, but which you can override, to (for example) set a property
+or attribute of the parent element.
 
 ## `i18n`
 
 All of the data can be bound in the `i18n` proxy (`xin.i18n`), including the currently selected
 locale (which will default to `navigator.language`).
 
-You can take a look at `xin.i18n` in the console (and use it to set locale directly).
+You can take a look at `xin.i18n` in the console. `i18n` can be used to access localization
+data directly, and also to determine which locales are available `i18n.locales` and set the
+locale programmatically (e.g. `i18n.locale = 'en'`).
 
 ```
-i18n.locale = 'fr' // set localization to French (if available)
+if (i18n.locales.includes('fr')) {
+  i18n.locale = 'fr'
+}
 ```
 
 ## Creating Localized String Data
 
-`localized.tsv` provides data for localizing strings. It can be created automatically
+You can create your own localization data using any spreadsheet and exporting TSV. 
+
+E.g. you can automatically create localization data
 using something like my [localized](https://docs.google.com/spreadsheets/d/1L0_4g_dDhVCwVVxLzYbMj_H86xSp9lsRCKj7IS9psso/edit?usp=sharing)
 Google Sheet which leverages `googletranslate` to automatically translate reference strings
 (and which you can manually override as you like).
@@ -8644,15 +8680,7 @@ the content thus:
 export default `( content of tsv file )`
 ```
 
-## To Do
-
-- support for automated localization of attributes such as `title`
-- `data-xin-i18n` attribute to allow this (if present, text content localized
-  actual value of attribute can specify attributes needing localization)
-  - `data-xin-i18n="placeholder,text,title,value"` would indicate what
-    needs localizing; it could use a WeakMap to track original strings
-- DOM watcher looks for insertion of marked elements and localizes them
-
+You use this data using `initLocalization()`.
 */
 var { span: span7 } = S;
 var { i18n } = fn({
@@ -8756,12 +8784,20 @@ var localePicker = LocalePicker.elementCreator({
 class XinLocalized extends G {
   contents = () => S.xinSlot();
   refString = "";
+  constructor() {
+    super();
+    this.initAttributes("refString");
+  }
+  localeChanged() {
+    this.textContent = this.refString ? localize(this.refString) : "";
+  }
   render() {
     super.render();
     if (!this.refString) {
       this.refString = this.textContent || "";
     }
-    this.textContent = localize(this.refString);
+    this.textContent = "";
+    this.localeChanged();
   }
 }
 var xinLocalized = XinLocalized.elementCreator({
@@ -11543,11 +11579,30 @@ and it will gauge its content strength as a password. It will also
 let you **securely verify** that the password hasn't been breached.
 
 ```js
+const { xinLocalized, localize } = xinjsui
+
 const toggle = preview.querySelector('.toggle')
 const icon = preview.querySelector('xin-icon')
 const input = preview.querySelector('input')
 const breach = preview.querySelector('.breach')
 const output = preview.querySelector('.output')
+const passwordStrength = preview.querySelector('xin-password-strength')
+
+// Localization Example
+passwordStrength.append(xinLocalized({
+  refString: 'Yes',
+  localeChanged () {
+    this.parentElement.strengthDescriptions = [
+      'unacceptable',
+      'very weak',
+      'weak',
+      'moderate',
+      'strong',
+      'very strong',
+    ].map(localize)
+    this.parentElement.queueRender()
+  }
+}))
 
 toggle.addEventListener('click', () => {
   if (icon.icon === 'eye') {
@@ -11578,7 +11633,9 @@ breach.addEventListener('click', async () => {
 </xin-password-strength>
 
 <br><br>
-<button class="breach">Check if breached</button>
+<button class="breach">
+  <xin-localized>Check if breached</xin-localized>
+</button>
 <div class="output"></div>
 ```
 ```css
@@ -11625,6 +11682,32 @@ A password smaller than `minLength` is an automatic `0`.
   noNumber: boolean,
   noSpecial: boolean,
 }
+```
+
+## Customizing / Localizing Strings
+
+The following properties control the feedback generated.
+
+```
+issueDescriptions = {
+  tooShort: 'too short',
+  short: 'short',
+  noUpper: 'no upper case',
+  noLower: 'no lower case',
+  noNumber: 'no digits',
+  noSpecial: 'no unusual characters',
+}
+```
+
+```
+strengthDescriptions = [
+  'unacceptable',
+  'very weak',
+  'weak',
+  'moderate',
+  'strong',
+  'very strong',
+]
 ```
 
 ## `isBreached()`
@@ -13206,7 +13289,7 @@ var xinTagList = XinTagList.elementCreator({
   }
 });
 // src/version.ts
-var version = "0.9.10";
+var version = "0.9.11";
 // demo/src/style.ts
 /*!
 # style
@@ -13280,9 +13363,16 @@ function css2js () {
   }
   output.push('}')
   let code = output.join('\n')
-  code = code.replace(/'var\(--([^)]*)\)'/g, (_,v) => `vars.${kebabToCamel(v)}`)
+  code = code.replace(/'var\(--([^)]*)\)'/g, (_,v) => {
+    if (v.includes(',')) {
+      const [variable, content] = v.split(',', 2)
+      return `varDefault.${kebabToCamel(variable)}('${content.trim()}')`
+    } else {
+      return `vars.${kebabToCamel(v)}`
+    }
+  })
 
-  js.value = `import { vars } from 'xinjs'\n\nexport const styleSpec = ${code}`
+  js.value = `import { vars, varDefault } from 'xinjs'\n\nexport const styleSpec = ${code}`
 }
 
 convertButton.addEventListener('click', () => {
@@ -13703,54 +13793,62 @@ var styleSpec = {
 // demo/src/localized-strings.ts
 var localized_strings_default = `en-US	fr	fi	sv	zh	ja	ko	es	de	it
 English	French	Finnish	Swedish	Chinese	Japanese	Korean	Spanish	German	Italian
-English	Français	suomi	svenska	中国人	日本語	한국인	Español	Deutsch	Italiano
+English	Français	suomalainen	svenska	中国人	日本語	한국인	Español	Deutsch	Italiano
 \uD83C\uDDFA\uD83C\uDDF8	\uD83C\uDDEB\uD83C\uDDF7	\uD83C\uDDEB\uD83C\uDDEE	\uD83C\uDDF8\uD83C\uDDEA	\uD83C\uDDE8\uD83C\uDDF3	\uD83C\uDDEF\uD83C\uDDF5	\uD83C\uDDF0\uD83C\uDDF7	\uD83C\uDDEA\uD83C\uDDF8	\uD83C\uDDE9\uD83C\uDDEA	\uD83C\uDDEE\uD83C\uDDF9
-Language	Langue	Kieli	Språk	语言	言語	언어	Idioma	Sprache	Lingua
-Icon	Icône	Kuvake	Ikon	图标	アイコン	상	Icono	Symbol	Icona
-Okay	D'accord	Kunnossa	Okej	好的	わかった	좋아요	Bueno	Okay	Va bene
-Cancel	Annuler	Peruuttaa	Avboka	取消	キャンセル	취소	Cancelar	Stornieren	Cancellare
-Delete	Supprimer	Poistaa	Radera	删除	消去	삭제	Borrar	Löschen	Eliminare
-Yes	Oui	Kyllä	Ja	是的	はい	예	Sí	Ja	SÌ
-No	Non	Ei	Inga	不	いいえ	아니요	No	NEIN	NO
-Cut	Couper	Leikata	Skära	切	カット	자르다	Cortar	Schneiden	Taglio
-Copy	Copie	Kopioida	Kopiera	复制	コピー	복사	Copiar	Kopie	Copia
-Paste	Coller	Liitä	Klistra	粘贴	ペースト	반죽	Pasta	Paste	Impasto
-Heading	Titre	Otsikko	Rubrik	标题	見出し	표제	Título	Überschrift	Intestazione
 Body	Corps	Runko	Kropp	身体	体	몸	Cuerpo	Körper	Corpo
-Left	Gauche	Vasen	Vänster	左边	左	왼쪽	Izquierda	Links	Sinistra
-Right	Droite	Oikein	Rätt	正确的	右	오른쪽	Bien	Rechts	Giusto
-Center	Centre	Keskusta	Centrum	中心	中心	센터	Centro	Center	Centro
-Justify	Justifier	Perustella	Rättfärdiga	证明合法	正当化する	신이 옳다고 하다	Justificar	Rechtfertigen	Giustificare
 Bold	Audacieux	Lihavoitu	Djärv	大胆的	大胆な	용감한	Atrevido	Deutlich	Grassetto
-Italic	Italique	Kursiivi	Kursiv	斜体	イタリック	이탤릭체	Itálico	Kursiv	Corsivo
-Underline	Souligner	Korostaa	Betona	强调	下線	밑줄	Subrayar	Unterstreichen	Sottolineare
-Save	Sauvegarder	Tallentaa	Spara	节省	保存	구하다	Ahorrar	Speichern	Salva
-Open	Ouvrir	Avata	Öppna	打开	開ける	열려 있는	Abierto	Offen	Aprire
-Quit	Quitter	Lopettaa	Sluta	辞职	やめる	그만두다	Abandonar	Aufhören	Esentato
+Cancel	Annuler	Peruuttaa	Avboka	取消	キャンセル	취소	Cancelar	Stornieren	Cancellare
+Carousel	Carrousel	Karuselli	Karusell	轮播	カルーセル	회전목마	Carrusel	Karussell	Giostra
+Center	Centre	Keskusta	Centrum	中心	中心	센터	Centro	Center	Centro
+Check if Breached	Vérifiez en cas de violation	Tarkista, onko rikottu	Kontrollera om bruten	检查是否违规	侵害されているかどうかを確認する	위반 여부 확인	Comprobar si se ha violado	Überprüfen Sie, ob ein Verstoß vorliegt	Controlla se violato
 Close	Fermer	Lähellä	Nära	关闭	近い	닫다	Cerca	Schließen	Vicino
+Code	Code	Koodi	Koda	代码	コード	암호	Código	Code	Codice
+Copy	Copie	Kopioida	Kopiera	复制	コピー	복사	Copiar	Kopie	Copia
+Cut	Couper	Leikata	Skära	切	カット	자르다	Cortar	Schneiden	Taglio
+Delete	Supprimer	Poistaa	Radera	删除	消去	삭제	Borrar	Löschen	Eliminare
+Document	Document	Asiakirja	Dokumentera	文档	書類	문서	Documento	Dokumentieren	Documento
+Example	Exemple	Esimerkki	Exempel	例子	例	예	Ejemplo	Beispiel	Esempio
 Exit	Sortie	Poistu	Utgång	出口	出口	출구	Salida	Ausfahrt	Uscita
 File	Déposer	Tiedosto	Fil	文件	ファイル	파일	Archivo	Datei	File
-Document	Document	Asiakirja	Dokumentera	文档	書類	문서	Documento	Dokumentieren	Documento
-Move	Se déplacer	Liikkua	Flytta	移动	動く	이동하다	Mover	Bewegen	Mossa
-Code	Code	Koodi	Koda	代码	コード	암호	Código	Code	Codice
-Maximize	Maximiser	Maksimoida	Maximera	最大化	最大化する	최대화	Maximizar	Maximieren	Massimizzare
-Minimize	Minimiser	Minimoida	Minimera	最小化	最小化する	최소화	Minimizar	Minimieren	Minimizzare
-Library	Bibliothèque	Kirjasto	Bibliotek	图书馆	図書館	도서관	Biblioteca	Bibliothek	Biblioteca
-Example	Exemple	Esimerkki	Exempel	例子	例	예	Ejemplo	Beispiel	Esempio
-Carousel	Carrousel	Karuselli	Karusell	轮播	カルーセル	회전목마	Carrusel	Karussell	Giostra
-Menu	Menu	Valikko	Meny	菜单	メニュー	메뉴	Menú	Speisekarte	Menu
-Notifications	Notifications	Ilmoitukset	Aviseringar	通知	通知	알림	Notificaciones	Benachrichtigungen	Notifiche
+Filter	Filtre	Suodattaa	Filtrera	筛选	フィルター	필터	Filtrar	Filter	Filtro
 Float	Flotter	Kellua	Flyta	漂浮	フロート	뜨다	Flotar	Schweben	Galleggiante
+Forms	Formulaires	Lomakkeet	Blanketter	表格	フォーム	양식	Formularios	Formulare	Forme
+Heading	Titre	Otsikko	Rubrik	标题	見出し	표제	Título	Überschrift	Intestazione
+Icon	Icône	Kuvake	Ikon	图标	アイコン	상	Icono	Symbol	Icona
+Italic	Italique	Kursiivi	Kursiv	斜体	イタリック	이탤릭체	Itálico	Kursiv	Corsivo
+Justify	Justifier	Perustella	Rättfärdiga	证明合法	正当化する	신이 옳다고 하다	Justificar	Rechtfertigen	Giustificare
+Language	Langue	Kieli	Språk	语言	言語	언어	Idioma	Sprache	Lingua
+Left	Gauche	Vasen	Vänster	左边	左	왼쪽	Izquierda	Links	Sinistra
+Library	Bibliothèque	Kirjasto	Bibliotek	图书馆	図書館	도서관	Biblioteca	Bibliothek	Biblioteca
+Localize	Localiser	Paikallistaa	Lokalisera	本地化	ローカライズ	현지화	Localizar	Lokalisieren	Localizzare
+Localized Placeholder	Espace réservé localisé	Lokalisoitu paikkamerkki	Lokaliserad platshållare	本地化占位符	ローカライズされたプレースホルダ	현지화된 자리 표시자	Marcador de posición localizado	Lokalisierter Platzhalter	Segnaposto localizzato
+Map	Carte	Kartta	Karta	地图	地図	지도	Mapa	Karte	Mappa
+Maximize	Maximiser	Maksimoida	Maximera	最大化	最大化する	최대화	Maximizar	Maximieren	Massimizzare
+Menu	Menu	Valikko	Meny	菜单	メニュー	메뉴	Menú	Speisekarte	Menu
+Minimize	Minimiser	Minimoida	Minimera	最小化	最小化する	최소화	Minimizar	Minimieren	Minimizzare
+Moderate	Modéré	Kohtalainen	Måttlig	缓和	適度	보통의	Moderado	Mäßig	Moderare
+Move	Se déplacer	Liikkua	Flytta	移动	動く	이동하다	Mover	Bewegen	Mossa
+No	Non	Ei	Inga	不	いいえ	아니요	No	Nein	No
+Notifications	Notifications	Ilmoitukset	Aviseringar	通知	通知	알림	Notificaciones	Benachrichtigungen	Notifiche
+Okay	D'accord	Kunnossa	Okej	好的	わかった	좋아요	Bueno	Okay	Va bene
+Open	Ouvrir	Avata	Öppna	打开	開ける	열려 있는	Abierto	Offen	Aprire
+Paste	Coller	Liitä	Klistra	粘贴	ペースト	반죽	Pasta	Paste	Impasto
+Quit	Quitter	Lopettaa	Sluta	辞职	やめる	그만두다	Abandonar	Aufhören	Esentato
 Rating	Notation	Luokitus	Gradering	等级	評価	평가	Clasificación	Bewertung	Valutazione
+Right	Droite	Oikein	Rätt	正确的	右	오른쪽	Bien	Rechts	Giusto
+Save	Sauvegarder	Tallentaa	Spara	节省	保存	구하다	Ahorrar	Speichern	Salva
 Select	Sélectionner	Valitse	Välja	选择	選択	선택하다	Seleccionar	Wählen	Selezionare
 Sidebar	Barre latérale	Sivupalkki	Sidofält	侧边栏	サイドバー	사이드바	Barra lateral	Seitenleiste	Barra laterale
 Sizer	Calibreur	Mitoitus	Sizer	尺寸测定器	サイザー	사이저	medidor	Sizer	Misuratore
+Strong	Fort	Vahva	Stark	强的	強い	강한	Fuerte	Stark	Forte
 Table	Tableau	Taulukko	Tabell	桌子	テーブル	테이블	Mesa	Tisch	Tavolo
-Forms	Formulaires	Lomakkeet	Blanketter	表格	フォーム	양식	Formularios	Formulare	Forme
-Filter	Filtre	Suodattaa	Filtrera	筛选	フィルター	필터	Filtrar	Filter	Filtro
-Map	Carte	Kartta	Karta	地图	地図	지도	Mapa	Karte	Mappa
 Tabs	Onglets	Välilehdet	Flikar	选项卡	タブ	탭	Cortina a la italiana	Tabs	Schede
-Localize	Localiser	Paikallistaa	Lokalisera	本地化	ローカライズ	현지화	Localizar	Lokalisieren	Localizzare`;
+Unacceptable	Inacceptable	Ei hyväksyttävää	Oacceptabel	不可接受	受け入れられない	허용되지 않음	Inaceptable	Inakzeptabel	Inaccettabile
+Underline	Souligner	Korostaa	Betona	强调	下線	밑줄	Subrayar	Unterstreichen	Sottolineare
+Very Strong	Très fort	Erittäin vahva	Mycket stark	非常强	とても強い	매우 강함	Acérrimo	Sehr stark	Molto forte
+Very Weak	Très faible	Erittäin heikko	Mycket svag	非常弱	非常に弱い	매우 약함	muy débil	Sehr schwach	Molto debole
+Weak	Faible	Heikko	Svag	虚弱的	弱い	약한	Débil	Schwach	Debole
+Yes	Oui	Kyllä	Ja	是的	はい	예	Sí	Ja	Sì`;
 
 // demo/src/css-var-editor.ts
 var { h2, code } = S;
@@ -15601,7 +15699,7 @@ and \`<xin-localized>\` custom-elements.
 
 ## \`initLocalization(localizationData: string)\`
 
-Enables localization from TSV data.
+Enables localization from TSV string data.
 
 ## XinLocalePicker
 
@@ -15614,6 +15712,16 @@ A selector that lets the user pick from among supported languages.
 <h3>Locale Picker with <code>hide-captions</code></h3>
 <xin-locale-picker hide-caption></xin-locale-picker>
 \`\`\`
+
+## \`localize()\`
+
+If you just want to localize a string with code, use \`localize(s: string): string\`.
+
+If the reference string only matches when both are converted to
+lowercase, the output string will also be lowercase.
+
+E.g. if you have localized \`Cancel\` as \`Annuler\`, then \`localize("cancel")
+will output \`annuler\`.
 
 ## XinLocalized
 
@@ -15633,27 +15741,53 @@ underline**.
 <h3>Lowercase is preserved</h3>
 <button><xin-localized>yes</xin-localized></button>
 <button><xin-localized>no</xin-localized></button>
+
+<h3>Localized Attribute</h3>
+<input>
 \`\`\`
 \`\`\`css
 xin-localized {
   border-bottom: 2px solid red;
 }
 \`\`\`
+\`\`\`js
+const { xinLocalized, localize } = xinjsui
+
+preview.append(xinLocalized({
+  refString: 'localized placeholder',
+  localeChanged() {
+    this.previousElementSibling.setAttribute('placeholder', localize(this.refString))
+  }
+}))
+\`\`\`
+
+\`<xin-localized>\` has a \`refString\` attribute (which defaults to its initial \`textContent\`)
+which is the text that it localizes. You can set it directly.
+
+It also has an \`localeChanged\` method which defaults to setting the content of the element
+to the localized reference string, but which you can override, to (for example) set a property
+or attribute of the parent element.
 
 ## \`i18n\`
 
 All of the data can be bound in the \`i18n\` proxy (\`xin.i18n\`), including the currently selected
 locale (which will default to \`navigator.language\`).
 
-You can take a look at \`xin.i18n\` in the console (and use it to set locale directly).
+You can take a look at \`xin.i18n\` in the console. \`i18n\` can be used to access localization
+data directly, and also to determine which locales are available \`i18n.locales\` and set the
+locale programmatically (e.g. \`i18n.locale = 'en'\`).
 
 \`\`\`
-i18n.locale = 'fr' // set localization to French (if available)
+if (i18n.locales.includes('fr')) {
+  i18n.locale = 'fr'
+}
 \`\`\`
 
 ## Creating Localized String Data
 
-\`localized.tsv\` provides data for localizing strings. It can be created automatically
+You can create your own localization data using any spreadsheet and exporting TSV. 
+
+E.g. you can automatically create localization data
 using something like my [localized](https://docs.google.com/spreadsheets/d/1L0_4g_dDhVCwVVxLzYbMj_H86xSp9lsRCKj7IS9psso/edit?usp=sharing)
 Google Sheet which leverages \`googletranslate\` to automatically translate reference strings
 (and which you can manually override as you like).
@@ -15693,14 +15827,7 @@ the content thus:
 export default \`( content of tsv file )\`
 \`\`\`
 
-## To Do
-
-- support for automated localization of attributes such as \`title\`
-- \`data-xin-i18n\` attribute to allow this (if present, text content localized
-  actual value of attribute can specify attributes needing localization)
-  - \`data-xin-i18n="placeholder,text,title,value"\` would indicate what
-    needs localizing; it could use a WeakMap to track original strings
-- DOM watcher looks for insertion of marked elements and localizes them`,
+You use this data using \`initLocalization()\`.`,
     title: "localize",
     filename: "localize.ts",
     path: "src/localize.ts"
@@ -16357,11 +16484,30 @@ and it will gauge its content strength as a password. It will also
 let you **securely verify** that the password hasn't been breached.
 
 \`\`\`js
+const { xinLocalized, localize } = xinjsui
+
 const toggle = preview.querySelector('.toggle')
 const icon = preview.querySelector('xin-icon')
 const input = preview.querySelector('input')
 const breach = preview.querySelector('.breach')
 const output = preview.querySelector('.output')
+const passwordStrength = preview.querySelector('xin-password-strength')
+
+// Localization Example
+passwordStrength.append(xinLocalized({
+  refString: 'Yes',
+  localeChanged () {
+    this.parentElement.strengthDescriptions = [
+      'unacceptable',
+      'very weak',
+      'weak',
+      'moderate',
+      'strong',
+      'very strong',
+    ].map(localize)
+    this.parentElement.queueRender()
+  }
+}))
 
 toggle.addEventListener('click', () => {
   if (icon.icon === 'eye') {
@@ -16392,7 +16538,9 @@ breach.addEventListener('click', async () => {
 </xin-password-strength>
 
 <br><br>
-<button class="breach">Check if breached</button>
+<button class="breach">
+  <xin-localized>Check if breached</xin-localized>
+</button>
 <div class="output"></div>
 \`\`\`
 \`\`\`css
@@ -16439,6 +16587,32 @@ A password smaller than \`minLength\` is an automatic \`0\`.
   noNumber: boolean,
   noSpecial: boolean,
 }
+\`\`\`
+
+## Customizing / Localizing Strings
+
+The following properties control the feedback generated.
+
+\`\`\`
+issueDescriptions = {
+  tooShort: 'too short',
+  short: 'short',
+  noUpper: 'no upper case',
+  noLower: 'no lower case',
+  noNumber: 'no digits',
+  noSpecial: 'no unusual characters',
+}
+\`\`\`
+
+\`\`\`
+strengthDescriptions = [
+  'unacceptable',
+  'very weak',
+  'weak',
+  'moderate',
+  'strong',
+  'very strong',
+]
 \`\`\`
 
 ## \`isBreached()\`
@@ -17119,9 +17293,16 @@ function css2js () {
   }
   output.push('}')
   let code = output.join('\\n')
-  code = code.replace(/'var\\(--([^)]*)\\)'/g, (_,v) => \`vars.\${kebabToCamel(v)}\`)
+  code = code.replace(/'var\\(--([^)]*)\\)'/g, (_,v) => {
+    if (v.includes(',')) {
+      const [variable, content] = v.split(',', 2)
+      return \`varDefault.\${kebabToCamel(variable)}('\${content.trim()}')\`
+    } else {
+      return \`vars.\${kebabToCamel(v)}\`
+    }
+  })
 
-  js.value = \`import { vars } from 'xinjs'\\n\\nexport const styleSpec = \${code}\`
+  js.value = \`import { vars, varDefault } from 'xinjs'\\n\\nexport const styleSpec = \${code}\`
 }
 
 convertButton.addEventListener('click', () => {
@@ -17810,7 +17991,8 @@ if (main)
       display: "flex",
       alignItems: "center",
       borderBottom: "none"
-    }
+    },
+    title: `xinjs ${Kn}, xinjs-ui ${version}`
   }, icons.xinjsUiColor({
     style: { _fontSize: 40, marginRight: 10 }
   }), h22({ bindText: "app.title" })), span13({ class: "elastic" }), sizeBreak({

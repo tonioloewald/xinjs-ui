@@ -16,7 +16,7 @@ and `<xin-localized>` custom-elements.
 
 ## `initLocalization(localizationData: string)`
 
-Enables localization from TSV data.
+Enables localization from TSV string data.
 
 ## XinLocalePicker
 
@@ -29,6 +29,16 @@ A selector that lets the user pick from among supported languages.
 <h3>Locale Picker with <code>hide-captions</code></h3>
 <xin-locale-picker hide-caption></xin-locale-picker>
 ```
+
+## `localize()`
+
+If you just want to localize a string with code, use `localize(s: string): string`.
+
+If the reference string only matches when both are converted to
+lowercase, the output string will also be lowercase.
+
+E.g. if you have localized `Cancel` as `Annuler`, then `localize("cancel")
+will output `annuler`.
 
 ## XinLocalized
 
@@ -48,27 +58,53 @@ underline**.
 <h3>Lowercase is preserved</h3>
 <button><xin-localized>yes</xin-localized></button>
 <button><xin-localized>no</xin-localized></button>
+
+<h3>Localized Attribute</h3>
+<input>
 ```
 ```css
 xin-localized {
   border-bottom: 2px solid red;
 }
 ```
+```js
+const { xinLocalized, localize } = xinjsui
+
+preview.append(xinLocalized({
+  refString: 'localized placeholder',
+  localeChanged() {
+    this.previousElementSibling.setAttribute('placeholder', localize(this.refString))
+  }
+}))
+```
+
+`<xin-localized>` has a `refString` attribute (which defaults to its initial `textContent`)
+which is the text that it localizes. You can set it directly.
+
+It also has an `localeChanged` method which defaults to setting the content of the element
+to the localized reference string, but which you can override, to (for example) set a property
+or attribute of the parent element.
 
 ## `i18n`
 
 All of the data can be bound in the `i18n` proxy (`xin.i18n`), including the currently selected
 locale (which will default to `navigator.language`).
 
-You can take a look at `xin.i18n` in the console (and use it to set locale directly).
+You can take a look at `xin.i18n` in the console. `i18n` can be used to access localization
+data directly, and also to determine which locales are available `i18n.locales` and set the
+locale programmatically (e.g. `i18n.locale = 'en'`).
 
 ```
-i18n.locale = 'fr' // set localization to French (if available)
+if (i18n.locales.includes('fr')) {
+  i18n.locale = 'fr'
+}
 ```
 
 ## Creating Localized String Data
 
-`localized.tsv` provides data for localizing strings. It can be created automatically
+You can create your own localization data using any spreadsheet and exporting TSV.
+
+E.g. you can automatically create localization data
 using something like my [localized](https://docs.google.com/spreadsheets/d/1L0_4g_dDhVCwVVxLzYbMj_H86xSp9lsRCKj7IS9psso/edit?usp=sharing)
 Google Sheet which leverages `googletranslate` to automatically translate reference strings
 (and which you can manually override as you like).
@@ -108,15 +144,7 @@ the content thus:
 export default `( content of tsv file )`
 ```
 
-## To Do
-
-- support for automated localization of attributes such as `title`
-- `data-xin-i18n` attribute to allow this (if present, text content localized
-  actual value of attribute can specify attributes needing localization)
-  - `data-xin-i18n="placeholder,text,title,value"` would indicate what
-    needs localizing; it could use a WeakMap to track original strings
-- DOM watcher looks for insertion of marked elements and localizes them
-
+You use this data using `initLocalization()`.
 */
 import { Component } from 'xinjs';
 export declare const i18n: any;
@@ -134,6 +162,8 @@ export declare const localePicker: any;
 export declare class XinLocalized extends Component {
     contents: () => any;
     refString: string;
+    constructor();
+    localeChanged(): void;
     render(): void;
 }
 export declare const xinLocalized: any;
