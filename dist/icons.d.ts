@@ -16,7 +16,7 @@ applications along with being very easy to extend and maintain.
 > - No build process magic needed (it's "just javascript")
 > - icons can be rendered  as data urls, e.g. to insert into CSS
 > - highly optimized and compressible
-> - support for color icons (still allowing with CSS styling)
+> - support for color icons (with overrides via CSS)
 
 ## icons
 
