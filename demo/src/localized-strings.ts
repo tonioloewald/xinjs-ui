@@ -1,6 +1,6 @@
 export default `en-US	fr	fi	sv	zh	ja	ko	es	de	it
 English	French	Finnish	Swedish	Chinese	Japanese	Korean	Spanish	German	Italian
-English	Français	suomalainen	svenska	中国人	日本語	한국인	Español	Deutsch	Italiano
+English	Français	suomi	svenska	中国人	日本語	한국인	Español	Deutsch	Italiano
 🇺🇸	🇫🇷	🇫🇮	🇸🇪	🇨🇳	🇯🇵	🇰🇷	🇪🇸	🇩🇪	🇮🇹
 Body	Corps	Runko	Kropp	身体	体	몸	Cuerpo	Körper	Corpo
 Bold	Audacieux	Lihavoitu	Djärv	大胆的	大胆な	용감한	Atrevido	Deutlich	Grassetto
