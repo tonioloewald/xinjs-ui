@@ -13335,7 +13335,7 @@ var xinTagList = XinTagList.elementCreator({
   }
 });
 // src/version.ts
-var version = "0.9.12";
+var version = "0.9.13";
 // demo/src/style.ts
 /*!
 # style
