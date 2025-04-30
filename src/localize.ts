@@ -187,7 +187,7 @@ export const updateLocalized = () => {
     ...document.querySelectorAll(XinLocalized.tagName as string),
   ] as XinLocalized[]
   for (const localized of localizeds) {
-    localized.render()
+    localized.localeChanged()
   }
 }
 
@@ -292,16 +292,15 @@ export class XinLocalized extends Component {
   }
 
   localeChanged() {
+    if (!this.refString) {
+      this.refString = this.textContent || ''
+    }
     this.textContent = this.refString ? localize(this.refString) : ''
   }
 
   render() {
     super.render()
 
-    if (!this.refString) {
-      this.refString = this.textContent || ''
-    }
-    this.textContent = ''
     this.localeChanged()
   }
 }
