@@ -1482,6 +1482,7 @@ __export(exports_src, {
   spacer: () => spacer,
   sizeBreak: () => sizeBreak,
   sideNav: () => sideNav,
+  setLocale: () => setLocale,
   scriptTag: () => scriptTag,
   richTextWidgets: () => richTextWidgets,
   richText: () => richText,
@@ -8577,6 +8578,48 @@ lowercase, the output string will also be lowercase.
 E.g. if you have localized `Cancel` as `Annuler`, then `localize("cancel")
 will output `annuler`.
 
+## `setLocale(language: string)`
+
+```js
+const { button, p } = xinjs.elements
+const { setLocale } = xinjsui
+
+preview.append(
+  p(
+    button(
+      {
+        onClick() {
+          setLocale('en-US')
+        }
+      }, 
+      'setLocale("en-US")'
+    )
+  ),
+  p(
+    button(
+      {
+        onClick() {
+          setLocale('fr')
+        }
+      }, 
+      'setLocale("fr")'
+    )
+  ),
+  p(
+    button(
+      {
+        onClick() {
+          setLocale('qq')
+        }
+      }, 
+      'setLocale("qq") (see console for error message)'
+    )
+  ),
+)
+```
+
+If you want to directly set locale, just use `setLocale()`.
+
 ## XinLocalized
 
 A span-replacement that automatically localizes its text content.
@@ -8707,6 +8750,13 @@ on.localeOptions = {
     }
   }
 };
+var setLocale = (language) => {
+  if (i18n.locales.includes(language)) {
+    i18n.locale = language;
+  } else {
+    console.error(`language ${language} is not available`);
+  }
+};
 var updateLocalized = () => {
   const localizeds = [
     ...document.querySelectorAll(XinLocalized.tagName)
@@ -8715,6 +8765,7 @@ var updateLocalized = () => {
     localized.localeChanged();
   }
 };
+N(i18n.locale.xinPath, updateLocalized);
 var captionSort = makeSorter((locale) => [
   locale.caption.toLocaleLowerCase()
 ]);
@@ -8767,11 +8818,6 @@ class LocalePicker extends G {
   constructor() {
     super();
     this.initAttributes("hideCaption");
-  }
-  connectedCallback() {
-    super.connectedCallback();
-    this.parts.select.value = i18n.locale;
-    this.parts.select.addEventListener("change", updateLocalized);
   }
   render() {
     super.render();
@@ -15722,6 +15768,48 @@ lowercase, the output string will also be lowercase.
 
 E.g. if you have localized \`Cancel\` as \`Annuler\`, then \`localize("cancel")
 will output \`annuler\`.
+
+## \`setLocale(language: string)\`
+
+\`\`\`js
+const { button, p } = xinjs.elements
+const { setLocale } = xinjsui
+
+preview.append(
+  p(
+    button(
+      {
+        onClick() {
+          setLocale('en-US')
+        }
+      }, 
+      'setLocale("en-US")'
+    )
+  ),
+  p(
+    button(
+      {
+        onClick() {
+          setLocale('fr')
+        }
+      }, 
+      'setLocale("fr")'
+    )
+  ),
+  p(
+    button(
+      {
+        onClick() {
+          setLocale('qq')
+        }
+      }, 
+      'setLocale("qq") (see console for error message)'
+    )
+  ),
+)
+\`\`\`
+
+If you want to directly set locale, just use \`setLocale()\`.
 
 ## XinLocalized
 
