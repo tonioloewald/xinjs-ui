@@ -2225,7 +2225,7 @@ applications along with being very easy to extend and maintain.
 > - No build process magic needed (it's "just javascript")
 > - icons can be rendered  as data urls, e.g. to insert into CSS
 > - highly optimized and compressible
-> - support for color icons (still allowing with CSS styling)
+> - support for color icons (with overrides via CSS)
 
 ## icons
 
@@ -3012,7 +3012,7 @@ var b3d = B3d.elementCreator({ tag: "xin-3d" });
 # blueprint loading
 
 <center>
-  <xin-icon icon="blueprint" style="--font-size: 256px"></xin-icon>
+  <xin-icon icon="blueprint" class="logo" style="--font-size: 256px"></xin-icon>
 </center>
 
 `<xin-loader>` and `<xin-blueprint>` are simple elements provided by `xinjs` for the dynamic loading
@@ -13777,7 +13777,7 @@ var styleSpec = {
   svg: {
     fill: "currentcolor"
   },
-  "img.logo": {
+  "img.logo, xin-icon.logo": {
     animation: "2s ease-in-out 0s infinite alternate logo-swing"
   },
   "@keyframes logo-swing": {
@@ -13793,7 +13793,7 @@ var styleSpec = {
 // demo/src/localized-strings.ts
 var localized_strings_default = `en-US	fr	fi	sv	zh	ja	ko	es	de	it
 English	French	Finnish	Swedish	Chinese	Japanese	Korean	Spanish	German	Italian
-English	Français	suomalainen	svenska	中国人	日本語	한국인	Español	Deutsch	Italiano
+English	Français	suomi	svenska	中国人	日本語	한국인	Español	Deutsch	Italiano
 \uD83C\uDDFA\uD83C\uDDF8	\uD83C\uDDEB\uD83C\uDDF7	\uD83C\uDDEB\uD83C\uDDEE	\uD83C\uDDF8\uD83C\uDDEA	\uD83C\uDDE8\uD83C\uDDF3	\uD83C\uDDEF\uD83C\uDDF5	\uD83C\uDDF0\uD83C\uDDF7	\uD83C\uDDEA\uD83C\uDDF8	\uD83C\uDDE9\uD83C\uDDEA	\uD83C\uDDEE\uD83C\uDDF9
 Body	Corps	Runko	Kropp	身体	体	몸	Cuerpo	Körper	Corpo
 Bold	Audacieux	Lihavoitu	Djärv	大胆的	大胆な	용감한	Atrevido	Deutlich	Grassetto
@@ -14263,7 +14263,7 @@ randomize()
     text: `# blueprint loading
 
 <center>
-  <xin-icon icon="blueprint" style="--font-size: 256px"></xin-icon>
+  <xin-icon icon="blueprint" class="logo" style="--font-size: 256px"></xin-icon>
 </center>
 
 \`<xin-loader>\` and \`<xin-blueprint>\` are simple elements provided by \`xinjs\` for the dynamic loading
@@ -15302,7 +15302,7 @@ applications along with being very easy to extend and maintain.
 > - No build process magic needed (it's "just javascript")
 > - icons can be rendered  as data urls, e.g. to insert into CSS
 > - highly optimized and compressible
-> - support for color icons (still allowing with CSS styling)
+> - support for color icons (with overrides via CSS)
 
 ## icons
 

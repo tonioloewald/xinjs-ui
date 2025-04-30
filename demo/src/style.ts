@@ -489,7 +489,7 @@ export const styleSpec: XinStyleSheet = {
   svg: {
     fill: 'currentcolor',
   },
-  'img.logo': {
+  'img.logo, xin-icon.logo': {
     animation: '2s ease-in-out 0s infinite alternate logo-swing',
   },
   '@keyframes logo-swing': {
