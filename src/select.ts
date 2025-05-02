@@ -198,6 +198,7 @@ export class XinSelect extends WebComponent {
   options: string | SelectOptions = ''
   value = ''
   placeholder = ''
+  filter = ''
 
   private setValue = (value: string, triggerAction = false) => {
     if (this.value !== value) {
