@@ -1,10 +1,10 @@
 @font-face {
   font-family: 'icomoon';
-  src:  url('fonts/icomoon.eot?5g5g5n');
-  src:  url('fonts/icomoon.eot?5g5g5n#iefix') format('embedded-opentype'),
-    url('fonts/icomoon.ttf?5g5g5n') format('truetype'),
-    url('fonts/icomoon.woff?5g5g5n') format('woff'),
-    url('fonts/icomoon.svg?5g5g5n#icomoon') format('svg');
+  src:  url('fonts/icomoon.eot?b86hrf');
+  src:  url('fonts/icomoon.eot?b86hrf#iefix') format('embedded-opentype'),
+    url('fonts/icomoon.ttf?b86hrf') format('truetype'),
+    url('fonts/icomoon.woff?b86hrf') format('woff'),
+    url('fonts/icomoon.svg?b86hrf#icomoon') format('svg');
   font-weight: normal;
   font-style: normal;
   font-display: block;
@@ -624,54 +624,8 @@
   margin-left: -1em;
   color: rgb(0, 0, 0);
 }
-.icon-xinjs-ui .path1:before {
+.icon-xinjs-ui:before {
   content: "\e9b0";
-  color: rgb(237, 242, 221);
-}
-.icon-xinjs-ui .path2:before {
-  content: "\e9b1";
-  margin-left: -1em;
-  color: rgb(8, 131, 87);
-}
-.icon-xinjs-ui .path3:before {
-  content: "\e9b2";
-  margin-left: -1em;
-  color: rgb(8, 131, 87);
-}
-.icon-xinjs-ui .path4:before {
-  content: "\e9b3";
-  margin-left: -1em;
-  color: rgb(8, 131, 87);
-}
-.icon-xinjs-ui .path5:before {
-  content: "\e9b4";
-  margin-left: -1em;
-  color: rgb(8, 131, 87);
-}
-.icon-xinjs-ui .path6:before {
-  content: "\e9b5";
-  margin-left: -1em;
-  color: rgb(8, 131, 87);
-}
-.icon-xinjs-ui .path7:before {
-  content: "\e9b6";
-  margin-left: -1em;
-  color: rgb(8, 131, 87);
-}
-.icon-xinjs-ui .path8:before {
-  content: "\e9b7";
-  margin-left: -1em;
-  color: rgb(8, 131, 87);
-}
-.icon-xinjs-ui .path9:before {
-  content: "\e9b8";
-  margin-left: -1em;
-  color: rgb(236, 243, 221);
-}
-.icon-xinjs-ui .path10:before {
-  content: "\e9b9";
-  margin-left: -1em;
-  color: rgb(8, 131, 87);
 }
 .icon-cmy .path1:before {
   content: "\e998";
@@ -894,6 +848,33 @@
 }
 .icon-facebook:before {
   content: "\eef0";
+}
+.icon-twitter:before {
+  content: "\eef5";
+}
+.icon-youtube:before {
+  content: "\eefc";
+}
+.icon-game:before {
+  content: "\e96d";
+}
+.icon-google:before {
+  content: "\eee9";
+}
+.icon-github:before {
+  content: "\ef0f";
+}
+.icon-npm:before {
+  content: "\ef10";
+}
+.icon-xr:before {
+  content: "\ef43";
+}
+.icon-xinjs:before {
+  content: "\ef45";
+}
+.icon-html5:before {
+  content: "\ef44";
 }
 .icon-twitter:before {
   content: "\eef5";
