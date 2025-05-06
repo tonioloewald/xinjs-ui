@@ -2543,10 +2543,22 @@ If you're using `SVGElement`s created using the `icons` proxy, you'll want to pr
   --font-size: 160px
 }
 
+.recolored:not(:hover) {
+  opacity: 0.76;
+  filter: grayscale(0.75);
+  transform: scale(1.0);
+}
+
 .recolored {
-  --icon-fill-0: blue;
-  --icon-fill-1: white;
+  pointer-events: all;
+  transition: 0.25s ease-in-out;
+  transform: scale(1.05);
+  --icon-fill-0: black;
   --icon-fill-2: red;
+  --icon-fill-3: orange;
+  --icon-fill-4: limegreen;
+  --icon-fill-5: yellow;
+  --icon-fill-6: skyblue;
 }
 ```
 
@@ -15671,10 +15683,22 @@ If you're using \`SVGElement\`s created using the \`icons\` proxy, you'll want t
   --font-size: 160px
 }
 
+.recolored:not(:hover) {
+  opacity: 0.76;
+  filter: grayscale(0.75);
+  transform: scale(1.0);
+}
+
 .recolored {
-  --icon-fill-0: blue;
-  --icon-fill-1: white;
+  pointer-events: all;
+  transition: 0.25s ease-in-out;
+  transform: scale(1.05);
+  --icon-fill-0: black;
   --icon-fill-2: red;
+  --icon-fill-3: orange;
+  --icon-fill-4: limegreen;
+  --icon-fill-5: yellow;
+  --icon-fill-6: skyblue;
 }
 \`\`\`
 
