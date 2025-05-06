@@ -169,6 +169,7 @@ export declare class XinSelect extends WebComponent {
     options: string | SelectOptions;
     value: string;
     placeholder: string;
+    filter: string;
     private setValue;
     private getValue;
     get selectOptions(): SelectOptions;

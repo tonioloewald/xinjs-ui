@@ -4,7 +4,7 @@
 
 [ui.xinjs.net live demo](https://ui.xinjs.net) | [xinjs](https://xinjs.net) | [discord](https://discord.gg/ramJ9rgky5) | [github](https://github.com/tonioloewald/xinjs-ui#readme) | [npm](https://www.npmjs.com/package/xinjs-ui)
 
-<img alt="xinjs-ui logo" class="logo" style="display: block; margin: auto; width: 50%" src="https://ui.xinjs.net/xinjs-ui-color.svg">
+<img alt="xinjs-ui logo" class="logo" style="display: block; margin: auto; width: 50%" src="./favicon.svg">
 
 Copyright ©2023-2025 Tonio Loewald
 

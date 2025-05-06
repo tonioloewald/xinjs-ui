@@ -30,13 +30,14 @@ const { div } = xinjs.elements
 
 preview.append(...Object.keys(icons).sort().map(iconName => div(
   { class: 'tile' },
-  svgIcon({icon: iconName, size: 16}),
+  svgIcon({icon: iconName, size: 24}),
   div(iconName)
 )))
 ```
 ```css
 .preview {
-  display: flex;
+  display: grid;
+  grid-template-columns: calc(33% - 5px) calc(33% - 5px) calc(33% - 5px);
   flex-wrap: wrap;
   padding: var(--spacing);
   gap: var(--spacing);
@@ -48,16 +49,17 @@ preview.append(...Object.keys(icons).sort().map(iconName => div(
 }
 
 .preview .tile {
-  display: inline-block;
-  width: 160px;
+  display: flex;
   text-align: center;
   cursor: pointer;
   background: #fff8;
   padding: 10px;
+  gap: 10px;
   border-radius: 5px;
 }
 
 .preview .tile:hover {
+  background: white;
   --text-color: var(--brand-color);
 }
 
@@ -68,6 +70,10 @@ preview.append(...Object.keys(icons).sort().map(iconName => div(
   text-overflow: ellipsis;
   font-size: 14px;
   line-height: 1.5;
+}
+
+.preview .tile xin-icon {
+  font-size: 24px;
 }
 ```
 
