@@ -252,7 +252,8 @@ const fileInput = preview.querySelector('input')
 const icon = preview.querySelector('.icon')
 const svgContainer = preview.querySelector('.svg')
 const iconSpec = preview.querySelector('textarea')
-const simplify = preview.querySelector('.simplify')
+const rounded = preview.querySelector('.rounded')
+const scaled = preview.querySelector('.scaled')
 
 function jsObject(o) {
   let json = JSON.stringify(o, null, 2)
@@ -272,15 +273,16 @@ fileInput.addEventListener('change', () => {
       const isMulticolor = [...new Set(paths.map(path => path.c))].length > 1
       let { width, height } = svg.viewBox.baseVal
 
-      if (simplify.checked) {
-        const scale = 1024 / height
+      let scale = 1
+      if (scaled.checked) {
+        scale = 1024 / height
         height = 1024
         width = width * scale
-
-        paths.forEach(path => {
-          path.p = path.p.replace(/\d+\.\d+/g, x => (Number(x) * scale).toFixed(0))
-        })
       }
+
+      paths.forEach(path => {
+        path.p = path.p.replace(/\d+\.\d+/g, x => rounded.checked ? (Number(x) * scale).toFixed(0) : (Number(x) * scale))
+      })
 
       if (width === 1024 && height === 1024 && paths.length === 1) {
         iconSpec.value = jsObject(paths[0])
@@ -295,6 +297,7 @@ fileInput.addEventListener('change', () => {
         }
         iconSpec.value = jsObject(spec)
         defineIcon('svgLoader', spec)
+        icon.setAttribute('icon', '')
         icon.setAttribute('icon', 'svgLoader')
         fileInput.value = ''
       }
@@ -310,8 +313,12 @@ fileInput.addEventListener('change', () => {
     <input accept="image/svg+xml" type="file">
   </label>
   <label style="flex-direction: row">
-    <input type="checkbox" class="simplify" checked>
-    <span>Scale to 1024 high and round floats?</span>
+    <input type="checkbox" class="rounded" checked>
+    <span>Round floats?</span>
+  </label>
+  <label style="flex-direction: row">
+    <input type="checkbox" class="scaled">
+    <span>Scale to 1024?</span>
   </label>
   <div class="side-by-side">
     <label>
@@ -3784,5 +3791,5 @@ If `editable`, an input field is provided for entering tags directly.
 Placeholder shown on input field.
 */var{div:l0,input:c0,span:r0,button:e2}=a0;class $1 extends Ye{caption="";removeable=!1;removeCallback=()=>{this.remove()};content=()=>[r0({part:"caption"},this.caption),e2(c.x(),{part:"remove",hidden:!this.removeable,onClick:this.removeCallback})];constructor(){super();this.initAttributes("caption","removeable")}}var h0=$1.elementCreator({tag:"xin-tag",styleSpec:{":host":{"--tag-close-button-color":"#000c","--tag-close-button-bg":"#fffc","--tag-close-button-border-radius":"99px","--tag-button-opacity":"0.5","--tag-button-hover-opacity":"0.75","--tag-bg":D1.brandColor("blue"),"--tag-text-color":D1.brandTextColor("white"),display:"inline-flex",borderRadius:u.spacing50,color:u.tagTextColor,background:u.tagBg,padding:`0 ${u.spacing75} 0 ${u.spacing75}`,height:`calc(${u.lineHeight} + ${u.spacing50})`,lineHeight:`calc(${u.lineHeight} + ${u.spacing50})`},':host > [part="caption"]':{position:"relative",whiteSpace:"nowrap",overflow:"hidden",flex:"1 1 auto",fontSize:D1.fontSize("16px"),color:u.tagTextColor,textOverflow:"ellipsis"},':host [part="remove"]':{boxShadow:"none",margin:`0 ${u.spacing_50} 0 ${u.spacing25}`,padding:0,display:"inline-flex",alignItems:"center",alignSelf:"center",justifyContent:"center",height:u.spacing150,width:u.spacing150,"--text-color":u.tagCloseButtonColor,background:u.tagCloseButtonBg,borderRadius:u.tagCloseButtonBorderRadius,opacity:u.tagButtonOpacity},':host [part="remove"]:hover':{background:u.tagCloseButtonBg,opacity:u.tagButtonHoverOpacity}}});class t2 extends Ye{disabled=!1;name="";availableTags=[];value=[];textEntry=!1;editable=!1;placeholder="enter tags";get tags(){return typeof this.value==="string"?this.value.split(",").map((e)=>e.trim()).filter((e)=>e!==""):this.value}constructor(){super();this.initAttributes("name","value","textEntry","availableTags","editable","placeholder","disabled")}addTag=(e)=>{if(e.trim()==="")return;let{tags:t}=this;if(!t.includes(e))t.push(e);this.value=t,this.queueRender(!0)};toggleTag=(e)=>{if(this.tags.includes(e))this.value=this.tags.filter((t)=>t!==e);else this.addTag(e);this.queueRender(!0)};enterTag=(e)=>{let{tagInput:t}=this.parts;switch(e.key){case",":{let i=t.value.split(",")[0];this.addTag(i)}break;case"Enter":{let i=t.value.split(",")[0];this.addTag(i)}e.stopPropagation(),e.preventDefault();break;default:}};popSelectMenu=()=>{let{toggleTag:e}=this,{tagMenu:t}=this.parts,i=typeof this.availableTags==="string"?this.availableTags.split(","):this.availableTags,s=this.tags.filter((n)=>!i.includes(n));if(s.length)i.push(null,...s);let o=i.map((n)=>{if(n===""||n===null)return null;else if(typeof n==="object")return{icon:this.tags.includes(n.value)?c.minus():c.plus(),caption:n.caption,action(){e(n.value)}};else return{icon:this.tags.includes(n)?c.minus():c.plus(),caption:n,action(){e(n)}}});S({target:t,width:"auto",menuItems:o})};content=()=>[l0({part:"tagContainer",class:"row",onClick(e){e.stopPropagation(),e.preventDefault()}}),c0({part:"tagInput",class:"elastic",onKeydown:this.enterTag}),e2({title:"add tag",part:"tagMenu",onClick:this.popSelectMenu},c.chevronDown())];removeTag=(e)=>{if(this.editable&&!this.disabled){let t=e.target.closest($1.tagName);this.value=this.tags.filter((i)=>i!==t.caption),t.remove(),this.queueRender(!0)}e.stopPropagation(),e.preventDefault()};render(){super.render();let{tagContainer:e,tagMenu:t,tagInput:i}=this.parts;if(t.disabled=this.disabled,i.value="",i.setAttribute("placeholder",this.placeholder),this.editable&&!this.disabled)t.toggleAttribute("hidden",!1),i.toggleAttribute("hidden",!this.textEntry);else t.toggleAttribute("hidden",!0),i.toggleAttribute("hidden",!0);e.textContent="";let{tags:s}=this;for(let o of s)e.append(h0({caption:o,removeable:this.editable&&!this.disabled,removeCallback:this.removeTag}))}}var yi=t2.elementCreator({tag:"xin-tag-list",styleSpec:{":host":{"--tag-list-bg":"#f8f8f8","--touch-size":"44px","--spacing":"16px",display:"grid",gridTemplateColumns:"auto",alignItems:"center",background:u.tagListBg,gap:u.spacing25},":host[editable]":{gridTemplateColumns:`auto ${u.touchSize}`},":host[editable][text-entry]":{gridTemplateColumns:`2fr 1fr ${u.touchSize}`},':host [part="tagContainer"]':{display:"flex",content:'" "',alignItems:"center",background:u.inputBg,borderRadius:u.roundedRadius,boxShadow:u.borderShadow,flexWrap:"nowrap",overflow:"auto hidden",gap:u.spacing25,minHeight:`calc(${u.lineHeight} + ${u.spacing})`,padding:u.spacing25},':host [part="tagMenu"]':{width:u.touchSize,height:u.touchSize,lineHeight:u.touchSize,textAlign:"center",padding:0,margin:0},":host [hidden]":{display:"none !important"}}});var d0="0.9.13";export{_3 as xrControllersText,$3 as xrControllers,yi as xinTagList,h0 as xinTag,ui as xinSizer,u1 as xinSelect,Y4 as xinSegmented,V4 as xinRating,F4 as xinPasswordStrength,Pt as xinNotification,g4 as xinLocalized,j3 as xinForm,M1 as xinFloat,F3 as xinField,W0 as xinCarousel,d0 as version,Ae as updateLocalized,y as trackDrag,ke as tabSelector,S0 as svgIcon,N1 as svg2DataUrl,b1 as styleSheet,t1 as spacer,li as sizeBreak,si as sideNav,u4 as setLocale,z as scriptTag,Bt as richTextWidgets,J4 as richText,F as removeLastMenu,P4 as postNotification,k2 as positionFloat,S as popMenu,ee as popFloat,A2 as menu,S4 as markdownViewer,M4 as mapBox,H1 as makeSorter,e4 as makeExamplesLive,Pe as localize,m4 as localePicker,P1 as liveExample,jt as isBreached,f4 as initLocalization,c as icons,b as i18n,D3 as gamepadText,st as gamepadState,c1 as findHighestZ,S1 as filterPart,I3 as filterBuilder,B4 as elastic,C3 as editableRect,k1 as dragAndDrop,Ft as digest,C0 as defineIcon,y3 as dataTable,L2 as createSubMenu,I2 as createMenuItem,T2 as createMenuAction,C as commandButton,Y1 as colorInput,o1 as codeEditor,P as bringToFront,q0 as bodymovinPlayer,Re as blockStyle,P0 as b3d,ge as availableFilters,f0 as abTest,t2 as XinTagList,$1 as XinTag,Ze as XinSizer,U as XinSelect,Be as XinSegmented,_e as XinRating,$e as XinPasswordStrength,B as XinNotification,O1 as XinLocalized,d1 as XinForm,H as XinFloat,L1 as XinField,J1 as XinCarousel,I1 as TabSelector,U1 as SvgIcon,Xe as SizeBreak,Qe as SideNav,Ue as RichText,qe as MarkdownViewer,G as MapBox,He as LocalePicker,A1 as LiveExample,ve as FilterPart,be as FilterBuilder,k as EditableRect,he as DataTable,V as CodeEditor,X as BodymovinPlayer,B1 as B3d,Q as AbTest};
 
-//# debugId=D24BA96D7CC22F8264756E2164756E21
+//# debugId=7022B5BF7240477164756E2164756E21
 //# sourceMappingURL=index.js.map

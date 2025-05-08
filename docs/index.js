@@ -2301,7 +2301,8 @@ const fileInput = preview.querySelector('input')
 const icon = preview.querySelector('.icon')
 const svgContainer = preview.querySelector('.svg')
 const iconSpec = preview.querySelector('textarea')
-const simplify = preview.querySelector('.simplify')
+const rounded = preview.querySelector('.rounded')
+const scaled = preview.querySelector('.scaled')
 
 function jsObject(o) {
   let json = JSON.stringify(o, null, 2)
@@ -2321,15 +2322,16 @@ fileInput.addEventListener('change', () => {
       const isMulticolor = [...new Set(paths.map(path => path.c))].length > 1
       let { width, height } = svg.viewBox.baseVal
 
-      if (simplify.checked) {
-        const scale = 1024 / height
+      let scale = 1
+      if (scaled.checked) {
+        scale = 1024 / height
         height = 1024
         width = width * scale
-
-        paths.forEach(path => {
-          path.p = path.p.replace(/\d+\.\d+/g, x => (Number(x) * scale).toFixed(0))
-        })
       }
+
+      paths.forEach(path => {
+        path.p = path.p.replace(/\d+\.\d+/g, x => rounded.checked ? (Number(x) * scale).toFixed(0) : (Number(x) * scale))
+      })
 
       if (width === 1024 && height === 1024 && paths.length === 1) {
         iconSpec.value = jsObject(paths[0])
@@ -2344,6 +2346,7 @@ fileInput.addEventListener('change', () => {
         }
         iconSpec.value = jsObject(spec)
         defineIcon('svgLoader', spec)
+        icon.setAttribute('icon', '')
         icon.setAttribute('icon', 'svgLoader')
         fileInput.value = ''
       }
@@ -2359,8 +2362,12 @@ fileInput.addEventListener('change', () => {
     <input accept="image/svg+xml" type="file">
   </label>
   <label style="flex-direction: row">
-    <input type="checkbox" class="simplify" checked>
-    <span>Scale to 1024 high and round floats?</span>
+    <input type="checkbox" class="rounded" checked>
+    <span>Round floats?</span>
+  </label>
+  <label style="flex-direction: row">
+    <input type="checkbox" class="scaled">
+    <span>Scale to 1024?</span>
   </label>
   <div class="side-by-side">
     <label>
@@ -15441,7 +15448,8 @@ const fileInput = preview.querySelector('input')
 const icon = preview.querySelector('.icon')
 const svgContainer = preview.querySelector('.svg')
 const iconSpec = preview.querySelector('textarea')
-const simplify = preview.querySelector('.simplify')
+const rounded = preview.querySelector('.rounded')
+const scaled = preview.querySelector('.scaled')
 
 function jsObject(o) {
   let json = JSON.stringify(o, null, 2)
@@ -15461,15 +15469,16 @@ fileInput.addEventListener('change', () => {
       const isMulticolor = [...new Set(paths.map(path => path.c))].length > 1
       let { width, height } = svg.viewBox.baseVal
 
-      if (simplify.checked) {
-        const scale = 1024 / height
+      let scale = 1
+      if (scaled.checked) {
+        scale = 1024 / height
         height = 1024
         width = width * scale
-
-        paths.forEach(path => {
-          path.p = path.p.replace(/\\d+\\.\\d+/g, x => (Number(x) * scale).toFixed(0))
-        })
       }
+
+      paths.forEach(path => {
+        path.p = path.p.replace(/\\d+\\.\\d+/g, x => rounded.checked ? (Number(x) * scale).toFixed(0) : (Number(x) * scale))
+      })
 
       if (width === 1024 && height === 1024 && paths.length === 1) {
         iconSpec.value = jsObject(paths[0])
@@ -15484,6 +15493,7 @@ fileInput.addEventListener('change', () => {
         }
         iconSpec.value = jsObject(spec)
         defineIcon('svgLoader', spec)
+        icon.setAttribute('icon', '')
         icon.setAttribute('icon', 'svgLoader')
         fileInput.value = ''
       }
@@ -15499,8 +15509,12 @@ fileInput.addEventListener('change', () => {
     <input accept="image/svg+xml" type="file">
   </label>
   <label style="flex-direction: row">
-    <input type="checkbox" class="simplify" checked>
-    <span>Scale to 1024 high and round floats?</span>
+    <input type="checkbox" class="rounded" checked>
+    <span>Round floats?</span>
+  </label>
+  <label style="flex-direction: row">
+    <input type="checkbox" class="scaled">
+    <span>Scale to 1024?</span>
   </label>
   <div class="side-by-side">
     <label>
