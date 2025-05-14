@@ -40,6 +40,11 @@ lowercase, the output string will also be lowercase.
 E.g. if you have localized `Cancel` as `Annuler`, then `localize("cancel")
 will output `annuler`.
 
+### ellipses
+
+If you end a string with an ellipsis, `localize` will ignore the ellipsis,
+localize the string, and then append the ellipsis.
+
 ## `setLocale(language: string)`
 
 ```js
@@ -96,10 +101,12 @@ underline**.
 <h3>Localized Widgets</h3>
 <button><xin-localized>Yes</xin-localized></button>
 <button><xin-localized>No</xin-localized></button>
+<button><xin-localized>Open…</xin-localized></button> <i>note the ellipsis</i>
 
 <h3>Lowercase is preserved</h3>
 <button><xin-localized>yes</xin-localized></button>
 <button><xin-localized>no</xin-localized></button>
+<button><xin-localized>open…</xin-localized></button>
 
 <h3>Localized Attribute</h3>
 <input>

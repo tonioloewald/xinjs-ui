@@ -26,7 +26,7 @@ Filter	Filtre	Suodattaa	Filtrera	筛选	フィルター	필터	Filtrar	Filter	Fi
 Float	Flotter	Kellua	Flyta	漂浮	フロート	뜨다	Flotar	Schweben	Galleggiante
 Forms	Formulaires	Lomakkeet	Blanketter	表格	フォーム	양식	Formularios	Formulare	Forme
 Heading	Titre	Otsikko	Rubrik	标题	見出し	표제	Título	Überschrift	Intestazione
-Hide	Cacher	Piilottaa	Dölja	隐藏	隠れる	숨다	Esconder	Verstecken	Nascondere
+Hide	Cacher	Piilottaa	Dölja	隐藏	隠れる	숨다	Ocultar	Verstecken	Nascondere
 Icon	Icône	Kuvake	Ikon	图标	アイコン	상	Icono	Symbol	Icona
 Italic	Italique	Kursiivi	Kursiv	斜体	イタリック	이탤릭체	Itálico	Kursiv	Corsivo
 Justify	Justifier	Perustella	Rättfärdiga	证明合法	正当化する	신이 옳다고 하다	Justificar	Rechtfertigen	Giustificare
@@ -42,6 +42,7 @@ Minimize	Minimiser	Minimoida	Minimera	最小化	最小化する	최소화	Minimi
 Moderate	Modéré	Kohtalainen	Måttlig	缓和	適度	보통의	Moderado	Mäßig	Moderare
 Move	Se déplacer	Liikkua	Flytta	移动	動く	이동하다	Mover	Bewegen	Mossa
 Name	Nom	Nimi	Namn	姓名	名前	이름	Nombre	Name	Nome
+New	Nouveau	Uusi	Ny	新的	新しい	새로운	Nuevo	Neu	Nuovo
 No	Non	Ei	Inga	不	いいえ	아니요	No	Nein	No
 Notifications	Notifications	Ilmoitukset	Aviseringar	通知	通知	알림	Notificaciones	Benachrichtigungen	Notifiche
 Okay	D'accord	Kunnossa	Okej	好的	わかった	좋아요	Bueno	Okay	Va bene
@@ -62,6 +63,7 @@ Table	Tableau	Taulukko	Tabell	桌子	テーブル	테이블	Mesa	Tisch	Tavolo
 Tabs	Onglets	Välilehdet	Flikar	选项卡	タブ	탭	Cortina a la italiana	Tabs	Schede
 Unacceptable	Inacceptable	Ei hyväksyttävää	Oacceptabel	不可接受	受け入れられない	허용되지 않음	Inaceptable	Inakzeptabel	Inaccettabile
 Underline	Souligner	Korostaa	Betona	强调	下線	밑줄	Subrayar	Unterstreichen	Sottolineare
+Untitled	Sans titre	Nimetön	Ofrälse	无题	無題	제목 없음	Intitulado	Ohne Titel	Senza titolo
 Very Strong	Très fort	Erittäin vahva	Mycket stark	非常强	とても強い	매우 강함	Acérrimo	Sehr stark	Molto forte
 Very Weak	Très faible	Erittäin heikko	Mycket svag	非常弱	非常に弱い	매우 약함	muy débil	Sehr schwach	Molto debole
 Weak	Faible	Heikko	Svag	虚弱的	弱い	약한	Débil	Schwach	Debole

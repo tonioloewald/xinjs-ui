@@ -4778,6 +4778,11 @@ lowercase, the output string will also be lowercase.
 E.g. if you have localized `Cancel` as `Annuler`, then `localize("cancel")
 will output `annuler`.
 
+### ellipses
+
+If you end a string with an ellipsis, `localize` will ignore the ellipsis,
+localize the string, and then append the ellipsis.
+
 ## `setLocale(language: string)`
 
 ```js
@@ -4791,7 +4796,7 @@ preview.append(
         onClick() {
           setLocale('en-US')
         }
-      }, 
+      },
       'setLocale("en-US")'
     )
   ),
@@ -4801,7 +4806,7 @@ preview.append(
         onClick() {
           setLocale('fr')
         }
-      }, 
+      },
       'setLocale("fr")'
     )
   ),
@@ -4811,7 +4816,7 @@ preview.append(
         onClick() {
           setLocale('qq')
         }
-      }, 
+      },
       'setLocale("qq") (see console for error message)'
     )
   ),
@@ -4834,10 +4839,12 @@ underline**.
 <h3>Localized Widgets</h3>
 <button><xin-localized>Yes</xin-localized></button>
 <button><xin-localized>No</xin-localized></button>
+<button><xin-localized>Open…</xin-localized></button> <i>note the ellipsis</i>
 
 <h3>Lowercase is preserved</h3>
 <button><xin-localized>yes</xin-localized></button>
 <button><xin-localized>no</xin-localized></button>
+<button><xin-localized>open…</xin-localized></button>
 
 <h3>Localized Attribute</h3>
 <input>
@@ -4882,7 +4889,7 @@ if (i18n.locales.includes('fr')) {
 
 ## Creating Localized String Data
 
-You can create your own localization data using any spreadsheet and exporting TSV. 
+You can create your own localization data using any spreadsheet and exporting TSV.
 
 E.g. you can automatically create localization data
 using something like my [localized](https://docs.google.com/spreadsheets/d/1L0_4g_dDhVCwVVxLzYbMj_H86xSp9lsRCKj7IS9psso/edit?usp=sharing)
@@ -4993,12 +5000,15 @@ function initLocalization(localizedStrings) {
   }
 }
 function localize(ref) {
+  if (ref.endsWith("…")) {
+    return localize(ref.substring(0, ref.length - 1)) + "…";
+  }
   const index = i18n.locales.indexOf(i18n.locale.valueOf());
   if (index > -1) {
     const map = i18n.stringMap[ref.toLocaleLowerCase()];
     const localized = map && map[index];
     if (localized) {
-      ref = ref.toLocaleLowerCase() === ref ? localized.toLocaleLowerCase() : localized;
+      ref = ref.toLocaleLowerCase() === ref ? localized.toLocaleLowerCase() : localized.valueOf();
     }
   }
   return ref;
@@ -5207,7 +5217,7 @@ export interface PopMenuOptions {
   menuItems: MenuItem[]
   width?: string | number
   position?: FloatPosition
-  submenuDepth?: number
+  submenuDepth?: number   // don't set this, it's set internally by popMenu
   submenuOffset?: { x: number; y: number }
   localized?: boolean
 }
@@ -5256,8 +5266,49 @@ If you set `localized: true` in `PopMenuOptions` then menu captions will be be
 passed through `localize`. You'll need to provide the appropriate localized strings,
 of course.
 
-To see this in action, look at the [table example](?data-table.ts). It uses a `localized` menu
+To see this in action, see the example below, or look at the
+[table example](?data-table.ts). It uses a `localized` menu
 to render column names when you show hidden columns.
+
+```js
+const { elements } = xinjs
+const { xinLocalized, icons, popMenu } = xinjsui
+const { button } = elements
+const target = button(
+  {
+    onClick(event) {
+      popMenu({
+        target: event.target.closest('button'),
+        localized: true,
+        menuItems: [
+          {
+            caption: 'New',
+            action() {}
+          },
+          {
+            caption: 'Open…',
+            action() {}
+          },
+          {
+            caption: 'Save',
+            action() {}
+          },
+          {
+            caption: 'Close',
+            action() {}
+          },
+        ]
+      })
+    }
+  },
+  xinLocalized(
+    { style: { marginRight: '5px' }},
+    'menu'
+  ),
+  icons.chevronDown()
+)
+preview.append(target)
+```
 
 ## Why another menu library?!
 
@@ -13916,7 +13967,7 @@ Filter	Filtre	Suodattaa	Filtrera	筛选	フィルター	필터	Filtrar	Filter	Fi
 Float	Flotter	Kellua	Flyta	漂浮	フロート	뜨다	Flotar	Schweben	Galleggiante
 Forms	Formulaires	Lomakkeet	Blanketter	表格	フォーム	양식	Formularios	Formulare	Forme
 Heading	Titre	Otsikko	Rubrik	标题	見出し	표제	Título	Überschrift	Intestazione
-Hide	Cacher	Piilottaa	Dölja	隐藏	隠れる	숨다	Esconder	Verstecken	Nascondere
+Hide	Cacher	Piilottaa	Dölja	隐藏	隠れる	숨다	Ocultar	Verstecken	Nascondere
 Icon	Icône	Kuvake	Ikon	图标	アイコン	상	Icono	Symbol	Icona
 Italic	Italique	Kursiivi	Kursiv	斜体	イタリック	이탤릭체	Itálico	Kursiv	Corsivo
 Justify	Justifier	Perustella	Rättfärdiga	证明合法	正当化する	신이 옳다고 하다	Justificar	Rechtfertigen	Giustificare
@@ -13932,6 +13983,7 @@ Minimize	Minimiser	Minimoida	Minimera	最小化	最小化する	최소화	Minimi
 Moderate	Modéré	Kohtalainen	Måttlig	缓和	適度	보통의	Moderado	Mäßig	Moderare
 Move	Se déplacer	Liikkua	Flytta	移动	動く	이동하다	Mover	Bewegen	Mossa
 Name	Nom	Nimi	Namn	姓名	名前	이름	Nombre	Name	Nome
+New	Nouveau	Uusi	Ny	新的	新しい	새로운	Nuevo	Neu	Nuovo
 No	Non	Ei	Inga	不	いいえ	아니요	No	Nein	No
 Notifications	Notifications	Ilmoitukset	Aviseringar	通知	通知	알림	Notificaciones	Benachrichtigungen	Notifiche
 Okay	D'accord	Kunnossa	Okej	好的	わかった	좋아요	Bueno	Okay	Va bene
@@ -13952,6 +14004,7 @@ Table	Tableau	Taulukko	Tabell	桌子	テーブル	테이블	Mesa	Tisch	Tavolo
 Tabs	Onglets	Välilehdet	Flikar	选项卡	タブ	탭	Cortina a la italiana	Tabs	Schede
 Unacceptable	Inacceptable	Ei hyväksyttävää	Oacceptabel	不可接受	受け入れられない	허용되지 않음	Inaceptable	Inakzeptabel	Inaccettabile
 Underline	Souligner	Korostaa	Betona	强调	下線	밑줄	Subrayar	Unterstreichen	Sottolineare
+Untitled	Sans titre	Nimetön	Ofrälse	无题	無題	제목 없음	Intitulado	Ohne Titel	Senza titolo
 Very Strong	Très fort	Erittäin vahva	Mycket stark	非常强	とても強い	매우 강함	Acérrimo	Sehr stark	Molto forte
 Very Weak	Très faible	Erittäin heikko	Mycket svag	非常弱	非常に弱い	매우 약함	muy débil	Sehr schwach	Molto debole
 Weak	Faible	Heikko	Svag	虚弱的	弱い	약한	Débil	Schwach	Debole
@@ -15855,6 +15908,11 @@ lowercase, the output string will also be lowercase.
 E.g. if you have localized \`Cancel\` as \`Annuler\`, then \`localize("cancel")
 will output \`annuler\`.
 
+### ellipses
+
+If you end a string with an ellipsis, \`localize\` will ignore the ellipsis,
+localize the string, and then append the ellipsis.
+
 ## \`setLocale(language: string)\`
 
 \`\`\`js
@@ -15868,7 +15926,7 @@ preview.append(
         onClick() {
           setLocale('en-US')
         }
-      }, 
+      },
       'setLocale("en-US")'
     )
   ),
@@ -15878,7 +15936,7 @@ preview.append(
         onClick() {
           setLocale('fr')
         }
-      }, 
+      },
       'setLocale("fr")'
     )
   ),
@@ -15888,7 +15946,7 @@ preview.append(
         onClick() {
           setLocale('qq')
         }
-      }, 
+      },
       'setLocale("qq") (see console for error message)'
     )
   ),
@@ -15911,10 +15969,12 @@ underline**.
 <h3>Localized Widgets</h3>
 <button><xin-localized>Yes</xin-localized></button>
 <button><xin-localized>No</xin-localized></button>
+<button><xin-localized>Open…</xin-localized></button> <i>note the ellipsis</i>
 
 <h3>Lowercase is preserved</h3>
 <button><xin-localized>yes</xin-localized></button>
 <button><xin-localized>no</xin-localized></button>
+<button><xin-localized>open…</xin-localized></button>
 
 <h3>Localized Attribute</h3>
 <input>
@@ -15959,7 +16019,7 @@ if (i18n.locales.includes('fr')) {
 
 ## Creating Localized String Data
 
-You can create your own localization data using any spreadsheet and exporting TSV. 
+You can create your own localization data using any spreadsheet and exporting TSV.
 
 E.g. you can automatically create localization data
 using something like my [localized](https://docs.google.com/spreadsheets/d/1L0_4g_dDhVCwVVxLzYbMj_H86xSp9lsRCKj7IS9psso/edit?usp=sharing)
@@ -16467,7 +16527,7 @@ export interface PopMenuOptions {
   menuItems: MenuItem[]
   width?: string | number
   position?: FloatPosition
-  submenuDepth?: number
+  submenuDepth?: number   // don't set this, it's set internally by popMenu
   submenuOffset?: { x: number; y: number }
   localized?: boolean
 }
@@ -16516,8 +16576,49 @@ If you set \`localized: true\` in \`PopMenuOptions\` then menu captions will be 
 passed through \`localize\`. You'll need to provide the appropriate localized strings,
 of course.
 
-To see this in action, look at the [table example](?data-table.ts). It uses a \`localized\` menu
+To see this in action, see the example below, or look at the
+[table example](?data-table.ts). It uses a \`localized\` menu
 to render column names when you show hidden columns.
+
+\`\`\`js
+const { elements } = xinjs
+const { xinLocalized, icons, popMenu } = xinjsui
+const { button } = elements
+const target = button(
+  {
+    onClick(event) {
+      popMenu({
+        target: event.target.closest('button'),
+        localized: true,
+        menuItems: [
+          {
+            caption: 'New',
+            action() {}
+          },
+          {
+            caption: 'Open…',
+            action() {}
+          },
+          {
+            caption: 'Save',
+            action() {}
+          },
+          {
+            caption: 'Close',
+            action() {}
+          },
+        ]
+      })
+    }
+  },
+  xinLocalized(
+    { style: { marginRight: '5px' }},
+    'menu'
+  ),
+  icons.chevronDown()
+)
+preview.append(target)
+\`\`\`
 
 ## Why another menu library?!
 

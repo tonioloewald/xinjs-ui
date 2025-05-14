@@ -40,6 +40,11 @@ lowercase, the output string will also be lowercase.
 E.g. if you have localized `Cancel` as `Annuler`, then `localize("cancel")
 will output `annuler`.
 
+### ellipses
+
+If you end a string with an ellipsis, `localize` will ignore the ellipsis,
+localize the string, and then append the ellipsis.
+
 ## `setLocale(language: string)`
 
 ```js
@@ -53,7 +58,7 @@ preview.append(
         onClick() {
           setLocale('en-US')
         }
-      }, 
+      },
       'setLocale("en-US")'
     )
   ),
@@ -63,7 +68,7 @@ preview.append(
         onClick() {
           setLocale('fr')
         }
-      }, 
+      },
       'setLocale("fr")'
     )
   ),
@@ -73,7 +78,7 @@ preview.append(
         onClick() {
           setLocale('qq')
         }
-      }, 
+      },
       'setLocale("qq") (see console for error message)'
     )
   ),
@@ -96,10 +101,12 @@ underline**.
 <h3>Localized Widgets</h3>
 <button><xin-localized>Yes</xin-localized></button>
 <button><xin-localized>No</xin-localized></button>
+<button><xin-localized>Open…</xin-localized></button> <i>note the ellipsis</i>
 
 <h3>Lowercase is preserved</h3>
 <button><xin-localized>yes</xin-localized></button>
 <button><xin-localized>no</xin-localized></button>
+<button><xin-localized>open…</xin-localized></button>
 
 <h3>Localized Attribute</h3>
 <input>
@@ -144,7 +151,7 @@ if (i18n.locales.includes('fr')) {
 
 ## Creating Localized String Data
 
-You can create your own localization data using any spreadsheet and exporting TSV. 
+You can create your own localization data using any spreadsheet and exporting TSV.
 
 E.g. you can automatically create localization data
 using something like my [localized](https://docs.google.com/spreadsheets/d/1L0_4g_dDhVCwVVxLzYbMj_H86xSp9lsRCKj7IS9psso/edit?usp=sharing)
@@ -282,6 +289,9 @@ export function initLocalization(localizedStrings: string) {
 }
 
 export function localize(ref: string): string {
+  if (ref.endsWith('…')) {
+    return localize(ref.substring(0, ref.length - 1)) + '…'
+  }
   const index = i18n.locales.indexOf(i18n.locale.valueOf())
   if (index > -1) {
     const map = i18n.stringMap[ref.toLocaleLowerCase()]
@@ -290,7 +300,7 @@ export function localize(ref: string): string {
       ref =
         ref.toLocaleLowerCase() === ref
           ? localized.toLocaleLowerCase()
-          : localized
+          : localized.valueOf()
     }
   }
   return ref

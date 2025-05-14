@@ -149,7 +149,7 @@ export interface PopMenuOptions {
   menuItems: MenuItem[]
   width?: string | number
   position?: FloatPosition
-  submenuDepth?: number
+  submenuDepth?: number   // don't set this, it's set internally by popMenu
   submenuOffset?: { x: number; y: number }
   localized?: boolean
 }
@@ -198,8 +198,49 @@ If you set `localized: true` in `PopMenuOptions` then menu captions will be be
 passed through `localize`. You'll need to provide the appropriate localized strings,
 of course.
 
-To see this in action, look at the [table example](?data-table.ts). It uses a `localized` menu
+To see this in action, see the example below, or look at the
+[table example](?data-table.ts). It uses a `localized` menu
 to render column names when you show hidden columns.
+
+```js
+const { elements } = xinjs
+const { xinLocalized, icons, popMenu } = xinjsui
+const { button } = elements
+const target = button(
+  {
+    onClick(event) {
+      popMenu({
+        target: event.target.closest('button'),
+        localized: true,
+        menuItems: [
+          {
+            caption: 'New',
+            action() {}
+          },
+          {
+            caption: 'Open…',
+            action() {}
+          },
+          {
+            caption: 'Save',
+            action() {}
+          },
+          {
+            caption: 'Close',
+            action() {}
+          },
+        ]
+      })
+    }
+  },
+  xinLocalized(
+    { style: { marginRight: '5px' }},
+    'menu'
+  ),
+  icons.chevronDown()
+)
+preview.append(target)
+```
 
 ## Why another menu library?!
 
