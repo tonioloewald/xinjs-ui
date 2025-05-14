@@ -134,6 +134,8 @@ It also has an `localeChanged` method which defaults to setting the content of t
 to the localized reference string, but which you can override, to (for example) set a property
 or attribute of the parent element.
 
+> `<xin-localized>` *can* be used inside the shadowDOM of other custom-elements.
+
 ## `i18n`
 
 All of the data can be bound in the `i18n` proxy (`xin.i18n`), including the currently selected
@@ -209,9 +211,12 @@ export declare class LocalePicker extends Component {
 }
 export declare const localePicker: any;
 export declare class XinLocalized extends Component {
+    static allInstances: Set<XinLocalized>;
     contents: () => any;
     refString: string;
     constructor();
+    connectedCallback(): void;
+    disconnectedCallback(): void;
     localeChanged(): void;
     render(): void;
 }

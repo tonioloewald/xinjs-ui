@@ -134,6 +134,8 @@ It also has an `localeChanged` method which defaults to setting the content of t
 to the localized reference string, but which you can override, to (for example) set a property
 or attribute of the parent element.
 
+> `<xin-localized>` *can* be used inside the shadowDOM of other custom-elements.
+
 ## `i18n`
 
 All of the data can be bound in the `i18n` proxy (`xin.i18n`), including the currently selected
@@ -240,9 +242,7 @@ export const setLocale = (language: string) => {
 }
 
 export const updateLocalized = () => {
-  const localizeds = [
-    ...document.querySelectorAll(XinLocalized.tagName as string),
-  ] as XinLocalized[]
+  const localizeds = Array.from(XinLocalized.allInstances)
   for (const localized of localizeds) {
     localized.localeChanged()
   }
@@ -337,6 +337,8 @@ export const localePicker = LocalePicker.elementCreator({
 })
 
 export class XinLocalized extends Component {
+  static allInstances = new Set<XinLocalized>()
+
   contents = () => elements.xinSlot()
 
   refString = ''
@@ -345,6 +347,18 @@ export class XinLocalized extends Component {
     super()
 
     this.initAttributes('refString')
+  }
+
+  connectedCallback() {
+    super.connectedCallback()
+
+    XinLocalized.allInstances.add(this)
+  }
+
+  disconnectedCallback(): void {
+    super.disconnectedCallback()
+
+    XinLocalized.allInstances.delete(this)
   }
 
   localeChanged() {

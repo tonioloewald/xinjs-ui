@@ -13,7 +13,14 @@ Check the console to see the values being set.
   Should we?
 </xin-segmented>
 
-<xin-segmented title="do you like?" choices="yes=Yes:thumbsUp, no=No:thumbsDown"></xin-segmented>
+<div>
+  <b>Localized!</b><br>
+  <xin-segmented
+    localized
+    title="do you like?"
+    choices="yes=Yes:thumbsUp, no=No:thumbsDown"
+  ></xin-segmented>
+</div>
 
 <xin-segmented
   style="--segmented-direction: column; --segmented-align-items: stretch"
@@ -81,6 +88,7 @@ You can set `choices` programmatically to an array of `Choice` objects:
 - `other` (default '', meaning other is not allowed) is the caption for other options, allowing
   the user to input their choice. It will be reset to '' if `multiple` is set.
 - `placeholder` is the placeholder displayed in the `<input>` field for **other** responses
+- `localized` automatically localizes captions
 
 ## Styling
 
@@ -112,6 +120,7 @@ export declare class XinSegmented extends WebComponent {
     multiple: boolean;
     name: string;
     placeholder: string;
+    localized: boolean;
     value: null | string;
     get values(): string[];
     content: () => any[];
@@ -119,10 +128,10 @@ export declare class XinSegmented extends WebComponent {
         ':host': {
             display: string;
             gap: any;
+            alignItems: any;
         };
         ':host, :host::part(options)': {
             flexDirection: any;
-            alignItems: any;
         };
         ':host label': {
             display: string;
@@ -153,6 +162,7 @@ export declare class XinSegmented extends WebComponent {
             background: any;
             color: any;
             overflow: string;
+            alignItems: any;
         };
         ':host::part(custom)': {
             padding: any;

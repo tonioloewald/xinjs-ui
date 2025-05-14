@@ -13,25 +13,32 @@ Check the console to see the values being set.
   Should we?
 </xin-segmented>
 
-<xin-segmented title="do you like?" choices="yes=Yes:thumbsUp, no=No:thumbsDown"></xin-segmented>
+<div>
+  <b>Localized!</b><br>
+  <xin-segmented
+    localized
+    title="do you like?"
+    choices="yes=Yes:thumbsUp, no=No:thumbsDown"
+  ></xin-segmented>
+</div>
 
 <xin-segmented
-  style="--segmented-direction: column; --segmented-align-items: stretch" 
-  choices="in a relationship, single" other="it's complicated…" 
+  style="--segmented-direction: column; --segmented-align-items: stretch"
+  choices="in a relationship, single" other="it's complicated…"
   placeholder="oooh… please elaborate"
   value="separated"
 >
   Relationship Status
 </xin-segmented>
 
-<xin-segmented 
-  multiple 
+<xin-segmented
+  multiple
   style="
-    --segmented-direction: column; 
-    --segmented-align-items: start; 
+    --segmented-direction: column;
+    --segmented-align-items: start;
     --segmented-option-grid-columns: 24px 24px 100px;
     --segmented-input-visibility: visible;
-  " 
+  "
   choices="star=Star:star, game=Game:game, bug=Bug:bug, camera=Camera:camera"
   value="star,bug"
 >
@@ -73,14 +80,15 @@ You can set `choices` programmatically to an array of `Choice` objects:
 
 ## Attributes
 
-- `choices` is a string of comma-delimited options of the form `value=caption:icon`, 
+- `choices` is a string of comma-delimited options of the form `value=caption:icon`,
   where caption and icon are optional
 - `multiple` allows multiple selection
-- `name` allows you to set the name of the `<input>` elements to a specific value, it will default 
+- `name` allows you to set the name of the `<input>` elements to a specific value, it will default
   to the component's `instanceId`
-- `other` (default '', meaning other is not allowed) is the caption for other options, allowing 
+- `other` (default '', meaning other is not allowed) is the caption for other options, allowing
   the user to input their choice. It will be reset to '' if `multiple` is set.
 - `placeholder` is the placeholder displayed in the `<input>` field for **other** responses
+- `localized` automatically localizes captions
 
 ## Styling
 
@@ -108,6 +116,7 @@ import {
   varDefault,
 } from 'xinjs'
 import { icons } from './icons'
+import { xinLocalized } from './localize'
 
 const { div, slot, label, span, input } = elements
 
@@ -128,6 +137,7 @@ export class XinSegmented extends WebComponent {
   multiple = false
   name = ''
   placeholder = 'Please specify…'
+  localized = false
 
   value: null | string = null
 
@@ -147,10 +157,10 @@ export class XinSegmented extends WebComponent {
     ':host': {
       display: 'inline-flex',
       gap: varDefault.segmentedOptionGap('8px'),
+      alignItems: varDefault.segmentedAlignItems('center'),
     },
     ':host, :host::part(options)': {
       flexDirection: varDefault.segmentedDirection('row'),
-      alignItems: varDefault.segmentedAlignItems('center'),
     },
     ':host label': {
       display: 'inline-grid',
@@ -182,6 +192,7 @@ export class XinSegmented extends WebComponent {
       background: varDefault.segmentedOptionsBackground('#fff'),
       color: varDefault.segmentedOptionColor('#222'),
       overflow: 'hidden',
+      alignItems: varDefault.segmentedOptionAlignItems('stretch'),
     },
     ':host::part(custom)': {
       padding: varDefault.segmentedOptionPadding('4px 12px'),
@@ -206,7 +217,8 @@ export class XinSegmented extends WebComponent {
       'other',
       'multiple',
       'name',
-      'placeholder'
+      'placeholder',
+      'localized'
     )
   }
 
@@ -254,7 +266,7 @@ export class XinSegmented extends WebComponent {
     }
 
     options.addEventListener('change', this.handleChange)
-    options.addEventListener('keydown', this.handleKey)
+    options.addEventListener('keydown', this.handleKey as EventListener)
 
     if (this.other && this.multiple) {
       console.warn(
@@ -328,7 +340,7 @@ export class XinSegmented extends WebComponent {
             tabIndex: -1,
           }),
           choice.icon || { class: 'no-icon' },
-          span(choice.caption)
+          this.localized ? xinLocalized(choice.caption) : span(choice.caption)
         )
       })
     )

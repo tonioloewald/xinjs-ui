@@ -4872,6 +4872,8 @@ It also has an `localeChanged` method which defaults to setting the content of t
 to the localized reference string, but which you can override, to (for example) set a property
 or attribute of the parent element.
 
+> `<xin-localized>` *can* be used inside the shadowDOM of other custom-elements.
+
 ## `i18n`
 
 All of the data can be bound in the `i18n` proxy (`xin.i18n`), including the currently selected
@@ -4965,9 +4967,7 @@ var setLocale = (language) => {
   }
 };
 var updateLocalized = () => {
-  const localizeds = [
-    ...document.querySelectorAll(XinLocalized.tagName)
-  ];
+  const localizeds = Array.from(XinLocalized.allInstances);
   for (const localized of localizeds) {
     localized.localeChanged();
   }
@@ -5039,11 +5039,20 @@ var localePicker = LocalePicker.elementCreator({
 });
 
 class XinLocalized extends G {
+  static allInstances = new Set;
   contents = () => S.xinSlot();
   refString = "";
   constructor() {
     super();
     this.initAttributes("refString");
+  }
+  connectedCallback() {
+    super.connectedCallback();
+    XinLocalized.allInstances.add(this);
+  }
+  disconnectedCallback() {
+    super.disconnectedCallback();
+    XinLocalized.allInstances.delete(this);
   }
   localeChanged() {
     if (!this.refString) {
@@ -12511,25 +12520,32 @@ Check the console to see the values being set.
   Should we?
 </xin-segmented>
 
-<xin-segmented title="do you like?" choices="yes=Yes:thumbsUp, no=No:thumbsDown"></xin-segmented>
+<div>
+  <b>Localized!</b><br>
+  <xin-segmented
+    localized
+    title="do you like?"
+    choices="yes=Yes:thumbsUp, no=No:thumbsDown"
+  ></xin-segmented>
+</div>
 
 <xin-segmented
-  style="--segmented-direction: column; --segmented-align-items: stretch" 
-  choices="in a relationship, single" other="it's complicated…" 
+  style="--segmented-direction: column; --segmented-align-items: stretch"
+  choices="in a relationship, single" other="it's complicated…"
   placeholder="oooh… please elaborate"
   value="separated"
 >
   Relationship Status
 </xin-segmented>
 
-<xin-segmented 
-  multiple 
+<xin-segmented
+  multiple
   style="
-    --segmented-direction: column; 
-    --segmented-align-items: start; 
+    --segmented-direction: column;
+    --segmented-align-items: start;
     --segmented-option-grid-columns: 24px 24px 100px;
     --segmented-input-visibility: visible;
-  " 
+  "
   choices="star=Star:star, game=Game:game, bug=Bug:bug, camera=Camera:camera"
   value="star,bug"
 >
@@ -12571,14 +12587,15 @@ You can set `choices` programmatically to an array of `Choice` objects:
 
 ## Attributes
 
-- `choices` is a string of comma-delimited options of the form `value=caption:icon`, 
+- `choices` is a string of comma-delimited options of the form `value=caption:icon`,
   where caption and icon are optional
 - `multiple` allows multiple selection
-- `name` allows you to set the name of the `<input>` elements to a specific value, it will default 
+- `name` allows you to set the name of the `<input>` elements to a specific value, it will default
   to the component's `instanceId`
-- `other` (default '', meaning other is not allowed) is the caption for other options, allowing 
+- `other` (default '', meaning other is not allowed) is the caption for other options, allowing
   the user to input their choice. It will be reset to '' if `multiple` is set.
 - `placeholder` is the placeholder displayed in the `<input>` field for **other** responses
+- `localized` automatically localizes captions
 
 ## Styling
 
@@ -12606,6 +12623,7 @@ class XinSegmented extends G {
   multiple = false;
   name = "";
   placeholder = "Please specify…";
+  localized = false;
   value = null;
   get values() {
     return (this.value || "").split(",").map((v) => v.trim()).filter((v) => v !== "");
@@ -12617,11 +12635,11 @@ class XinSegmented extends G {
   static styleSpec = {
     ":host": {
       display: "inline-flex",
-      gap: wn.segmentedOptionGap("8px")
+      gap: wn.segmentedOptionGap("8px"),
+      alignItems: wn.segmentedAlignItems("center")
     },
     ":host, :host::part(options)": {
-      flexDirection: wn.segmentedDirection("row"),
-      alignItems: wn.segmentedAlignItems("center")
+      flexDirection: wn.segmentedDirection("row")
     },
     ":host label": {
       display: "inline-grid",
@@ -12651,7 +12669,8 @@ class XinSegmented extends G {
       borderRadius: wn.segmentedOptionsBorderRadius("8px"),
       background: wn.segmentedOptionsBackground("#fff"),
       color: wn.segmentedOptionColor("#222"),
-      overflow: "hidden"
+      overflow: "hidden",
+      alignItems: wn.segmentedOptionAlignItems("stretch")
     },
     ":host::part(custom)": {
       padding: wn.segmentedOptionPadding("4px 12px"),
@@ -12668,7 +12687,7 @@ class XinSegmented extends G {
   };
   constructor() {
     super();
-    this.initAttributes("direction", "choices", "other", "multiple", "name", "placeholder");
+    this.initAttributes("direction", "choices", "other", "multiple", "name", "placeholder", "localized");
   }
   valueChanged = false;
   handleChange = () => {
@@ -12753,7 +12772,7 @@ class XinSegmented extends G {
         value: choice.value,
         checked: values.includes(choice.value) || choice.value === "" && isOtherValue,
         tabIndex: -1
-      }), choice.icon || { class: "no-icon" }, span11(choice.caption));
+      }), choice.icon || { class: "no-icon" }, this.localized ? xinLocalized(choice.caption) : span11(choice.caption));
     }));
     if (this.other && !this.multiple) {
       custom.hidden = !isOtherValue;
@@ -16002,6 +16021,8 @@ It also has an \`localeChanged\` method which defaults to setting the content of
 to the localized reference string, but which you can override, to (for example) set a property
 or attribute of the parent element.
 
+> \`<xin-localized>\` *can* be used inside the shadowDOM of other custom-elements.
+
 ## \`i18n\`
 
 All of the data can be bound in the \`i18n\` proxy (\`xin.i18n\`), including the currently selected
@@ -17168,25 +17189,32 @@ Check the console to see the values being set.
   Should we?
 </xin-segmented>
 
-<xin-segmented title="do you like?" choices="yes=Yes:thumbsUp, no=No:thumbsDown"></xin-segmented>
+<div>
+  <b>Localized!</b><br>
+  <xin-segmented
+    localized
+    title="do you like?"
+    choices="yes=Yes:thumbsUp, no=No:thumbsDown"
+  ></xin-segmented>
+</div>
 
 <xin-segmented
-  style="--segmented-direction: column; --segmented-align-items: stretch" 
-  choices="in a relationship, single" other="it's complicated…" 
+  style="--segmented-direction: column; --segmented-align-items: stretch"
+  choices="in a relationship, single" other="it's complicated…"
   placeholder="oooh… please elaborate"
   value="separated"
 >
   Relationship Status
 </xin-segmented>
 
-<xin-segmented 
-  multiple 
+<xin-segmented
+  multiple
   style="
-    --segmented-direction: column; 
-    --segmented-align-items: start; 
+    --segmented-direction: column;
+    --segmented-align-items: start;
     --segmented-option-grid-columns: 24px 24px 100px;
     --segmented-input-visibility: visible;
-  " 
+  "
   choices="star=Star:star, game=Game:game, bug=Bug:bug, camera=Camera:camera"
   value="star,bug"
 >
@@ -17228,14 +17256,15 @@ You can set \`choices\` programmatically to an array of \`Choice\` objects:
 
 ## Attributes
 
-- \`choices\` is a string of comma-delimited options of the form \`value=caption:icon\`, 
+- \`choices\` is a string of comma-delimited options of the form \`value=caption:icon\`,
   where caption and icon are optional
 - \`multiple\` allows multiple selection
-- \`name\` allows you to set the name of the \`<input>\` elements to a specific value, it will default 
+- \`name\` allows you to set the name of the \`<input>\` elements to a specific value, it will default
   to the component's \`instanceId\`
-- \`other\` (default '', meaning other is not allowed) is the caption for other options, allowing 
+- \`other\` (default '', meaning other is not allowed) is the caption for other options, allowing
   the user to input their choice. It will be reset to '' if \`multiple\` is set.
 - \`placeholder\` is the placeholder displayed in the \`<input>\` field for **other** responses
+- \`localized\` automatically localizes captions
 
 ## Styling
 
