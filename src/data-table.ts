@@ -651,12 +651,8 @@ export class DataTable extends WebComponent {
           icon: 'eye',
           enabled: () => hiddenColumns.length > 0,
           menuItems: hiddenColumns.map((column) => {
-            let caption = column.name || column.prop
-            if (this.localized) {
-              caption = localize(caption)
-            }
             return {
-              caption,
+              caption: column.name || column.prop,
               action() {
                 delete column.visible
                 queueRender()
@@ -669,6 +665,7 @@ export class DataTable extends WebComponent {
 
     popMenu({
       target,
+      localized: this.localized,
       menuItems: menu,
     })
   }

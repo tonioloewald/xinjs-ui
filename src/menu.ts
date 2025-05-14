@@ -143,6 +143,18 @@ preview.querySelector('button').addEventListener('click', (event) => {
 
 ## popMenu({target, width, menuItems…})
 
+```
+export interface PopMenuOptions {
+  target: HTMLElement
+  menuItems: MenuItem[]
+  width?: string | number
+  position?: FloatPosition
+  submenuDepth?: number
+  submenuOffset?: { x: number; y: number }
+  localized?: boolean
+}
+```
+
 `popMenu` will spawn a menu on a target element. A menu is just a `MenuItem[]`.
 
 ## MenuItem
@@ -180,6 +192,15 @@ interface SubMenu {
 }
 ```
 
+## Localization
+
+If you set `localized: true` in `PopMenuOptions` then menu captions will be be
+passed through `localize`. You'll need to provide the appropriate localized strings,
+of course.
+
+To see this in action, look at the [table example](?data-table.ts). It uses a `localized` menu
+to render column names when you show hidden columns.
+
 ## Why another menu library?!
 
 Support for menus is sadly lacking in HTML, and unfortunately there's a huge conceptual problem
@@ -200,6 +221,7 @@ For this reason, `xinjs-ui` has its own menu implementation.
 import { elements, varDefault, vars, StyleSheet } from 'xinjs'
 import { popFloat, FloatPosition } from './pop-float'
 import { icons } from './icons'
+import { localize } from './localize'
 
 export type ActionCallback = () => void | Promise<void>
 
@@ -301,7 +323,10 @@ StyleSheet('xin-menu-helper', {
   },
 })
 
-export const createMenuAction = (item: MenuAction): HTMLElement => {
+export const createMenuAction = (
+  item: MenuAction,
+  options: PopMenuOptions
+): HTMLElement => {
   const checked = (item.checked && item.checked() && 'check') || false
   let icon = item?.icon || checked || span(' ')
   if (typeof icon === 'string') {
@@ -315,7 +340,7 @@ export const createMenuAction = (item: MenuAction): HTMLElement => {
         href: item.action,
       },
       icon,
-      span(item.caption),
+      options.localized ? span(localize(item.caption)) : span(item.caption),
       span(item.shortcut || ' ')
     )
   } else {
@@ -325,7 +350,7 @@ export const createMenuAction = (item: MenuAction): HTMLElement => {
         onClick: item.action,
       },
       icon,
-      span(item.caption),
+      options.localized ? span(localize(item.caption)) : span(item.caption),
       span(item.shortcut || ' ')
     )
   }
@@ -363,7 +388,7 @@ export const createSubMenu = (
       },
     },
     icon,
-    span(item.caption),
+    options.localized ? span(localize(item.caption)) : span(item.caption),
     icons.chevronRight({ style: { justifySelf: 'flex-end' } })
   )
   return submenuItem
@@ -376,7 +401,7 @@ export const createMenuItem = (
   if (item === null) {
     return span({ class: 'xin-menu-separator' })
   } else if ((item as MenuAction)?.action) {
-    return createMenuAction(item as MenuAction)
+    return createMenuAction(item as MenuAction, options)
   } else {
     return createSubMenu(item as SubMenu, options)
   }
@@ -433,6 +458,7 @@ export interface PopMenuOptions {
   position?: FloatPosition
   submenuDepth?: number
   submenuOffset?: { x: number; y: number }
+  localized?: boolean
 }
 
 document.body.addEventListener('mousedown', (event: Event) => {

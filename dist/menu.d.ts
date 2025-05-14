@@ -143,6 +143,18 @@ preview.querySelector('button').addEventListener('click', (event) => {
 
 ## popMenu({target, width, menuItems…})
 
+```
+export interface PopMenuOptions {
+  target: HTMLElement
+  menuItems: MenuItem[]
+  width?: string | number
+  position?: FloatPosition
+  submenuDepth?: number
+  submenuOffset?: { x: number; y: number }
+  localized?: boolean
+}
+```
+
 `popMenu` will spawn a menu on a target element. A menu is just a `MenuItem[]`.
 
 ## MenuItem
@@ -180,6 +192,15 @@ interface SubMenu {
 }
 ```
 
+## Localization
+
+If you set `localized: true` in `PopMenuOptions` then menu captions will be be
+passed through `localize`. You'll need to provide the appropriate localized strings,
+of course.
+
+To see this in action, look at the [table example](?data-table.ts). It uses a `localized` menu
+to render column names when you show hidden columns.
+
 ## Why another menu library?!
 
 Support for menus is sadly lacking in HTML, and unfortunately there's a huge conceptual problem
@@ -215,7 +236,7 @@ export interface SubMenu {
 }
 export type MenuSeparator = null;
 export type MenuItem = MenuAction | SubMenu | MenuSeparator;
-export declare const createMenuAction: (item: MenuAction) => HTMLElement;
+export declare const createMenuAction: (item: MenuAction, options: PopMenuOptions) => HTMLElement;
 export declare const createSubMenu: (item: SubMenu, options: PopMenuOptions) => HTMLElement;
 export declare const createMenuItem: (item: MenuItem, options: PopMenuOptions) => HTMLElement;
 export declare const menu: (options: PopMenuOptions) => HTMLDivElement;
@@ -234,6 +255,7 @@ export interface PopMenuOptions {
         x: number;
         y: number;
     };
+    localized?: boolean;
 }
 export declare const popMenu: (options: PopMenuOptions) => void;
 export {};
