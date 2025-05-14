@@ -5020,6 +5020,819 @@ var init = () => {
   isInitialized = true;
 };
 
+// src/make-sorter.ts
+/*!
+# makeSorter
+
+I'm always confusing myself when writing sort functions, so I wrote `makeSorter()`. It's
+insanely simple and just works™. It makes writing an array sort callback for anything
+other than an array of numbers or strings easier.
+
+```js
+const { select, option, div, span, ul, li } = xinjs.elements
+const { icons, makeSorter } = xinjsui
+
+const people = [
+  { first: 'Frasier', last: 'Crane', age: 38 },
+  { first: 'Lilith', last: 'Crane', age: 37 },
+  { first: 'Rebecca', last: 'Howe', age: 35 },
+  { first: 'Woody', last: 'Boyd', age: 25 },
+  { first: 'Sam', last: 'Malone', age: 40 },
+  { first: 'Norm', last: 'Peterson', age: 38 },
+]
+
+const sorters = {
+  firstSort: makeSorter(person => [person.first]),
+  firstDescSort: makeSorter(person => [person.first], false),
+  nameSort: makeSorter(person => [person.last, person.first]),
+  ageFirst: makeSorter(person => [-person.age, person.last]),
+  ageLast: makeSorter(person => [person.age, person.first], [true, false]),
+}
+
+function person({first, last, age}) {
+  return li(`${first} ${last}, ${age}`)
+}
+
+const list = ul()
+sortPicker = select(
+  option('Sort by first', {value: 'firstSort'}),
+  option('Sort by first (desc)', {value: 'firstDescSort'}),
+  option('Sort by last, first', {value: 'nameSort'}),
+  option('Sort by age (desc), first', {value: 'ageFirst'}),
+  option('Sort by age, last (desc)', {value: 'ageLast'}),
+  {
+    onChange: render,
+    value: 'nameSort'
+  },
+)
+
+function render () {
+  list.textContent = ''
+  list.append(...people.sort(sorters[sortPicker.value]).map(person))
+}
+
+preview.append(
+  div(
+    sortPicker,
+    icons.chevronDown()
+  ),
+  list
+)
+
+render()
+```
+```css
+.preview {
+  padding: var(--spacing);
+}
+
+.preview div {
+  position: absolute;
+  top: var(--spacing);
+  right: var(--spacing);
+}
+```
+
+## Details
+
+To create a sort callback that sorts by propA then propB (if propA is tied):
+
+```
+const sorter = makeSorter(
+  obj => [obj.propA, obj.propB]
+)
+```
+
+As above, but sort descending:
+```
+const sorter = makeSorter(
+  obj => [obj.propA, obj.propB],
+  false
+)
+```
+
+As above but propA is sorted ascending, propB descending
+```
+const sorter = makeSorter(
+  obj => [obj.propA, obj.propB],
+  [true, false]
+)
+```
+*/
+function makeSorter(sortValuator, ascending = true) {
+  return (p2, q2) => {
+    const pSort = sortValuator(p2);
+    const qSort = sortValuator(q2);
+    for (const i2 in pSort) {
+      if (pSort[i2] !== qSort[i2]) {
+        const isAscending = Array.isArray(ascending) ? ascending[i2] !== false : ascending;
+        return isAscending ? pSort[i2] > qSort[i2] ? 1 : -1 : pSort[i2] > qSort[i2] ? -1 : 1;
+      }
+    }
+    return 0;
+  };
+}
+
+// src/select.ts
+/*!
+# select
+
+`<xin-select>` (`xinSelect` is the `ElementCreator`) is a replacement for the lamentable
+built in `<select>` element that addresses its various shortcomings.
+
+- since `<xin-select>` is powered by `popMenu`, and supports separators and submenus.
+- options can have icons.
+- `<xin-select>` will retain and display a value even if the matching option is missing.
+- its displayed value can be made `editable`, allowing use as a "combo box".
+- options can have `async` callbacks that return a value.
+- picking an item triggers an `action` event even if the value hasn't changed.
+- available options are set via the `options` attribute or the element's `options` property (not `<option>` elements)
+
+```html
+<xin-select
+  title="simple select"
+  options="this,that,,the other"
+  value="not an option!"
+></xin-select><br>
+<xin-select
+  show-icon
+  title="has captions"
+  class="captions"
+  value="image"
+></xin-select><br>
+<xin-select
+  show-icon
+  title="combo select with icons"
+  class="icons"
+  editable
+  placeholder="pick an icon"
+></xin-select><br>
+<xin-select
+  show-icon
+  hide-caption
+  title="icons only"
+  class="icons-only"
+  placeholder="pick an icon"
+></xin-select>
+<pre contenteditable>Select some text in here…
+…to check for focus stealing</pre>
+```
+```js
+const { icons } = xinjsui
+
+const captions = preview.querySelector('.captions')
+
+captions.options = [
+  {
+    caption: 'a heading',
+    value: 'heading'
+  },
+  {
+    caption: 'a paragraph',
+    value: 'paragraph'
+  },
+  null,
+  {
+    caption: 'choose some other',
+    options: [
+      {
+        icon: 'image',
+        caption: 'an image',
+        value: 'image'
+      },
+      {
+        icon: 'fileText',
+        caption: 'a text file',
+        value: 'text',
+      },
+      {
+        icon: 'video',
+        caption: 'a video',
+        value: 'video'
+      },
+      null,
+      {
+        caption: 'anything goes…',
+        value: () => prompt('Enter your other', 'other') || undefined
+      },
+      {
+        caption: 'brother… (after 1s delay)',
+        value: async () => new Promise(resolve => {
+          setTimeout(() => resolve('brother'), 1000)
+        })
+      }
+    ]
+  }
+]
+
+const iconsSelect = preview.querySelector('.icons')
+const iconsOnly = preview.querySelector('.icons-only')
+
+iconsSelect.options = iconsOnly.options = Object.keys(icons).sort().map(icon =>({
+  icon,
+  caption: icon,
+  value: icon
+}))
+
+preview.addEventListener('action', (event) => {
+  console.log(event.target.title, 'user picked', event.target.value)
+}, true)
+
+preview.addEventListener('change', (event) => {
+  console.log(event.target.title, 'changed to', event.target.value)
+}, true)
+```
+<xin-css-var-editor element-selector="xin-select"></xin-css-var-editor>
+
+## `options`
+
+    type OptionRequest = () => Promise<string | undefined>
+
+    export interface SelectOption {
+      icon?: string | HTMLElement
+      caption: string
+      value: string | OptionRequest
+    }
+
+    export interface SelectOptionSubmenu {
+      icon?: string | HTMLElement
+      caption: string
+      options: SelectOptions
+    }
+
+    export type SelectOptions = Array<string | null | SelectOption | SelectOptionSubmenu>
+
+A `<xin-select>` can be assigned `options` as a string of comma-delimited choices,
+or be provided a `SelectOptions` array (which allows for submenus, separators, etc.).
+
+## Attributes
+
+`<xin-select>` supports several attributes:
+
+- `editable` lets the user directly edit the value (like a "combo box").
+- `show-icon` displays the icon corresponding to the currently selected value.
+- `hide-caption` hides the caption.
+- `placeholder` allows you to set a placeholder.
+- `options` allows you to assign options as a comma-delimited string attribute.
+
+## Events
+
+Picking an option triggers an `action` event (whether or not this changes the value).
+
+Changing the value, either by typing in an editable `<xin-select>` or picking a new
+value triggers a `change` event.
+
+You can look at the console to see the events triggered by the second example.
+*/
+var { button: button3, span: span2, input: input2 } = S;
+var hasValue = (options, value) => {
+  return !!options.find((option) => {
+    if (option === null || value == null) {
+      return false;
+    } else if (Array.isArray(option)) {
+      return hasValue(option, value);
+    } else if (option.value === value || option === value) {
+      return true;
+    }
+  });
+};
+
+class XinSelect extends G {
+  editable = false;
+  showIcon = false;
+  hideCaption = false;
+  options = "";
+  value = "";
+  placeholder = "";
+  filter = "";
+  setValue = (value, triggerAction = false) => {
+    if (this.value !== value) {
+      this.value = value;
+      this.queueRender(true);
+    }
+    if (triggerAction) {
+      this.dispatchEvent(new Event("action"));
+    }
+  };
+  getValue = () => this.value;
+  get selectOptions() {
+    return typeof this.options === "string" ? this.options.split(",").map((option) => option.trim() || null) : this.options;
+  }
+  buildOptionMenuItem = (option) => {
+    if (option === null) {
+      return null;
+    }
+    const { setValue, getValue } = this;
+    let icon;
+    let caption;
+    let value;
+    if (typeof option === "string") {
+      caption = value = option;
+    } else {
+      ({ icon, caption, value } = option);
+    }
+    const { options } = option;
+    if (options) {
+      return {
+        icon,
+        caption,
+        checked: () => hasValue(options, getValue()),
+        menuItems: options.map(this.buildOptionMenuItem)
+      };
+    }
+    return {
+      icon,
+      caption,
+      checked: () => getValue() === value,
+      action: typeof value === "function" ? async () => {
+        const newValue = await value();
+        if (newValue !== undefined) {
+          setValue(newValue, true);
+        }
+      } : () => {
+        if (typeof value === "string") {
+          setValue(value, true);
+        }
+      }
+    };
+  };
+  get optionsMenu() {
+    const options = this.selectOptions.map(this.buildOptionMenuItem);
+    if (this.filter === "") {
+      return options;
+    }
+    const showOption = (option) => {
+      if (option === null) {
+        return true;
+      } else if (option.menuItems) {
+        option.menuItems = option.menuItems.filter(showOption);
+        return option.menuItems.length > 0;
+      } else {
+        return option.caption.toLocaleLowerCase().includes(this.filter);
+      }
+    };
+    return options.filter(showOption);
+  }
+  handleChange = (event) => {
+    const { value } = this.parts;
+    const newValue = value.value || "";
+    if (this.value !== String(newValue)) {
+      this.value = newValue;
+      this.dispatchEvent(new Event("change"));
+    }
+    this.filter = "";
+    event.stopPropagation();
+    event.preventDefault();
+  };
+  handleKey = (event) => {
+    if (event.key === "Enter") {
+      event.preventDefault();
+    }
+  };
+  filterMenu = Zn(() => {
+    this.filter = this.parts.value.value.toLocaleLowerCase();
+    removeLastMenu(0);
+    this.popOptions();
+  });
+  popOptions = (event) => {
+    if (event && event.type === "click") {
+      this.filter = "";
+    }
+    this.poppedOptions = this.optionsMenu;
+    popMenu({
+      target: this,
+      menuItems: this.poppedOptions
+    });
+  };
+  content = () => [
+    button3({
+      onClick: this.popOptions
+    }, span2(), input2({
+      part: "value",
+      value: this.value,
+      tabindex: 0,
+      onKeydown: this.handleKey,
+      onInput: this.filterMenu,
+      onChange: this.handleChange
+    }), icons.chevronDown())
+  ];
+  constructor() {
+    super();
+    this.initAttributes("options", "editable", "placeholder", "showIcon", "hideCaption");
+  }
+  get allOptions() {
+    const all = [];
+    function flatten(some) {
+      for (const option of some) {
+        if (typeof option === "string") {
+          all.push({ caption: option, value: option });
+        } else if (option?.value) {
+          all.push(option);
+        } else if (option?.options) {
+          flatten(option.options);
+        }
+      }
+    }
+    flatten(this.selectOptions);
+    return all;
+  }
+  findOption() {
+    const found = this.allOptions.find((option) => option.value === this.value);
+    return found || { caption: this.value, value: this.value };
+  }
+  render() {
+    super.render();
+    const { value } = this.parts;
+    const icon = value.previousElementSibling;
+    const option = this.findOption();
+    let newIcon = span2();
+    value.value = option.caption;
+    if (option.icon) {
+      if (option.icon instanceof HTMLElement) {
+        newIcon = option.icon.cloneNode(true);
+      } else {
+        newIcon = icons[option.icon]();
+      }
+    }
+    icon.replaceWith(newIcon);
+    value.setAttribute("placeholder", this.placeholder);
+    value.style.pointerEvents = this.editable ? "" : "none";
+    value.readOnly = !this.editable;
+  }
+}
+var xinSelect = XinSelect.elementCreator({
+  tag: "xin-select",
+  styleSpec: {
+    ":host": {
+      "--gap": "8px",
+      "--touch-size": "44px",
+      "--padding": "0 8px",
+      "--value-padding": "0 8px",
+      "--icon-width": "24px",
+      "--fieldWidth": "140px",
+      display: "inline-block",
+      position: "relative"
+    },
+    ":host button": {
+      display: "grid",
+      alignItems: "center",
+      gap: qn.gap,
+      textAlign: "left",
+      height: qn.touchSize,
+      padding: qn.padding,
+      gridTemplateColumns: `auto ${qn.iconWidth}`,
+      position: "relative"
+    },
+    ":host[show-icon] button": {
+      gridTemplateColumns: `${qn.iconWidth} auto ${qn.iconWidth}`
+    },
+    ":host[hide-caption] button": {
+      gridTemplateColumns: `${qn.iconWidth} ${qn.iconWidth}`
+    },
+    ":host:not([show-icon]) button > :first-child": {
+      display: "none"
+    },
+    ":host[hide-caption] button > :nth-child(2)": {
+      display: "none"
+    },
+    ':host [part="value"]': {
+      width: qn.fieldWidth,
+      padding: qn.valuePadding,
+      height: qn.touchSize,
+      lineHeight: qn.touchSize,
+      boxShadow: "none",
+      whiteSpace: "nowrap",
+      outline: "none",
+      background: "transparent"
+    },
+    ':host [part="value"]:not(:focus)': {
+      overflow: "hidden",
+      textOverflow: "ellipsis",
+      background: "transparent"
+    }
+  }
+});
+
+// src/localize.ts
+/*!
+# localize
+
+`xinjs-ui` provides support for localization via the `localize` method and the `<xin-locale-picker>`
+and `<xin-localized>` custom-elements.
+
+> ### Important Note
+> This module deals with the **language** used in the user interface. "locale" is
+> *not the same thing*. The (usually) two-letter codes used designate **language**
+> and **not locale**.
+>
+> E.g. the US *locale* includes things like measurement systems
+> and date format. Most European locales use commas where we use decimal points in the US.
+>
+> Similarly, `ja` is the code for the Japanese **language** while `jp` is the **locale**.
+
+## `initLocalization(localizationData: string)`
+
+Enables localization from TSV string data.
+
+## XinLocalePicker
+
+A selector that lets the user pick from among supported languages.
+
+```html
+<h3>Locale Picker</h3>
+<xin-locale-picker></xin-locale-picker>
+
+<h3>Locale Picker with <code>hide-captions</code></h3>
+<xin-locale-picker hide-caption></xin-locale-picker>
+```
+
+## `localize()`
+
+If you just want to localize a string with code, use `localize(s: string): string`.
+
+If the reference string only matches when both are converted to
+lowercase, the output string will also be lowercase.
+
+E.g. if you have localized `Cancel` as `Annuler`, then `localize("cancel")
+will output `annuler`.
+
+## `setLocale(language: string)`
+
+```js
+const { button, p } = xinjs.elements
+const { setLocale } = xinjsui
+
+preview.append(
+  p(
+    button(
+      {
+        onClick() {
+          setLocale('en-US')
+        }
+      }, 
+      'setLocale("en-US")'
+    )
+  ),
+  p(
+    button(
+      {
+        onClick() {
+          setLocale('fr')
+        }
+      }, 
+      'setLocale("fr")'
+    )
+  ),
+  p(
+    button(
+      {
+        onClick() {
+          setLocale('qq')
+        }
+      }, 
+      'setLocale("qq") (see console for error message)'
+    )
+  ),
+)
+```
+
+If you want to directly set locale, just use `setLocale()`.
+
+## XinLocalized
+
+A span-replacement that automatically localizes its text content.
+By default the case in the localized data is preserved unless the
+reference text is all lowercase, in which case the localized text
+is also lowercased.
+
+While viewing this documentation, all `<xin-localized>` elements should display a **red
+underline**.
+
+```html
+<h3>Localized Widgets</h3>
+<button><xin-localized>Yes</xin-localized></button>
+<button><xin-localized>No</xin-localized></button>
+
+<h3>Lowercase is preserved</h3>
+<button><xin-localized>yes</xin-localized></button>
+<button><xin-localized>no</xin-localized></button>
+
+<h3>Localized Attribute</h3>
+<input>
+```
+```css
+xin-localized {
+  border-bottom: 2px solid red;
+}
+```
+```js
+const { xinLocalized, localize } = xinjsui
+
+preview.append(xinLocalized({
+  refString: 'localized placeholder',
+  localeChanged() {
+    this.previousElementSibling.setAttribute('placeholder', localize(this.refString))
+  }
+}))
+```
+
+`<xin-localized>` has a `refString` attribute (which defaults to its initial `textContent`)
+which is the text that it localizes. You can set it directly.
+
+It also has an `localeChanged` method which defaults to setting the content of the element
+to the localized reference string, but which you can override, to (for example) set a property
+or attribute of the parent element.
+
+## `i18n`
+
+All of the data can be bound in the `i18n` proxy (`xin.i18n`), including the currently selected
+locale (which will default to `navigator.language`).
+
+You can take a look at `xin.i18n` in the console. `i18n` can be used to access localization
+data directly, and also to determine which locales are available `i18n.locales` and set the
+locale programmatically (e.g. `i18n.locale = 'en'`).
+
+```
+if (i18n.locales.includes('fr')) {
+  i18n.locale = 'fr'
+}
+```
+
+## Creating Localized String Data
+
+You can create your own localization data using any spreadsheet and exporting TSV. 
+
+E.g. you can automatically create localization data
+using something like my [localized](https://docs.google.com/spreadsheets/d/1L0_4g_dDhVCwVVxLzYbMj_H86xSp9lsRCKj7IS9psso/edit?usp=sharing)
+Google Sheet which leverages `googletranslate` to automatically translate reference strings
+(and which you can manually override as you like).
+
+E.g. in this demo I've replaced the incorrect translation of "Finnish"
+(`googletranslate` used the word for Finnish nationality rather than the language).
+
+The format of the input data is a table in TSV format, that looks like this:
+
+en-US | fr | fi | sv | zh
+------|----|----|----|----
+English (US) | French | Finnish | Swedish | Chinese (Mandarin)
+English (US) | Français | suomi | svenska | 中文（普通话）
+🇺🇸 | 🇫🇷 | 🇫🇮 | 🇸🇪 | 🇨🇳
+Icon | Icône | Kuvake | Ikon | 图标
+Ok | D'accord | Ok | Ok | 好的
+Cancel | Annuler | Peruuttaa | Avboka | 取消
+
+- Column 1 is your reference language.
+- Row 1 is [language code](https://en.wikipedia.org/wiki/List_of_ISO_639_language_codes).
+- Row 2 is the name of the language in your reference language.
+- Row 3 is the name of the language in itself (because it's silly to expect people
+  to know the name of their language in a language they don't know)
+- Row 4 is the flag emoji for that language (yes, that's problematic, but languages
+  do not have flags, per se)
+- Rows 5 and on are user interface strings you want to localize
+
+In the spreadsheet provided, each cell contains a formula that translates the term
+in the left-most column from the language in that column to the language in the
+destination column. Once you have an automatic translation, you can hand off the
+sheet to language experts to vet the translations.
+
+Finally, create a `tsv` file and then turn that into a Typescript file by wrapping
+the content thus:
+
+```
+export default `( content of tsv file )`
+```
+
+You use this data using `initLocalization()`.
+*/
+var { span: span3 } = S;
+var { i18n } = fn({
+  i18n: {
+    locale: window.navigator.language,
+    locales: [window.navigator.language],
+    languages: [window.navigator.language],
+    emoji: [""],
+    stringMap: {},
+    localeOptions: [
+      {
+        icon: span3(),
+        caption: window.navigator.language,
+        value: window.navigator.language
+      }
+    ]
+  }
+});
+on.localeOptions = {
+  toDOM(select, options) {
+    if (select instanceof XinSelect) {
+      select.options = options;
+    }
+  }
+};
+var setLocale = (language) => {
+  if (i18n.locales.includes(language)) {
+    i18n.locale = language;
+  } else {
+    console.error(`language ${language} is not available`);
+  }
+};
+var updateLocalized = () => {
+  const localizeds = [
+    ...document.querySelectorAll(XinLocalized.tagName)
+  ];
+  for (const localized of localizeds) {
+    localized.localeChanged();
+  }
+};
+N(i18n.locale.xinPath, updateLocalized);
+var captionSort = makeSorter((locale) => [
+  locale.caption.toLocaleLowerCase()
+]);
+function initLocalization(localizedStrings) {
+  const [locales, , languages, emoji, ...strings] = localizedStrings.split(`
+`).map((line) => line.split("\t"));
+  if (locales && languages && emoji && strings) {
+    i18n.locales = locales;
+    i18n.languages = languages;
+    i18n.emoji = emoji;
+    i18n.stringMap = strings.reduce((map, strings2) => {
+      map[strings2[0].toLocaleLowerCase()] = strings2;
+      return map;
+    }, {});
+    i18n.localeOptions = locales.map((locale, index) => ({
+      icon: span3({ title: locales[index] }, emoji[index]),
+      caption: languages[index],
+      value: locale
+    })).sort(captionSort);
+    if (!i18n.locales.includes(i18n.locale.valueOf())) {
+      const language = i18n.locale.substring(0, 2);
+      i18n.locale = i18n.locales.find((locale) => locale.substring(0, 2) === language) || i18n.locales[0];
+    }
+    updateLocalized();
+  }
+}
+function localize(ref) {
+  const index = i18n.locales.indexOf(i18n.locale.valueOf());
+  if (index > -1) {
+    const map = i18n.stringMap[ref.toLocaleLowerCase()];
+    const localized = map && map[index];
+    if (localized) {
+      ref = ref.toLocaleLowerCase() === ref ? localized.toLocaleLowerCase() : localized;
+    }
+  }
+  return ref;
+}
+
+class LocalePicker extends G {
+  hideCaption = false;
+  content = () => {
+    return xinSelect({
+      part: "select",
+      showIcon: true,
+      title: localize("Language"),
+      bindValue: i18n.locale,
+      bindLocaleOptions: i18n.localeOptions
+    });
+  };
+  constructor() {
+    super();
+    this.initAttributes("hideCaption");
+  }
+  render() {
+    super.render();
+    this.parts.select.toggleAttribute("hide-caption", this.hideCaption);
+  }
+}
+var localePicker = LocalePicker.elementCreator({
+  tag: "xin-locale-picker"
+});
+
+class XinLocalized extends G {
+  contents = () => S.xinSlot();
+  refString = "";
+  constructor() {
+    super();
+    this.initAttributes("refString");
+  }
+  localeChanged() {
+    if (!this.refString) {
+      this.refString = this.textContent || "";
+    }
+    this.textContent = this.refString ? localize(this.refString) : "";
+  }
+  render() {
+    super.render();
+    this.localeChanged();
+  }
+}
+var xinLocalized = XinLocalized.elementCreator({
+  tag: "xin-localized",
+  styleSpec: {
+    ":host": {
+      pointerEvents: "none"
+    }
+  }
+});
+
 // src/data-table.ts
 /*!
 # table
@@ -5071,6 +5884,7 @@ const columns = [
 preview.append(dataTable({
   multiple: true,
   array: emojiData,
+  localized: true,
   columns,
   rowHeight: 40,
   pinnedBottom: 2
@@ -5180,6 +5994,23 @@ its styles.
 
 The table supports two attributes, `pinnedTop` and `pinnedBottom` that let you pin the specified number
 of top and bottom rows.
+
+## Localization
+
+`<xin-table>` supports the `localized` attribute which simply causes its default `headerCell`
+to render a `<xin-localized>` element instead of a span for its caption, and localize its
+popup menu.
+
+You'll need to make sure your localized strings include:
+
+- Sort
+- Show
+- Hide
+- Column
+- Ascending
+- Descending
+
+As well as any column names you want localized.
 */
 function defaultWidth(array, prop, charWidth) {
   const example = array.find((item) => item[prop] !== undefined && item[prop] !== null);
@@ -5206,7 +6037,7 @@ function defaultWidth(array, prop, charWidth) {
   }
   return false;
 }
-var { div: div3, span: span2, button: button3, template } = S;
+var { div: div3, span: span4, button: button4, template } = S;
 var passThru = (array) => array;
 
 class DataTable extends G {
@@ -5216,6 +6047,7 @@ class DataTable extends G {
   nohide = false;
   noreorder = false;
   selectionChanged = () => {};
+  localized = false;
   selectedKey = Symbol("selected");
   selectBinding = (elt, obj) => {
     elt.toggleAttribute("aria-selected", obj[this.selectedKey] === true);
@@ -5258,7 +6090,7 @@ class DataTable extends G {
     this.rowData = fn({
       [this.instanceId]: this.rowData
     })[this.instanceId];
-    this.initAttributes("rowHeight", "charWidth", "minColumnWidth", "select", "multiple", "pinnedTop", "pinnedBottom", "nosort", "nohide", "noreorder");
+    this.initAttributes("rowHeight", "charWidth", "minColumnWidth", "select", "multiple", "pinnedTop", "pinnedBottom", "nosort", "nohide", "noreorder", "localized");
   }
   get array() {
     return this._array;
@@ -5465,13 +6297,13 @@ class DataTable extends G {
     const menu2 = [];
     if (!this.nosort && options.sort !== false) {
       menu2.push({
-        caption: "Sort Ascending",
+        caption: this.localized ? `${localize("Sort")} ${localize("Ascending")}` : "Sort Ascending",
         icon: "sortAscending",
         action() {
           sortByColumn(options);
         }
       }, {
-        caption: "Sort Descending",
+        caption: this.localized ? `${localize("Sort")} ${localize("Descending")}` : "Sort Ascending",
         icon: "sortDescending",
         action() {
           sortByColumn(options, "descending");
@@ -5483,7 +6315,7 @@ class DataTable extends G {
         menu2.push(null);
       }
       menu2.push({
-        caption: "Hide Column",
+        caption: this.localized ? `${localize("Hide")} ${localize("Column")}` : "Hide Column",
         icon: "eyeOff",
         enabled: () => options.visible !== true,
         action() {
@@ -5491,12 +6323,16 @@ class DataTable extends G {
           queueRender();
         }
       }, {
-        caption: "Show Column",
+        caption: this.localized ? `${localize("Show")} ${localize("Column")}` : "Show Column",
         icon: "eye",
         enabled: () => hiddenColumns.length > 0,
         menuItems: hiddenColumns.map((column) => {
+          let caption = column.name || column.prop;
+          if (this.localized) {
+            caption = localize(caption);
+          }
           return {
-            caption: column.name || column.prop,
+            caption,
             action() {
               delete column.visible;
               queueRender();
@@ -5510,6 +6346,9 @@ class DataTable extends G {
       menuItems: menu2
     });
   };
+  get captionSpan() {
+    return this.localized ? xinLocalized : span4;
+  }
   headerCell = (options) => {
     const { popColumnMenu } = this;
     let ariaSort = "none";
@@ -5527,14 +6366,14 @@ class DataTable extends G {
         ariaSort = "ascending";
         sortIcon = icons.sortDescending();
     }
-    const menuButton = !(this.nosort && this.nohide) ? button3({
+    const menuButton = !(this.nosort && this.nohide) ? button4({
       class: "menu-trigger",
       onClick(event) {
         popColumnMenu(event.target, options);
         event.stopPropagation();
       }
     }, sortIcon || icons.moreVertical()) : {};
-    return options.headerCell !== undefined ? options.headerCell(options) : span2({
+    return options.headerCell !== undefined ? options.headerCell(options) : span4({
       class: "th",
       role: "columnheader",
       ariaSort,
@@ -5542,13 +6381,13 @@ class DataTable extends G {
         ...this.cellStyle,
         textAlign: options.align || "left"
       }
-    }, span2(typeof options.name === "string" ? options.name : options.prop), span2({ style: { flex: "1" } }), menuButton);
+    }, this.captionSpan(typeof options.name === "string" ? options.name : options.prop), span4({ style: { flex: "1" } }), menuButton);
   };
   dataCell = (options) => {
     if (options.dataCell !== undefined) {
       return options.dataCell(options);
     }
-    return span2({
+    return span4({
       class: "td",
       role: "cell",
       style: {
@@ -6312,7 +7151,7 @@ interface FilterMaker {
 }
 ```
 */
-var { div: div5, input: input2, select, option, button: button4, span: span3 } = S;
+var { div: div5, input: input3, select, option, button: button5, span: span5 } = S;
 var passThru2 = (array) => array;
 var NULL_FILTER_DESCRIPTION = "null filter, everything matches";
 var availableFilters = {
@@ -6408,9 +7247,9 @@ class FilterPart extends G {
     icons.chevronDown(),
     select({ part: "condition" }),
     icons.chevronDown(),
-    input2({ part: "needle", type: "search" }),
-    span3({ part: "padding" }),
-    button4({ part: "remove", title: "delete" }, icons.trash())
+    input3({ part: "needle", type: "search" }),
+    span5({ part: "padding" }),
+    button5({ part: "remove", title: "delete" }, icons.trash())
   ];
   filter = passAnything;
   constructor() {
@@ -6549,14 +7388,14 @@ class FilterBuilder extends G {
     filterContainer.append(filterPart({ fields, filters }));
   };
   content = () => [
-    button4({
+    button5({
       part: "add",
       title: "add filter condition",
       onClick: this.addFilter,
       class: "round"
     }, icons.plus()),
     div5({ part: "filterContainer" }),
-    button4({ part: "reset", title: "reset filter", onClick: this.reset }, icons.x())
+    button5({ part: "reset", title: "reset filter", onClick: this.reset }, icons.x())
   ];
   filters = availableFilters;
   reset = () => {
@@ -6793,7 +7632,7 @@ The `color` type populates the `input` slot with a `<xin-color>` element (and th
 
 <xin-css-var-editor element-selector="xin-field" target-selector=".preview"></xin-css-var-editor>
 */
-var { form, slot: slot4, xinSlot, label, input: input3, span: span4 } = S;
+var { form, slot: slot4, xinSlot, label, input: input4, span: span6 } = S;
 function attr(element, name, value) {
   if (value !== "" && value !== false) {
     element.setAttribute(name, value);
@@ -6801,36 +7640,36 @@ function attr(element, name, value) {
     element.removeAttribute(name);
   }
 }
-function getInputValue(input4) {
-  switch (input4.type) {
+function getInputValue(input5) {
+  switch (input5.type) {
     case "checkbox":
-      return input4.checked;
+      return input5.checked;
     case "radio": {
-      const picked = input4.parentElement?.querySelector(`input[type="radio"][name="${input4.name}"]:checked`);
+      const picked = input5.parentElement?.querySelector(`input[type="radio"][name="${input5.name}"]:checked`);
       return picked ? picked.value : null;
     }
     case "range":
     case "number":
-      return Number(input4.value);
+      return Number(input5.value);
     default:
-      return Array.isArray(input4.value) && input4.value.length === 0 ? null : input4.value;
+      return Array.isArray(input5.value) && input5.value.length === 0 ? null : input5.value;
   }
 }
-function setElementValue(input4, value) {
-  if (!(input4 instanceof HTMLElement)) {} else if (input4 instanceof HTMLInputElement) {
-    switch (input4.type) {
+function setElementValue(input5, value) {
+  if (!(input5 instanceof HTMLElement)) {} else if (input5 instanceof HTMLInputElement) {
+    switch (input5.type) {
       case "checkbox":
-        input4.checked = value;
+        input5.checked = value;
         break;
       case "radio":
-        input4.checked = value === input4.value;
+        input5.checked = value === input5.value;
         break;
       default:
-        input4.value = String(value || "");
+        input5.value = String(value || "");
     }
   } else {
-    if (value != null || input4.value != null) {
-      input4.value = String(value || "");
+    if (value != null || input5.value != null) {
+      input5.value = String(value || "");
     }
   }
 }
@@ -6847,15 +7686,15 @@ class XinField extends G {
   step = "";
   fixedPrecision = -1;
   value = null;
-  content = label(xinSlot({ part: "caption" }), span4({ part: "field" }, xinSlot({ part: "input", name: "input" }), input3({ part: "valueHolder" })));
+  content = label(xinSlot({ part: "caption" }), span6({ part: "field" }, xinSlot({ part: "input", name: "input" }), input4({ part: "valueHolder" })));
   constructor() {
     super();
     this.initAttributes("caption", "key", "type", "optional", "pattern", "placeholder", "min", "max", "step", "fixedPrecision", "prefix", "suffix");
   }
   valueChanged = false;
   handleChange = () => {
-    const { input: input4, valueHolder } = this.parts;
-    const inputElement = input4.children[0] || valueHolder;
+    const { input: input5, valueHolder } = this.parts;
+    const inputElement = input5.children[0] || valueHolder;
     if (inputElement !== valueHolder) {
       valueHolder.value = inputElement.value;
     }
@@ -6891,34 +7730,34 @@ class XinField extends G {
   }
   connectedCallback() {
     super.connectedCallback();
-    const { input: input4, valueHolder } = this.parts;
+    const { input: input5, valueHolder } = this.parts;
     const form2 = this.closest(XinForm.tagName);
     if (form2 instanceof XinForm) {
       this.initialize(form2);
     }
     valueHolder.addEventListener("change", this.handleChange);
-    input4.addEventListener("change", this.handleChange, true);
+    input5.addEventListener("change", this.handleChange, true);
   }
   render() {
     if (this.valueChanged) {
       this.valueChanged = false;
       return;
     }
-    const { input: input4, caption, valueHolder, field } = this.parts;
+    const { input: input5, caption, valueHolder, field } = this.parts;
     if (caption.textContent?.trim() === "") {
       caption.append(this.caption !== "" ? this.caption : this.key);
     }
     if (this.type === "text") {
-      input4.textContent = "";
+      input5.textContent = "";
       const textarea = S.textarea({ value: this.value });
       if (this.placeholder) {
         textarea.setAttribute("placeholder", this.placeholder);
       }
-      input4.append(textarea);
+      input5.append(textarea);
     } else if (this.type === "color") {
-      input4.textContent = "";
-      input4.append(colorInput({ value: this.value }));
-    } else if (input4.children.length === 0) {
+      input5.textContent = "";
+      input5.append(colorInput({ value: this.value }));
+    } else if (input5.children.length === 0) {
       attr(valueHolder, "placeholder", this.placeholder);
       attr(valueHolder, "type", this.type);
       attr(valueHolder, "pattern", this.pattern);
@@ -6927,16 +7766,16 @@ class XinField extends G {
       attr(valueHolder, "step", this.step);
     }
     setElementValue(valueHolder, this.value);
-    setElementValue(input4.children[0], this.value);
+    setElementValue(input5.children[0], this.value);
     this.prefix ? field.setAttribute("prefix", this.prefix) : field.removeAttribute("prefix");
     this.suffix ? field.setAttribute("suffix", this.suffix) : field.removeAttribute("suffix");
-    valueHolder.classList.toggle("hidden", input4.children.length > 0);
-    if (input4.children.length > 0) {
+    valueHolder.classList.toggle("hidden", input5.children.length > 0);
+    if (input5.children.length > 0) {
       valueHolder.setAttribute("tabindex", "-1");
     } else {
       valueHolder.removeAttribute("tabindex");
     }
-    input4.style.display = input4.children.length === 0 ? "none" : "";
+    input5.style.display = input5.children.length === 0 ? "none" : "";
     attr(valueHolder, "required", !this.optional);
   }
 }
@@ -7112,15 +7951,15 @@ function gamepadState() {
     return {
       id,
       axes,
-      buttons: buttons.map((button5, index) => {
-        const { pressed, value } = button5;
+      buttons: buttons.map((button6, index) => {
+        const { pressed, value } = button6;
         return {
           index,
           pressed,
           value
         };
-      }).filter((b2) => b2.pressed || b2.value !== 0).reduce((map, button5) => {
-        map[button5.index] = button5.value;
+      }).filter((b2) => b2.pressed || b2.value !== 0).reduce((map, button6) => {
+        map[button6.index] = button6.value;
         return map;
       }, {})
     };
@@ -7271,18 +8110,18 @@ You can specify the exact content of the tab for a given body by
 adding a `<template role="tab">` to that body. The contents of that
 template will be cloned into the tab.
 */
-var { div: div6, slot: slot5, span: span5, button: button5 } = S;
+var { div: div6, slot: slot5, span: span7, button: button6 } = S;
 
 class TabSelector extends G {
   value = 0;
   static makeTab(tabs, tabBody, bodyId) {
-    const tabContent = tabBody.querySelector('template[role="tab"]')?.content.cloneNode(true) || span5(tabBody.getAttribute("name"));
+    const tabContent = tabBody.querySelector('template[role="tab"]')?.content.cloneNode(true) || span7(tabBody.getAttribute("name"));
     const tab = div6(tabContent, {
       part: "tab",
       tabindex: 0,
       role: "tab",
       ariaControls: bodyId
-    }, tabBody.hasAttribute("data-close") ? button5({
+    }, tabBody.hasAttribute("data-close") ? button6({
       title: "close",
       class: "close"
     }, icons.x()) : {});
@@ -7561,7 +8400,7 @@ function that will replace any sequence of
 `pre code[class="language-html"],pre code[class="language-js"],pre code[class="language-css"]`
 elements with a `<xin-example>` instance.
 */
-var { div: div7, xinSlot: xinSlot2, style, button: button6, h4, pre } = S;
+var { div: div7, xinSlot: xinSlot2, style, button: button7, h4, pre } = S;
 var AsyncFunction = (async () => {}).constructor;
 
 class LiveExample extends G {
@@ -7695,7 +8534,7 @@ class LiveExample extends G {
     });
   };
   content = () => [
-    div7({ part: "example" }, style({ part: "style" }), button6({
+    div7({ part: "example" }, style({ part: "style" }), button7({
       title: "example menu",
       part: "exampleWidgets",
       onClick: this.exampleMenu
@@ -7704,7 +8543,7 @@ class LiveExample extends G {
       class: "code-editors",
       part: "codeEditors",
       hidden: true
-    }, h4("Code"), button6({
+    }, h4("Code"), button7({
       title: "close code",
       class: "transparent close-button",
       onClick: this.closeCode
@@ -7718,25 +8557,25 @@ class LiveExample extends G {
     }), codeEditor({ name: "html", mode: "html", part: "html" }), codeEditor({ name: "css", mode: "css", part: "css" }), div7({
       slot: "after-tabs",
       class: "row"
-    }, button6({
+    }, button7({
       title: "undo",
       part: "undo",
       class: "transparent",
       onClick: this.undo
-    }, icons.undo()), button6({
+    }, icons.undo()), button7({
       title: "redo",
       part: "redo",
       class: "transparent",
       onClick: this.redo
-    }, icons.redo()), button6({
+    }, icons.redo()), button7({
       title: "flip direction",
       class: "transparent",
       onClick: this.flipLayout
-    }, icons.sidebar()), button6({
+    }, icons.sidebar()), button7({
       title: "copy as markdown",
       class: "transparent",
       onClick: this.copy
-    }, icons.copy()), button6({
+    }, icons.copy()), button7({
       title: "reload",
       class: "transparent",
       onClick: this.refreshRemote
@@ -8048,818 +8887,6 @@ if (remoteId) {
   document.body.textContent = "";
   document.body.append(liveExample({ remoteId }));
 }
-// src/make-sorter.ts
-/*!
-# makeSorter
-
-I'm always confusing myself when writing sort functions, so I wrote `makeSorter()`. It's
-insanely simple and just works™. It makes writing an array sort callback for anything
-other than an array of numbers or strings easier.
-
-```js
-const { select, option, div, span, ul, li } = xinjs.elements
-const { icons, makeSorter } = xinjsui
-
-const people = [
-  { first: 'Frasier', last: 'Crane', age: 38 },
-  { first: 'Lilith', last: 'Crane', age: 37 },
-  { first: 'Rebecca', last: 'Howe', age: 35 },
-  { first: 'Woody', last: 'Boyd', age: 25 },
-  { first: 'Sam', last: 'Malone', age: 40 },
-  { first: 'Norm', last: 'Peterson', age: 38 },
-]
-
-const sorters = {
-  firstSort: makeSorter(person => [person.first]),
-  firstDescSort: makeSorter(person => [person.first], false),
-  nameSort: makeSorter(person => [person.last, person.first]),
-  ageFirst: makeSorter(person => [-person.age, person.last]),
-  ageLast: makeSorter(person => [person.age, person.first], [true, false]),
-}
-
-function person({first, last, age}) {
-  return li(`${first} ${last}, ${age}`)
-}
-
-const list = ul()
-sortPicker = select(
-  option('Sort by first', {value: 'firstSort'}),
-  option('Sort by first (desc)', {value: 'firstDescSort'}),
-  option('Sort by last, first', {value: 'nameSort'}),
-  option('Sort by age (desc), first', {value: 'ageFirst'}),
-  option('Sort by age, last (desc)', {value: 'ageLast'}),
-  {
-    onChange: render,
-    value: 'nameSort'
-  },
-)
-
-function render () {
-  list.textContent = ''
-  list.append(...people.sort(sorters[sortPicker.value]).map(person))
-}
-
-preview.append(
-  div(
-    sortPicker,
-    icons.chevronDown()
-  ),
-  list
-)
-
-render()
-```
-```css
-.preview {
-  padding: var(--spacing);
-}
-
-.preview div {
-  position: absolute;
-  top: var(--spacing);
-  right: var(--spacing);
-}
-```
-
-## Details
-
-To create a sort callback that sorts by propA then propB (if propA is tied):
-
-```
-const sorter = makeSorter(
-  obj => [obj.propA, obj.propB]
-)
-```
-
-As above, but sort descending:
-```
-const sorter = makeSorter(
-  obj => [obj.propA, obj.propB],
-  false
-)
-```
-
-As above but propA is sorted ascending, propB descending
-```
-const sorter = makeSorter(
-  obj => [obj.propA, obj.propB],
-  [true, false]
-)
-```
-*/
-function makeSorter(sortValuator, ascending = true) {
-  return (p2, q2) => {
-    const pSort = sortValuator(p2);
-    const qSort = sortValuator(q2);
-    for (const i2 in pSort) {
-      if (pSort[i2] !== qSort[i2]) {
-        const isAscending = Array.isArray(ascending) ? ascending[i2] !== false : ascending;
-        return isAscending ? pSort[i2] > qSort[i2] ? 1 : -1 : pSort[i2] > qSort[i2] ? -1 : 1;
-      }
-    }
-    return 0;
-  };
-}
-
-// src/select.ts
-/*!
-# select
-
-`<xin-select>` (`xinSelect` is the `ElementCreator`) is a replacement for the lamentable
-built in `<select>` element that addresses its various shortcomings.
-
-- since `<xin-select>` is powered by `popMenu`, and supports separators and submenus.
-- options can have icons.
-- `<xin-select>` will retain and display a value even if the matching option is missing.
-- its displayed value can be made `editable`, allowing use as a "combo box".
-- options can have `async` callbacks that return a value.
-- picking an item triggers an `action` event even if the value hasn't changed.
-- available options are set via the `options` attribute or the element's `options` property (not `<option>` elements)
-
-```html
-<xin-select
-  title="simple select"
-  options="this,that,,the other"
-  value="not an option!"
-></xin-select><br>
-<xin-select
-  show-icon
-  title="has captions"
-  class="captions"
-  value="image"
-></xin-select><br>
-<xin-select
-  show-icon
-  title="combo select with icons"
-  class="icons"
-  editable
-  placeholder="pick an icon"
-></xin-select><br>
-<xin-select
-  show-icon
-  hide-caption
-  title="icons only"
-  class="icons-only"
-  placeholder="pick an icon"
-></xin-select>
-<pre contenteditable>Select some text in here…
-…to check for focus stealing</pre>
-```
-```js
-const { icons } = xinjsui
-
-const captions = preview.querySelector('.captions')
-
-captions.options = [
-  {
-    caption: 'a heading',
-    value: 'heading'
-  },
-  {
-    caption: 'a paragraph',
-    value: 'paragraph'
-  },
-  null,
-  {
-    caption: 'choose some other',
-    options: [
-      {
-        icon: 'image',
-        caption: 'an image',
-        value: 'image'
-      },
-      {
-        icon: 'fileText',
-        caption: 'a text file',
-        value: 'text',
-      },
-      {
-        icon: 'video',
-        caption: 'a video',
-        value: 'video'
-      },
-      null,
-      {
-        caption: 'anything goes…',
-        value: () => prompt('Enter your other', 'other') || undefined
-      },
-      {
-        caption: 'brother… (after 1s delay)',
-        value: async () => new Promise(resolve => {
-          setTimeout(() => resolve('brother'), 1000)
-        })
-      }
-    ]
-  }
-]
-
-const iconsSelect = preview.querySelector('.icons')
-const iconsOnly = preview.querySelector('.icons-only')
-
-iconsSelect.options = iconsOnly.options = Object.keys(icons).sort().map(icon =>({
-  icon,
-  caption: icon,
-  value: icon
-}))
-
-preview.addEventListener('action', (event) => {
-  console.log(event.target.title, 'user picked', event.target.value)
-}, true)
-
-preview.addEventListener('change', (event) => {
-  console.log(event.target.title, 'changed to', event.target.value)
-}, true)
-```
-<xin-css-var-editor element-selector="xin-select"></xin-css-var-editor>
-
-## `options`
-
-    type OptionRequest = () => Promise<string | undefined>
-
-    export interface SelectOption {
-      icon?: string | HTMLElement
-      caption: string
-      value: string | OptionRequest
-    }
-
-    export interface SelectOptionSubmenu {
-      icon?: string | HTMLElement
-      caption: string
-      options: SelectOptions
-    }
-
-    export type SelectOptions = Array<string | null | SelectOption | SelectOptionSubmenu>
-
-A `<xin-select>` can be assigned `options` as a string of comma-delimited choices,
-or be provided a `SelectOptions` array (which allows for submenus, separators, etc.).
-
-## Attributes
-
-`<xin-select>` supports several attributes:
-
-- `editable` lets the user directly edit the value (like a "combo box").
-- `show-icon` displays the icon corresponding to the currently selected value.
-- `hide-caption` hides the caption.
-- `placeholder` allows you to set a placeholder.
-- `options` allows you to assign options as a comma-delimited string attribute.
-
-## Events
-
-Picking an option triggers an `action` event (whether or not this changes the value).
-
-Changing the value, either by typing in an editable `<xin-select>` or picking a new
-value triggers a `change` event.
-
-You can look at the console to see the events triggered by the second example.
-*/
-var { button: button7, span: span6, input: input4 } = S;
-var hasValue = (options, value) => {
-  return !!options.find((option2) => {
-    if (option2 === null || value == null) {
-      return false;
-    } else if (Array.isArray(option2)) {
-      return hasValue(option2, value);
-    } else if (option2.value === value || option2 === value) {
-      return true;
-    }
-  });
-};
-
-class XinSelect extends G {
-  editable = false;
-  showIcon = false;
-  hideCaption = false;
-  options = "";
-  value = "";
-  placeholder = "";
-  filter = "";
-  setValue = (value, triggerAction = false) => {
-    if (this.value !== value) {
-      this.value = value;
-      this.queueRender(true);
-    }
-    if (triggerAction) {
-      this.dispatchEvent(new Event("action"));
-    }
-  };
-  getValue = () => this.value;
-  get selectOptions() {
-    return typeof this.options === "string" ? this.options.split(",").map((option2) => option2.trim() || null) : this.options;
-  }
-  buildOptionMenuItem = (option2) => {
-    if (option2 === null) {
-      return null;
-    }
-    const { setValue, getValue } = this;
-    let icon;
-    let caption;
-    let value;
-    if (typeof option2 === "string") {
-      caption = value = option2;
-    } else {
-      ({ icon, caption, value } = option2);
-    }
-    const { options } = option2;
-    if (options) {
-      return {
-        icon,
-        caption,
-        checked: () => hasValue(options, getValue()),
-        menuItems: options.map(this.buildOptionMenuItem)
-      };
-    }
-    return {
-      icon,
-      caption,
-      checked: () => getValue() === value,
-      action: typeof value === "function" ? async () => {
-        const newValue = await value();
-        if (newValue !== undefined) {
-          setValue(newValue, true);
-        }
-      } : () => {
-        if (typeof value === "string") {
-          setValue(value, true);
-        }
-      }
-    };
-  };
-  get optionsMenu() {
-    const options = this.selectOptions.map(this.buildOptionMenuItem);
-    if (this.filter === "") {
-      return options;
-    }
-    const showOption = (option2) => {
-      if (option2 === null) {
-        return true;
-      } else if (option2.menuItems) {
-        option2.menuItems = option2.menuItems.filter(showOption);
-        return option2.menuItems.length > 0;
-      } else {
-        return option2.caption.toLocaleLowerCase().includes(this.filter);
-      }
-    };
-    return options.filter(showOption);
-  }
-  handleChange = (event) => {
-    const { value } = this.parts;
-    const newValue = value.value || "";
-    if (this.value !== String(newValue)) {
-      this.value = newValue;
-      this.dispatchEvent(new Event("change"));
-    }
-    this.filter = "";
-    event.stopPropagation();
-    event.preventDefault();
-  };
-  handleKey = (event) => {
-    if (event.key === "Enter") {
-      event.preventDefault();
-    }
-  };
-  filterMenu = Zn(() => {
-    this.filter = this.parts.value.value.toLocaleLowerCase();
-    removeLastMenu(0);
-    this.popOptions();
-  });
-  popOptions = (event) => {
-    if (event && event.type === "click") {
-      this.filter = "";
-    }
-    this.poppedOptions = this.optionsMenu;
-    popMenu({
-      target: this,
-      menuItems: this.poppedOptions
-    });
-  };
-  content = () => [
-    button7({
-      onClick: this.popOptions
-    }, span6(), input4({
-      part: "value",
-      value: this.value,
-      tabindex: 0,
-      onKeydown: this.handleKey,
-      onInput: this.filterMenu,
-      onChange: this.handleChange
-    }), icons.chevronDown())
-  ];
-  constructor() {
-    super();
-    this.initAttributes("options", "editable", "placeholder", "showIcon", "hideCaption");
-  }
-  get allOptions() {
-    const all = [];
-    function flatten(some) {
-      for (const option2 of some) {
-        if (typeof option2 === "string") {
-          all.push({ caption: option2, value: option2 });
-        } else if (option2?.value) {
-          all.push(option2);
-        } else if (option2?.options) {
-          flatten(option2.options);
-        }
-      }
-    }
-    flatten(this.selectOptions);
-    return all;
-  }
-  findOption() {
-    const found = this.allOptions.find((option2) => option2.value === this.value);
-    return found || { caption: this.value, value: this.value };
-  }
-  render() {
-    super.render();
-    const { value } = this.parts;
-    const icon = value.previousElementSibling;
-    const option2 = this.findOption();
-    let newIcon = span6();
-    value.value = option2.caption;
-    if (option2.icon) {
-      if (option2.icon instanceof HTMLElement) {
-        newIcon = option2.icon.cloneNode(true);
-      } else {
-        newIcon = icons[option2.icon]();
-      }
-    }
-    icon.replaceWith(newIcon);
-    value.setAttribute("placeholder", this.placeholder);
-    value.style.pointerEvents = this.editable ? "" : "none";
-    value.readOnly = !this.editable;
-  }
-}
-var xinSelect = XinSelect.elementCreator({
-  tag: "xin-select",
-  styleSpec: {
-    ":host": {
-      "--gap": "8px",
-      "--touch-size": "44px",
-      "--padding": "0 8px",
-      "--value-padding": "0 8px",
-      "--icon-width": "24px",
-      "--fieldWidth": "140px",
-      display: "inline-block",
-      position: "relative"
-    },
-    ":host button": {
-      display: "grid",
-      alignItems: "center",
-      gap: qn.gap,
-      textAlign: "left",
-      height: qn.touchSize,
-      padding: qn.padding,
-      gridTemplateColumns: `auto ${qn.iconWidth}`,
-      position: "relative"
-    },
-    ":host[show-icon] button": {
-      gridTemplateColumns: `${qn.iconWidth} auto ${qn.iconWidth}`
-    },
-    ":host[hide-caption] button": {
-      gridTemplateColumns: `${qn.iconWidth} ${qn.iconWidth}`
-    },
-    ":host:not([show-icon]) button > :first-child": {
-      display: "none"
-    },
-    ":host[hide-caption] button > :nth-child(2)": {
-      display: "none"
-    },
-    ':host [part="value"]': {
-      width: qn.fieldWidth,
-      padding: qn.valuePadding,
-      height: qn.touchSize,
-      lineHeight: qn.touchSize,
-      boxShadow: "none",
-      whiteSpace: "nowrap",
-      outline: "none",
-      background: "transparent"
-    },
-    ':host [part="value"]:not(:focus)': {
-      overflow: "hidden",
-      textOverflow: "ellipsis",
-      background: "transparent"
-    }
-  }
-});
-
-// src/localize.ts
-/*!
-# localize
-
-`xinjs-ui` provides support for localization via the `localize` method and the `<xin-locale-picker>`
-and `<xin-localized>` custom-elements.
-
-> ### Important Note
-> This module deals with the **language** used in the user interface. "locale" is
-> *not the same thing*. The (usually) two-letter codes used designate **language**
-> and **not locale**.
->
-> E.g. the US *locale* includes things like measurement systems
-> and date format. Most European locales use commas where we use decimal points in the US.
->
-> Similarly, `ja` is the code for the Japanese **language** while `jp` is the **locale**.
-
-## `initLocalization(localizationData: string)`
-
-Enables localization from TSV string data.
-
-## XinLocalePicker
-
-A selector that lets the user pick from among supported languages.
-
-```html
-<h3>Locale Picker</h3>
-<xin-locale-picker></xin-locale-picker>
-
-<h3>Locale Picker with <code>hide-captions</code></h3>
-<xin-locale-picker hide-caption></xin-locale-picker>
-```
-
-## `localize()`
-
-If you just want to localize a string with code, use `localize(s: string): string`.
-
-If the reference string only matches when both are converted to
-lowercase, the output string will also be lowercase.
-
-E.g. if you have localized `Cancel` as `Annuler`, then `localize("cancel")
-will output `annuler`.
-
-## `setLocale(language: string)`
-
-```js
-const { button, p } = xinjs.elements
-const { setLocale } = xinjsui
-
-preview.append(
-  p(
-    button(
-      {
-        onClick() {
-          setLocale('en-US')
-        }
-      }, 
-      'setLocale("en-US")'
-    )
-  ),
-  p(
-    button(
-      {
-        onClick() {
-          setLocale('fr')
-        }
-      }, 
-      'setLocale("fr")'
-    )
-  ),
-  p(
-    button(
-      {
-        onClick() {
-          setLocale('qq')
-        }
-      }, 
-      'setLocale("qq") (see console for error message)'
-    )
-  ),
-)
-```
-
-If you want to directly set locale, just use `setLocale()`.
-
-## XinLocalized
-
-A span-replacement that automatically localizes its text content.
-By default the case in the localized data is preserved unless the
-reference text is all lowercase, in which case the localized text
-is also lowercased.
-
-While viewing this documentation, all `<xin-localized>` elements should display a **red
-underline**.
-
-```html
-<h3>Localized Widgets</h3>
-<button><xin-localized>Yes</xin-localized></button>
-<button><xin-localized>No</xin-localized></button>
-
-<h3>Lowercase is preserved</h3>
-<button><xin-localized>yes</xin-localized></button>
-<button><xin-localized>no</xin-localized></button>
-
-<h3>Localized Attribute</h3>
-<input>
-```
-```css
-xin-localized {
-  border-bottom: 2px solid red;
-}
-```
-```js
-const { xinLocalized, localize } = xinjsui
-
-preview.append(xinLocalized({
-  refString: 'localized placeholder',
-  localeChanged() {
-    this.previousElementSibling.setAttribute('placeholder', localize(this.refString))
-  }
-}))
-```
-
-`<xin-localized>` has a `refString` attribute (which defaults to its initial `textContent`)
-which is the text that it localizes. You can set it directly.
-
-It also has an `localeChanged` method which defaults to setting the content of the element
-to the localized reference string, but which you can override, to (for example) set a property
-or attribute of the parent element.
-
-## `i18n`
-
-All of the data can be bound in the `i18n` proxy (`xin.i18n`), including the currently selected
-locale (which will default to `navigator.language`).
-
-You can take a look at `xin.i18n` in the console. `i18n` can be used to access localization
-data directly, and also to determine which locales are available `i18n.locales` and set the
-locale programmatically (e.g. `i18n.locale = 'en'`).
-
-```
-if (i18n.locales.includes('fr')) {
-  i18n.locale = 'fr'
-}
-```
-
-## Creating Localized String Data
-
-You can create your own localization data using any spreadsheet and exporting TSV. 
-
-E.g. you can automatically create localization data
-using something like my [localized](https://docs.google.com/spreadsheets/d/1L0_4g_dDhVCwVVxLzYbMj_H86xSp9lsRCKj7IS9psso/edit?usp=sharing)
-Google Sheet which leverages `googletranslate` to automatically translate reference strings
-(and which you can manually override as you like).
-
-E.g. in this demo I've replaced the incorrect translation of "Finnish"
-(`googletranslate` used the word for Finnish nationality rather than the language).
-
-The format of the input data is a table in TSV format, that looks like this:
-
-en-US | fr | fi | sv | zh
-------|----|----|----|----
-English (US) | French | Finnish | Swedish | Chinese (Mandarin)
-English (US) | Français | suomi | svenska | 中文（普通话）
-🇺🇸 | 🇫🇷 | 🇫🇮 | 🇸🇪 | 🇨🇳
-Icon | Icône | Kuvake | Ikon | 图标
-Ok | D'accord | Ok | Ok | 好的
-Cancel | Annuler | Peruuttaa | Avboka | 取消
-
-- Column 1 is your reference language.
-- Row 1 is [language code](https://en.wikipedia.org/wiki/List_of_ISO_639_language_codes).
-- Row 2 is the name of the language in your reference language.
-- Row 3 is the name of the language in itself (because it's silly to expect people
-  to know the name of their language in a language they don't know)
-- Row 4 is the flag emoji for that language (yes, that's problematic, but languages
-  do not have flags, per se)
-- Rows 5 and on are user interface strings you want to localize
-
-In the spreadsheet provided, each cell contains a formula that translates the term
-in the left-most column from the language in that column to the language in the
-destination column. Once you have an automatic translation, you can hand off the
-sheet to language experts to vet the translations.
-
-Finally, create a `tsv` file and then turn that into a Typescript file by wrapping
-the content thus:
-
-```
-export default `( content of tsv file )`
-```
-
-You use this data using `initLocalization()`.
-*/
-var { span: span7 } = S;
-var { i18n } = fn({
-  i18n: {
-    locale: window.navigator.language,
-    locales: [window.navigator.language],
-    languages: [window.navigator.language],
-    emoji: [""],
-    stringMap: {},
-    localeOptions: [
-      {
-        icon: span7(),
-        caption: window.navigator.language,
-        value: window.navigator.language
-      }
-    ]
-  }
-});
-on.localeOptions = {
-  toDOM(select2, options) {
-    if (select2 instanceof XinSelect) {
-      select2.options = options;
-    }
-  }
-};
-var setLocale = (language) => {
-  if (i18n.locales.includes(language)) {
-    i18n.locale = language;
-  } else {
-    console.error(`language ${language} is not available`);
-  }
-};
-var updateLocalized = () => {
-  const localizeds = [
-    ...document.querySelectorAll(XinLocalized.tagName)
-  ];
-  for (const localized of localizeds) {
-    localized.localeChanged();
-  }
-};
-N(i18n.locale.xinPath, updateLocalized);
-var captionSort = makeSorter((locale) => [
-  locale.caption.toLocaleLowerCase()
-]);
-function initLocalization(localizedStrings) {
-  const [locales, , languages, emoji, ...strings] = localizedStrings.split(`
-`).map((line) => line.split("\t"));
-  if (locales && languages && emoji && strings) {
-    i18n.locales = locales;
-    i18n.languages = languages;
-    i18n.emoji = emoji;
-    i18n.stringMap = strings.reduce((map, strings2) => {
-      map[strings2[0].toLocaleLowerCase()] = strings2;
-      return map;
-    }, {});
-    i18n.localeOptions = locales.map((locale, index) => ({
-      icon: span7({ title: locales[index] }, emoji[index]),
-      caption: languages[index],
-      value: locale
-    })).sort(captionSort);
-    if (!i18n.locales.includes(i18n.locale.valueOf())) {
-      const language = i18n.locale.substring(0, 2);
-      i18n.locale = i18n.locales.find((locale) => locale.substring(0, 2) === language) || i18n.locales[0];
-    }
-    updateLocalized();
-  }
-}
-function localize(ref) {
-  const index = i18n.locales.indexOf(i18n.locale.valueOf());
-  if (index > -1) {
-    const map = i18n.stringMap[ref.toLocaleLowerCase()];
-    const localized = map && map[index];
-    if (localized) {
-      ref = ref.toLocaleLowerCase() === ref ? localized.toLocaleLowerCase() : localized;
-    }
-  }
-  return ref;
-}
-
-class LocalePicker extends G {
-  hideCaption = false;
-  content = () => {
-    return xinSelect({
-      part: "select",
-      showIcon: true,
-      title: localize("Language"),
-      bindValue: i18n.locale,
-      bindLocaleOptions: i18n.localeOptions
-    });
-  };
-  constructor() {
-    super();
-    this.initAttributes("hideCaption");
-  }
-  render() {
-    super.render();
-    this.parts.select.toggleAttribute("hide-caption", this.hideCaption);
-  }
-}
-var localePicker = LocalePicker.elementCreator({
-  tag: "xin-locale-picker"
-});
-
-class XinLocalized extends G {
-  contents = () => S.xinSlot();
-  refString = "";
-  constructor() {
-    super();
-    this.initAttributes("refString");
-  }
-  localeChanged() {
-    if (!this.refString) {
-      this.refString = this.textContent || "";
-    }
-    this.textContent = this.refString ? localize(this.refString) : "";
-  }
-  render() {
-    super.render();
-    this.localeChanged();
-  }
-}
-var xinLocalized = XinLocalized.elementCreator({
-  tag: "xin-localized",
-  styleSpec: {
-    ":host": {
-      pointerEvents: "none"
-    }
-  }
-});
 // src/mapbox.ts
 /*!
 # map
@@ -13847,18 +13874,23 @@ var localized_strings_default = `en-US	fr	fi	sv	zh	ja	ko	es	de	it
 English	French	Finnish	Swedish	Chinese	Japanese	Korean	Spanish	German	Italian
 English	Français	suomi	svenska	中国人	日本語	한국인	Español	Deutsch	Italiano
 \uD83C\uDDFA\uD83C\uDDF8	\uD83C\uDDEB\uD83C\uDDF7	\uD83C\uDDEB\uD83C\uDDEE	\uD83C\uDDF8\uD83C\uDDEA	\uD83C\uDDE8\uD83C\uDDF3	\uD83C\uDDEF\uD83C\uDDF5	\uD83C\uDDF0\uD83C\uDDF7	\uD83C\uDDEA\uD83C\uDDF8	\uD83C\uDDE9\uD83C\uDDEA	\uD83C\uDDEE\uD83C\uDDF9
+Ascending	Ascendant	Nouseva	Stigande	升序	上昇	오름차순	Ascendente	Aufsteigend	Ascendente
 Body	Corps	Runko	Kropp	身体	体	몸	Cuerpo	Körper	Corpo
 Bold	Audacieux	Lihavoitu	Djärv	大胆的	大胆な	용감한	Atrevido	Deutlich	Grassetto
 Cancel	Annuler	Peruuttaa	Avboka	取消	キャンセル	취소	Cancelar	Stornieren	Cancellare
 Carousel	Carrousel	Karuselli	Karusell	轮播	カルーセル	회전목마	Carrusel	Karussell	Giostra
+Category	Catégorie	Luokka	Kategori	类别	カテゴリ	범주	Categoría	Kategorie	Categoria
 Center	Centre	Keskusta	Centrum	中心	中心	센터	Centro	Center	Centro
 Check if Breached	Vérifiez en cas de violation	Tarkista, onko rikottu	Kontrollera om bruten	检查是否违规	侵害されているかどうかを確認する	위반 여부 확인	Comprobar si se ha violado	Überprüfen Sie, ob ein Verstoß vorliegt	Controlla se violato
 Close	Fermer	Lähellä	Nära	关闭	近い	닫다	Cerca	Schließen	Vicino
 Code	Code	Koodi	Koda	代码	コード	암호	Código	Code	Codice
+Column	Colonne	Sarake	Kolumn	柱子	カラム	열	Columna	Spalte	Colonna
 Copy	Copie	Kopioida	Kopiera	复制	コピー	복사	Copiar	Kopie	Copia
 Cut	Couper	Leikata	Skära	切	カット	자르다	Cortar	Schneiden	Taglio
 Delete	Supprimer	Poistaa	Radera	删除	消去	삭제	Borrar	Löschen	Eliminare
+Descending	Descendant	Laskeva	Fallande	降序	降順	내림차순	Descendente	Absteigend	Discendente
 Document	Document	Asiakirja	Dokumentera	文档	書類	문서	Documento	Dokumentieren	Documento
+Emoji	Émoji	Emoji	Emoji	表情符号	絵文字	이모티콘	emojis	Emoji	Emoji
 Example	Exemple	Esimerkki	Exempel	例子	例	예	Ejemplo	Beispiel	Esempio
 Exit	Sortie	Poistu	Utgång	出口	出口	출구	Salida	Ausfahrt	Uscita
 File	Déposer	Tiedosto	Fil	文件	ファイル	파일	Archivo	Datei	File
@@ -13866,6 +13898,7 @@ Filter	Filtre	Suodattaa	Filtrera	筛选	フィルター	필터	Filtrar	Filter	Fi
 Float	Flotter	Kellua	Flyta	漂浮	フロート	뜨다	Flotar	Schweben	Galleggiante
 Forms	Formulaires	Lomakkeet	Blanketter	表格	フォーム	양식	Formularios	Formulare	Forme
 Heading	Titre	Otsikko	Rubrik	标题	見出し	표제	Título	Überschrift	Intestazione
+Hide	Cacher	Piilottaa	Dölja	隐藏	隠れる	숨다	Esconder	Verstecken	Nascondere
 Icon	Icône	Kuvake	Ikon	图标	アイコン	상	Icono	Symbol	Icona
 Italic	Italique	Kursiivi	Kursiv	斜体	イタリック	이탤릭체	Itálico	Kursiv	Corsivo
 Justify	Justifier	Perustella	Rättfärdiga	证明合法	正当化する	신이 옳다고 하다	Justificar	Rechtfertigen	Giustificare
@@ -13880,6 +13913,7 @@ Menu	Menu	Valikko	Meny	菜单	メニュー	메뉴	Menú	Speisekarte	Menu
 Minimize	Minimiser	Minimoida	Minimera	最小化	最小化する	최소화	Minimizar	Minimieren	Minimizzare
 Moderate	Modéré	Kohtalainen	Måttlig	缓和	適度	보통의	Moderado	Mäßig	Moderare
 Move	Se déplacer	Liikkua	Flytta	移动	動く	이동하다	Mover	Bewegen	Mossa
+Name	Nom	Nimi	Namn	姓名	名前	이름	Nombre	Name	Nome
 No	Non	Ei	Inga	不	いいえ	아니요	No	Nein	No
 Notifications	Notifications	Ilmoitukset	Aviseringar	通知	通知	알림	Notificaciones	Benachrichtigungen	Notifiche
 Okay	D'accord	Kunnossa	Okej	好的	わかった	좋아요	Bueno	Okay	Va bene
@@ -13890,9 +13924,12 @@ Rating	Notation	Luokitus	Gradering	等级	評価	평가	Clasificación	Bewertung
 Right	Droite	Oikein	Rätt	正确的	右	오른쪽	Bien	Rechts	Giusto
 Save	Sauvegarder	Tallentaa	Spara	节省	保存	구하다	Ahorrar	Speichern	Salva
 Select	Sélectionner	Valitse	Välja	选择	選択	선택하다	Seleccionar	Wählen	Selezionare
+Show	Montrer	Show	Visa	展示	見せる	보여주다	Espectáculo	Zeigen	Spettacolo
 Sidebar	Barre latérale	Sivupalkki	Sidofält	侧边栏	サイドバー	사이드바	Barra lateral	Seitenleiste	Barra laterale
 Sizer	Calibreur	Mitoitus	Sizer	尺寸测定器	サイザー	사이저	medidor	Sizer	Misuratore
+Sort	Trier	Järjestellä	Sortera	种类	選別	종류	Clasificar	Sortieren	Ordinare
 Strong	Fort	Vahva	Stark	强的	強い	강한	Fuerte	Stark	Forte
+Subcategory	Sous-catégorie	Alaluokka	Underkategori	子类别	サブカテゴリー	하위 카테고리	Subcategoría	Unterkategorie	Sottocategoria
 Table	Tableau	Taulukko	Tabell	桌子	テーブル	테이블	Mesa	Tisch	Tavolo
 Tabs	Onglets	Välilehdet	Flikar	选项卡	タブ	탭	Cortina a la italiana	Tabs	Schede
 Unacceptable	Inacceptable	Ei hyväksyttävää	Oacceptabel	不可接受	受け入れられない	허용되지 않음	Inaceptable	Inakzeptabel	Inaccettabile
@@ -17549,6 +17586,7 @@ const columns = [
 preview.append(dataTable({
   multiple: true,
   array: emojiData,
+  localized: true,
   columns,
   rowHeight: 40,
   pinnedBottom: 2
@@ -17657,7 +17695,24 @@ its styles.
 ## Pinned Rows
 
 The table supports two attributes, \`pinnedTop\` and \`pinnedBottom\` that let you pin the specified number
-of top and bottom rows.`,
+of top and bottom rows.
+
+## Localization
+
+\`<xin-table>\` supports the \`localized\` attribute which simply causes its default \`headerCell\`
+to render a \`<xin-localized>\` element instead of a span for its caption, and localize its
+popup menu.
+
+You'll need to make sure your localized strings include:
+
+- Sort
+- Show
+- Hide
+- Column
+- Ascending
+- Descending
+
+As well as any column names you want localized.`,
     title: "table",
     filename: "data-table.ts",
     path: "src/data-table.ts"

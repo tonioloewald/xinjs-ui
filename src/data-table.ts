@@ -48,6 +48,7 @@ const columns = [
 preview.append(dataTable({
   multiple: true,
   array: emojiData,
+  localized: true,
   columns,
   rowHeight: 40,
   pinnedBottom: 2
@@ -157,6 +158,23 @@ its styles.
 
 The table supports two attributes, `pinnedTop` and `pinnedBottom` that let you pin the specified number
 of top and bottom rows.
+
+## Localization
+
+`<xin-table>` supports the `localized` attribute which simply causes its default `headerCell`
+to render a `<xin-localized>` element instead of a span for its caption, and localize its
+popup menu.
+
+You'll need to make sure your localized strings include:
+
+- Sort
+- Show
+- Hide
+- Column
+- Ascending
+- Descending
+
+As well as any column names you want localized.
 */
 
 import {
@@ -175,6 +193,7 @@ import { SortCallback } from './make-sorter'
 import { icons } from './icons'
 import { popMenu, MenuItem } from './menu'
 import * as dragAndDrop from './drag-and-drop'
+import { xinLocalized, localize } from './localize'
 
 function defaultWidth(
   array: any[],
@@ -242,9 +261,10 @@ export class DataTable extends WebComponent {
   selectionChanged: SelectCallback = () => {
     /* do not care */
   }
+  localized = false
 
   private selectedKey = Symbol('selected')
-  private selectBinding = (elt: HTMLElement, obj: any) => {
+  private selectBinding = (elt: Element, obj: any) => {
     elt.toggleAttribute('aria-selected', obj[this.selectedKey] === true)
   }
 
@@ -308,7 +328,8 @@ export class DataTable extends WebComponent {
       'pinnedBottom',
       'nosort',
       'nohide',
-      'noreorder'
+      'noreorder',
+      'localized'
     )
   }
 
@@ -588,14 +609,18 @@ export class DataTable extends WebComponent {
     if (!this.nosort && options.sort !== false) {
       menu.push(
         {
-          caption: 'Sort Ascending',
+          caption: this.localized
+            ? `${localize('Sort')} ${localize('Ascending')}`
+            : 'Sort Ascending',
           icon: 'sortAscending',
           action() {
             sortByColumn(options)
           },
         },
         {
-          caption: 'Sort Descending',
+          caption: this.localized
+            ? `${localize('Sort')} ${localize('Descending')}`
+            : 'Sort Ascending',
           icon: 'sortDescending',
           action() {
             sortByColumn(options, 'descending')
@@ -609,7 +634,9 @@ export class DataTable extends WebComponent {
       }
       menu.push(
         {
-          caption: 'Hide Column',
+          caption: this.localized
+            ? `${localize('Hide')} ${localize('Column')}`
+            : 'Hide Column',
           icon: 'eyeOff',
           enabled: () => options.visible !== true,
           action() {
@@ -618,12 +645,18 @@ export class DataTable extends WebComponent {
           },
         },
         {
-          caption: 'Show Column',
+          caption: this.localized
+            ? `${localize('Show')} ${localize('Column')}`
+            : 'Show Column',
           icon: 'eye',
           enabled: () => hiddenColumns.length > 0,
           menuItems: hiddenColumns.map((column) => {
+            let caption = column.name || column.prop
+            if (this.localized) {
+              caption = localize(caption)
+            }
             return {
-              caption: column.name || column.prop,
+              caption,
               action() {
                 delete column.visible
                 queueRender()
@@ -638,6 +671,10 @@ export class DataTable extends WebComponent {
       target,
       menuItems: menu,
     })
+  }
+
+  get captionSpan(): ElementCreator {
+    return this.localized ? xinLocalized : span
   }
 
   headerCell = (options: ColumnOptions) => {
@@ -683,7 +720,9 @@ export class DataTable extends WebComponent {
               textAlign: options.align || 'left',
             },
           },
-          span(typeof options.name === 'string' ? options.name : options.prop),
+          this.captionSpan(
+            typeof options.name === 'string' ? options.name : options.prop
+          ),
           span({ style: { flex: '1' } }),
           menuButton
         )

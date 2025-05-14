@@ -2,18 +2,23 @@ export default `en-US	fr	fi	sv	zh	ja	ko	es	de	it
 English	French	Finnish	Swedish	Chinese	Japanese	Korean	Spanish	German	Italian
 English	Français	suomi	svenska	中国人	日本語	한국인	Español	Deutsch	Italiano
 🇺🇸	🇫🇷	🇫🇮	🇸🇪	🇨🇳	🇯🇵	🇰🇷	🇪🇸	🇩🇪	🇮🇹
+Ascending	Ascendant	Nouseva	Stigande	升序	上昇	오름차순	Ascendente	Aufsteigend	Ascendente
 Body	Corps	Runko	Kropp	身体	体	몸	Cuerpo	Körper	Corpo
 Bold	Audacieux	Lihavoitu	Djärv	大胆的	大胆な	용감한	Atrevido	Deutlich	Grassetto
 Cancel	Annuler	Peruuttaa	Avboka	取消	キャンセル	취소	Cancelar	Stornieren	Cancellare
 Carousel	Carrousel	Karuselli	Karusell	轮播	カルーセル	회전목마	Carrusel	Karussell	Giostra
+Category	Catégorie	Luokka	Kategori	类别	カテゴリ	범주	Categoría	Kategorie	Categoria
 Center	Centre	Keskusta	Centrum	中心	中心	센터	Centro	Center	Centro
 Check if Breached	Vérifiez en cas de violation	Tarkista, onko rikottu	Kontrollera om bruten	检查是否违规	侵害されているかどうかを確認する	위반 여부 확인	Comprobar si se ha violado	Überprüfen Sie, ob ein Verstoß vorliegt	Controlla se violato
 Close	Fermer	Lähellä	Nära	关闭	近い	닫다	Cerca	Schließen	Vicino
 Code	Code	Koodi	Koda	代码	コード	암호	Código	Code	Codice
+Column	Colonne	Sarake	Kolumn	柱子	カラム	열	Columna	Spalte	Colonna
 Copy	Copie	Kopioida	Kopiera	复制	コピー	복사	Copiar	Kopie	Copia
 Cut	Couper	Leikata	Skära	切	カット	자르다	Cortar	Schneiden	Taglio
 Delete	Supprimer	Poistaa	Radera	删除	消去	삭제	Borrar	Löschen	Eliminare
+Descending	Descendant	Laskeva	Fallande	降序	降順	내림차순	Descendente	Absteigend	Discendente
 Document	Document	Asiakirja	Dokumentera	文档	書類	문서	Documento	Dokumentieren	Documento
+Emoji	Émoji	Emoji	Emoji	表情符号	絵文字	이모티콘	emojis	Emoji	Emoji
 Example	Exemple	Esimerkki	Exempel	例子	例	예	Ejemplo	Beispiel	Esempio
 Exit	Sortie	Poistu	Utgång	出口	出口	출구	Salida	Ausfahrt	Uscita
 File	Déposer	Tiedosto	Fil	文件	ファイル	파일	Archivo	Datei	File
@@ -21,6 +26,7 @@ Filter	Filtre	Suodattaa	Filtrera	筛选	フィルター	필터	Filtrar	Filter	Fi
 Float	Flotter	Kellua	Flyta	漂浮	フロート	뜨다	Flotar	Schweben	Galleggiante
 Forms	Formulaires	Lomakkeet	Blanketter	表格	フォーム	양식	Formularios	Formulare	Forme
 Heading	Titre	Otsikko	Rubrik	标题	見出し	표제	Título	Überschrift	Intestazione
+Hide	Cacher	Piilottaa	Dölja	隐藏	隠れる	숨다	Esconder	Verstecken	Nascondere
 Icon	Icône	Kuvake	Ikon	图标	アイコン	상	Icono	Symbol	Icona
 Italic	Italique	Kursiivi	Kursiv	斜体	イタリック	이탤릭체	Itálico	Kursiv	Corsivo
 Justify	Justifier	Perustella	Rättfärdiga	证明合法	正当化する	신이 옳다고 하다	Justificar	Rechtfertigen	Giustificare
@@ -35,6 +41,7 @@ Menu	Menu	Valikko	Meny	菜单	メニュー	메뉴	Menú	Speisekarte	Menu
 Minimize	Minimiser	Minimoida	Minimera	最小化	最小化する	최소화	Minimizar	Minimieren	Minimizzare
 Moderate	Modéré	Kohtalainen	Måttlig	缓和	適度	보통의	Moderado	Mäßig	Moderare
 Move	Se déplacer	Liikkua	Flytta	移动	動く	이동하다	Mover	Bewegen	Mossa
+Name	Nom	Nimi	Namn	姓名	名前	이름	Nombre	Name	Nome
 No	Non	Ei	Inga	不	いいえ	아니요	No	Nein	No
 Notifications	Notifications	Ilmoitukset	Aviseringar	通知	通知	알림	Notificaciones	Benachrichtigungen	Notifiche
 Okay	D'accord	Kunnossa	Okej	好的	わかった	좋아요	Bueno	Okay	Va bene
@@ -45,9 +52,12 @@ Rating	Notation	Luokitus	Gradering	等级	評価	평가	Clasificación	Bewertung
 Right	Droite	Oikein	Rätt	正确的	右	오른쪽	Bien	Rechts	Giusto
 Save	Sauvegarder	Tallentaa	Spara	节省	保存	구하다	Ahorrar	Speichern	Salva
 Select	Sélectionner	Valitse	Välja	选择	選択	선택하다	Seleccionar	Wählen	Selezionare
+Show	Montrer	Show	Visa	展示	見せる	보여주다	Espectáculo	Zeigen	Spettacolo
 Sidebar	Barre latérale	Sivupalkki	Sidofält	侧边栏	サイドバー	사이드바	Barra lateral	Seitenleiste	Barra laterale
 Sizer	Calibreur	Mitoitus	Sizer	尺寸测定器	サイザー	사이저	medidor	Sizer	Misuratore
+Sort	Trier	Järjestellä	Sortera	种类	選別	종류	Clasificar	Sortieren	Ordinare
 Strong	Fort	Vahva	Stark	强的	強い	강한	Fuerte	Stark	Forte
+Subcategory	Sous-catégorie	Alaluokka	Underkategori	子类别	サブカテゴリー	하위 카테고리	Subcategoría	Unterkategorie	Sottocategoria
 Table	Tableau	Taulukko	Tabell	桌子	テーブル	테이블	Mesa	Tisch	Tavolo
 Tabs	Onglets	Välilehdet	Flikar	选项卡	タブ	탭	Cortina a la italiana	Tabs	Schede
 Unacceptable	Inacceptable	Ei hyväksyttävää	Oacceptabel	不可接受	受け入れられない	허용되지 않음	Inaceptable	Inakzeptabel	Inaccettabile

@@ -48,6 +48,7 @@ const columns = [
 preview.append(dataTable({
   multiple: true,
   array: emojiData,
+  localized: true,
   columns,
   rowHeight: 40,
   pinnedBottom: 2
@@ -157,6 +158,23 @@ its styles.
 
 The table supports two attributes, `pinnedTop` and `pinnedBottom` that let you pin the specified number
 of top and bottom rows.
+
+## Localization
+
+`<xin-table>` supports the `localized` attribute which simply causes its default `headerCell`
+to render a `<xin-localized>` element instead of a span for its caption, and localize its
+popup menu.
+
+You'll need to make sure your localized strings include:
+
+- Sort
+- Show
+- Hide
+- Column
+- Ascending
+- Descending
+
+As well as any column names you want localized.
 */
 import { Component as WebComponent, ElementCreator } from 'xinjs';
 import { SortCallback } from './make-sorter';
@@ -184,6 +202,7 @@ export declare class DataTable extends WebComponent {
     nohide: boolean;
     noreorder: boolean;
     selectionChanged: SelectCallback;
+    localized: boolean;
     private selectedKey;
     private selectBinding;
     pinnedTop: number;
@@ -224,6 +243,7 @@ export declare class DataTable extends WebComponent {
     setColumnWidths(): void;
     sortByColumn: (columnOptions: ColumnOptions, direction?: "ascending" | "descending" | "auto") => void;
     popColumnMenu: (target: HTMLElement, options: ColumnOptions) => void;
+    get captionSpan(): ElementCreator;
     headerCell: (options: ColumnOptions) => any;
     dataCell: (options: ColumnOptions) => any;
     get visibleRows(): any[];
