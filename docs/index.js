@@ -9545,7 +9545,7 @@ var xinTagList = XinTagList.elementCreator({
   }
 });
 // src/version.ts
-var version = "0.9.13";
+var version = "0.9.14";
 // demo/src/style.ts
 var styleSpec = {
   "@import": "https://fonts.googleapis.com/css2?family=Aleo:ital,wght@0,100..900;1,100..900&famiSpline+Sans+Mono:ital,wght@0,300..700;1,300..700&display=swap",
