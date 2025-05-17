@@ -3,25 +3,28 @@
   <head>
     <meta charset="utf-8" />
     <title>iife test</title>
+    <style>
+      body {
+        font-family: sans-serif;
+      }
+    </style>
   </head>
   <body>
-    <xin-md># xinjs-ui iife test</xin-md>
     <script src="iife.js"></script>
     <script>
-      const { div, h1 } = xinjs.elements
+      const { div, h1, a } = xinjs.elements
       const { icons } = xinjsui
 
       const App = () =>
         div(
-          div(
-            {
-              style: {
-                display: 'flex',
-                justifyContent: 'center',
-              },
+          {
+            style: {
+              textAlign: 'center',
             },
-            icons.xinjsUiColor({ style: { height: 128 } })
-          )
+          },
+          h1('xinjs-ui iife test'),
+          div(icons.xinjsUiColor({ style: { height: 128 } })),
+          a('Return to xinjs-ui demo site', { href: '/' })
         )
       document.body.append(App())
     </script>

@@ -10,35 +10,88 @@ Copyright ©2023-2025 Tonio Loewald
 
 ## the xinjs ui library
 
-In general, `xinjs` strives to work _with_ the browser rather than trying to _replace_ it.
+A set of [web-components](https://developer.mozilla.org/en-US/docs/Web/API/Web_components)
+created with [xinjs](https://xinjs.net), designed to augment what the browser gives you
+for free rather than replace it.
 
-In a similar vein, `xinjs-ui` comprises a collection of [web-components](https://developer.mozilla.org/en-US/docs/Web/API/Web_components)
-with the goal of augmenting what _already_ works well, and the components are intended be interoperable as
-similar as possible to things that you already use, such as `<input>` or `<select>` elements.
-E.g. where appropriate, the `value` of an element is its malleable `state`, and when this changes,
-the element emits a `change` event.
+It works beautifully with other web-component libraries, such as [shoelace.style](https://shoelace.style/).
 
-Similarly, the xinjs base `Component` class and the components in this collection strive to
-be as similar in operation as possible to DOM elements as makes sense. E.g. binary attributes
-work as expected. Adding the `hidden` attribute makes them disappear. If a component subclass
-has a `value` property then it will be rendered if the value changes (similarly it will be
-rendered if an initialized attribute is changed). Intinsic properties of components will
-default to `null` rather than `undefined`.
+## Quick Start
 
-Similarly, because web-components are highly interoperable, there's no reason to reinvent
-wheels. In particular, this library won't try to replace existing, excellent libraries
-such as [shoelace.style](https://shoelace.style/) or wrap perfectly functional HTML
-elements, like the venerable `<input>` or `<form>` elements that are already capable
-and accessible.
+### Using npm and a bundler
 
-The goal here is to provide useful components and other utilities that add to what's built
-into HTML5 and CSS3 and to make custom-elements work as much as possible like drop-in replacements
-for an `<input>` or `<textarea>` (while mitigating the historical pathologies of things like
-`<select>` and `<input type="radio">`). E.g. the `<xin-select>` does not suffer from a
-race-condition between having its value set and being given an `<option>` with the intended value
-and you can differentiate between the user picking a value (`action`) and the value changing (`change`).
+Add xinjs-ui to your project, e.g.
 
-## custom elements
+```
+npm add xinjs-ui
+```
+
+Then you can import the component `elementCreator` and create the element any way you
+like, the easiest way being to use the `elementCreator` itself. A `xinjs` `elementCreator`
+is syntax sugar around `document.createElement()`.
+
+```
+import { dataTable } from 'xinjs-ui'
+
+document.body.append(dataTable())
+```
+
+### Using the iife via cdn
+
+The `xinjs-ui` iife build bundles `xinjs`, `xinjs-ui`, and `marked` into
+a single minified javascript source file. You can access `xinjs` and `xinjsui`
+as globals which contain all the things exported by `xinjs` and `xinjs-ui`.
+
+> iife support is new so it may not have propagated to the cdn yet. This
+> example loads the library from ui.xinjs.net for now.
+
+```
+<script src="https://ui.xinjs.net/iife.js"></script>
+<button id="menu">Menu <xin-icon icon="chevronDown"></xin-icon></button>
+<script>
+  const { elements } = xinjs
+  const { popMenu, icons } = xinjsui
+
+  const button = { elements }
+
+  const showMenu = (target) => {
+    popMenu({
+      target,
+      menuItems: [
+        {
+          caption: 'Say hello',
+          action() {
+            alert('hello')
+          }
+        },
+        null,
+        {
+          caption: 'Version',
+          action() {
+            alert(`xinjs ${xinjs.version}\nxinjs-ui ${xinjsui.version}`)
+          }
+        }
+      ]
+    })
+  }
+
+  document.body.append(
+    button(
+      {
+        onClick(event) {
+          showMenu(event.target)
+        }
+      },
+      'Menu',
+      icons.chevronDown()
+    )
+  )
+</script>
+```
+
+[Click here to see a simple iife demo](https://ui.xinjs.net/iife.html)
+
+## custom-elements
 
 The simplest way to use these elements is to simply import the element and then either
 use HTML or the `ElementCreator` function exported.
@@ -78,3 +131,33 @@ the correct type.
 The other thing is that `xinjs` `ElementCreator` functions are convenient and composable,
 allowing you to build DOM elements with less code than pretty much any other option, including
 JSX, TSX, or HTML.
+
+## Philosophy
+
+In general, `xinjs` strives to work _with_ the browser rather than trying to _replace_ it.
+
+In a similar vein, `xinjs-ui` comprises a collection of [web-components](https://developer.mozilla.org/en-US/docs/Web/API/Web_components)
+with the goal of augmenting what _already_ works well, and the components are intended be interoperable as
+similar as possible to things that you already use, such as `<input>` or `<select>` elements.
+E.g. where appropriate, the `value` of an element is its malleable `state`, and when this changes,
+the element emits a `change` event.
+
+Similarly, the xinjs base `Component` class and the components in this collection strive to
+be as similar in operation as possible to DOM elements as makes sense. E.g. binary attributes
+work as expected. Adding the `hidden` attribute makes them disappear. If a component subclass
+has a `value` property then it will be rendered if the value changes (similarly it will be
+rendered if an initialized attribute is changed). Intinsic properties of components will
+default to `null` rather than `undefined`.
+
+Similarly, because web-components are highly interoperable, there's no reason to reinvent
+wheels. In particular, this library won't try to replace existing, excellent libraries
+such as [shoelace.style](https://shoelace.style/) or wrap perfectly functional HTML
+elements, like the venerable `<input>` or `<form>` elements that are already capable
+and accessible.
+
+The goal here is to provide useful components and other utilities that add to what's built
+into HTML5 and CSS3 and to make custom-elements work as much as possible like drop-in replacements
+for an `<input>` or `<textarea>` (while mitigating the historical pathologies of things like
+`<select>` and `<input type="radio">`). E.g. the `<xin-select>` does not suffer from a
+race-condition between having its value set and being given an `<option>` with the intended value
+and you can differentiate between the user picking a value (`action`) and the value changing (`change`).

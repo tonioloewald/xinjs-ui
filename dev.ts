@@ -22,7 +22,6 @@ async function prebuild() {
   output = await $`mkdir ${PUBLIC}`.text()
   output = await $`bun docs.js`.text()
   output = await $`bun icons.js`.text()
-  output = await $`cp ./dist/iife.js ${PUBLIC}`.text()
   output = await $`cp ./demo/static/* ${PUBLIC}`.text()
 
   output = await $`rm -rf ${DIST}`.text()
@@ -70,6 +69,7 @@ async function build() {
     }
     return
   }
+  await $`cp ./dist/iife.js ${PUBLIC}`.text()
 
   await Bun.build({
     entrypoints: ['./demo/src/index.ts'],

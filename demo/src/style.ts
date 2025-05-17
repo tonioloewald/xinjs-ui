@@ -1,4 +1,4 @@
-/*!
+/*#
 # style
 
 ## Convert CSS to Javascript
