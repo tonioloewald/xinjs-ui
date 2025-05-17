@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>iife test</title>
+  </head>
+  <body>
+    <xin-md># xinjs-ui iife test</xin-md>
+    <script src="iife.js"></script>
+    <script>
+      const { div, h1 } = xinjs.elements
+      const { icons } = xinjsui
+
+      const App = () =>
+        div(
+          div(
+            {
+              style: {
+                display: 'flex',
+                justifyContent: 'center',
+              },
+            },
+            icons.xinjsUiColor({ style: { height: 128 } })
+          )
+        )
+      document.body.append(App())
+    </script>
+  </body>
+</html>

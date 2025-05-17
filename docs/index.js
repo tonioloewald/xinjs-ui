@@ -1459,6 +1459,7 @@ var exports_src = {};
 __export(exports_src, {
   xrControllersText: () => xrControllersText,
   xrControllers: () => xrControllers,
+  xinjs: () => exports_module,
   xinTagList: () => xinTagList,
   xinTag: () => xinTag,
   xinSizer: () => xinSizer,

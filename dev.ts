@@ -22,6 +22,7 @@ async function prebuild() {
   output = await $`mkdir ${PUBLIC}`.text()
   output = await $`bun docs.js`.text()
   output = await $`bun icons.js`.text()
+  output = await $`cp ./dist/iife.js ${PUBLIC}`.text()
   output = await $`cp ./demo/static/* ${PUBLIC}`.text()
 
   output = await $`rm -rf ${DIST}`.text()
@@ -45,6 +46,22 @@ async function build() {
     format: 'esm',
     minify: true,
     external: ['xinjs', 'marked'],
+  })
+  if (!result.success) {
+    console.error('dist build failed')
+    for (const message of result.logs) {
+      console.error(message)
+    }
+    return
+  }
+
+  result = await Bun.build({
+    entrypoints: ['./src/index-iife.ts'],
+    outdir: DIST,
+    sourcemap: 'linked',
+    format: 'iife',
+    minify: true,
+    naming: 'iife.js',
   })
   if (!result.success) {
     console.error('dist build failed')

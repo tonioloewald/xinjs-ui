@@ -18,7 +18,7 @@
       },
       "peerDependencies": {
         "marked": "^5.1.2",
-        "xinjs": "^0.8.6",
+        "xinjs": "^0.8.10",
       },
     },
   },
