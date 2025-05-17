@@ -1,4 +1,4 @@
-/*!
+/*#
 # docs.js
 
 The `xinjs-ui` package includes `docs.js` which is used to build the documentation
@@ -80,7 +80,7 @@ function findMarkdownFiles(dirs, ignore) {
       } else if (['.ts', '.js', '.css'].includes(path.extname(file))) {
         const content = fs.readFileSync(filePath, 'utf8')
         let title = path.basename(file)
-        const docs = content.match(/\/\*![\s\S]+?\*\//g) || []
+        const docs = content.match(/\/\*#[\s\S]+?\*\//g) || []
         if (docs.length) {
           const markdown = docs.map((s) => s.substring(3, s.length - 2).trim())
           const text = markdown.join('\n\n')

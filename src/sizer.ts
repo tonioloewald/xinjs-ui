@@ -1,4 +1,4 @@
-/*!
+/*#
 # sizer
 
 This is a super-simple component that you can put in a fixed size element allowing it to be resized

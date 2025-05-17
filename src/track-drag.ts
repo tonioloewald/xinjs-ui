@@ -6,7 +6,7 @@ type TrackerCallback = (
   event: PointerEvent
 ) => boolean | undefined
 
-/*!
+/*#
 # trackDrag
 
 Sometimes you want to track a mouse-drag or touch-drag operation without messing around.

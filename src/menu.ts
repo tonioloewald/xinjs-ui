@@ -1,4 +1,4 @@
-/*!
+/*#
 # menu
 
 Being able to pop a menu up anywhere is just so nice, and `xinjs-ui` allows menus

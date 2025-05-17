@@ -2,7 +2,7 @@ import { Component as WebComponent, ElementCreator, elements } from 'xinjs'
 
 const { slot } = elements
 
-/*!
+/*#
 # size-break
 
 While we wait for enough browsers to implement [container-queries](https://www.w3.org/TR/css-contain-3/),

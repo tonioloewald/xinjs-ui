@@ -1,4 +1,4 @@
-/*!
+/*#
 # localize
 
 `xinjs-ui` provides support for localization via the `localize` method and the `<xin-locale-picker>`

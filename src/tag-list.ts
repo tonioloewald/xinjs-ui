@@ -1,4 +1,4 @@
-/*!
+/*#
 # tag-list
 
 Building a tag-list from standard HTML elements is a bit of a nightmare.

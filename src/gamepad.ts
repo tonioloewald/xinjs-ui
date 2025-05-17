@@ -1,4 +1,4 @@
-/*!
+/*#
 # gamepads
 
 A couple of utility functions for dealing with gamepads and XRInputs.

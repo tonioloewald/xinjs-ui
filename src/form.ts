@@ -1,4 +1,4 @@
-/*!
+/*#
 # forms
 
 `<xin-form>` and `<xin-field>` can be used to quickly create forms complete with

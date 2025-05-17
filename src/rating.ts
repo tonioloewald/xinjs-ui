@@ -1,4 +1,4 @@
-/*!
+/*#
 # rating
 
 `XinRating` / `<xin-rating>` provides a drop-in replacement for an `<input>`

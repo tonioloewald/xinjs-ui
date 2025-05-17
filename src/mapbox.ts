@@ -1,4 +1,4 @@
-/*!
+/*#
 # map
 
 A [mapboxgl](https://docs.mapbox.com/mapbox-gl-js/api/) wrapper.

@@ -1,4 +1,4 @@
-/*!
+/*#
 # drag & drop
 
 > **Note** this library is a modernized version of the [b8rjs](https://b8rjs.com) drag-and-drop.js library.

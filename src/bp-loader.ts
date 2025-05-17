@@ -1,4 +1,4 @@
-/*!
+/*#
 # blueprint loading
 
 <center>

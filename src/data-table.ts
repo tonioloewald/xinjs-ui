@@ -1,4 +1,4 @@
-/*!
+/*#
 # table
 
 A virtual data-table, configurable via a `columns` array (which will automatically be generated if not provided),

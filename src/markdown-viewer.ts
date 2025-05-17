@@ -1,7 +1,7 @@
 import { Component, ElementCreator, xin } from 'xinjs'
 import { marked } from 'marked'
 
-/*!
+/*#
 # markdown
 
 `<xin-md>` renders markdown using [marked](https://www.npmjs.com/package/marked).

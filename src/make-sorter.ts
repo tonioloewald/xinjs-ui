@@ -2,7 +2,7 @@ export type SortValuator<T = object> = (f: T) => (string | number)[]
 
 export type SortCallback<T = object> = (p: T, q: T) => number
 
-/*!
+/*#
 # makeSorter
 
 I'm always confusing myself when writing sort functions, so I wrote `makeSorter()`. It's

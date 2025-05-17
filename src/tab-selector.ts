@@ -1,4 +1,4 @@
-/*!
+/*#
 # tabs
 
 `<xin-tabs>` creates a `tabpanel` for its children, creating a `tab` for each based on its

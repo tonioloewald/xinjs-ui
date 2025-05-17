@@ -1,4 +1,4 @@
-/*!
+/*#
 # popFloat
 
 There are so many cases in user-interfaces where it's useful to pop-up a floating

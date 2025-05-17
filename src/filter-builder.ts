@@ -1,4 +1,4 @@
-/*!
+/*#
 # filter
 
 Automatically creates `ArrayFilter` functions `(a: any[]) => any[]` based on the query you build using its

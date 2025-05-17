@@ -1,4 +1,4 @@
-/*!
+/*#
 # sidebar
 
 The default layout for iOS / iPadOS apps is to hide the sidebar when displaying content on small

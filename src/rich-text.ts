@@ -1,4 +1,4 @@
-/*!
+/*#
 # word (rich text editor)
 
 `<xin-word>` is a simple and easily extensible `document.execCommand` WYSIWYG editor with some conveniences.

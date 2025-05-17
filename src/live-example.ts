@@ -1,4 +1,4 @@
-/*!
+/*#
 # example
 
 `<xin-example>` makes it easy to insert interactive code examples in a web page. It

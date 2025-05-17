@@ -1,4 +1,4 @@
-/*!
+/*#
 # icons
 
 <center>
@@ -586,6 +586,9 @@ export const svgIcon = SvgIcon.elementCreator({
   styleSpec: {
     ':host': {
       display: 'inline-flex',
+    },
+    ':host, :host svg': {
+      height: varDefault.xinIconSize('16px'),
     },
   },
 })

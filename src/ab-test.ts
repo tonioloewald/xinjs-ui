@@ -1,4 +1,4 @@
-/*!
+/*#
 # ab-test
 
 `<xin-ab>` provides a simple method for implementing A|B-testing.

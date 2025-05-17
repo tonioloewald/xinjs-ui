@@ -1,4 +1,4 @@
-/*!
+/*#
 # editable-rect
 
 `<xin-editable>` (`editableRect` is the `ElementCreator` and `EditableRect` is the class) is an element

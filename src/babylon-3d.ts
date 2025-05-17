@@ -1,4 +1,4 @@
-/*!
+/*#
 # 3d
 
 A [babylonjs](https://www.babylonjs.com/) wrapper.

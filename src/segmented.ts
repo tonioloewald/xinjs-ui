@@ -1,4 +1,4 @@
-/*!
+/*#
 # segmented select
 
 This is a fairly general-purpose segmented select control.

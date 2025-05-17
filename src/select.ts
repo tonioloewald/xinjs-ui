@@ -1,4 +1,4 @@
-/*!
+/*#
 # select
 
 `<xin-select>` (`xinSelect` is the `ElementCreator`) is a replacement for the lamentable

@@ -1,4 +1,4 @@
-/*!
+/*#
 # password strength
 
 Just wrap it a `<xin-password-strength>` element around an `<input>`

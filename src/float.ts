@@ -1,4 +1,4 @@
-/*!
+/*#
 # float
 
 A floating, potentially draggable user interface element.

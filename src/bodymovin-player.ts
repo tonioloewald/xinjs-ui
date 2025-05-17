@@ -1,4 +1,4 @@
-/*!
+/*#
 # lottie / bodymovin
 
 A [lottie](https://airbnb.io/lottie/#/web) (a.k.a. **bodymovin**) player.
