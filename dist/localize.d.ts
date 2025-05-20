@@ -12,7 +12,9 @@ export declare class LocalePicker extends Component {
 }
 export declare const localePicker: any;
 export declare class XinLocalized extends Component {
-    static allInstances: Set<XinLocalized>;
+    static allInstances: Set<{
+        AbstractLocalized: any;
+    }>;
     contents: () => any;
     refString: string;
     constructor();

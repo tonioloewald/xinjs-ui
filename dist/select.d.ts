@@ -20,6 +20,7 @@ export declare class XinSelect extends WebComponent {
     value: string;
     placeholder: string;
     filter: string;
+    localized: boolean;
     private setValue;
     private getValue;
     get selectOptions(): SelectOptions;
@@ -33,6 +34,9 @@ export declare class XinSelect extends WebComponent {
     constructor();
     get allOptions(): SelectOption[];
     findOption(): SelectOption;
+    localeChanged: () => void;
+    connectedCallback(): void;
+    disconnectedCallback(): void;
     render(): void;
 }
 export declare const xinSelect: ElementCreator<XinSelect>;

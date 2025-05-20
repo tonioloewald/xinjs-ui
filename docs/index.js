@@ -3008,6 +3008,7 @@ class XinSelect extends G {
   value = "";
   placeholder = "";
   filter = "";
+  localized = false;
   setValue = (value, triggerAction = false) => {
     if (this.value !== value) {
       this.value = value;
@@ -3033,6 +3034,9 @@ class XinSelect extends G {
       caption = value = option;
     } else {
       ({ icon, caption, value } = option);
+    }
+    if (this.localized) {
+      caption = localize(caption);
     }
     const { options } = option;
     if (options) {
@@ -3121,7 +3125,7 @@ class XinSelect extends G {
   ];
   constructor() {
     super();
-    this.initAttributes("options", "editable", "placeholder", "showIcon", "hideCaption");
+    this.initAttributes("options", "editable", "placeholder", "showIcon", "hideCaption", "localized");
   }
   get allOptions() {
     const all = [];
@@ -3143,13 +3147,28 @@ class XinSelect extends G {
     const found = this.allOptions.find((option) => option.value === this.value);
     return found || { caption: this.value, value: this.value };
   }
+  localeChanged = () => {
+    this.queueRender();
+  };
+  connectedCallback() {
+    super.connectedCallback();
+    if (this.localized) {
+      XinLocalized.allInstances.add(this);
+    }
+  }
+  disconnectedCallback() {
+    super.disconnectedCallback();
+    if (this.localized) {
+      XinLocalized.allInstances.delete(this);
+    }
+  }
   render() {
     super.render();
     const { value } = this.parts;
     const icon = value.previousElementSibling;
     const option = this.findOption();
     let newIcon = span();
-    value.value = option.caption;
+    value.value = this.localized ? localize(option.caption) : option.caption;
     if (option.icon) {
       if (option.icon instanceof HTMLElement) {
         newIcon = option.icon.cloneNode(true);
@@ -3158,7 +3177,7 @@ class XinSelect extends G {
       }
     }
     icon.replaceWith(newIcon);
-    value.setAttribute("placeholder", this.placeholder);
+    value.setAttribute("placeholder", this.localized ? localize(this.placeholder) : this.placeholder);
     value.style.pointerEvents = this.editable ? "" : "none";
     value.readOnly = !this.editable;
   }
@@ -11820,22 +11839,29 @@ If you're using \`SVGElement\`s created using the \`icons\` proxy, you'll want t
   --font-size: 160px
 }
 
-.recolored:not(:hover) {
-  opacity: 0.76;
-  filter: grayscale(0.75);
-  transform: scale(1.0);
+.recolored > svg {
+  pointer-events: all
 }
 
-.recolored {
-  pointer-events: all;
-  transition: 0.25s ease-in-out;
-  transform: scale(1.05);
+.recolored > svg {
+  scale: 1;
+  position: relative;
+  transform-origin: center;
+  filter: grayscale(0.5);
+  opacity: 0.76;
+  transition: 0.25s ease-out;
   --icon-fill-0: black;
-  --icon-fill-2: red;
-  --icon-fill-3: orange;
-  --icon-fill-4: limegreen;
-  --icon-fill-5: yellow;
-  --icon-fill-6: skyblue;
+  --icon-fill-2: #f0f;
+  --icon-fill-3: #f4f;
+  --icon-fill-4: #fcf;
+  --icon-fill-5: #f8f;
+  --icon-fill-6: #fff;
+}
+
+.recolored:hover > svg {
+  opacity: 1;
+  transform: scale(1.1);
+  filter: grayscale(0);
 }
 \`\`\`
 
@@ -12098,7 +12124,40 @@ the content thus:
 export default \`( content of tsv file )\`
 \`\`\`
 
-You use this data using \`initLocalization()\`.`,
+You use this data using \`initLocalization()\`.
+
+## Leveraging XinLocalized Automatic Updates
+
+If you want to leverage XinLocalized's automatic updates you simply need to 
+implement \`updateLocale\` and register yourself with \`XinLocalized.allInstances\`
+(which is a \`Set<AbstractLocalized>).
+
+Typically, this would look like something like:
+
+\`\`\`
+class MyLocalizedComponent extends Component {
+  ...
+  
+  // register yourself as a localized component
+  connectecCallback() {
+    super.connectedCallback()
+    
+    XinLocalized.allInstances.add(this)
+  }
+  
+  // avoid leaking!
+  disconnectecCallback() {
+    super.connectedCallback()
+    
+    XinLocalized.allInstances.delete(this)
+  }
+  
+  // presumably your render method does the right things
+  updateLocale = () =>  {
+    this.queueRender()
+  }
+}
+\`\`\``,
     title: "localize",
     filename: "localize.ts",
     path: "src/localize.ts"
@@ -13451,7 +13510,20 @@ Picking an option triggers an \`action\` event (whether or not this changes the 
 Changing the value, either by typing in an editable \`<xin-select>\` or picking a new
 value triggers a \`change\` event.
 
-You can look at the console to see the events triggered by the second example.`,
+You can look at the console to see the events triggered by the second example.
+
+## Localization
+
+\`<xin-select>\` supports the \`localized\` attribute which automatically localizes
+options.
+
+\`\`\`html
+<xin-select
+  localized
+  placeholder="localized placeholder"
+  options="yes,no,,moderate"
+></xin-select>
+\`\`\``,
     title: "select",
     filename: "select.ts",
     path: "src/select.ts"
@@ -14272,21 +14344,7 @@ This doc is pinned to the bottom. README is pinned to the top.
     pin: "bottom"
   },
   {
-    text: `# Work in Progress
-
-- \`<xin-filter>\`
-  - Leverage \`<xin-select>\` for picking fields etc.
-  - Leverage \`<xin-tag-list>\` for displaying filters compactly
-  - Leverage \`popFloat\` for disclosing filter-editor
-- \`<xin-editable>\`
-  - Add support for disabling / enabling options
-  - Hide lock icons while resizing
-  - Maybe show lines under locks indicating the parent
-  - Support snapping to sibling boundaries and centers
-- builds
-  - better leveraging of tree-shacking
-  <!--{"pin": "bottom"}-->
-`,
+    text: '# Work in Progress\n\n- `localize`\n  - adding automatic localization where appropriate\n    - `<xin-password-strength>`\n    - `<xin-select>`\n    - `<xin-tabs>`\n    - `<xin-tag-list>`\n    - `<xin-filter>`\n- `<xin-b3d>`\n  - converting this to a blueprint\n- `<xin-filter>`\n  - Leverage `<xin-select>` for picking fields etc.\n  - Leverage `<xin-tag-list>` for displaying filters compactly\n  - Leverage `popFloat` for disclosing filter-editor\n- `<xin-editable>`\n  - Add support for disabling / enabling options\n  - Hide lock icons while resizing\n  - Maybe show lines under locks indicating the parent\n  - Support snapping to sibling boundaries and centers\n- builds\n  - better leveraging of tree-shacking\n  <!--{"pin": "bottom"}-->\n',
     title: "Work in Progress",
     filename: "TODO.md",
     path: "TODO.md",
