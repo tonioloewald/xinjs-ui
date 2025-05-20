@@ -14366,7 +14366,28 @@ This doc is pinned to the bottom. README is pinned to the top.
     pin: "bottom"
   },
   {
-    text: '# Work in Progress\n\n- `localize`\n  - adding automatic localization where appropriate\n    - `<xin-password-strength>`\n    - `<xin-tabs>`\n    - `<xin-tag-list>`\n    - `<xin-filter>`\n- `<xin-b3d>`\n  - converting this to a blueprint\n- `<xin-filter>`\n  - Leverage `<xin-select>` for picking fields etc.\n  - Leverage `<xin-tag-list>` for displaying filters compactly\n  - Leverage `popFloat` for disclosing filter-editor\n- `<xin-editable>`\n  - Add support for disabling / enabling options\n  - Hide lock icons while resizing\n  - Maybe show lines under locks indicating the parent\n  - Support snapping to sibling boundaries and centers\n- builds\n  - better leveraging of tree-shacking\n  <!--{"pin": "bottom"}-->\n',
+    text: `# Work in Progress
+
+- \`localize\`
+  - adding automatic localization where appropriate
+    - \`<xin-password-strength>\`
+    - \`<xin-tag-list>\`
+    - \`<xin-filter>\`
+- \`<xin-b3d>\`
+  - converting this to a blueprint
+- \`<xin-filter>\`
+  - Leverage \`<xin-select>\` for picking fields etc.
+  - Leverage \`<xin-tag-list>\` for displaying filters compactly
+  - Leverage \`popFloat\` for disclosing filter-editor
+- \`<xin-editable>\`
+  - Add support for disabling / enabling options
+  - Hide lock icons while resizing
+  - Maybe show lines under locks indicating the parent
+  - Support snapping to sibling boundaries and centers
+- builds
+  - better leveraging of tree-shacking
+  <!--{"pin": "bottom"}-->
+`,
     title: "Work in Progress",
     filename: "TODO.md",
     path: "TODO.md",
