@@ -1,5 +1,14 @@
 # Work in Progress
 
+- `localize`
+  - adding automatic localization where appropriate
+    - `<xin-password-strength>`
+    - `<xin-select>`
+    - `<xin-tabs>`
+    - `<xin-tag-list>`
+    - `<xin-filter>`
+- `<xin-b3d>`
+  - converting this to a blueprint
 - `<xin-filter>`
   - Leverage `<xin-select>` for picking fields etc.
   - Leverage `<xin-tag-list>` for displaying filters compactly
