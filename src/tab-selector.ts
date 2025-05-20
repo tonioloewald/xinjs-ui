@@ -94,6 +94,18 @@ not be closed (e.g. if you want to implement save/cancel behavior).
 You can specify the exact content of the tab for a given body by
 adding a `<template role="tab">` to that body. The contents of that
 template will be cloned into the tab.
+
+## Localized Support
+
+```html
+<xin-tabs localized>
+  <div name="localize"><h2>localize!</h2></div>
+  <div name="tabs"><h2>tabs</h2></div>
+</xin-tabs>
+```
+
+`<xin-tabs>` supports the `localized` attribute. It will automatically localize
+tab names (but it won't override custom tab content, so localizing that is on you).
 */
 
 import {
@@ -103,6 +115,8 @@ import {
   vars,
   PartsMap,
 } from 'xinjs'
+
+import { xinLocalized, XinLocalized } from './localize'
 
 import { icons } from '../src'
 
@@ -117,16 +131,18 @@ interface TabsParts extends PartsMap {
 
 export class TabSelector extends WebComponent {
   value = 0
+  localized = false
 
-  static makeTab(
+  makeTab(
     tabs: TabSelector,
     tabBody: HTMLElement,
     bodyId: string
   ): HTMLElement {
+    const tabName = tabBody.getAttribute('name') as string
     const tabContent =
       (
         tabBody.querySelector('template[role="tab"]') as HTMLTemplateElement
-      )?.content.cloneNode(true) || span(tabBody.getAttribute('name') as string)
+      )?.content.cloneNode(true) || (this.localized ? xinLocalized(tabName) : span(tabName))
     const tab = div(
       tabContent,
       {
@@ -236,7 +252,7 @@ export class TabSelector extends WebComponent {
 
   constructor() {
     super()
-    this.initAttributes('anne', 'example')
+    this.initAttributes('localized')
   }
 
   addTabBody(body: HTMLElement, selectTab = false): void {
@@ -317,7 +333,7 @@ export class TabSelector extends WebComponent {
       const tabBody = tabBodies[index] as HTMLElement
       const bodyId = `${this.instanceId}-${index}`
       tabBody.id = bodyId
-      const tab = TabSelector.makeTab(this, tabBody, bodyId)
+      const tab = this.makeTab(this, tabBody, bodyId)
       tabs.append(tab)
     }
   }
@@ -328,6 +344,16 @@ export class TabSelector extends WebComponent {
     tabs.addEventListener('click', this.pickTab)
     tabs.addEventListener('keydown', this.keyTab)
     this.setupTabs()
+    XinLocalized.allInstances.add(this);
+  }
+  
+  disconnectedCallback(): void {
+    super.disconnectedCallback()
+    XinLocalized.allInstances.delete(this);
+  }
+  
+  localeChanged = () => {
+    this.queueRender()
   }
 
   onResize(): void {

@@ -147,6 +147,19 @@ Changing the value, either by typing in an editable `<xin-select>` or picking a 
 value triggers a `change` event.
 
 You can look at the console to see the events triggered by the second example.
+
+## Localization
+
+`<xin-select>` supports the `localized` attribute which automatically localizes
+options.
+
+```html
+<xin-select
+  localized
+  placeholder="localized placeholder"
+  options="yes,no,,moderate"
+></xin-select>
+```
 */
 
 import {
@@ -158,6 +171,7 @@ import {
 } from 'xinjs'
 import { icons } from './icons'
 import { popMenu, MenuItem, SubMenu, removeLastMenu } from './menu'
+import { localize, XinLocalized } from './localize'
 
 const { button, span, input } = elements
 
@@ -199,6 +213,7 @@ export class XinSelect extends WebComponent {
   value = ''
   placeholder = ''
   filter = ''
+  localized = false
 
   private setValue = (value: string, triggerAction = false) => {
     if (this.value !== value) {
@@ -232,6 +247,9 @@ export class XinSelect extends WebComponent {
       caption = value = option
     } else {
       ;({ icon, caption, value } = option as SelectOption)
+    }
+    if (this.localized) {
+      caption = localize(caption)
     }
     const { options } = option as SelectOptionSubmenu
     if (options) {
@@ -344,7 +362,8 @@ export class XinSelect extends WebComponent {
       'editable',
       'placeholder',
       'showIcon',
-      'hideCaption'
+      'hideCaption',
+      'localized'
     )
   }
 
@@ -370,6 +389,26 @@ export class XinSelect extends WebComponent {
     const found = this.allOptions.find((option) => option.value === this.value)
     return found || { caption: this.value, value: this.value }
   }
+  
+  localeChanged = () => {
+    this.queueRender()
+  }
+  
+  connectedCallback() {
+    super.connectedCallback()
+    
+    if (this.localized) {
+      XinLocalized.allInstances.add(this)
+    }
+  }
+  
+  disconnectedCallback() {
+    super.disconnectedCallback()
+    
+    if (this.localized) {
+      XinLocalized.allInstances.delete(this)
+    }
+  }
 
   render(): void {
     super.render()
@@ -381,7 +420,7 @@ export class XinSelect extends WebComponent {
 
     const option = this.findOption()
     let newIcon: Element = span()
-    value.value = option.caption
+    value.value = this.localized ? localize(option.caption) : option.caption
     if (option.icon) {
       if (option.icon instanceof HTMLElement) {
         newIcon = option.icon.cloneNode(true) as HTMLElement
@@ -390,7 +429,7 @@ export class XinSelect extends WebComponent {
       }
     }
     icon.replaceWith(newIcon)
-    value.setAttribute('placeholder', this.placeholder)
+    value.setAttribute('placeholder', this.localized ? localize(this.placeholder) : this.placeholder)
     value.style.pointerEvents = this.editable ? '' : 'none'
     value.readOnly = !this.editable
   }

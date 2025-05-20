@@ -196,6 +196,39 @@ export default `( content of tsv file )`
 ```
 
 You use this data using `initLocalization()`.
+
+## Leveraging XinLocalized Automatic Updates
+
+If you want to leverage XinLocalized's automatic updates you simply need to 
+implement `updateLocale` and register yourself with `XinLocalized.allInstances`
+(which is a `Set<AbstractLocalized>).
+
+Typically, this would look like something like:
+
+```
+class MyLocalizedComponent extends Component {
+  ...
+  
+  // register yourself as a localized component
+  connectecCallback() {
+    super.connectedCallback()
+    
+    XinLocalized.allInstances.add(this)
+  }
+  
+  // avoid leaking!
+  disconnectecCallback() {
+    super.connectedCallback()
+    
+    XinLocalized.allInstances.delete(this)
+  }
+  
+  // presumably your render method does the right things
+  updateLocale = () =>  {
+    this.queueRender()
+  }
+}
+```
 */
 
 import { Component, boxedProxy, elements, bindings, observe } from 'xinjs'
@@ -336,8 +369,14 @@ export const localePicker = LocalePicker.elementCreator({
   tag: 'xin-locale-picker',
 })
 
+interface AbstractLocalized {
+  localeChanged: () => {}
+  connectedCallback: () => {}
+  disconnectedCallback: () => {}  
+}
+
 export class XinLocalized extends Component {
-  static allInstances = new Set<XinLocalized>()
+  static allInstances = new Set<{AbstractLocalized}>()
 
   contents = () => elements.xinSlot()
 

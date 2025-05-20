@@ -2,7 +2,8 @@ import { Component as WebComponent, ElementCreator } from 'xinjs';
 type TabCloseHandler = (tabBody: Element) => boolean | undefined | void;
 export declare class TabSelector extends WebComponent {
     value: number;
-    static makeTab(tabs: TabSelector, tabBody: HTMLElement, bodyId: string): HTMLElement;
+    localized: boolean;
+    makeTab(tabs: TabSelector, tabBody: HTMLElement, bodyId: string): HTMLElement;
     static styleSpec: {
         ':host': {
             display: string;
@@ -82,6 +83,8 @@ export declare class TabSelector extends WebComponent {
     pickTab: (event: Event) => void;
     setupTabs: () => void;
     connectedCallback(): void;
+    disconnectedCallback(): void;
+    localeChanged: () => void;
     onResize(): void;
     render(): void;
 }

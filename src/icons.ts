@@ -339,22 +339,29 @@ If you're using `SVGElement`s created using the `icons` proxy, you'll want to pr
   --font-size: 160px
 }
 
-.recolored:not(:hover) {
-  opacity: 0.76;
-  filter: grayscale(0.75);
-  transform: scale(1.0);
+.recolored > svg {
+  pointer-events: all
 }
 
-.recolored {
-  pointer-events: all;
-  transition: 0.25s ease-in-out;
-  transform: scale(1.05);
+.recolored > svg {
+  scale: 1;
+  position: relative;
+  transform-origin: center;
+  filter: grayscale(0.5);
+  opacity: 0.76;
+  transition: 0.25s ease-out;
   --icon-fill-0: black;
-  --icon-fill-2: red;
-  --icon-fill-3: orange;
-  --icon-fill-4: limegreen;
-  --icon-fill-5: yellow;
-  --icon-fill-6: skyblue;
+  --icon-fill-2: #f0f;
+  --icon-fill-3: #f4f;
+  --icon-fill-4: #fcf;
+  --icon-fill-5: #f8f;
+  --icon-fill-6: #fff;
+}
+
+.recolored:hover > svg {
+  opacity: 1;
+  transform: scale(1.1);
+  filter: grayscale(0);
 }
 ```
 
