@@ -3,7 +3,6 @@
 - `localize`
   - adding automatic localization where appropriate
     - `<xin-password-strength>`
-    - `<xin-tabs>`
     - `<xin-tag-list>`
     - `<xin-filter>`
 - `<xin-b3d>`

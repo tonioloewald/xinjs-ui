@@ -5271,8 +5271,10 @@ var { div: div6, slot: slot5, span: span7, button: button6 } = S;
 
 class TabSelector extends G {
   value = 0;
-  static makeTab(tabs, tabBody, bodyId) {
-    const tabContent = tabBody.querySelector('template[role="tab"]')?.content.cloneNode(true) || span7(tabBody.getAttribute("name"));
+  localized = false;
+  makeTab(tabs, tabBody, bodyId) {
+    const tabName = tabBody.getAttribute("name");
+    const tabContent = tabBody.querySelector('template[role="tab"]')?.content.cloneNode(true) || (this.localized ? xinLocalized(tabName) : span7(tabName));
     const tab = div6(tabContent, {
       part: "tab",
       tabindex: 0,
@@ -5360,7 +5362,7 @@ class TabSelector extends G {
   ];
   constructor() {
     super();
-    this.initAttributes("anne", "example");
+    this.initAttributes("localized");
   }
   addTabBody(body, selectTab = false) {
     if (!body.hasAttribute("name")) {
@@ -5431,7 +5433,7 @@ class TabSelector extends G {
       const tabBody = tabBodies[index];
       const bodyId = `${this.instanceId}-${index}`;
       tabBody.id = bodyId;
-      const tab = TabSelector.makeTab(this, tabBody, bodyId);
+      const tab = this.makeTab(this, tabBody, bodyId);
       tabs.append(tab);
     }
   };
@@ -5441,7 +5443,15 @@ class TabSelector extends G {
     tabs.addEventListener("click", this.pickTab);
     tabs.addEventListener("keydown", this.keyTab);
     this.setupTabs();
+    XinLocalized.allInstances.add(this);
   }
+  disconnectedCallback() {
+    super.disconnectedCallback();
+    XinLocalized.allInstances.delete(this);
+  }
+  localeChanged = () => {
+    this.queueRender();
+  };
   onResize() {
     this.queueRender();
   }
@@ -9918,19 +9928,19 @@ Ascending	Ascendant	Nouseva	Stigande	升序	上昇	오름차순	Ascendente	Aufst
 Body	Corps	Runko	Kropp	身体	体	몸	Cuerpo	Körper	Corpo
 Bold	Audacieux	Lihavoitu	Djärv	大胆的	大胆な	용감한	Atrevido	Deutlich	Grassetto
 Cancel	Annuler	Peruuttaa	Avboka	取消	キャンセル	취소	Cancelar	Stornieren	Cancellare
-Carousel	Carrousel	Karuselli	Karusell	轮播	カルーセル	회전목마	Carrusel	Karussell	Giostra
+Carousel	Carrousel	Karuselli	Karusell	旋转木马	カルーセル	회전목마	Carrusel	Karussell	Giostra
 Category	Catégorie	Luokka	Kategori	类别	カテゴリ	범주	Categoría	Kategorie	Categoria
 Center	Centre	Keskusta	Centrum	中心	中心	센터	Centro	Center	Centro
-Check if Breached	Vérifiez en cas de violation	Tarkista, onko rikottu	Kontrollera om bruten	检查是否违规	侵害されているかどうかを確認する	위반 여부 확인	Comprobar si se ha violado	Überprüfen Sie, ob ein Verstoß vorliegt	Controlla se violato
+Check if Breached	Vérifier si la violation a eu lieu	Tarkista, onko rikottu	Kontrollera om bruten	检查是否违反	違反があったかどうかを確認する	침해되었는지 확인하세요	Comprobar si se ha infringido	Auf Verstoß prüfen	Controlla se violato
 Close	Fermer	Lähellä	Nära	关闭	近い	닫다	Cerca	Schließen	Vicino
 Code	Code	Koodi	Koda	代码	コード	암호	Código	Code	Codice
 Column	Colonne	Sarake	Kolumn	柱子	カラム	열	Columna	Spalte	Colonna
 Copy	Copie	Kopioida	Kopiera	复制	コピー	복사	Copiar	Kopie	Copia
 Cut	Couper	Leikata	Skära	切	カット	자르다	Cortar	Schneiden	Taglio
 Delete	Supprimer	Poistaa	Radera	删除	消去	삭제	Borrar	Löschen	Eliminare
-Descending	Descendant	Laskeva	Fallande	降序	降順	내림차순	Descendente	Absteigend	Discendente
+Descending	Descendant	Laskeva	Fallande	降序	降順	하강	Descendiendo	Absteigend	Discendente
 Document	Document	Asiakirja	Dokumentera	文档	書類	문서	Documento	Dokumentieren	Documento
-Emoji	Émoji	Emoji	Emoji	表情符号	絵文字	이모티콘	emojis	Emoji	Emoji
+Emoji	Émoji	Emoji	Emoji	表情符号	絵文字	이모티콘	Emoji	Emoji	Emoji
 Example	Exemple	Esimerkki	Exempel	例子	例	예	Ejemplo	Beispiel	Esempio
 Exit	Sortie	Poistu	Utgång	出口	出口	출구	Salida	Ausfahrt	Uscita
 File	Déposer	Tiedosto	Fil	文件	ファイル	파일	Archivo	Datei	File
@@ -9938,7 +9948,7 @@ Filter	Filtre	Suodattaa	Filtrera	筛选	フィルター	필터	Filtrar	Filter	Fi
 Float	Flotter	Kellua	Flyta	漂浮	フロート	뜨다	Flotar	Schweben	Galleggiante
 Forms	Formulaires	Lomakkeet	Blanketter	表格	フォーム	양식	Formularios	Formulare	Forme
 Heading	Titre	Otsikko	Rubrik	标题	見出し	표제	Título	Überschrift	Intestazione
-Hide	Cacher	Piilottaa	Dölja	隐藏	隠れる	숨다	Ocultar	Verstecken	Nascondere
+Hide	Cacher	Piilottaa	Dölja	隐藏	隠れる	숨다	Esconder	Verstecken	Nascondere
 Icon	Icône	Kuvake	Ikon	图标	アイコン	상	Icono	Symbol	Icona
 Italic	Italique	Kursiivi	Kursiv	斜体	イタリック	이탤릭체	Itálico	Kursiv	Corsivo
 Justify	Justifier	Perustella	Rättfärdiga	证明合法	正当化する	신이 옳다고 하다	Justificar	Rechtfertigen	Giustificare
@@ -9946,11 +9956,11 @@ Language	Langue	Kieli	Språk	语言	言語	언어	Idioma	Sprache	Lingua
 Left	Gauche	Vasen	Vänster	左边	左	왼쪽	Izquierda	Links	Sinistra
 Library	Bibliothèque	Kirjasto	Bibliotek	图书馆	図書館	도서관	Biblioteca	Bibliothek	Biblioteca
 Localize	Localiser	Paikallistaa	Lokalisera	本地化	ローカライズ	현지화	Localizar	Lokalisieren	Localizzare
-Localized Placeholder	Espace réservé localisé	Lokalisoitu paikkamerkki	Lokaliserad platshållare	本地化占位符	ローカライズされたプレースホルダ	현지화된 자리 표시자	Marcador de posición localizado	Lokalisierter Platzhalter	Segnaposto localizzato
+Localized Placeholder	Espace réservé localisé	Lokalisoitu paikkamerkki	Lokaliserad platshållare	本地化占位符	ローカライズされたプレースホルダー	지역화된 플레이스홀더	Marcador de posición localizado	Lokalisierter Platzhalter	Segnaposto localizzato
 Map	Carte	Kartta	Karta	地图	地図	지도	Mapa	Karte	Mappa
-Maximize	Maximiser	Maksimoida	Maximera	最大化	最大化する	최대화	Maximizar	Maximieren	Massimizzare
+Maximize	Maximiser	Maksimoida	Maximera	最大化	最大化	최대화하다	Maximizar	Maximieren	Massimizzare
 Menu	Menu	Valikko	Meny	菜单	メニュー	메뉴	Menú	Speisekarte	Menu
-Minimize	Minimiser	Minimoida	Minimera	最小化	最小化する	최소화	Minimizar	Minimieren	Minimizzare
+Minimize	Minimiser	Minimoida	Minimera	最小化	最小化	최소화하다	Minimizar	Minimieren	Minimizzare
 Moderate	Modéré	Kohtalainen	Måttlig	缓和	適度	보통의	Moderado	Mäßig	Moderare
 Move	Se déplacer	Liikkua	Flytta	移动	動く	이동하다	Mover	Bewegen	Mossa
 Name	Nom	Nimi	Namn	姓名	名前	이름	Nombre	Name	Nome
@@ -9967,17 +9977,17 @@ Save	Sauvegarder	Tallentaa	Spara	节省	保存	구하다	Ahorrar	Speichern	Salva
 Select	Sélectionner	Valitse	Välja	选择	選択	선택하다	Seleccionar	Wählen	Selezionare
 Show	Montrer	Show	Visa	展示	見せる	보여주다	Espectáculo	Zeigen	Spettacolo
 Sidebar	Barre latérale	Sivupalkki	Sidofält	侧边栏	サイドバー	사이드바	Barra lateral	Seitenleiste	Barra laterale
-Sizer	Calibreur	Mitoitus	Sizer	尺寸测定器	サイザー	사이저	medidor	Sizer	Misuratore
+Sizer	Calibreur	Mitoitus	Sizer	施瓦兹	サイザー	사이저	Medidor de tamaño	Größenmesser	Misuratore
 Sort	Trier	Järjestellä	Sortera	种类	選別	종류	Clasificar	Sortieren	Ordinare
 Strong	Fort	Vahva	Stark	强的	強い	강한	Fuerte	Stark	Forte
-Subcategory	Sous-catégorie	Alaluokka	Underkategori	子类别	サブカテゴリー	하위 카테고리	Subcategoría	Unterkategorie	Sottocategoria
+Subcategory	Sous-catégorie	Alaluokka	Underkategori	子类别	サブカテゴリ	하위 카테고리	Subcategoría	Unterkategorie	Sottocategoria
 Table	Tableau	Taulukko	Tabell	桌子	テーブル	테이블	Mesa	Tisch	Tavolo
-Tabs	Onglets	Välilehdet	Flikar	选项卡	タブ	탭	Cortina a la italiana	Tabs	Schede
-Unacceptable	Inacceptable	Ei hyväksyttävää	Oacceptabel	不可接受	受け入れられない	허용되지 않음	Inaceptable	Inakzeptabel	Inaccettabile
+Tabs	Onglets	Välilehdet	Flikar	标签	タブ	탭	Pestañas	Registerkarten	Schede
+Unacceptable	Inacceptable	Ei hyväksyttävää	Oacceptabel	不可接受	受け入れられない	받아들일 수 없음	Inaceptable	Inakzeptabel	Inaccettabile
 Underline	Souligner	Korostaa	Betona	强调	下線	밑줄	Subrayar	Unterstreichen	Sottolineare
-Untitled	Sans titre	Nimetön	Ofrälse	无题	無題	제목 없음	Intitulado	Ohne Titel	Senza titolo
-Very Strong	Très fort	Erittäin vahva	Mycket stark	非常强	とても強い	매우 강함	Acérrimo	Sehr stark	Molto forte
-Very Weak	Très faible	Erittäin heikko	Mycket svag	非常弱	非常に弱い	매우 약함	muy débil	Sehr schwach	Molto debole
+Untitled	Sans titre	Nimetön	Ofrälse	无标题	無題	제목 없음	Intitulado	Ohne Titel	Senza titolo
+Very Strong	Très fort	Erittäin vahva	Mycket stark	非常强	非常に強い	매우 강함	Acérrimo	Sehr stark	Molto forte
+Very Weak	Très faible	Erittäin heikko	Mycket svag	非常弱	非常に弱い	매우 약함	Muy débil	Sehr schwach	Molto debole
 Weak	Faible	Heikko	Svag	虚弱的	弱い	약한	Débil	Schwach	Debole
 Yes	Oui	Kyllä	Ja	是的	はい	예	Sí	Ja	Sì`;
 
@@ -14069,7 +14079,19 @@ not be closed (e.g. if you want to implement save/cancel behavior).
 
 You can specify the exact content of the tab for a given body by
 adding a \`<template role="tab">\` to that body. The contents of that
-template will be cloned into the tab.`,
+template will be cloned into the tab.
+
+## Localized Support
+
+\`\`\`html
+<xin-tabs localized>
+  <div name="localize"><h2>localize!</h2></div>
+  <div name="tabs"><h2>tabs</h2></div>
+</xin-tabs>
+\`\`\`
+
+\`<xin-tabs>\` supports the \`localized\` attribute. It will automatically localize
+tab names (but it won't override custom tab content, so localizing that is on you).`,
     title: "tabs",
     filename: "tab-selector.ts",
     path: "src/tab-selector.ts"
@@ -14344,7 +14366,7 @@ This doc is pinned to the bottom. README is pinned to the top.
     pin: "bottom"
   },
   {
-    text: '# Work in Progress\n\n- `localize`\n  - adding automatic localization where appropriate\n    - `<xin-password-strength>`\n    - `<xin-select>`\n    - `<xin-tabs>`\n    - `<xin-tag-list>`\n    - `<xin-filter>`\n- `<xin-b3d>`\n  - converting this to a blueprint\n- `<xin-filter>`\n  - Leverage `<xin-select>` for picking fields etc.\n  - Leverage `<xin-tag-list>` for displaying filters compactly\n  - Leverage `popFloat` for disclosing filter-editor\n- `<xin-editable>`\n  - Add support for disabling / enabling options\n  - Hide lock icons while resizing\n  - Maybe show lines under locks indicating the parent\n  - Support snapping to sibling boundaries and centers\n- builds\n  - better leveraging of tree-shacking\n  <!--{"pin": "bottom"}-->\n',
+    text: '# Work in Progress\n\n- `localize`\n  - adding automatic localization where appropriate\n    - `<xin-password-strength>`\n    - `<xin-tabs>`\n    - `<xin-tag-list>`\n    - `<xin-filter>`\n- `<xin-b3d>`\n  - converting this to a blueprint\n- `<xin-filter>`\n  - Leverage `<xin-select>` for picking fields etc.\n  - Leverage `<xin-tag-list>` for displaying filters compactly\n  - Leverage `popFloat` for disclosing filter-editor\n- `<xin-editable>`\n  - Add support for disabling / enabling options\n  - Hide lock icons while resizing\n  - Maybe show lines under locks indicating the parent\n  - Support snapping to sibling boundaries and centers\n- builds\n  - better leveraging of tree-shacking\n  <!--{"pin": "bottom"}-->\n',
     title: "Work in Progress",
     filename: "TODO.md",
     path: "TODO.md",
