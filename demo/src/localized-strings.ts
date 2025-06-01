@@ -9,7 +9,7 @@ Cancel	Annuler	Peruuttaa	Avboka	取消	キャンセル	취소	Cancelar	Storniere
 Carousel	Carrousel	Karuselli	Karusell	旋转木马	カルーセル	회전목마	Carrusel	Karussell	Giostra
 Category	Catégorie	Luokka	Kategori	类别	カテゴリ	범주	Categoría	Kategorie	Categoria
 Center	Centre	Keskusta	Centrum	中心	中心	센터	Centro	Center	Centro
-Check if Breached	Vérifier si la violation a eu lieu	Tarkista, onko rikottu	Kontrollera om bruten	检查是否违反	違反があったかどうかを確認する	침해되었는지 확인하세요	Comprobar si se ha infringido	Auf Verstoß prüfen	Controlla se violato
+Check if Breached	Vérifier si la violation a eu lieu	Tarkista, onko rikottu	Kontrollera om den har brutits	检查是否违反	違反があったかどうかを確認する	침해되었는지 확인하세요	Comprobar si se ha infringido	Auf Verstoß prüfen	Controlla se violato
 Close	Fermer	Lähellä	Nära	关闭	近い	닫다	Cerca	Schließen	Vicino
 Code	Code	Koodi	Koda	代码	コード	암호	Código	Code	Codice
 Column	Colonne	Sarake	Kolumn	柱子	カラム	열	Columna	Spalte	Colonna
@@ -50,6 +50,7 @@ Open	Ouvrir	Avata	Öppna	打开	開ける	열려 있는	Abierto	Offen	Aprire
 Paste	Coller	Liitä	Klistra	粘贴	ペースト	반죽	Pasta	Paste	Impasto
 Quit	Quitter	Lopettaa	Sluta	辞职	やめる	그만두다	Abandonar	Aufhören	Esentato
 Rating	Notation	Luokitus	Gradering	等级	評価	평가	Clasificación	Bewertung	Valutazione
+Redo	Refaire	Toista	Göra om	重做	やり直す	다시 하다	Rehacer	Wiederholen	Rifare
 Right	Droite	Oikein	Rätt	正确的	右	오른쪽	Bien	Rechts	Giusto
 Save	Sauvegarder	Tallentaa	Spara	节省	保存	구하다	Ahorrar	Speichern	Salva
 Select	Sélectionner	Valitse	Välja	选择	選択	선택하다	Seleccionar	Wählen	Selezionare
@@ -63,6 +64,7 @@ Table	Tableau	Taulukko	Tabell	桌子	テーブル	테이블	Mesa	Tisch	Tavolo
 Tabs	Onglets	Välilehdet	Flikar	标签	タブ	탭	Pestañas	Registerkarten	Schede
 Unacceptable	Inacceptable	Ei hyväksyttävää	Oacceptabel	不可接受	受け入れられない	받아들일 수 없음	Inaceptable	Inakzeptabel	Inaccettabile
 Underline	Souligner	Korostaa	Betona	强调	下線	밑줄	Subrayar	Unterstreichen	Sottolineare
+Undo	Défaire	Kumoa	Ångra	撤消	元に戻す	끄르다	Deshacer	Rückgängig machen	Disfare
 Untitled	Sans titre	Nimetön	Ofrälse	无标题	無題	제목 없음	Intitulado	Ohne Titel	Senza titolo
 Very Strong	Très fort	Erittäin vahva	Mycket stark	非常强	非常に強い	매우 강함	Acérrimo	Sehr stark	Molto forte
 Very Weak	Très faible	Erittäin heikko	Mycket svag	非常弱	非常に弱い	매우 약함	Muy débil	Sehr schwach	Molto debole
