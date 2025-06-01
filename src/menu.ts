@@ -295,7 +295,9 @@ StyleSheet('xin-menu-helper', {
     maxHeight: `calc(${vars.maxHeight} - ${varDefault.menuInset('8px')})`,
     borderRadius: vars.spacing50,
     background: varDefault.menuBg('#fafafa'),
-    boxShadow: `${vars.spacing13} ${vars.spacing50} ${vars.spacing} ${vars.shadowColor}`,
+    boxShadow: varDefault.menuShadow(
+      `${vars.spacing13} ${vars.spacing50} ${vars.spacing} #0004`
+    ),
   },
   '.xin-menu > div': {
     width: varDefault.menuWidth('auto'),
@@ -310,8 +312,7 @@ StyleSheet('xin-menu-helper', {
     content: ' ',
     height: '1px',
     width: '100%',
-    background: varDefault.menuItemColor('#222'),
-    opacity: 0.25,
+    background: varDefault.menuSeparatorColor('#2224'),
     margin: varDefault.menuSeparatorMargin('8px 0'),
   },
   '.xin-menu-item': {

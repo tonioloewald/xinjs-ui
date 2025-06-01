@@ -3383,7 +3383,7 @@ qo("xin-menu-helper", {
     maxHeight: `calc(${qn.maxHeight} - ${wn.menuInset("8px")})`,
     borderRadius: qn.spacing50,
     background: wn.menuBg("#fafafa"),
-    boxShadow: `${qn.spacing13} ${qn.spacing50} ${qn.spacing} ${qn.shadowColor}`
+    boxShadow: wn.menuShadow(`${qn.spacing13} ${qn.spacing50} ${qn.spacing} #0004`)
   },
   ".xin-menu > div": {
     width: wn.menuWidth("auto")
@@ -3398,8 +3398,7 @@ qo("xin-menu-helper", {
     content: " ",
     height: "1px",
     width: "100%",
-    background: wn.menuItemColor("#222"),
-    opacity: 0.25,
+    background: wn.menuSeparatorColor("#2224"),
     margin: wn.menuSeparatorMargin("8px 0")
   },
   ".xin-menu-item": {
@@ -9578,7 +9577,7 @@ var version = "0.9.14";
 // demo/src/style.ts
 var colors = {
   _textColor: "#222",
-  _brandColor: "#088358",
+  _brandColor: "#0c5d41",
   _background: "#fafafa",
   _backgroundShaded: "#f5f5f5",
   _navBg: "#efefeed2",
@@ -9587,7 +9586,14 @@ var colors = {
   _brandTextColor: "#ecf3dd",
   _insetBg: "#eee",
   _codeBg: "#f8ffe9",
-  _shadowColor: "#0004"
+  _shadowColor: "#0004",
+  _menuBg: "#fafafa",
+  _menuItemActiveColor: "#000",
+  _menuItemIconActiveColor: "#000",
+  _menuItemActiveBg: "#aaa",
+  _menuItemHoverBg: "#eee",
+  _menuItemColor: "#222",
+  _menuSeparatorColor: "#2224"
 };
 var styleSpec = {
   "@import": "https://fonts.googleapis.com/css2?family=Aleo:ital,wght@0,100..900;1,100..900&famiSpline+Sans+Mono:ital,wght@0,300..700;1,300..700&display=swap",
@@ -9610,7 +9616,11 @@ var styleSpec = {
       _darkmode: "true"
     }
   },
-  ".darkmode": Ro(colors),
+  ".darkmode": {
+    ...Ro(colors),
+    _menuShadow: "0 0 0 2px #a0f3d680",
+    _menuSeparatorColor: "#a0f3d640"
+  },
   ".high-contrast": {
     filter: "contrast(2)"
   },
@@ -9946,9 +9956,11 @@ Center	Centre	Keskusta	Centrum	中心	中心	센터	Centro	Center	Centro
 Check if Breached	Vérifier si la violation a eu lieu	Tarkista, onko rikottu	Kontrollera om den har brutits	检查是否违反	違反があったかどうかを確認する	침해되었는지 확인하세요	Comprobar si se ha infringido	Auf Verstoß prüfen	Controlla se violato
 Close	Fermer	Lähellä	Nära	关闭	近い	닫다	Cerca	Schließen	Vicino
 Code	Code	Koodi	Koda	代码	コード	암호	Código	Code	Codice
+Color Theme	Thème de couleur	Väriteema	Färgtema	颜色主题	カラーテーマ	색상 테마	Tema de color	Farbthema	Tema colore
 Column	Colonne	Sarake	Kolumn	柱子	カラム	열	Columna	Spalte	Colonna
 Copy	Copie	Kopioida	Kopiera	复制	コピー	복사	Copiar	Kopie	Copia
 Cut	Couper	Leikata	Skära	切	カット	자르다	Cortar	Schneiden	Taglio
+Dark	Sombre	Tumma	Mörk	黑暗的	暗い	어두운	Oscuro	Dunkel	Buio
 Delete	Supprimer	Poistaa	Radera	删除	消去	삭제	Borrar	Löschen	Eliminare
 Descending	Descendant	Laskeva	Fallande	降序	降順	하강	Descendiendo	Absteigend	Discendente
 Document	Document	Asiakirja	Dokumentera	文档	書類	문서	Documento	Dokumentieren	Documento
@@ -9961,12 +9973,14 @@ Float	Flotter	Kellua	Flyta	漂浮	フロート	뜨다	Flotar	Schweben	Galleggian
 Forms	Formulaires	Lomakkeet	Blanketter	表格	フォーム	양식	Formularios	Formulare	Forme
 Heading	Titre	Otsikko	Rubrik	标题	見出し	표제	Título	Überschrift	Intestazione
 Hide	Cacher	Piilottaa	Dölja	隐藏	隠れる	숨다	Esconder	Verstecken	Nascondere
+High Contrast	Contraste élevé	Korkea kontrasti	Hög kontrast	高对比度	高コントラスト	고대비	Alto contraste	Hoher Kontrast	Contrasto elevato
 Icon	Icône	Kuvake	Ikon	图标	アイコン	상	Icono	Symbol	Icona
 Italic	Italique	Kursiivi	Kursiv	斜体	イタリック	이탤릭체	Itálico	Kursiv	Corsivo
 Justify	Justifier	Perustella	Rättfärdiga	证明合法	正当化する	신이 옳다고 하다	Justificar	Rechtfertigen	Giustificare
 Language	Langue	Kieli	Språk	语言	言語	언어	Idioma	Sprache	Lingua
 Left	Gauche	Vasen	Vänster	左边	左	왼쪽	Izquierda	Links	Sinistra
 Library	Bibliothèque	Kirjasto	Bibliotek	图书馆	図書館	도서관	Biblioteca	Bibliothek	Biblioteca
+Light	Lumière	Kevyt	Ljus	光	ライト	빛	Luz	Licht	Leggero
 Localize	Localiser	Paikallistaa	Lokalisera	本地化	ローカライズ	현지화	Localizar	Lokalisieren	Localizzare
 Localized Placeholder	Espace réservé localisé	Lokalisoitu paikkamerkki	Lokaliserad platshållare	本地化占位符	ローカライズされたプレースホルダー	지역화된 플레이스홀더	Marcador de posición localizado	Lokalisierter Platzhalter	Segnaposto localizzato
 Map	Carte	Kartta	Karta	地图	地図	지도	Mapa	Karte	Mappa
@@ -9994,6 +10008,7 @@ Sizer	Calibreur	Mitoitus	Sizer	施瓦兹	サイザー	사이저	Medidor de tama�
 Sort	Trier	Järjestellä	Sortera	种类	選別	종류	Clasificar	Sortieren	Ordinare
 Strong	Fort	Vahva	Stark	强的	強い	강한	Fuerte	Stark	Forte
 Subcategory	Sous-catégorie	Alaluokka	Underkategori	子类别	サブカテゴリ	하위 카테고리	Subcategoría	Unterkategorie	Sottocategoria
+System	Système	Järjestelmä	System	系统	システム	체계	Sistema	System	Sistema
 Table	Tableau	Taulukko	Tabell	桌子	テーブル	테이블	Mesa	Tisch	Tavolo
 Tabs	Onglets	Välilehdet	Flikar	标签	タブ	탭	Pestañas	Registerkarten	Schede
 Unacceptable	Inacceptable	Ei hyväksyttävää	Oacceptabel	不可接受	受け入れられない	받아들일 수 없음	Inaceptable	Inakzeptabel	Inaccettabile
@@ -12152,7 +12167,7 @@ You use this data using \`initLocalization()\`.
 
 ## Leveraging XinLocalized Automatic Updates
 
-If you want to leverage XinLocalized's automatic updates you simply need to 
+If you want to leverage XinLocalized's automatic updates you simply need to
 implement \`updateLocale\` and register yourself with \`XinLocalized.allInstances\`
 (which is a \`Set<AbstractLocalized>).
 
@@ -12161,21 +12176,21 @@ Typically, this would look like something like:
 \`\`\`
 class MyLocalizedComponent extends Component {
   ...
-  
+
   // register yourself as a localized component
   connectecCallback() {
     super.connectedCallback()
-    
+
     XinLocalized.allInstances.add(this)
   }
-  
+
   // avoid leaking!
   disconnectecCallback() {
     super.connectedCallback()
-    
+
     XinLocalized.allInstances.delete(this)
   }
-  
+
   // presumably your render method does the right things
   updateLocale = () =>  {
     this.queueRender()
@@ -14507,7 +14522,19 @@ if (main)
     onClick(event) {
       popMenu({
         target: event.target,
+        localized: true,
         menuItems: [
+          {
+            caption: "Language",
+            icon: "web",
+            menuItems: i18n.localeOptions.map((locale) => ({
+              caption: locale.caption,
+              icon: locale.icon,
+              action() {
+                setLocale(locale.value.valueOf());
+              }
+            }))
+          },
           {
             caption: "Color Theme",
             menuItems: [

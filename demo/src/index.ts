@@ -19,9 +19,11 @@ import {
   sideNav,
   SideNav,
   sizeBreak,
+  i18n,
   initLocalization,
   xinLocalized,
   popMenu,
+  setLocale,
   version as uiVersion,
 } from '../../src'
 
@@ -196,7 +198,19 @@ if (main)
           onClick(event) {
             popMenu({
               target: event.target as HTMLButtonElement,
+              localized: true,
               menuItems: [
+                {
+                  caption: 'Language',
+                  icon: 'web',
+                  menuItems: i18n.localeOptions.map((locale) => ({
+                    caption: locale.caption,
+                    icon: locale.icon,
+                    action() {
+                      setLocale(locale.value.valueOf())
+                    },
+                  })),
+                },
                 {
                   caption: 'Color Theme',
                   menuItems: [

@@ -159,7 +159,7 @@ import { XinStyleSheet, vars, invertLuminance } from 'xinjs'
 
 const colors = {
   _textColor: '#222',
-  _brandColor: '#088358',
+  _brandColor: '#0c5d41',
   _background: '#fafafa',
   _backgroundShaded: '#f5f5f5',
   _navBg: '#efefeed2',
@@ -169,6 +169,13 @@ const colors = {
   _insetBg: '#eee',
   _codeBg: '#f8ffe9',
   _shadowColor: '#0004',
+  _menuBg: '#fafafa',
+  _menuItemActiveColor: '#000',
+  _menuItemIconActiveColor: '#000',
+  _menuItemActiveBg: '#aaa',
+  _menuItemHoverBg: '#eee',
+  _menuItemColor: '#222',
+  _menuSeparatorColor: '#2224',
 }
 
 export const styleSpec: XinStyleSheet = {
@@ -194,7 +201,11 @@ export const styleSpec: XinStyleSheet = {
       _darkmode: 'true',
     },
   },
-  '.darkmode': invertLuminance(colors),
+  '.darkmode': {
+    ...invertLuminance(colors),
+    _menuShadow: '0 0 0 2px #a0f3d680',
+    _menuSeparatorColor: '#a0f3d640',
+  },
   '.high-contrast': {
     filter: 'contrast(2)',
   },
