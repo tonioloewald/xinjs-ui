@@ -5881,7 +5881,7 @@ var liveExample = LiveExample.elementCreator({
       height: "100%",
       position: "relative",
       overflow: "hidden",
-      background: `#f7f7f7 url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="80" height="80" viewBox="0 0 8 8" fill-opacity=".02" ><rect x="4" width="4" height="4" /><rect y="4" width="4" height="4" /></svg>')`
+      boxShadow: "inset 0 0 0 2px #8883"
     },
     ':host [part="editors"]': {
       flex: "1 1 200px",
@@ -5890,8 +5890,8 @@ var liveExample = LiveExample.elementCreator({
     },
     ':host [part="exampleWidgets"]': {
       position: "absolute",
-      left: "2px",
-      bottom: "2px",
+      left: "5px",
+      bottom: "5px",
       "--widget-color": "var(--brand-color)",
       background: "var(--widget-bg)",
       borderRadius: "5px",
@@ -9576,6 +9576,19 @@ var xinTagList = XinTagList.elementCreator({
 // src/version.ts
 var version = "0.9.14";
 // demo/src/style.ts
+var colors = {
+  _textColor: "#222",
+  _brandColor: "#088358",
+  _background: "#fafafa",
+  _backgroundShaded: "#f5f5f5",
+  _navBg: "#efefeed2",
+  _barColor: "#dae3df",
+  _focusColor: "#08835880",
+  _brandTextColor: "#ecf3dd",
+  _insetBg: "#eee",
+  _codeBg: "#f8ffe9",
+  _shadowColor: "#0004"
+};
 var styleSpec = {
   "@import": "https://fonts.googleapis.com/css2?family=Aleo:ital,wght@0,100..900;1,100..900&famiSpline+Sans+Mono:ital,wght@0,300..700;1,300..700&display=swap",
   ":root": {
@@ -9583,28 +9596,23 @@ var styleSpec = {
     _codeFontFamily: "'Spline Sans Mono', monospace",
     _fontSize: "16px",
     _codeFontSize: "14px",
-    _textColor: "#222",
-    _brandColor: "#088358",
-    _linkColor: qn.brandColor,
-    _background: "#fafafa",
-    _backgroundShaded: "#f5f5f5",
-    _navBg: "#efefeed2",
-    _barColor: "#dae3df",
-    _focusColor: "#08835880",
-    _brandTextColor: "#ecf3dd",
-    _insetBg: "#eee",
-    _codeBg: "#f8ffe9",
+    ...colors,
     _spacing: "10px",
     _lineHeight: "calc(var(--font-size) * 1.6)",
     _h1Scale: "2",
     _h2Scale: "1.5",
     _h3Scale: "1.25",
-    _xinTabsSelectedColor: qn.brandColor,
-    _xinTabsBarColor: qn.brandTextColor,
     _touchSize: "32px",
-    _shadowColor: "#0004",
-    _menuItemIconColor: qn.brandColor,
     _headerHeight: "calc( var(--line-height) * var(--h2-scale) + var(--spacing) * 2 )"
+  },
+  "@media (prefers-color-scheme: dark)": {
+    body: {
+      _darkmode: "true"
+    }
+  },
+  ".darkmode": Ro(colors),
+  ".high-contrast": {
+    filter: "contrast(2)"
   },
   "*": {
     boxSizing: "border-box"
@@ -9615,6 +9623,10 @@ var styleSpec = {
     margin: "0",
     lineHeight: qn.lineHeight,
     background: qn.background,
+    _linkColor: qn.brandColor,
+    _xinTabsSelectedColor: qn.brandColor,
+    _xinTabsBarColor: qn.brandTextColor,
+    _menuItemIconColor: qn.brandColor,
     color: qn.textColor
   },
   "input, button, select, textarea": {
@@ -9632,7 +9644,7 @@ var styleSpec = {
     _linkColor: qn.transTextColor,
     display: "flex",
     alignItems: "center",
-    padding: "0 calc(var(--spacing) * 1.5)",
+    padding: "0 var(--spacing)",
     lineHeight: "calc(var(--line-height) * var(--h1-scale))",
     height: qn.headerHeight,
     whiteSpace: "nowrap"
@@ -14422,6 +14434,8 @@ var { app } = Rn({
     optimizeLottie: false,
     lottieFilename: "",
     lottieData: "",
+    theme: "system",
+    highContrast: false,
     docs: docs_default,
     currentDoc
   }
@@ -14442,6 +14456,19 @@ setTimeout(() => {
 }, 1000);
 var main = document.querySelector("main");
 var { h2: h22, div: div13, span: span13, a: a3, img, header, button: button11, template: template2 } = S;
+nn(document.body, "app.theme", {
+  toDOM(element, theme) {
+    if (theme === "system") {
+      theme = getComputedStyle(document.body).getPropertyValue("--darkmode") === "true" ? "dark" : "light";
+    }
+    element.classList.toggle("darkmode", theme === "dark");
+  }
+});
+nn(document.body, "app.highContrast", {
+  toDOM(element, highContrast) {
+    element.classList.toggle("high-contrast", highContrast);
+  }
+});
 window.addEventListener("popstate", () => {
   const filename = window.location.search.substring(1);
   app.currentDoc = app.docs.find((doc) => doc.filename === filename) || app.docs[0];
@@ -14458,7 +14485,7 @@ if (main)
   }, icons.xinjsUiColor({
     style: { _fontSize: 40, marginRight: 10 }
   }), h22({ bindText: "app.title" })), span13({ class: "elastic" }), sizeBreak({
-    minWidth: 640
+    minWidth: 750
   }, span13({
     style: {
       marginRight: qn.spacing,
@@ -14474,9 +14501,59 @@ if (main)
     href: app.githubUrl
   }), a3({ class: "iconic", title: "npmjs", target: "_blank" }, icons.npm(), {
     href: app.npmUrl
-  }), localePicker({
-    hideCaption: true
-  })), sideNav({
+  }), span13({ style: { flex: "0 0 10px" } }), button11({
+    class: "iconic",
+    style: { color: qn.linkColor },
+    onClick(event) {
+      popMenu({
+        target: event.target,
+        menuItems: [
+          {
+            caption: "Color Theme",
+            menuItems: [
+              {
+                caption: "System",
+                checked() {
+                  return app.theme === "system";
+                },
+                action() {
+                  app.theme = "system";
+                }
+              },
+              {
+                caption: "Dark",
+                checked() {
+                  return app.theme === "dark";
+                },
+                action() {
+                  app.theme = "dark";
+                }
+              },
+              {
+                caption: "Light",
+                checked() {
+                  return app.theme === "light";
+                },
+                action() {
+                  app.theme = "light";
+                }
+              },
+              null,
+              {
+                caption: "High Contrast",
+                checked() {
+                  return app.highContrast;
+                },
+                action() {
+                  app.highContrast = !app.highContrast;
+                }
+              }
+            ]
+          }
+        ]
+      });
+    }
+  }, icons.moreVertical())), sideNav({
     name: "Documentation",
     navSize: 200,
     minSize: 600,

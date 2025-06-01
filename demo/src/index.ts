@@ -8,6 +8,7 @@ import {
   getListItem,
   StyleSheet,
   version,
+  bind,
 } from 'xinjs'
 
 import {
@@ -20,7 +21,7 @@ import {
   sizeBreak,
   initLocalization,
   xinLocalized,
-  localePicker,
+  popMenu,
   version as uiVersion,
 } from '../../src'
 
@@ -70,6 +71,8 @@ const { app } = xinProxy({
     optimizeLottie: false,
     lottieFilename: '',
     lottieData: '',
+    theme: 'system',
+    highContrast: false,
     docs,
     currentDoc,
   },
@@ -97,6 +100,25 @@ const main = document.querySelector('main') as HTMLElement | null
 
 const { h2, div, span, a, img, header, button, template } = elements
 
+bind(document.body, 'app.theme', {
+  toDOM(element, theme) {
+    if (theme === 'system') {
+      theme =
+        getComputedStyle(document.body).getPropertyValue('--darkmode') ===
+        'true'
+          ? 'dark'
+          : 'light'
+    }
+    element.classList.toggle('darkmode', theme === 'dark')
+  },
+})
+
+bind(document.body, 'app.highContrast', {
+  toDOM(element, highContrast) {
+    element.classList.toggle('high-contrast', highContrast)
+  },
+})
+
 window.addEventListener('popstate', () => {
   const filename = window.location.search.substring(1)
   app.currentDoc =
@@ -106,7 +128,6 @@ window.addEventListener('popstate', () => {
 if (main)
   main.append(
     header(
-      // img({src: favicon}),
       a(
         {
           href: '/',
@@ -125,7 +146,7 @@ if (main)
       span({ class: 'elastic' }),
       sizeBreak(
         {
-          minWidth: 640,
+          minWidth: 750,
         },
         span(
           {
@@ -167,9 +188,63 @@ if (main)
       a({ class: 'iconic', title: 'npmjs', target: '_blank' }, icons.npm(), {
         href: app.npmUrl,
       }),
-      localePicker({
-        hideCaption: true,
-      })
+      span({ style: { flex: '0 0 10px' } }),
+      button(
+        {
+          class: 'iconic',
+          style: { color: vars.linkColor },
+          onClick(event) {
+            popMenu({
+              target: event.target as HTMLButtonElement,
+              menuItems: [
+                {
+                  caption: 'Color Theme',
+                  menuItems: [
+                    {
+                      caption: 'System',
+                      checked() {
+                        return app.theme === 'system'
+                      },
+                      action() {
+                        app.theme = 'system'
+                      },
+                    },
+                    {
+                      caption: 'Dark',
+                      checked() {
+                        return app.theme === 'dark'
+                      },
+                      action() {
+                        app.theme = 'dark'
+                      },
+                    },
+                    {
+                      caption: 'Light',
+                      checked() {
+                        return app.theme === 'light'
+                      },
+                      action() {
+                        app.theme = 'light'
+                      },
+                    },
+                    null,
+                    {
+                      caption: 'High Contrast',
+                      checked() {
+                        return app.highContrast
+                      },
+                      action() {
+                        app.highContrast = !app.highContrast
+                      },
+                    },
+                  ],
+                },
+              ],
+            })
+          },
+        },
+        icons.moreVertical()
+      )
     ),
     sideNav(
       {
