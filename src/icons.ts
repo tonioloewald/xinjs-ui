@@ -511,7 +511,7 @@ export const icons = new Proxy(iconData, {
                   (_, a, b) => a + '-' + b.toLocaleLowerCase()
                 ),
               style: {
-                height: varDefault.uiIconHeight('16px'),
+                height: varDefault.xinIconSize('16px'),
               },
             },
             ...parts,
@@ -550,7 +550,10 @@ export class SvgIcon extends WebComponent {
   render(): void {
     this.textContent = ''
     const style: XinStyleRule = {}
-    if (this.size) style.height = this.size
+    if (this.size) {
+      style.height = this.size
+      this.style.setProperty('--xin-icon-size', `${this.size}px`)
+    }
     if (this.stroke) {
       style.stroke = this.stroke
       style.strokeWidth = this.strokeWidth * 32

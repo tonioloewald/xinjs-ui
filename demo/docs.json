@@ -19,7 +19,7 @@
     "path": "src/ab-test.ts"
   },
   {
-    "text": "# blueprint loading\n\n<center>\n  <xin-icon icon=\"blueprint\" class=\"logo\" style=\"--font-size: 256px\"></xin-icon>\n</center>\n\n`<xin-loader>` and `<xin-blueprint>` are simple elements provided by `xinjs` for the dynamic loading\nof component **blueprints**.\n\n```html\n<xin-loader>\n  <xin-blueprint tag=\"swiss-clock\" src=\"https://tonioloewald.github.io/xin-clock/dist/blueprint.js\"></xin-blueprint>\n</xin-loader>\n<swiss-clock></swiss-clock>\n```\n\n## Attributes\n\n- `blueprint` is the url of the `blueprint` javascript module (required)\n- `tag` is the tagName you wish to use. If the name of the blueprint is\n  hyphenated, then that will be used by default\n- `property` if the blueprint module exports the blueprint function as\n  a property, you can specify the property here.",
+    "text": "# blueprint loading\n\n<center>\n  <xin-icon icon=\"blueprint\" class=\"logo\" size=256></xin-icon>\n</center>\n\n`<xin-loader>` and `<xin-blueprint>` are simple elements provided by `xinjs` for the dynamic loading\nof component **blueprints**.\n\n```html\n<xin-loader>\n  <xin-blueprint tag=\"swiss-clock\" src=\"https://tonioloewald.github.io/xin-clock/dist/blueprint.js\"></xin-blueprint>\n</xin-loader>\n<swiss-clock></swiss-clock>\n```\n\n## Attributes\n\n- `blueprint` is the url of the `blueprint` javascript module (required)\n- `tag` is the tagName you wish to use. If the name of the blueprint is\n  hyphenated, then that will be used by default\n- `property` if the blueprint module exports the blueprint function as\n  a property, you can specify the property here.",
     "title": "blueprint loading",
     "filename": "bp-loader.ts",
     "path": "src/bp-loader.ts"

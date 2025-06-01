@@ -669,7 +669,6 @@ export const liveExample = LiveExample.elementCreator({
       left: '5px',
       bottom: '5px',
       '--widget-color': 'var(--brand-color)',
-      background: 'var(--widget-bg)',
       borderRadius: '5px',
       width: '44px',
       height: '44px',

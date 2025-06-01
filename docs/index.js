@@ -2096,7 +2096,7 @@ var icons = new Proxy(icon_data_default, {
         viewBox: `0 0 ${w2} ${h}`,
         class: "icon-" + prop.replace(/([a-z])([A-Z])/g, (_2, a2, b2) => a2 + "-" + b2.toLocaleLowerCase()),
         style: {
-          height: wn.uiIconHeight("16px")
+          height: wn.xinIconSize("16px")
         }
       }, ...parts, ...iconSpec.p.map((d2, index) => {
         const uniqueColors = Array.from(new Set(iconSpec.c));
@@ -2125,8 +2125,10 @@ class SvgIcon extends G {
   render() {
     this.textContent = "";
     const style = {};
-    if (this.size)
+    if (this.size) {
       style.height = this.size;
+      this.style.setProperty("--xin-icon-size", `${this.size}px`);
+    }
     if (this.stroke) {
       style.stroke = this.stroke;
       style.strokeWidth = this.strokeWidth * 32;
@@ -5892,7 +5894,6 @@ var liveExample = LiveExample.elementCreator({
       left: "5px",
       bottom: "5px",
       "--widget-color": "var(--brand-color)",
-      background: "var(--widget-bg)",
       borderRadius: "5px",
       width: "44px",
       height: "44px",
@@ -10516,7 +10517,7 @@ randomize()
     text: `# blueprint loading
 
 <center>
-  <xin-icon icon="blueprint" class="logo" style="--font-size: 256px"></xin-icon>
+  <xin-icon icon="blueprint" class="logo" size=256></xin-icon>
 </center>
 
 \`<xin-loader>\` and \`<xin-blueprint>\` are simple elements provided by \`xinjs\` for the dynamic loading
