@@ -121,6 +121,14 @@ preview.addEventListener('click', (event) => {
   <xin-icon icon="moreVertical"></xin-icon>
 </button>
 ```
+```css
+.preview button {
+  min-width: 44px;
+  text-align: center;
+  height: 44px;
+  margin: 5px;
+}
+```
 
 ## Overflow test
 
