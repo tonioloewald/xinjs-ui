@@ -12531,7 +12531,7 @@ Being able to pop a menu up anywhere is just so nice, and \`xinjs-ui\` allows me
 to be generated on-the-fly, and even supports hierarchical menus.
 
 \`\`\`js
-const { popMenu } = xinjsui
+const { popMenu, localize } = xinjsui
 const { elements } = xinjs
 
 let picked = ''
@@ -12552,13 +12552,19 @@ preview.addEventListener('click', (event) => {
           window.alert('I like it!')
         }
       },
-      null, // separator
       {
         icon: 'thumbsDown',
         caption: 'dislike',
         shortcut: '⌘D',
         action() {
           window.alert('Awwwww!')
+        }
+      },
+      null, // separator
+      {
+        caption: localize('Localized placeholder'),
+        action() {
+          alert(localize('Localized placeholder'))
         }
       },
       {
