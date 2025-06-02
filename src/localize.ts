@@ -372,11 +372,11 @@ export const localePicker = LocalePicker.elementCreator({
 interface AbstractLocalized {
   localeChanged: () => {}
   connectedCallback: () => {}
-  disconnectedCallback: () => {}  
+  disconnectedCallback: () => {}
 }
 
 export class XinLocalized extends Component {
-  static allInstances = new Set<{AbstractLocalized}>()
+  static allInstances = new Set<{ AbstractLocalized }>()
 
   contents = () => elements.xinSlot()
 
