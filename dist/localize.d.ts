@@ -11,10 +11,13 @@ export declare class LocalePicker extends Component {
     render(): void;
 }
 export declare const localePicker: any;
+interface AbstractLocalized {
+    localeChanged: () => {};
+    connectedCallback: () => {};
+    disconnectedCallback: () => {};
+}
 export declare class XinLocalized extends Component {
-    static allInstances: Set<{
-        AbstractLocalized: any;
-    }>;
+    static allInstances: Set<AbstractLocalized>;
     contents: () => any;
     refString: string;
     constructor();
@@ -24,3 +27,4 @@ export declare class XinLocalized extends Component {
     render(): void;
 }
 export declare const xinLocalized: any;
+export {};

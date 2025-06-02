@@ -155,7 +155,28 @@ export const styleSpec: XinStyleSheet = ...
 ```
 */
 
-import { XinStyleSheet, vars } from 'xinjs'
+import { XinStyleSheet, vars, invertLuminance } from 'xinjs'
+
+const colors = {
+  _textColor: '#222',
+  _brandColor: '#0c5d41',
+  _background: '#fafafa',
+  _backgroundShaded: '#f5f5f5',
+  _navBg: '#efefeed2',
+  _barColor: '#dae3df',
+  _focusColor: '#08835880',
+  _brandTextColor: '#ecf3dd',
+  _insetBg: '#eee',
+  _codeBg: '#f8ffe9',
+  _shadowColor: '#0004',
+  _menuBg: '#fafafa',
+  _menuItemActiveColor: '#000',
+  _menuItemIconActiveColor: '#000',
+  _menuItemActiveBg: '#aaa',
+  _menuItemHoverBg: '#eee',
+  _menuItemColor: '#222',
+  _menuSeparatorColor: '#2224',
+}
 
 export const styleSpec: XinStyleSheet = {
   '@import':
@@ -165,29 +186,28 @@ export const styleSpec: XinStyleSheet = {
     _codeFontFamily: "'Spline Sans Mono', monospace",
     _fontSize: '16px',
     _codeFontSize: '14px',
-    _textColor: '#222',
-    _brandColor: '#088358',
-    _linkColor: vars.brandColor,
-    _background: '#fafafa',
-    _backgroundShaded: '#f5f5f5',
-    _navBg: '#efefeed2',
-    _barColor: '#dae3df',
-    _focusColor: '#08835880',
-    _brandTextColor: '#ecf3dd',
-    _insetBg: '#eee',
-    _codeBg: '#f8ffe9',
+    ...colors,
     _spacing: '10px',
     _lineHeight: 'calc(var(--font-size) * 1.6)',
     _h1Scale: '2',
     _h2Scale: '1.5',
     _h3Scale: '1.25',
-    _xinTabsSelectedColor: vars.brandColor,
-    _xinTabsBarColor: vars.brandTextColor,
     _touchSize: '32px',
-    _shadowColor: '#0004',
-    _menuItemIconColor: vars.brandColor,
     _headerHeight:
       'calc( var(--line-height) * var(--h2-scale) + var(--spacing) * 2 )',
+  },
+  '@media (prefers-color-scheme: dark)': {
+    body: {
+      _darkmode: 'true',
+    },
+  },
+  '.darkmode': {
+    ...invertLuminance(colors),
+    _menuShadow: '0 0 0 2px #a0f3d680',
+    _menuSeparatorColor: '#a0f3d640',
+  },
+  '.high-contrast': {
+    filter: 'contrast(2)',
   },
   '*': {
     boxSizing: 'border-box',
@@ -198,6 +218,10 @@ export const styleSpec: XinStyleSheet = {
     margin: '0',
     lineHeight: vars.lineHeight,
     background: vars.background,
+    _linkColor: vars.brandColor,
+    _xinTabsSelectedColor: vars.brandColor,
+    _xinTabsBarColor: vars.brandTextColor,
+    _menuItemIconColor: vars.brandColor,
     color: vars.textColor,
   },
   'input, button, select, textarea': {
@@ -215,7 +239,7 @@ export const styleSpec: XinStyleSheet = {
     _linkColor: vars.transTextColor,
     display: 'flex',
     alignItems: 'center',
-    padding: '0 calc(var(--spacing) * 1.5)',
+    padding: '0 var(--spacing)',
     lineHeight: 'calc(var(--line-height) * var(--h1-scale))',
     height: vars.headerHeight,
     whiteSpace: 'nowrap',

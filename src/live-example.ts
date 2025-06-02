@@ -248,7 +248,7 @@ export class LiveExample extends Component {
 
   exampleMenu = () => {
     popMenu({
-      target: this.parts.exampleWidgets,
+      target: this.parts.exampleWidgets as HTMLElement,
       width: 'auto',
       menuItems: [
         {
@@ -655,8 +655,7 @@ export const liveExample = LiveExample.elementCreator({
       height: '100%',
       position: 'relative',
       overflow: 'hidden',
-      background:
-        '#f7f7f7 url(\'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="80" height="80" viewBox="0 0 8 8" fill-opacity=".02" ><rect x="4" width="4" height="4" /><rect y="4" width="4" height="4" /></svg>\')',
+      boxShadow: 'inset 0 0 0 2px #8883',
     },
 
     ':host [part="editors"]': {
@@ -667,10 +666,9 @@ export const liveExample = LiveExample.elementCreator({
 
     ':host [part="exampleWidgets"]': {
       position: 'absolute',
-      left: '2px',
-      bottom: '2px',
+      left: '5px',
+      bottom: '5px',
       '--widget-color': 'var(--brand-color)',
-      background: 'var(--widget-bg)',
       borderRadius: '5px',
       width: '44px',
       height: '44px',

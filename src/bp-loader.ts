@@ -2,7 +2,7 @@
 # blueprint loading
 
 <center>
-  <xin-icon icon="blueprint" class="logo" style="--font-size: 256px"></xin-icon>
+  <xin-icon icon="blueprint" class="logo" size=256></xin-icon>
 </center>
 
 `<xin-loader>` and `<xin-blueprint>` are simple elements provided by `xinjs` for the dynamic loading
