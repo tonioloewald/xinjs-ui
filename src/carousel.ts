@@ -94,6 +94,7 @@ export class XinCarousel extends WebComponent {
   }
 
   set page(p: number) {
+    console.log(p)
     const { scroller, back, forward } = this.parts as CarouselParts
     if (this.lastPage <= 0) {
       forward.disabled = back.disabled = true
@@ -224,7 +225,9 @@ export class XinCarousel extends WebComponent {
 
   snapPosition = () => {
     const { scroller } = this.parts as CarouselParts
-    const currentPosition = scroller.scrollLeft / scroller.offsetWidth
+    const currentPosition = Math.round(
+      scroller.scrollLeft / scroller.offsetWidth
+    )
     if (currentPosition !== this.page) {
       this.page =
         currentPosition > this.page
