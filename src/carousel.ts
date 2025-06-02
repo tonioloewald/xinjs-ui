@@ -36,6 +36,10 @@
 .yellow {
   background: #ffd;
 }
+
+.preview xin-carousel {
+  margin: 10px;
+}
 ```
 
 This is a minimalist carousel component that supports the usual stuff.
@@ -94,7 +98,6 @@ export class XinCarousel extends WebComponent {
   }
 
   set page(p: number) {
-    console.log(p)
     const { scroller, back, forward } = this.parts as CarouselParts
     if (this.lastPage <= 0) {
       forward.disabled = back.disabled = true
