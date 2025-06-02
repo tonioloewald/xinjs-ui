@@ -279,6 +279,12 @@ export const styleSpec: XinStyleSheet = {
   'main > xin-sidenav': {
     height: 'calc(100vh - var(--header-height))',
   },
+  'main > xin-sidenav::part(nav)': {
+    background: vars.navBg,
+  },
+  'input[type=search]': {
+    borderRadius: 99,
+  },
   blockquote: {
     background: vars.insetBg,
     margin: '0',
