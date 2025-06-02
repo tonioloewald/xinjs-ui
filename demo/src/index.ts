@@ -9,6 +9,8 @@ import {
   StyleSheet,
   version,
   bind,
+  hotReload,
+  debounce,
 } from 'xinjs'
 
 import {
@@ -58,7 +60,7 @@ const docName =
     : 'README.md'
 const currentDoc = docs.find((doc) => doc.filename === docName) || docs[0]
 
-const { app } = xinProxy({
+const { app, prefs } = xinProxy({
   app: {
     title: PROJECT,
     blogUrl: `https://loewald.com`,
@@ -73,11 +75,20 @@ const { app } = xinProxy({
     optimizeLottie: false,
     lottieFilename: '',
     lottieData: '',
-    theme: 'system',
-    highContrast: false,
     docs,
     currentDoc,
   },
+  prefs: {
+    theme: 'system',
+    highContrast: false,
+  },
+})
+
+hotReload((path) => {
+  if (path.startsWith('prefs')) {
+    return true
+  }
+  return false
 })
 
 bindings.docLink = {
@@ -100,9 +111,9 @@ setTimeout(() => {
 
 const main = document.querySelector('main') as HTMLElement | null
 
-const { h2, div, span, a, img, header, button, template } = elements
+const { h2, div, span, a, img, header, button, template, input } = elements
 
-bind(document.body, 'app.theme', {
+bind(document.body, 'prefs.theme', {
   toDOM(element, theme) {
     if (theme === 'system') {
       theme =
@@ -115,7 +126,7 @@ bind(document.body, 'app.theme', {
   },
 })
 
-bind(document.body, 'app.highContrast', {
+bind(document.body, 'prefs.highContrast', {
   toDOM(element, highContrast) {
     element.classList.toggle('high-contrast', highContrast)
   },
@@ -125,6 +136,29 @@ window.addEventListener('popstate', () => {
   const filename = window.location.search.substring(1)
   app.currentDoc =
     app.docs.find((doc) => doc.filename === filename) || app.docs[0]
+})
+
+const filterDocs = debounce(() => {
+  console.time('filter')
+  const needle = searchField.value.toLocaleLowerCase()
+  app.docs.forEach((doc: any) => {
+    doc.hidden =
+      !doc.title.toLocaleLowerCase().includes(needle) &&
+      !doc.text.toLocaleLowerCase().includes(needle)
+  })
+  touch(app.docs)
+  console.timeEnd('filter')
+})
+
+const searchField = input({
+  slot: 'nav',
+  placeholder: 'search',
+  type: 'search',
+  style: {
+    width: 'calc(100% - 10px)',
+    margin: '5px',
+  },
+  onInput: filterDocs,
 })
 
 if (main)
@@ -213,42 +247,43 @@ if (main)
                 },
                 {
                   caption: 'Color Theme',
+                  icon: 'rgb',
                   menuItems: [
                     {
                       caption: 'System',
                       checked() {
-                        return app.theme === 'system'
+                        return prefs.theme === 'system'
                       },
                       action() {
-                        app.theme = 'system'
+                        prefs.theme = 'system'
                       },
                     },
                     {
                       caption: 'Dark',
                       checked() {
-                        return app.theme === 'dark'
+                        return prefs.theme === 'dark'
                       },
                       action() {
-                        app.theme = 'dark'
+                        prefs.theme = 'dark'
                       },
                     },
                     {
                       caption: 'Light',
                       checked() {
-                        return app.theme === 'light'
+                        return prefs.theme === 'light'
                       },
                       action() {
-                        app.theme = 'light'
+                        prefs.theme = 'light'
                       },
                     },
                     null,
                     {
                       caption: 'High Contrast',
                       checked() {
-                        return app.highContrast
+                        return prefs.highContrast
                       },
                       action() {
-                        app.highContrast = !app.highContrast
+                        prefs.highContrast = !prefs.highContrast
                       },
                     },
                   ],
@@ -270,6 +305,7 @@ if (main)
           overflow: 'hidden',
         },
       },
+      searchField,
       div(
         {
           slot: 'nav',
@@ -278,10 +314,10 @@ if (main)
             flexDirection: 'column',
             width: '100%',
             height: '100%',
-            background: vars.navBg,
             overflowY: 'scroll',
           },
           bindList: {
+            hiddenProp: 'hidden',
             value: app.docs,
           },
         },

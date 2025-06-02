@@ -55,7 +55,7 @@ as a comma-delimited string or an array of strings).
 ```js
 preview.addEventListener('change', (event) => {
   if (event.target.matches('xin-tag-list')) {
-    console.log(event.target, event.target.value) 
+    console.log(event.target, event.target.value)
   }
 }, true)
 preview.querySelector('.disable-toggle').addEventListener('change', (event) => {
@@ -141,13 +141,12 @@ export const xinTag = XinTag.elementCreator({
     ':host': {
       '--tag-close-button-color': '#000c',
       '--tag-close-button-bg': '#fffc',
-      '--tag-close-button-border-radius': '99px',
       '--tag-button-opacity': '0.5',
       '--tag-button-hover-opacity': '0.75',
       '--tag-bg': varDefault.brandColor('blue'),
       '--tag-text-color': varDefault.brandTextColor('white'),
       display: 'inline-flex',
-      borderRadius: vars.spacing50,
+      borderRadius: varDefault.tagRoundedRadius(vars.spacing50),
       color: vars.tagTextColor,
       background: vars.tagBg,
       padding: `0 ${vars.spacing75} 0 ${vars.spacing75}`,
@@ -175,7 +174,7 @@ export const xinTag = XinTag.elementCreator({
       width: vars.spacing150,
       '--text-color': vars.tagCloseButtonColor,
       background: vars.tagCloseButtonBg,
-      borderRadius: vars.tagCloseButtonBorderRadius,
+      borderRadius: varDefault.tagCloseButtonRadius('99px'),
       opacity: vars.tagButtonOpacity,
     },
     ':host [part="remove"]:hover': {
@@ -286,7 +285,7 @@ export class XinTagList extends WebComponent {
         return null
       } else if (typeof tag === 'object') {
         return {
-          icon: this.tags.includes(tag.value) ? icons.minus() : icons.plus(),
+          checked: () => this.tags.includes(tag.value),
           caption: tag.caption!,
           action() {
             toggleTag(tag.value)
@@ -294,7 +293,7 @@ export class XinTagList extends WebComponent {
         }
       } else {
         return {
-          icon: this.tags.includes(tag) ? icons.minus() : icons.plus(),
+          checked: () => this.tags.includes(tag),
           caption: tag,
           action() {
             toggleTag(tag)
@@ -311,13 +310,11 @@ export class XinTagList extends WebComponent {
   }
 
   content = () => [
+    // this button is simply here to eat click events sent via a label
+    button({ style: { visibility: 'hidden' }, tabindex: -1 }),
     div({
       part: 'tagContainer',
       class: 'row',
-      onClick(event) {
-        event.stopPropagation()
-        event.preventDefault()
-      },
     }),
     input({
       part: 'tagInput',
@@ -392,19 +389,21 @@ export const xinTagList = XinTagList.elementCreator({
       alignItems: 'center',
       background: vars.tagListBg,
       gap: vars.spacing25,
+      borderRadius: varDefault.taglistRoundedRadius(vars.spacing50),
+      overflow: 'hidden',
     },
     ':host[editable]': {
-      gridTemplateColumns: `auto ${vars.touchSize}`,
+      gridTemplateColumns: `0px auto ${vars.touchSize}`,
     },
     ':host[editable][text-entry]': {
-      gridTemplateColumns: `2fr 1fr ${vars.touchSize}`,
+      gridTemplateColumns: `0px 2fr 1fr ${vars.touchSize}`,
     },
     ':host [part="tagContainer"]': {
       display: 'flex',
       content: '" "',
       alignItems: 'center',
       background: vars.inputBg,
-      borderRadius: vars.roundedRadius,
+      borderRadius: varDefault.tagContainerRadius(vars.spacing50),
       boxShadow: vars.borderShadow,
       flexWrap: 'nowrap',
       overflow: 'auto hidden',
@@ -422,6 +421,10 @@ export const xinTagList = XinTagList.elementCreator({
     },
     ':host [hidden]': {
       display: 'none !important',
+    },
+    ':host button[part="tagMenu"]': {
+      background: vars.brandColor,
+      color: vars.brandTextColor,
     },
   },
 }) as ElementCreator<XinTagList>

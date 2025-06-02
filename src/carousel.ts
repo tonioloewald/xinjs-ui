@@ -36,6 +36,10 @@
 .yellow {
   background: #ffd;
 }
+
+.preview xin-carousel {
+  margin: 10px;
+}
 ```
 
 This is a minimalist carousel component that supports the usual stuff.
@@ -224,7 +228,9 @@ export class XinCarousel extends WebComponent {
 
   snapPosition = () => {
     const { scroller } = this.parts as CarouselParts
-    const currentPosition = scroller.scrollLeft / scroller.offsetWidth
+    const currentPosition = Math.round(
+      scroller.scrollLeft / scroller.offsetWidth
+    )
     if (currentPosition !== this.page) {
       this.page =
         currentPosition > this.page

@@ -2485,7 +2485,7 @@ class XinCarousel extends G {
   };
   snapPosition = () => {
     const { scroller } = this.parts;
-    const currentPosition = scroller.scrollLeft / scroller.offsetWidth;
+    const currentPosition = Math.round(scroller.scrollLeft / scroller.offsetWidth);
     if (currentPosition !== this.page) {
       this.page = currentPosition > this.page ? Math.ceil(currentPosition) : Math.floor(currentPosition);
     }
@@ -9118,7 +9118,7 @@ class SideNav extends G {
   minSize = 800;
   navSize = 200;
   compact = false;
-  content = [slot7({ name: "nav" }), slot7({ part: "content" })];
+  content = [slot7({ name: "nav", part: "nav" }), slot7({ part: "content" })];
   _contentVisible = false;
   get contentVisible() {
     return this._contentVisible;
@@ -9341,13 +9341,12 @@ var xinTag = XinTag.elementCreator({
     ":host": {
       "--tag-close-button-color": "#000c",
       "--tag-close-button-bg": "#fffc",
-      "--tag-close-button-border-radius": "99px",
       "--tag-button-opacity": "0.5",
       "--tag-button-hover-opacity": "0.75",
       "--tag-bg": wn.brandColor("blue"),
       "--tag-text-color": wn.brandTextColor("white"),
       display: "inline-flex",
-      borderRadius: qn.spacing50,
+      borderRadius: wn.tagRoundedRadius(qn.spacing50),
       color: qn.tagTextColor,
       background: qn.tagBg,
       padding: `0 ${qn.spacing75} 0 ${qn.spacing75}`,
@@ -9375,7 +9374,7 @@ var xinTag = XinTag.elementCreator({
       width: qn.spacing150,
       "--text-color": qn.tagCloseButtonColor,
       background: qn.tagCloseButtonBg,
-      borderRadius: qn.tagCloseButtonBorderRadius,
+      borderRadius: wn.tagCloseButtonRadius("99px"),
       opacity: qn.tagButtonOpacity
     },
     ':host [part="remove"]:hover': {
@@ -9452,7 +9451,7 @@ class XinTagList extends G {
         return null;
       } else if (typeof tag2 === "object") {
         return {
-          icon: this.tags.includes(tag2.value) ? icons.minus() : icons.plus(),
+          checked: () => this.tags.includes(tag2.value),
           caption: tag2.caption,
           action() {
             toggleTag(tag2.value);
@@ -9460,7 +9459,7 @@ class XinTagList extends G {
         };
       } else {
         return {
-          icon: this.tags.includes(tag2) ? icons.minus() : icons.plus(),
+          checked: () => this.tags.includes(tag2),
           caption: tag2,
           action() {
             toggleTag(tag2);
@@ -9475,13 +9474,10 @@ class XinTagList extends G {
     });
   };
   content = () => [
+    button10({ style: { visibility: "hidden" }, tabindex: -1 }),
     div12({
       part: "tagContainer",
-      class: "row",
-      onClick(event) {
-        event.stopPropagation();
-        event.preventDefault();
-      }
+      class: "row"
     }),
     input6({
       part: "tagInput",
@@ -9539,20 +9535,22 @@ var xinTagList = XinTagList.elementCreator({
       gridTemplateColumns: "auto",
       alignItems: "center",
       background: qn.tagListBg,
-      gap: qn.spacing25
+      gap: qn.spacing25,
+      borderRadius: wn.taglistRoundedRadius(qn.spacing50),
+      overflow: "hidden"
     },
     ":host[editable]": {
-      gridTemplateColumns: `auto ${qn.touchSize}`
+      gridTemplateColumns: `0px auto ${qn.touchSize}`
     },
     ":host[editable][text-entry]": {
-      gridTemplateColumns: `2fr 1fr ${qn.touchSize}`
+      gridTemplateColumns: `0px 2fr 1fr ${qn.touchSize}`
     },
     ':host [part="tagContainer"]': {
       display: "flex",
       content: '" "',
       alignItems: "center",
       background: qn.inputBg,
-      borderRadius: qn.roundedRadius,
+      borderRadius: wn.tagContainerRadius(qn.spacing50),
       boxShadow: qn.borderShadow,
       flexWrap: "nowrap",
       overflow: "auto hidden",
@@ -9570,6 +9568,10 @@ var xinTagList = XinTagList.elementCreator({
     },
     ":host [hidden]": {
       display: "none !important"
+    },
+    ':host button[part="tagMenu"]': {
+      background: qn.brandColor,
+      color: qn.brandTextColor
     }
   }
 });
@@ -9694,6 +9696,12 @@ var styleSpec = {
   },
   "main > xin-sidenav": {
     height: "calc(100vh - var(--header-height))"
+  },
+  "main > xin-sidenav::part(nav)": {
+    background: qn.navBg
+  },
+  "input[type=search]": {
+    borderRadius: 99
   },
   blockquote: {
     background: qn.insetBg,
@@ -10578,6 +10586,10 @@ of component **blueprints**.
 
 .yellow {
   background: #ffd;
+}
+
+.preview xin-carousel {
+  margin: 10px;
 }
 \`\`\`
 
@@ -12519,7 +12531,7 @@ Being able to pop a menu up anywhere is just so nice, and \`xinjs-ui\` allows me
 to be generated on-the-fly, and even supports hierarchical menus.
 
 \`\`\`js
-const { popMenu } = xinjsui
+const { popMenu, localize } = xinjsui
 const { elements } = xinjs
 
 let picked = ''
@@ -12540,13 +12552,19 @@ preview.addEventListener('click', (event) => {
           window.alert('I like it!')
         }
       },
-      null, // separator
       {
         icon: 'thumbsDown',
         caption: 'dislike',
         shortcut: '⌘D',
         action() {
           window.alert('Awwwww!')
+        }
+      },
+      null, // separator
+      {
+        caption: localize('Localized placeholder'),
+        action() {
+          alert(localize('Localized placeholder'))
         }
       },
       {
@@ -14183,7 +14201,7 @@ as a comma-delimited string or an array of strings).
 \`\`\`js
 preview.addEventListener('change', (event) => {
   if (event.target.matches('xin-tag-list')) {
-    console.log(event.target, event.target.value) 
+    console.log(event.target, event.target.value)
   }
 }, true)
 preview.querySelector('.disable-toggle').addEventListener('change', (event) => {
@@ -14435,7 +14453,7 @@ setTimeout(() => {
 var PROJECT = "xinjs-ui";
 var docName = document.location.search !== "" ? document.location.search.substring(1).split("&")[0] : "README.md";
 var currentDoc = docs_default.find((doc) => doc.filename === docName) || docs_default[0];
-var { app } = Rn({
+var { app, prefs } = Rn({
   app: {
     title: PROJECT,
     blogUrl: `https://loewald.com`,
@@ -14450,11 +14468,19 @@ var { app } = Rn({
     optimizeLottie: false,
     lottieFilename: "",
     lottieData: "",
-    theme: "system",
-    highContrast: false,
     docs: docs_default,
     currentDoc
+  },
+  prefs: {
+    theme: "system",
+    highContrast: false
   }
+});
+Io((path2) => {
+  if (path2.startsWith("prefs")) {
+    return true;
+  }
+  return false;
 });
 on.docLink = {
   toDOM(elt, filename) {
@@ -14471,8 +14497,8 @@ setTimeout(() => {
   Object.assign(globalThis, { app, xin: T, bindings: on, elements: S, vars: qn, touch: _ });
 }, 1000);
 var main = document.querySelector("main");
-var { h2: h22, div: div13, span: span13, a: a3, img, header, button: button11, template: template2 } = S;
-nn(document.body, "app.theme", {
+var { h2: h22, div: div13, span: span13, a: a3, img, header, button: button11, template: template2, input: input7 } = S;
+nn(document.body, "prefs.theme", {
   toDOM(element, theme) {
     if (theme === "system") {
       theme = getComputedStyle(document.body).getPropertyValue("--darkmode") === "true" ? "dark" : "light";
@@ -14480,7 +14506,7 @@ nn(document.body, "app.theme", {
     element.classList.toggle("darkmode", theme === "dark");
   }
 });
-nn(document.body, "app.highContrast", {
+nn(document.body, "prefs.highContrast", {
   toDOM(element, highContrast) {
     element.classList.toggle("high-contrast", highContrast);
   }
@@ -14488,6 +14514,25 @@ nn(document.body, "app.highContrast", {
 window.addEventListener("popstate", () => {
   const filename = window.location.search.substring(1);
   app.currentDoc = app.docs.find((doc) => doc.filename === filename) || app.docs[0];
+});
+var filterDocs = On(() => {
+  console.time("filter");
+  const needle = searchField.value.toLocaleLowerCase();
+  app.docs.forEach((doc) => {
+    doc.hidden = !doc.title.toLocaleLowerCase().includes(needle) && !doc.text.toLocaleLowerCase().includes(needle);
+  });
+  _(app.docs);
+  console.timeEnd("filter");
+});
+var searchField = input7({
+  slot: "nav",
+  placeholder: "search",
+  type: "search",
+  style: {
+    width: "calc(100% - 10px)",
+    margin: "5px"
+  },
+  onInput: filterDocs
 });
 if (main)
   main.append(header(a3({
@@ -14538,42 +14583,43 @@ if (main)
           },
           {
             caption: "Color Theme",
+            icon: "rgb",
             menuItems: [
               {
                 caption: "System",
                 checked() {
-                  return app.theme === "system";
+                  return prefs.theme === "system";
                 },
                 action() {
-                  app.theme = "system";
+                  prefs.theme = "system";
                 }
               },
               {
                 caption: "Dark",
                 checked() {
-                  return app.theme === "dark";
+                  return prefs.theme === "dark";
                 },
                 action() {
-                  app.theme = "dark";
+                  prefs.theme = "dark";
                 }
               },
               {
                 caption: "Light",
                 checked() {
-                  return app.theme === "light";
+                  return prefs.theme === "light";
                 },
                 action() {
-                  app.theme = "light";
+                  prefs.theme = "light";
                 }
               },
               null,
               {
                 caption: "High Contrast",
                 checked() {
-                  return app.highContrast;
+                  return prefs.highContrast;
                 },
                 action() {
-                  app.highContrast = !app.highContrast;
+                  prefs.highContrast = !prefs.highContrast;
                 }
               }
             ]
@@ -14589,17 +14635,17 @@ if (main)
       flex: "1 1 auto",
       overflow: "hidden"
     }
-  }, div13({
+  }, searchField, div13({
     slot: "nav",
     style: {
       display: "flex",
       flexDirection: "column",
       width: "100%",
       height: "100%",
-      background: qn.navBg,
       overflowY: "scroll"
     },
     bindList: {
+      hiddenProp: "hidden",
       value: app.docs
     }
   }, template2(a3({

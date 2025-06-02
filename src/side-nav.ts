@@ -26,7 +26,7 @@ export class SideNav extends WebComponent {
   navSize = 200
   compact = false
 
-  content = [slot({ name: 'nav' }), slot({ part: 'content' })]
+  content = [slot({ name: 'nav', part: 'nav' }), slot({ part: 'content' })]
 
   private _contentVisible = false
   get contentVisible(): boolean {
