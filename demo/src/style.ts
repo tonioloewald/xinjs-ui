@@ -176,6 +176,8 @@ const colors = {
   _menuItemHoverBg: '#eee',
   _menuItemColor: '#222',
   _menuSeparatorColor: '#2224',
+  _scrollThumbColor: '#0006',
+  _scrollBarColor: '#0001',
 }
 
 export const styleSpec: XinStyleSheet = {
@@ -211,6 +213,8 @@ export const styleSpec: XinStyleSheet = {
   },
   '*': {
     boxSizing: 'border-box',
+    scrollbarColor: `${vars.scrollThumbColor} ${vars.scrollBarColor}`,
+    scrollbarWidth: 'thin',
   },
   body: {
     fontFamily: vars.fontFamily,
@@ -426,7 +430,7 @@ export const styleSpec: XinStyleSheet = {
     background: vars.codeBg,
     padding: vars.spacing,
     borderRadius: 'calc(var(--spacing) * 0.25)',
-    overflow: 'scroll',
+    overflow: 'auto',
     fontSize: vars.codeFontSize,
     lineHeight: 'calc(var(--font-size) * 1.2)',
   },
