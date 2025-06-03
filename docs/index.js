@@ -9670,10 +9670,11 @@ var colors = {
   _textColor: "#222",
   _brandColor: "#295546",
   _background: "#fafafa",
+  _inputBg: "#fdfdfd",
   _backgroundShaded: "#f5f5f5",
-  _navBg: "#efefeed2",
+  _navBg: "#ddede8",
   _barColor: "#dae3df",
-  _focusColor: "#08835880",
+  _focusColor: "#148960ad",
   _brandTextColor: "#ecf3dd",
   _insetBg: "#eee",
   _codeBg: "#f8ffe9",
@@ -9737,7 +9738,8 @@ var styleSpec = {
   "input, button, select, textarea": {
     fontFamily: qn.fontFamily,
     fontSize: qn.fontSize,
-    color: "currentColor"
+    color: "currentColor",
+    background: qn.inputBg
   },
   select: {
     WebkitAppearance: "none",
