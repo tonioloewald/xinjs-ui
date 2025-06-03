@@ -159,7 +159,7 @@ import { XinStyleSheet, vars, invertLuminance } from 'xinjs'
 
 const colors = {
   _textColor: '#222',
-  _brandColor: '#0c5d41',
+  _brandColor: '#295546',
   _background: '#fafafa',
   _backgroundShaded: '#f5f5f5',
   _navBg: '#efefeed2',
