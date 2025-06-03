@@ -81,6 +81,7 @@ const { app, prefs } = xinProxy({
   prefs: {
     theme: 'system',
     highContrast: false,
+    locale: '',
   },
 })
 
@@ -90,6 +91,10 @@ hotReload((path) => {
   }
   return false
 })
+
+if (prefs.locale) {
+  setLocale(prefs.locale.valueOf())
+}
 
 bindings.docLink = {
   toDOM(elt, filename) {
@@ -240,7 +245,10 @@ if (main)
                   menuItems: i18n.localeOptions.map((locale) => ({
                     caption: locale.caption,
                     icon: locale.icon,
+                    checked: () =>
+                      locale.value.valueOf() === i18n.locale.valueOf(),
                     action() {
+                      prefs.locale = locale.value.valueOf()
                       setLocale(locale.value.valueOf())
                     },
                   })),
