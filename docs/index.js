@@ -9736,7 +9736,8 @@ var styleSpec = {
   },
   "input, button, select, textarea": {
     fontFamily: qn.fontFamily,
-    fontSize: qn.fontSize
+    fontSize: qn.fontSize,
+    color: "currentColor"
   },
   select: {
     WebkitAppearance: "none",

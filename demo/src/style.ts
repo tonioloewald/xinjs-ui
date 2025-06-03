@@ -231,6 +231,7 @@ export const styleSpec: XinStyleSheet = {
   'input, button, select, textarea': {
     fontFamily: vars.fontFamily,
     fontSize: vars.fontSize,
+    color: 'currentColor',
   },
   select: {
     WebkitAppearance: 'none',
