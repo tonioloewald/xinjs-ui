@@ -4,12 +4,136 @@
 Being able to pop a menu up anywhere is just so nice, and `xinjs-ui` allows menus
 to be generated on-the-fly, and even supports hierarchical menus.
 
+## popMenu and `<xin-menu>`
+
+`popMenu({target, menuItems, …})` will spawn a menu from a target.
+
+The `<xin-menu>` component places creates a trigger button, hosts
+menuItems, and (because it persists in the DOM) supports keyboard
+shortcuts.
+
 ```js
-const { popMenu, localize } = xinjsui
+const { popMenu, localize, xinMenu, postNotification, xinLocalized, icons } = xinjsui
 const { elements } = xinjs
 
 let picked = ''
 let testingEnabled = false
+
+const menuItems = [
+  {
+    icon: 'thumbsUp',
+    caption: 'Like',
+    shortcut: '^L',
+    action() {
+      postNotification({
+        message: 'I like it!',
+        icon: 'thumbsUp',
+        duration: 1
+      })
+    }
+  },
+  {
+    icon: 'heart',
+    caption: 'Love',
+    shortcut: '⌘⇧L',
+    action() {
+      postNotification({
+        type: 'success',
+        message: 'I LOVE it!',
+        icon: 'heart',
+        duration: 1
+      })
+    }
+  },
+  {
+    icon: 'thumbsDown',
+    caption: 'dislike',
+    shortcut: '⌘D',
+    action() {
+      postNotification({
+        type: 'error',
+        message: 'Awwwwwww…',
+        icon: 'thumbsDown',
+        duration: 1
+      })
+    }
+  },
+  null, // separator
+  {
+    caption: localize('Localized placeholder'),
+    action() {
+      alert(localize('Localized placeholder'))
+    }
+  },
+  {
+    icon: elements.span('🥹'),
+    caption: 'Also see…',
+    menuItems: [
+      {
+        icon: elements.span('😳'),
+        caption: 'And that’s not all…',
+        menuItems: [
+          {
+            icon: 'externalLink',
+            caption: 'timezones',
+            action: 'https://timezones.xinjs.net/'
+          },
+          {
+            icon: 'externalLink',
+            caption: 'b8rjs',
+            action: 'https://b8rjs.com'
+          },
+        ]
+      },
+      {
+        icon: 'xinjs',
+        caption: 'xinjs',
+        action: 'https://xinjs.net'
+      },
+      {
+        icon: 'xinie',
+        caption: 'xinie',
+        action: 'https://xinie.net'
+      },
+    ]
+  },
+  {
+    icon: testingEnabled ? 'check' : '',
+    caption: 'Testing Enabled',
+    action() {
+      testingEnabled = !testingEnabled
+    }
+  },
+  {
+    caption: 'Testing…',
+    enabled() {
+      return testingEnabled
+    },
+    menuItems: [
+      {
+        caption: 'one',
+        checked: () => picked === 'one',
+        action () {
+          picked = 'one'
+        }
+      },
+      {
+        caption: 'two',
+        checked: () => picked === 'two',
+        action () {
+          picked = 'two'
+        }
+      },
+      {
+        caption: 'three',
+        checked: () => picked === 'three',
+        action () {
+          picked = 'three'
+        }
+      }
+    ]
+  }
+]
 
 preview.addEventListener('click', (event) => {
   if (!event.target.closest('button')) {
@@ -17,101 +141,20 @@ preview.addEventListener('click', (event) => {
   }
   popMenu({
     target: event.target,
-    menuItems: [
-      {
-        icon: 'thumbsUp',
-        caption: 'Like',
-        shortcut: '^L',
-        action() {
-          window.alert('I like it!')
-        }
-      },
-      {
-        icon: 'thumbsDown',
-        caption: 'dislike',
-        shortcut: '⌘D',
-        action() {
-          window.alert('Awwwww!')
-        }
-      },
-      null, // separator
-      {
-        caption: localize('Localized placeholder'),
-        action() {
-          alert(localize('Localized placeholder'))
-        }
-      },
-      {
-        icon: elements.span('🥹'),
-        caption: 'Also see…',
-        menuItems: [
-          {
-            icon: elements.span('😳'),
-            caption: 'And that’s not all…',
-            menuItems: [
-              {
-                icon: 'externalLink',
-                caption: 'timezones',
-                action: 'https://timezones.xinjs.net/'
-              },
-              {
-                icon: 'externalLink',
-                caption: 'b8rjs',
-                action: 'https://b8rjs.com'
-              },
-            ]
-          },
-          {
-            icon: 'xinjs',
-            caption: 'xinjs',
-            action: 'https://xinjs.net'
-          },
-          {
-            icon: 'xinie',
-            caption: 'xinie',
-            action: 'https://xinie.net'
-          },
-        ]
-      },
-      {
-        icon: testingEnabled ? 'check' : '',
-        caption: 'Testing Enabled',
-        action() {
-          testingEnabled = !testingEnabled
-        }
-      },
-      {
-        caption: 'Testing…',
-        enabled() {
-          return testingEnabled
-        },
-        menuItems: [
-          {
-            caption: 'one',
-            checked: () => picked === 'one',
-            action () {
-              picked = 'one'
-            }
-          },
-          {
-            caption: 'two',
-            checked: () => picked === 'two',
-            action () {
-              picked = 'two'
-            }
-          },
-          {
-            caption: 'three',
-            checked: () => picked === 'three',
-            action () {
-              picked = 'three'
-            }
-          }
-        ]
-      }
-    ]
+    menuItems
   })
 })
+
+preview.append(
+  xinMenu(
+    {
+      menuItems,
+      localized: true,
+    },
+    xinLocalized('Menu'),
+    icons.chevronDown()
+  )
+)
 ```
 ```html
 <button title="menu test">
@@ -133,7 +176,7 @@ preview.addEventListener('click', (event) => {
 ## Overflow test
 
 ```js
-const { popMenu, icons } = xinjsui
+const { popMenu, icons, postNotification } = xinjsui
 const { elements } = xinjs
 
 preview.querySelector('button').addEventListener('click', (event) => {
@@ -143,7 +186,11 @@ preview.querySelector('button').addEventListener('click', (event) => {
       icon,
       caption: icon,
       action() {
-        console.log(caption)
+        postNotification({
+          icon: icon,
+          message: icon,
+          duration: 1
+        })
       }
     }))
   })
@@ -206,6 +253,17 @@ interface SubMenu {
 }
 ```
 
+### Keyboard Shortcuts
+
+If a menu is embodied in a `<xin-menu>` it is supported by keyboard
+shortcuts. Both text and symbolic shortcut descriptions are supported,
+e.g.
+
+- `⌘C` or `meta-C`
+- `⇧P` for `shift-P`
+- `^F` or `ctrl-f`
+- `⌥x`, `⎇x`, `alt-x` or `option-x`
+
 ## Localization
 
 If you set `localized: true` in `PopMenuOptions` then menu captions will be be
@@ -218,8 +276,17 @@ to render column names when you show hidden columns.
 
 ```js
 const { elements } = xinjs
-const { xinLocalized, icons, popMenu } = xinjsui
+const { xinLocalized, localize, icons, popMenu, postNotification } = xinjsui
 const { button } = elements
+const makeItem = s => ({
+  caption: s,
+  action() {
+    postNotification({
+      message: localize(s),
+      duration: 1
+    })
+  }
+})
 const target = button(
   {
     onClick(event) {
@@ -227,22 +294,10 @@ const target = button(
         target: event.target.closest('button'),
         localized: true,
         menuItems: [
-          {
-            caption: 'New',
-            action() {}
-          },
-          {
-            caption: 'Open…',
-            action() {}
-          },
-          {
-            caption: 'Save',
-            action() {}
-          },
-          {
-            caption: 'Close',
-            action() {}
-          },
+          makeItem('New'),
+          makeItem('Open...'),
+          makeItem('Save'),
+          makeItem('Close'),
         ]
       })
     }
@@ -273,10 +328,18 @@ And, finally, submenus are darn useful for any serious app.
 For this reason, `xinjs-ui` has its own menu implementation.
 */
 
-import { elements, varDefault, vars, StyleSheet } from 'xinjs'
+import {
+  elements,
+  varDefault,
+  vars,
+  StyleSheet,
+  Component,
+  PartsMap,
+} from 'xinjs'
 import { popFloat, FloatPosition } from './pop-float'
-import { icons } from './icons'
-import { localize } from './localize'
+import { icons, svgIcon, SvgIcon } from './icons'
+import { localize, xinLocalized } from './localize'
+import { matchShortcut } from './match-shortcut'
 
 export type ActionCallback = () => void | Promise<void>
 
@@ -301,7 +364,7 @@ export type MenuSeparator = null
 
 export type MenuItem = MenuAction | SubMenu | MenuSeparator
 
-const { div, button, span, a } = elements
+const { div, button, span, a, xinSlot } = elements
 
 StyleSheet('xin-menu-helper', {
   '.xin-menu': {
@@ -548,6 +611,9 @@ export const popMenu = (options: PopMenuOptions): void => {
     return
   }
 
+  if (!options.menuItems?.length) {
+    return
+  }
   const content = menu(options)
   const float = popFloat({
     content,
@@ -560,3 +626,95 @@ export const popMenu = (options: PopMenuOptions): void => {
     menu: float,
   })
 }
+
+function findShortcutAction(
+  items: MenuItem[],
+  event: KeyboardEvent
+): MenuAction | undefined {
+  for (const item of items) {
+    if (!item) continue
+    const { shortcut } = item as MenuAction
+    const { menuItems } = item as SubMenu
+
+    if (shortcut) {
+      if (matchShortcut(event, shortcut)) {
+        return item as MenuAction
+      }
+    } else if (menuItems) {
+      const foundAction = findShortcutAction(menuItems, event)
+      if (foundAction) {
+        return foundAction
+      }
+    }
+  }
+  return undefined
+}
+
+interface XinMenuParts extends PartsMap {
+  trigger: HTMLButtonElement
+  icon: SvgIcon
+}
+
+export class XinMenu extends Component<XinMenuParts> {
+  menuItems: MenuItem[] = []
+  menuWidth = 'auto'
+  localized = false
+
+  showMenu = (event: Event) => {
+    if (event.type === 'click' || (event as KeyboardEvent).code === 'Space') {
+      popMenu({
+        target: this.parts.trigger,
+        width: this.menuWidth,
+        localized: this.localized,
+        menuItems: this.menuItems,
+      })
+      event.stopPropagation()
+      event.preventDefault()
+    }
+  }
+
+  content = () =>
+    button({ tabindex: 0, part: 'trigger', onClick: this.showMenu }, xinSlot())
+
+  handleShortcut = async (event: KeyboardEvent) => {
+    const menuAction = findShortcutAction(this.menuItems, event)
+    if (menuAction) {
+      if (menuAction.action instanceof Function) {
+        menuAction.action()
+      }
+    }
+  }
+
+  constructor() {
+    super()
+
+    this.initAttributes('menuWidth', 'localized', 'icon')
+
+    this.addEventListener('keydown', this.showMenu)
+  }
+
+  connectedCallback() {
+    super.connectedCallback()
+    document.addEventListener('keydown', this.handleShortcut, true)
+  }
+
+  disconnectedCallback(): void {
+    super.disconnectedCallback()
+
+    document.removeEventListener('keydown', this.handleShortcut)
+  }
+}
+
+export const xinMenu = XinMenu.elementCreator({
+  tag: 'xin-menu',
+  styleSpec: {
+    ':host': {
+      display: 'inline-block',
+    },
+    ':host button > xin-slot': {
+      display: 'flex',
+      alignItems: 'center',
+      gap: varDefault.xinMenuTriggerGap('10px'),
+    },
+  },
+})
