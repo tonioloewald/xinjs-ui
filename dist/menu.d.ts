@@ -1,4 +1,6 @@
+import { Component, PartsMap } from 'xinjs';
 import { FloatPosition } from './pop-float';
+import { SvgIcon } from './icons';
 export type ActionCallback = () => void | Promise<void>;
 export interface MenuAction {
     caption: string;
@@ -39,4 +41,20 @@ export interface PopMenuOptions {
     localized?: boolean;
 }
 export declare const popMenu: (options: PopMenuOptions) => void;
+interface XinMenuParts extends PartsMap {
+    trigger: HTMLButtonElement;
+    icon: SvgIcon;
+}
+export declare class XinMenu extends Component<XinMenuParts> {
+    menuItems: MenuItem[];
+    menuWidth: string;
+    localized: boolean;
+    showMenu: (event: Event) => void;
+    content: () => any;
+    handleShortcut: (event: KeyboardEvent) => Promise<void>;
+    constructor();
+    connectedCallback(): void;
+    disconnectedCallback(): void;
+}
+export declare const xinMenu: any;
 export {};

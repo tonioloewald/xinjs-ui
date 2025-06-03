@@ -1468,6 +1468,7 @@ __export(exports_src, {
   xinRating: () => xinRating,
   xinPasswordStrength: () => xinPasswordStrength,
   xinNotification: () => xinNotification,
+  xinMenu: () => xinMenu,
   xinLocalized: () => xinLocalized,
   xinForm: () => xinForm,
   xinFloat: () => xinFloat,
@@ -1535,6 +1536,7 @@ __export(exports_src, {
   XinRating: () => XinRating,
   XinPasswordStrength: () => XinPasswordStrength,
   XinNotification: () => XinNotification,
+  XinMenu: () => XinMenu,
   XinLocalized: () => XinLocalized,
   XinForm: () => XinForm,
   XinFloat: () => XinFloat,
@@ -3377,8 +3379,19 @@ var xinLocalized = XinLocalized.elementCreator({
   }
 });
 
+// src/match-shortcut.ts
+var matchShortcut = (keystroke, shortcut) => {
+  shortcut = shortcut.toLocaleLowerCase();
+  const ctrlKey = !!shortcut.match(/\^|ctrl/);
+  const metaKey = !!shortcut.match(/⌘|meta/);
+  const altKey = !!shortcut.match(/⌥|⎇|alt|option/);
+  const shiftKey = !!shortcut.match(/⇧|shift/);
+  const baseKey = shortcut.slice(-1);
+  return keystroke.key === baseKey && keystroke.metaKey === metaKey && keystroke.ctrlKey === ctrlKey && keystroke.altKey === altKey && keystroke.shiftKey === shiftKey;
+};
+
 // src/menu.ts
-var { div: div2, button: button3, span: span3, a: a2 } = S;
+var { div: div2, button: button3, span: span3, a: a2, xinSlot } = S;
 qo("xin-menu-helper", {
   ".xin-menu": {
     overflow: "hidden auto",
@@ -3562,6 +3575,9 @@ var popMenu = (options) => {
     removeLastMenu();
     return;
   }
+  if (!options.menuItems?.length) {
+    return;
+  }
   const content = menu(options);
   const float = popFloat({
     content,
@@ -3574,6 +3590,78 @@ var popMenu = (options) => {
     menu: float
   });
 };
+function findShortcutAction(items, event) {
+  for (const item of items) {
+    if (!item)
+      continue;
+    const { shortcut } = item;
+    const { menuItems } = item;
+    if (shortcut) {
+      if (matchShortcut(event, shortcut)) {
+        return item;
+      }
+    } else if (menuItems) {
+      const foundAction = findShortcutAction(menuItems, event);
+      if (foundAction) {
+        return foundAction;
+      }
+    }
+  }
+  return;
+}
+
+class XinMenu extends G {
+  menuItems = [];
+  menuWidth = "auto";
+  localized = false;
+  showMenu = (event) => {
+    if (event.type === "click" || event.code === "Space") {
+      popMenu({
+        target: this.parts.trigger,
+        width: this.menuWidth,
+        localized: this.localized,
+        menuItems: this.menuItems
+      });
+      event.stopPropagation();
+      event.preventDefault();
+    }
+  };
+  content = () => button3({ tabindex: 0, part: "trigger", onClick: this.showMenu }, xinSlot());
+  handleShortcut = async (event) => {
+    const menuAction = findShortcutAction(this.menuItems, event);
+    if (menuAction) {
+      if (menuAction.action instanceof Function) {
+        menuAction.action();
+      }
+    }
+  };
+  constructor() {
+    super();
+    this.initAttributes("menuWidth", "localized", "icon");
+    this.addEventListener("keydown", this.showMenu);
+  }
+  connectedCallback() {
+    super.connectedCallback();
+    document.addEventListener("keydown", this.handleShortcut, true);
+  }
+  disconnectedCallback() {
+    super.disconnectedCallback();
+    document.removeEventListener("keydown", this.handleShortcut);
+  }
+}
+var xinMenu = XinMenu.elementCreator({
+  tag: "xin-menu",
+  styleSpec: {
+    ":host": {
+      display: "inline-block"
+    },
+    ":host button > xin-slot": {
+      display: "flex",
+      alignItems: "center",
+      gap: wn.xinMenuTriggerGap("10px")
+    }
+  }
+});
 
 // src/drag-and-drop.ts
 var exports_drag_and_drop = {};
@@ -4923,7 +5011,7 @@ var filterBuilder = FilterBuilder.elementCreator({
   }
 });
 // src/form.ts
-var { form, slot: slot4, xinSlot, label, input: input4, span: span6 } = S;
+var { form, slot: slot4, xinSlot: xinSlot2, label, input: input4, span: span6 } = S;
 function attr(element, name, value) {
   if (value !== "" && value !== false) {
     element.setAttribute(name, value);
@@ -4977,7 +5065,7 @@ class XinField extends G {
   step = "";
   fixedPrecision = -1;
   value = null;
-  content = label(xinSlot({ part: "caption" }), span6({ part: "field" }, xinSlot({ part: "input", name: "input" }), input4({ part: "valueHolder" })));
+  content = label(xinSlot2({ part: "caption" }), span6({ part: "field" }, xinSlot2({ part: "input", name: "input" }), input4({ part: "valueHolder" })));
   constructor() {
     super();
     this.initAttributes("caption", "key", "type", "optional", "pattern", "placeholder", "min", "max", "step", "fixedPrecision", "prefix", "suffix");
@@ -5479,7 +5567,7 @@ var tabSelector = TabSelector.elementCreator({
 });
 
 // src/live-example.ts
-var { div: div7, xinSlot: xinSlot2, style, button: button7, h4, pre } = S;
+var { div: div7, xinSlot: xinSlot3, style, button: button7, h4, pre } = S;
 var AsyncFunction = (async () => {}).constructor;
 
 class LiveExample extends G {
@@ -5659,7 +5747,7 @@ class LiveExample extends G {
       class: "transparent",
       onClick: this.refreshRemote
     }, icons.refresh())))),
-    xinSlot2({ part: "sources", hidden: true })
+    xinSlot3({ part: "sources", hidden: true })
   ];
   connectedCallback() {
     super.connectedCallback();
@@ -8433,7 +8521,7 @@ var isBreached = async (password) => {
   }
   return response.status !== 404;
 };
-var { span: span8, xinSlot: xinSlot3 } = S;
+var { span: span8, xinSlot: xinSlot4 } = S;
 
 class XinPasswordStrength extends G {
   minLength = 8;
@@ -8506,7 +8594,7 @@ class XinPasswordStrength extends G {
     this.updateIndicator(input5?.value || "");
   };
   content = () => [
-    xinSlot3({ onInput: this.update }),
+    xinSlot4({ onInput: this.update }),
     span8({ part: "meter" }, span8({ part: "level" }), span8({ part: "description" }))
   ];
   render() {
@@ -8708,7 +8796,7 @@ var xinRating = XinRating.elementCreator({
   tag: "xin-rating"
 });
 // src/rich-text.ts
-var { xinSlot: xinSlot4, div: div10, button: button9, span: span10 } = S;
+var { xinSlot: xinSlot5, div: div10, button: button9, span: span10 } = S;
 var blockStyles = [
   {
     caption: "Title",
@@ -8855,7 +8943,7 @@ class RichText extends G {
     this.doCommand(button10.dataset.command);
   };
   content = [
-    xinSlot4({
+    xinSlot5({
       name: "toolbar",
       part: "toolbar",
       onClick: this.handleButtonClick,
@@ -8869,7 +8957,7 @@ class RichText extends G {
         outline: "none"
       }
     }),
-    xinSlot4({
+    xinSlot5({
       part: "content"
     })
   ];
@@ -9596,7 +9684,9 @@ var colors = {
   _menuItemActiveBg: "#aaa",
   _menuItemHoverBg: "#eee",
   _menuItemColor: "#222",
-  _menuSeparatorColor: "#2224"
+  _menuSeparatorColor: "#2224",
+  _scrollThumbColor: "#0006",
+  _scrollBarColor: "#0001"
 };
 var styleSpec = {
   "@import": "https://fonts.googleapis.com/css2?family=Aleo:ital,wght@0,100..900;1,100..900&famiSpline+Sans+Mono:ital,wght@0,300..700;1,300..700&display=swap",
@@ -9628,7 +9718,9 @@ var styleSpec = {
     filter: "contrast(2)"
   },
   "*": {
-    boxSizing: "border-box"
+    boxSizing: "border-box",
+    scrollbarColor: `${qn.scrollThumbColor} ${qn.scrollBarColor}`,
+    scrollbarWidth: "thin"
   },
   body: {
     fontFamily: qn.fontFamily,
@@ -9844,7 +9936,7 @@ var styleSpec = {
     background: qn.codeBg,
     padding: qn.spacing,
     borderRadius: "calc(var(--spacing) * 0.25)",
-    overflow: "scroll",
+    overflow: "auto",
     fontSize: qn.codeFontSize,
     lineHeight: "calc(var(--font-size) * 1.2)"
   },
@@ -12530,12 +12622,136 @@ and [use the standard mapbox APIs directly](https://docs.mapbox.com/api/maps/sty
 Being able to pop a menu up anywhere is just so nice, and \`xinjs-ui\` allows menus
 to be generated on-the-fly, and even supports hierarchical menus.
 
+## popMenu and \`<xin-menu>\`
+
+\`popMenu({target, menuItems, …})\` will spawn a menu from a target.
+
+The \`<xin-menu>\` component places creates a trigger button, hosts
+menuItems, and (because it persists in the DOM) supports keyboard
+shortcuts.
+
 \`\`\`js
-const { popMenu, localize } = xinjsui
+const { popMenu, localize, xinMenu, postNotification, xinLocalized, icons } = xinjsui
 const { elements } = xinjs
 
 let picked = ''
 let testingEnabled = false
+
+const menuItems = [
+  {
+    icon: 'thumbsUp',
+    caption: 'Like',
+    shortcut: '^L',
+    action() {
+      postNotification({
+        message: 'I like it!',
+        icon: 'thumbsUp',
+        duration: 1
+      })
+    }
+  },
+  {
+    icon: 'heart',
+    caption: 'Love',
+    shortcut: '⌘⇧L',
+    action() {
+      postNotification({
+        type: 'success',
+        message: 'I LOVE it!',
+        icon: 'heart',
+        duration: 1
+      })
+    }
+  },
+  {
+    icon: 'thumbsDown',
+    caption: 'dislike',
+    shortcut: '⌘D',
+    action() {
+      postNotification({
+        type: 'error',
+        message: 'Awwwwwww…',
+        icon: 'thumbsDown',
+        duration: 1
+      })
+    }
+  },
+  null, // separator
+  {
+    caption: localize('Localized placeholder'),
+    action() {
+      alert(localize('Localized placeholder'))
+    }
+  },
+  {
+    icon: elements.span('🥹'),
+    caption: 'Also see…',
+    menuItems: [
+      {
+        icon: elements.span('😳'),
+        caption: 'And that’s not all…',
+        menuItems: [
+          {
+            icon: 'externalLink',
+            caption: 'timezones',
+            action: 'https://timezones.xinjs.net/'
+          },
+          {
+            icon: 'externalLink',
+            caption: 'b8rjs',
+            action: 'https://b8rjs.com'
+          },
+        ]
+      },
+      {
+        icon: 'xinjs',
+        caption: 'xinjs',
+        action: 'https://xinjs.net'
+      },
+      {
+        icon: 'xinie',
+        caption: 'xinie',
+        action: 'https://xinie.net'
+      },
+    ]
+  },
+  {
+    icon: testingEnabled ? 'check' : '',
+    caption: 'Testing Enabled',
+    action() {
+      testingEnabled = !testingEnabled
+    }
+  },
+  {
+    caption: 'Testing…',
+    enabled() {
+      return testingEnabled
+    },
+    menuItems: [
+      {
+        caption: 'one',
+        checked: () => picked === 'one',
+        action () {
+          picked = 'one'
+        }
+      },
+      {
+        caption: 'two',
+        checked: () => picked === 'two',
+        action () {
+          picked = 'two'
+        }
+      },
+      {
+        caption: 'three',
+        checked: () => picked === 'three',
+        action () {
+          picked = 'three'
+        }
+      }
+    ]
+  }
+]
 
 preview.addEventListener('click', (event) => {
   if (!event.target.closest('button')) {
@@ -12543,101 +12759,20 @@ preview.addEventListener('click', (event) => {
   }
   popMenu({
     target: event.target,
-    menuItems: [
-      {
-        icon: 'thumbsUp',
-        caption: 'Like',
-        shortcut: '^L',
-        action() {
-          window.alert('I like it!')
-        }
-      },
-      {
-        icon: 'thumbsDown',
-        caption: 'dislike',
-        shortcut: '⌘D',
-        action() {
-          window.alert('Awwwww!')
-        }
-      },
-      null, // separator
-      {
-        caption: localize('Localized placeholder'),
-        action() {
-          alert(localize('Localized placeholder'))
-        }
-      },
-      {
-        icon: elements.span('🥹'),
-        caption: 'Also see…',
-        menuItems: [
-          {
-            icon: elements.span('😳'),
-            caption: 'And that’s not all…',
-            menuItems: [
-              {
-                icon: 'externalLink',
-                caption: 'timezones',
-                action: 'https://timezones.xinjs.net/'
-              },
-              {
-                icon: 'externalLink',
-                caption: 'b8rjs',
-                action: 'https://b8rjs.com'
-              },
-            ]
-          },
-          {
-            icon: 'xinjs',
-            caption: 'xinjs',
-            action: 'https://xinjs.net'
-          },
-          {
-            icon: 'xinie',
-            caption: 'xinie',
-            action: 'https://xinie.net'
-          },
-        ]
-      },
-      {
-        icon: testingEnabled ? 'check' : '',
-        caption: 'Testing Enabled',
-        action() {
-          testingEnabled = !testingEnabled
-        }
-      },
-      {
-        caption: 'Testing…',
-        enabled() {
-          return testingEnabled
-        },
-        menuItems: [
-          {
-            caption: 'one',
-            checked: () => picked === 'one',
-            action () {
-              picked = 'one'
-            }
-          },
-          {
-            caption: 'two',
-            checked: () => picked === 'two',
-            action () {
-              picked = 'two'
-            }
-          },
-          {
-            caption: 'three',
-            checked: () => picked === 'three',
-            action () {
-              picked = 'three'
-            }
-          }
-        ]
-      }
-    ]
+    menuItems
   })
 })
+
+preview.append(
+  xinMenu(
+    {
+      menuItems,
+      localized: true,
+    },
+    xinLocalized('Menu'),
+    icons.chevronDown()
+  )
+)
 \`\`\`
 \`\`\`html
 <button title="menu test">
@@ -12659,7 +12794,7 @@ preview.addEventListener('click', (event) => {
 ## Overflow test
 
 \`\`\`js
-const { popMenu, icons } = xinjsui
+const { popMenu, icons, postNotification } = xinjsui
 const { elements } = xinjs
 
 preview.querySelector('button').addEventListener('click', (event) => {
@@ -12669,7 +12804,11 @@ preview.querySelector('button').addEventListener('click', (event) => {
       icon,
       caption: icon,
       action() {
-        console.log(caption)
+        postNotification({
+          icon: icon,
+          message: icon,
+          duration: 1
+        })
       }
     }))
   })
@@ -12732,11 +12871,25 @@ interface SubMenu {
 }
 \`\`\`
 
+### Keyboard Shortcuts
+
+If a menu is embodied in a \`<xin-menu>\` it is supported by keyboard
+shortcuts. Both text and symbolic shortcut descriptions are supported,
+e.g.
+
+- \`⌘C\` or \`meta-C\`
+- \`⇧P\` for \`shift-P\`
+- \`^F\` or \`ctrl-f\`
+- \`⌥x\`, \`⎇x\`, \`alt-x\` or \`option-x\`
+
 ## Localization
 
 If you set \`localized: true\` in \`PopMenuOptions\` then menu captions will be be
 passed through \`localize\`. You'll need to provide the appropriate localized strings,
 of course.
+
+> \`<xin-menu>\` supports the \`localized\` attribute but it doesn't localize
+> its trigger button.
 
 To see this in action, see the example below, or look at the
 [table example](?data-table.ts). It uses a \`localized\` menu
@@ -12744,8 +12897,17 @@ to render column names when you show hidden columns.
 
 \`\`\`js
 const { elements } = xinjs
-const { xinLocalized, icons, popMenu } = xinjsui
+const { xinLocalized, localize, icons, popMenu, postNotification } = xinjsui
 const { button } = elements
+const makeItem = s => ({
+  caption: s,
+  action() {
+    postNotification({
+      message: localize(s),
+      duration: 1
+    })
+  }
+})
 const target = button(
   {
     onClick(event) {
@@ -12753,22 +12915,10 @@ const target = button(
         target: event.target.closest('button'),
         localized: true,
         menuItems: [
-          {
-            caption: 'New',
-            action() {}
-          },
-          {
-            caption: 'Open…',
-            action() {}
-          },
-          {
-            caption: 'Save',
-            action() {}
-          },
-          {
-            caption: 'Close',
-            action() {}
-          },
+          makeItem('New'),
+          makeItem('Open...'),
+          makeItem('Save'),
+          makeItem('Close'),
         ]
       })
     }
@@ -14481,7 +14631,8 @@ var { app, prefs } = Rn({
   },
   prefs: {
     theme: "system",
-    highContrast: false
+    highContrast: false,
+    locale: ""
   }
 });
 Io((path2) => {
@@ -14490,6 +14641,9 @@ Io((path2) => {
   }
   return false;
 });
+if (prefs.locale) {
+  setLocale(prefs.locale.valueOf());
+}
 on.docLink = {
   toDOM(elt, filename) {
     elt.setAttribute("href", `?${filename}`);
@@ -14584,7 +14738,9 @@ if (main)
             menuItems: i18n.localeOptions.map((locale) => ({
               caption: locale.caption,
               icon: locale.icon,
+              checked: () => locale.value.valueOf() === i18n.locale.valueOf(),
               action() {
+                prefs.locale = locale.value.valueOf();
                 setLocale(locale.value.valueOf());
               }
             }))
