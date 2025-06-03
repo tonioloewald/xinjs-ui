@@ -1,5 +1,5 @@
-import { Component as WebComponent, ElementCreator } from 'xinjs';
-export declare class SideNav extends WebComponent {
+import { Component, ElementCreator } from 'xinjs';
+export declare class SideNav extends Component {
     minSize: number;
     navSize: number;
     compact: boolean;

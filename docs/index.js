@@ -9664,7 +9664,7 @@ var xinTagList = XinTagList.elementCreator({
   }
 });
 // src/version.ts
-var version = "0.9.14";
+var version = "0.9.15";
 // demo/src/style.ts
 var colors = {
   _textColor: "#222",

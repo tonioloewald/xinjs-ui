@@ -12,16 +12,11 @@ sidebar and content, while `navSize` is the width of the sidebar. You can interr
 currently in `compact` form.
 */
 
-import {
-  Component as WebComponent,
-  ElementCreator,
-  elements,
-  varDefault,
-} from 'xinjs'
+import { Component, ElementCreator, elements, varDefault } from 'xinjs'
 
 const { slot } = elements
 
-export class SideNav extends WebComponent {
+export class SideNav extends Component {
   minSize = 800
   navSize = 200
   compact = false
