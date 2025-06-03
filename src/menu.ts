@@ -270,6 +270,9 @@ If you set `localized: true` in `PopMenuOptions` then menu captions will be be
 passed through `localize`. You'll need to provide the appropriate localized strings,
 of course.
 
+> `<xin-menu>` supports the `localized` attribute but it doesn't localize
+> its trigger button.
+
 To see this in action, see the example below, or look at the
 [table example](?data-table.ts). It uses a `localized` menu
 to render column names when you show hidden columns.
