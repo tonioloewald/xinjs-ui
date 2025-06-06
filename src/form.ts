@@ -72,7 +72,7 @@ preview.querySelector('.submit').addEventListener('click', form.submit)
 }
 
 .preview ::part(header), .preview ::part(footer) {
-  background: #ddd;
+  background: var(--inset-bg);
   justify-content: center;
   padding: calc(var(--spacing) * 0.5) var(--spacing);
 }
@@ -85,7 +85,7 @@ preview.querySelector('.submit').addEventListener('click', form.submit)
 .preview ::part(content) {
   padding: var(--spacing);
   gap: var(--spacing);
-  background: #e8e8e8;
+  background: var(--background);
 }
 
 .preview label {
@@ -130,7 +130,7 @@ preview.querySelector('.submit').addEventListener('click', form.submit)
 }
 
 .preview :invalid {
-  box-shadow: inset 0 0 2px red;
+  box-shadow: inset 0 0 0 2px #F008;
 }
 ```
 
