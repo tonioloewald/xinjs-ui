@@ -30,7 +30,7 @@ colorInput.addEventListener('change', () => {
 */
 
 import {
-  Component as WebComponent,
+  Component,
   ElementCreator,
   elements,
   Color,
@@ -48,7 +48,7 @@ interface ColorParts extends PartsMap {
   css: HTMLInputElement
 }
 
-class ColorInput extends WebComponent {
+class ColorInput extends Component<ColorParts> {
   value = defaultColor.rgba
   color = defaultColor
 
@@ -66,6 +66,7 @@ class ColorInput extends WebComponent {
       border: 0,
       width: vars.swatchSize,
       height: vars.swatchSize,
+      background: 'transparent',
     },
     ':host::part(alpha)': {
       width: vars.alphaWidth,
@@ -91,7 +92,7 @@ class ColorInput extends WebComponent {
 
   private valueChanged = false
   update = (event: Event) => {
-    const { rgb, alpha, css } = this.parts as ColorParts
+    const { rgb, alpha, css } = this.parts
     if (event.type === 'input') {
       this.color = Color.fromCss(rgb.value)
       this.color.a = Number(alpha.value)
@@ -109,7 +110,7 @@ class ColorInput extends WebComponent {
   connectedCallback() {
     super.connectedCallback()
 
-    const { rgb, alpha, css } = this.parts as ColorParts
+    const { rgb, alpha, css } = this.parts
     rgb.addEventListener('input', this.update)
     alpha.addEventListener('input', this.update)
     css.addEventListener('change', this.update)
@@ -117,10 +118,10 @@ class ColorInput extends WebComponent {
 
   render() {
     if (this.valueChanged) {
-      this.valueChanted = false
+      this.valueChanged = false
       return
     }
-    const { rgb, alpha, css } = this.parts as ColorParts
+    const { rgb, alpha, css } = this.parts
     this.color = Color.fromCss(this.value)
 
     rgb.value = this.color.html.substring(0, 7)
