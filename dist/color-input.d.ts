@@ -1,5 +1,10 @@
-import { Component as WebComponent, ElementCreator } from 'xinjs';
-declare class ColorInput extends WebComponent {
+import { Component, ElementCreator, PartsMap } from 'xinjs';
+interface ColorParts extends PartsMap {
+    rgb: HTMLInputElement;
+    alpha: HTMLInputElement;
+    css: HTMLInputElement;
+}
+declare class ColorInput extends Component<ColorParts> {
     value: any;
     color: any;
     static styleSpec: {
@@ -16,6 +21,7 @@ declare class ColorInput extends WebComponent {
             border: number;
             width: any;
             height: any;
+            background: string;
         };
         ':host::part(alpha)': {
             width: any;
