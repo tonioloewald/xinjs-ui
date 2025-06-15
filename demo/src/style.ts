@@ -491,6 +491,9 @@ export const styleSpec: XinStyleSheet = {
   'xin-example': {
     margin: 'var(--spacing) 0',
   },
+  'xin-example [part=editors]': {
+    background: vars.insetBg,
+  },
   "[class*='icon-'], xin-icon": {
     color: 'currentcolor',
     height: vars.fontSize,

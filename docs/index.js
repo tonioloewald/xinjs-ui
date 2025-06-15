@@ -9998,6 +9998,9 @@ var styleSpec = {
   "xin-example": {
     margin: "var(--spacing) 0"
   },
+  "xin-example [part=editors]": {
+    background: qn.insetBg
+  },
   "[class*='icon-'], xin-icon": {
     color: "currentcolor",
     height: qn.fontSize,
@@ -10661,8 +10664,8 @@ of component **blueprints**.
 \`\`\`
 \`\`\`css
 .thing {
-  --font-size: 200px;
-  height: 200px;
+  --font-size: 160px;
+  height: 160px;
   position: relative;
 }
 
