@@ -3,38 +3,33 @@
 
 ```html
 <xin-carousel arrows dots max-visible-items=2 auto=2 loop>
-  <div class="thing pink">item 1</div>
-  <div class="thing green">item 2</div>
-  <div class="thing blue">item 3</div>
-  <div class="thing yellow">item 4</div>
-  <div class="thing pink">item 5</div>
-  <div class="thing green">item 6</div>
-  <div class="thing blue">item 7</div>
+  <xin-icon icon="xinColor" class="thing"></xin-icon>
+  <xin-icon icon="xinjsColor" class="thing"></xin-icon>
+  <xin-icon icon="xinjsUiColor" class="thing"></xin-icon>
+  <xin-icon icon="xinie" class="thing"></xin-icon>
+  <xin-icon icon="blueprint" class="thing"></xin-icon>
+  <xin-icon icon="cmy" class="thing"></xin-icon>
+  <xin-icon icon="rgb" class="thing"></xin-icon>
 </xin-carousel>
 ```
 ```css
 .thing {
-  width: 200px;
+  --font-size: 200px;
   height: 200px;
-  line-height: 200px;
-  text-align: center;
-  font-size: 32px;
+  position: relative;
 }
 
-.pink {
-  background: #fdd;
-}
-
-.green {
-  background: #dfd;
-}
-
-.blue {
-  background: #ddf;
-}
-
-.yellow {
-  background: #ffd;
+.thing::after {
+  content: attr(icon);
+  color: white;
+  position: absolute;
+  bottom: 5px;
+  left: 50%;
+  padding: 5px 15px;
+  transform: translateX(-50%);
+  filter: drop-shadow(0 1px 1px #000);
+  background: #0004;
+  border-radius: 5px;
 }
 
 .preview xin-carousel {
