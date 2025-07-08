@@ -2,11 +2,14 @@
 # carousel
 
 ```html
-<xin-carousel arrows dots max-visible-items=2 auto=2 loop>
-  <xin-icon icon="xinColor" class="thing"></xin-icon>
-  <xin-icon icon="xinjsColor" class="thing"></xin-icon>
-  <xin-icon icon="xinjsUiColor" class="thing"></xin-icon>
-  <xin-icon icon="xinie" class="thing"></xin-icon>
+<xin-carousel arrows dots max-visible-items=2 auto=2 snap-delay=4 snap-duration=0.5 loop>
+  <xin-icon icon="tosi" class="thing"></xin-icon>
+  <xin-icon icon="earth" class="thing"></xin-icon>
+  <xin-icon icon="tosiColor" class="thing"></xin-icon>
+  <xin-icon icon="tosiText" class="thing"></xin-icon>
+  <xin-icon icon="tosiUi" class="thing"></xin-icon>
+  <xin-icon icon="tosiPlatform" class="thing"></xin-icon>
+  <xin-icon icon="tosiXr" class="thing"></xin-icon>
   <xin-icon icon="blueprint" class="thing"></xin-icon>
   <xin-icon icon="cmy" class="thing"></xin-icon>
   <xin-icon icon="rgb" class="thing"></xin-icon>
@@ -16,6 +19,7 @@
 .thing {
   --font-size: 160px;
   height: 160px;
+  margin: 30px 0 70px;
   position: relative;
 }
 
@@ -23,11 +27,11 @@
   content: attr(icon);
   color: white;
   position: absolute;
-  bottom: 5px;
+  bottom: -50px;
   left: 50%;
   padding: 5px 15px;
   transform: translateX(-50%);
-  filter: drop-shadow(0 1px 1px #000);
+  filter: drop-shadow(0 1px 1px #0008);
   background: #0004;
   border-radius: 5px;
 }

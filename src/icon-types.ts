@@ -1,9 +1,10 @@
 import { ElementCreator } from 'xinjs'
 
 export interface IconSpec {
+  raw?: string
   w?: number
   h?: number
-  p: string[]
+  p?: string[]
   c?: string[]
 }
 

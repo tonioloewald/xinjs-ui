@@ -88,12 +88,16 @@ probably be broken out as a standalone library to allow the use of whatever icon
 
 ```
 interface IconSpec {
-  p: string[]  // paths
-  c?: string[] // colors of the paths in p
-  w: number    // width of icon
-  h: number    // height of icon
+  p?: string[]  // paths
+  c?: string[]  // colors of the paths in p
+  w?: number    // width of icon
+  h?: number    // height of icon
+  raw?: string  // raw svg source code
 }
 ```
+
+An `IconSpec` should either have a `p` (path) array containing at least one string or a
+`raw` string.
 
 The simplest option is simply to pass the `path` attribute (if the icon has a single path) while more
 complex icons can be provide an `IconSpec` structure, specifying multiple paths (and colors if so
@@ -315,7 +319,7 @@ preview.append(
       width: '100px',
       height: '200px',
       content: '" "',
-      background: svg2DataUrl(icons.xinjsColor())
+      background: svg2DataUrl(icons.tosiColor())
     }
   }),
 )
@@ -331,8 +335,8 @@ If you're using `SVGElement`s created using the `icons` proxy, you'll want to pr
 ## Color Icons
 
 ```html
-<xin-icon icon="xinjsColor" class="demo-icon"></xin-icon>
-<xin-icon icon="xinjsColor" class="demo-icon recolored"></xin-icon>
+<xin-icon icon="tosiColor" class="demo-icon"></xin-icon>
+<xin-icon icon="tosiColor" class="demo-icon recolored"></xin-icon>
 ```
 ```css
 .demo-icon {
@@ -350,12 +354,10 @@ If you're using `SVGElement`s created using the `icons` proxy, you'll want to pr
   filter: grayscale(0.5);
   opacity: 0.76;
   transition: 0.25s ease-out;
-  --icon-fill-0: black;
-  --icon-fill-2: #f0f;
-  --icon-fill-3: #f4f;
-  --icon-fill-4: #fcf;
-  --icon-fill-5: #f8f;
-  --icon-fill-6: #fff;
+  --icon-fill-0: orange;
+  --icon-fill-2: yellow;
+  --icon-fill-3: blue;
+  --icon-fill-4: red;
 }
 
 .recolored:hover > svg {
@@ -393,6 +395,10 @@ Basically, I wanted an icon solution that "just works" and this is it.
 
 Internally, icons are stored as javascript path data.
 
+The logo icons for this library, the earth icon, and several others are original. Feel free
+to use them as you wish without restriction. (This does not surrender copyright or allow you
+use them as trademarks.)
+
 Many of these icons are sourced from [Feather Icons](https://github.com/feathericons/feather), but
 all the icons have been processed to have integer coordinates in a `viewBox` typically scaled to 1024  &times; 1024.
 
@@ -426,6 +432,7 @@ copies or substantial portions of the Software.
 */
 
 import {
+  elements,
   svgElements,
   ElementCreator,
   ElementPart,
@@ -500,6 +507,16 @@ export const icons = new Proxy(iconData, {
     return iconSpec === undefined
       ? undefined
       : (...parts: ElementPart[]) => {
+          if (iconSpec.raw) {
+            const div = elements.div()
+            div.innerHTML = iconSpec.raw
+            const svg = div.querySelector('svg')
+            svg.removeAttribute('height')
+            svg.removeAttribute('width')
+            svg.removeAttribute('x')
+            svg.removeAttribute('y')
+            return svg
+          }
           const { w, h } = Object.assign({ w: 1024, h: 1024 }, iconSpec)
           return svg(
             {

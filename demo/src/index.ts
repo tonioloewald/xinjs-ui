@@ -38,6 +38,8 @@ initLocalization(localizedStrings)
 import * as xinjs from 'xinjs'
 import * as xinjsui from '../../src/'
 
+Object.assign(window, { xinjs, xinjsui })
+
 import './css-var-editor'
 import docs from '../docs.json'
 
@@ -52,7 +54,7 @@ setTimeout(() => {
   )
 }, 100)
 
-const PROJECT = 'xinjs-ui'
+const PROJECT = 'tosi-ui'
 
 const docName =
   document.location.search !== ''
@@ -179,7 +181,7 @@ if (main)
           },
           title: `xinjs ${version}, xinjs-ui ${uiVersion}`,
         },
-        icons.xinjsUiColor({
+        icons.tosiUi({
           style: { _fontSize: 40, marginRight: 10 },
         }),
         h2({ bindText: 'app.title' })
@@ -234,6 +236,7 @@ if (main)
         {
           class: 'iconic',
           style: { color: vars.linkColor },
+          title: 'links and settings',
           onClick(event) {
             popMenu({
               target: event.target as HTMLButtonElement,

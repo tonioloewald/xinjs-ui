@@ -155,20 +155,25 @@ export const styleSpec: XinStyleSheet = ...
 ```
 */
 
-import { XinStyleSheet, vars, invertLuminance } from 'xinjs'
+import { XinStyleSheet, vars, Color, invertLuminance, MoreMath } from 'xinjs'
+
+const brandColor = Color.fromCss('#FF7BAC')
+window.brandColor = brandColor
+brandColor.swatch()
 
 const colors = {
   _textColor: '#222',
-  _brandColor: '#295546',
+  _brandColor: brandColor,
   _background: '#fafafa',
   _inputBg: '#fdfdfd',
   _backgroundShaded: '#f5f5f5',
-  _navBg: '#ddede8',
+  _navBg: brandColor.rotate(30).desaturate(0.5).brighten(0.9),
   _barColor: '#dae3df',
-  _focusColor: '#148960ad',
-  _brandTextColor: '#ecf3dd',
-  _insetBg: '#eee',
-  _codeBg: '#f8ffe9',
+  _focusColor: brandColor.opacity(0.7),
+  _brandTextColor: brandColor.rotate(30).brighten(0.9),
+  _insetBg: brandColor.rotate(45).brighten(0.8),
+  _codeBg: brandColor.rotate(-15).desaturate(0.5).brighten(0.9),
+  _linkColor: brandColor.rotate(-30).darken(0.5),
   _shadowColor: '#0004',
   _menuBg: '#fafafa',
   _menuItemActiveColor: '#000',
@@ -223,7 +228,6 @@ export const styleSpec: XinStyleSheet = {
     margin: '0',
     lineHeight: vars.lineHeight,
     background: vars.background,
-    _linkColor: vars.brandColor,
     _xinTabsSelectedColor: vars.brandColor,
     _xinTabsBarColor: vars.brandTextColor,
     _menuItemIconColor: vars.brandColor,
@@ -252,7 +256,7 @@ export const styleSpec: XinStyleSheet = {
     whiteSpace: 'nowrap',
   },
   h1: {
-    _textColor: vars.brandColor,
+    color: vars.brandColor,
     fontSize: 'calc(var(--font-size) * var(--h1-scale))',
     lineHeight: 'calc(var(--line-height) * var(--h1-scale))',
     fontWeight: '400',
