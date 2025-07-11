@@ -297,6 +297,9 @@ declare const _default: {
     alignLeft: string;
     heart: string;
     trendingUp: string;
+    fontBold: string;
+    fontItalic: string;
+    fontUnderline: string;
     resize: string;
     bug: string;
     blog: string;
