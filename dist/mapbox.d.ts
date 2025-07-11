@@ -1,7 +1,7 @@
 import { Component as WebComponent, ElementCreator } from 'xinjs';
 export declare class MapBox extends WebComponent {
     coords: string;
-    content: any;
+    content: HTMLDivElement;
     get map(): any;
     mapStyle: string;
     token: string;

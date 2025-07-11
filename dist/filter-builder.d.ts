@@ -31,7 +31,7 @@ export declare class FilterPart extends WebComponent {
     haystack: string;
     condition: string;
     needle: string;
-    content: () => any[];
+    content: () => (SVGElement | HTMLSpanElement)[];
     filter: Filter;
     constructor();
     get state(): FilterPartState;
@@ -51,7 +51,7 @@ export declare class FilterBuilder extends WebComponent {
     filter: ArrayFilter;
     description: string;
     addFilter: () => void;
-    content: () => any[];
+    content: () => (HTMLButtonElement | HTMLDivElement)[];
     filters: {
         [key: string]: FilterMaker;
     };

@@ -182,7 +182,7 @@ if (main)
           title: `xinjs ${version}, xinjs-ui ${uiVersion}`,
         },
         icons.tosiUi({
-          style: { _fontSize: 40, marginRight: 10 },
+          style: { _xinIconSize: 40, marginRight: 10 },
         }),
         h2({ bindText: 'app.title' })
       ),

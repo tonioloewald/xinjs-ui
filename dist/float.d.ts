@@ -4,7 +4,7 @@ export declare class XinFloat extends WebComponent {
     drag: boolean;
     remainOnResize: 'hide' | 'remove' | 'remain';
     remainOnScroll: 'hide' | 'remove' | 'remain';
-    content: any;
+    content: HTMLSlotElement;
     static styleSpec: {
         ':host': {
             position: string;

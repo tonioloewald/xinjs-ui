@@ -418,7 +418,7 @@ StyleSheet('xin-menu-helper', {
     gridTemplateColumns: '30px 1fr 30px',
   },
   '.xin-menu-item svg': {
-    fill: varDefault.menuItemIconColor('#222'),
+    stroke: varDefault.menuItemIconColor('#222'),
   },
   '.xin-menu-item.xin-menu-item-checked': {
     background: varDefault.menuItemHoverBg('#eee'),
@@ -441,7 +441,7 @@ StyleSheet('xin-menu-helper', {
     color: varDefault.menuItemActiveColor('#000'),
   },
   '.xin-menu-item:active svg': {
-    fill: varDefault.menuItemIconActiveColor('#000'),
+    stroke: varDefault.menuItemIconActiveColor('#000'),
   },
 })
 

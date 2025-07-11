@@ -28,9 +28,9 @@ export declare class XinSelect extends WebComponent {
     get optionsMenu(): MenuItem[];
     handleChange: (event: Event) => void;
     handleKey: (event: KeyboardEvent) => void;
-    filterMenu: any;
+    filterMenu: (...args: any[]) => void;
     popOptions: (event?: Event) => void;
-    content: () => any[];
+    content: () => HTMLButtonElement[];
     constructor();
     get allOptions(): SelectOption[];
     findOption(): SelectOption;

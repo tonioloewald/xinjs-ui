@@ -3,7 +3,7 @@ export declare class SideNav extends Component {
     minSize: number;
     navSize: number;
     compact: boolean;
-    content: any[];
+    content: HTMLSlotElement[];
     private _contentVisible;
     get contentVisible(): boolean;
     set contentVisible(visible: boolean);
@@ -13,8 +13,8 @@ export declare class SideNav extends Component {
             gridTemplateColumns: string;
             gridTemplateRows: string;
             position: string;
-            margin: any;
-            transition: any;
+            margin: string;
+            transition: string;
         };
         ':host slot': {
             position: string;

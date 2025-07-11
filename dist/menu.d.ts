@@ -50,11 +50,11 @@ export declare class XinMenu extends Component<XinMenuParts> {
     menuWidth: string;
     localized: boolean;
     showMenu: (event: Event) => void;
-    content: () => any;
+    content: () => HTMLButtonElement;
     handleShortcut: (event: KeyboardEvent) => Promise<void>;
     constructor();
     connectedCallback(): void;
     disconnectedCallback(): void;
 }
-export declare const xinMenu: any;
+export declare const xinMenu: import("xinjs").ElementCreator<Component<PartsMap<Element>>>;
 export {};

@@ -20,10 +20,10 @@ export declare class XinSizer extends XinComponent {
         ':host svg': {
             width: number;
             height: number;
-            fill: any;
+            stroke: string;
         };
     };
-    content: any;
+    content: SVGElement;
     get minSize(): {
         width: number;
         height: number;

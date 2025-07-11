@@ -32,4 +32,4 @@ export declare class XinPasswordStrength extends Component {
     content: () => any[];
     render(): void;
 }
-export declare const xinPasswordStrength: any;
+export declare const xinPasswordStrength: import("xinjs").ElementCreator<Component<import("xinjs").PartsMap<Element>>>;

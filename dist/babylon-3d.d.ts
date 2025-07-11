@@ -37,7 +37,7 @@ export declare class B3d extends WebComponent {
             transform: string;
         };
     };
-    content: any;
+    content: HTMLCanvasElement;
     constructor();
     scene: any;
     engine: any;

@@ -50,7 +50,7 @@ export class XinSizer extends XinComponent {
     ':host svg': {
       width: 16,
       height: 16,
-      fill: vars.resizeIconFill,
+      stroke: vars.resizeIconFill,
     },
   }
 

@@ -9,7 +9,7 @@ export interface LottieConfig {
     [key: string]: any;
 }
 export declare class BodymovinPlayer extends WebComponent {
-    content: any;
+    content: null;
     src: string;
     json: string;
     config: LottieConfig;

@@ -428,10 +428,8 @@ export const filterPart = FilterPart.elementCreator({
       display: 'flex',
     },
 
-    ':host svg[class^="icon-"]:': {
-      height: 'var(--font-size, 16px)',
+    ':host .xin-icon:': {
       verticalAlign: 'middle',
-      fill: 'var(--text-color)',
       pointerEvents: 'none',
     },
 

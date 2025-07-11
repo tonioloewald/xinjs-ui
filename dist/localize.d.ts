@@ -1,20 +1,36 @@
 import { Component } from 'xinjs';
-export declare const i18n: any;
+import { XinSelect } from './select';
+interface TranslationMap {
+    [key: string]: string[];
+}
+interface I18nConfig {
+    locale: string;
+    locales: string[];
+    languages: string[];
+    emoji: string[];
+    stringMap: TranslationMap;
+    localeOptions: Array<{
+        icon: HTMLElement;
+        caption: string;
+        value: string;
+    }>;
+}
+export declare const i18n: I18nConfig;
 export declare const setLocale: (language: string) => void;
 export declare const updateLocalized: () => void;
 export declare function initLocalization(localizedStrings: string): void;
 export declare function localize(ref: string): string;
 export declare class LocalePicker extends Component {
     hideCaption: boolean;
-    content: () => any;
+    content: () => XinSelect;
     constructor();
     render(): void;
 }
-export declare const localePicker: any;
+export declare const localePicker: import("xinjs").ElementCreator<Component<import("xinjs").PartsMap<Element>>>;
 interface AbstractLocalized {
-    localeChanged: () => {};
-    connectedCallback: () => {};
-    disconnectedCallback: () => {};
+    localeChanged: () => void;
+    connectedCallback: () => void;
+    disconnectedCallback: () => void;
 }
 export declare class XinLocalized extends Component {
     static allInstances: Set<AbstractLocalized>;
@@ -26,5 +42,5 @@ export declare class XinLocalized extends Component {
     localeChanged(): void;
     render(): void;
 }
-export declare const xinLocalized: any;
+export declare const xinLocalized: import("xinjs").ElementCreator<Component<import("xinjs").PartsMap<Element>>>;
 export {};

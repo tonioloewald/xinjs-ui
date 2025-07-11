@@ -11,4 +11,4 @@ export declare class AbTest extends Component {
     disconnectedCallback(): void;
     render(): void;
 }
-export declare const abTest: any;
+export declare const abTest: import("xinjs").ElementCreator<Component<import("xinjs").PartsMap<Element>>>;

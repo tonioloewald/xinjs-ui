@@ -118,7 +118,7 @@ header xin-locale-picker xin-select button {
 }
 
 header xin-locale-picker xin-select button svg {
-  fill: var(--brand-text-color) !important;
+  stroke: var(--brand-text-color) !important;
 }
 </xin-code>
 <xin-code mode="javascript" name="js"></xin-code>
@@ -156,8 +156,9 @@ export const styleSpec: XinStyleSheet = ...
 */
 
 import { XinStyleSheet, vars, Color, invertLuminance, MoreMath } from 'xinjs'
+import { icons, svg2DataUrl } from '../../src'
 
-const brandColor = Color.fromCss('#FF7BAC')
+const brandColor = Color.fromCss('#EE257B')
 window.brandColor = brandColor
 brandColor.swatch()
 
@@ -233,6 +234,11 @@ export const styleSpec: XinStyleSheet = {
     _menuItemIconColor: vars.brandColor,
     color: vars.textColor,
   },
+  '.center': {
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
   'input, button, select, textarea': {
     fontFamily: vars.fontFamily,
     fontSize: vars.fontSize,
@@ -299,13 +305,27 @@ export const styleSpec: XinStyleSheet = {
   blockquote: {
     background: vars.insetBg,
     margin: '0',
+    borderRadius: vars.spacing50,
     padding: 'var(--spacing) calc(var(--spacing) * 2)',
   },
   'blockquote > :first-child': {
     marginTop: '0',
   },
   'blockquote > :last-child': {
+    position: 'relative',
+    width: '100%',
+    paddingBottom: 48,
     marginBottom: '0',
+  },
+  'blockquote > :last-child::after': {
+    content: '" "',
+    width: 48,
+    height: 48,
+    display: 'block',
+    bottom: 0,
+    right: 0,
+    position: 'absolute',
+    background: svg2DataUrl(icons.tosi()),
   },
   '.bar': {
     display: 'flex',
@@ -403,7 +423,6 @@ export const styleSpec: XinStyleSheet = {
     pointerEvents: 'none',
     fontSize: '16px',
     fontWeight: 'bold',
-    fill: '#000',
     stroke: '#fff8',
     strokeWidth: '0.5',
     opacity: '0',
@@ -529,9 +548,6 @@ export const styleSpec: XinStyleSheet = {
     color: 'currentcolor',
     background: 'transparent',
     gap: '2px',
-  },
-  svg: {
-    fill: 'currentcolor',
   },
   'img.logo, xin-icon.logo': {
     animation: '2s ease-in-out 0s infinite alternate logo-swing',

@@ -204,7 +204,7 @@ export class XinNotification extends Component {
       zIndex: 1,
     },
     ':host .note .icon': {
-      fill: vars.notificationAccentColor,
+      stroke: vars.notificationAccentColor,
     },
     ':host .note button': {
       display: 'flex',
@@ -221,11 +221,11 @@ export class XinNotification extends Component {
       position: 'relative',
     },
     ':host .note button:hover svg': {
-      fill: vars.notificationAccentColor,
+      stroke: vars.notificationAccentColor,
     },
     ':host .note button:active svg': {
       borderRadius: 99,
-      fill: vars.notificationBg,
+      stroke: vars.notificationBg,
       background: vars.notificationAccentColor,
       padding: vars.spacing50,
     },

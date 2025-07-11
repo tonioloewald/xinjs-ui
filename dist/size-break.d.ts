@@ -3,7 +3,7 @@ export declare class SizeBreak extends WebComponent {
     minWidth: number;
     minHeight: number;
     value: 'normal' | 'small';
-    content: any[];
+    content: HTMLSlotElement[];
     static styleSpec: {
         ':host': {
             display: string;

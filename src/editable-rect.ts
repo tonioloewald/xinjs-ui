@@ -427,7 +427,7 @@ export class EditableRect extends Component {
         part: 'rotate',
         style: { top: '50%', right: '0' },
       },
-      icons.refresh()
+      icons.refreshCw()
     ),
     div(
       {
