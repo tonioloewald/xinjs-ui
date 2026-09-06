@@ -227,6 +227,57 @@ the mid-build 404 window (fall back to `.last-good` in `resolveFile`), a
 `deploy/` shipping with `dev.tosijs.net` / a personal email hardcoded and no adopter
 substitution guide.
 
+## Test fences as a first-class tier — the five gaps (#142)
+
+From tosijs-3d-ensemble converting a bespoke Playwright lane to test fences. The report is
+worth reading in full; the promotion case is a **decision**, but five items under it are
+concrete work and are listed here so they don't live only in the issue.
+
+The reporter's own framing, which we should keep: fences replace the **browser lane**, not
+`bun test`. Anything that is a function stays in the fast happy-dom tier (theirs: 405 tests in
+~1.0s vs 4 fences in ~5s plus a build).
+
+- [ ] **Thin matcher set.** No `toBeCloseTo`, so everything renderer-shaped (intensities,
+      bounding boxes, densities) gets hand-rolled as `Math.round(x * 1e6) / 1e6`.
+      `toBeCloseTo` and `toBeGreaterThanOrEqual` would cover most of it.
+- [ ] **Concurrency vs WebGL contexts.** Test bodies run concurrently and same-page examples
+      overlap; Chrome hard-caps live WebGL contexts near 16 and force-loses the oldest. A doc
+      page with several 3D examples is a context-eviction hazard whose symptom is an unrelated
+      flaky test. Wants a per-page serial mode or an opt-in serial marker. Nobody has been bitten
+      yet — one example per page — so this is a designed-in cliff, not luck that ran out.
+- [ ] **Two unmarked fence-authoring traps**, one line of docs each: a block comment inside a
+      fence ends the enclosing doc comment at its first close token (their *warning about this*
+      broke its own file by spelling the token out), and a fence has its own import scope so the
+      example's imports are not available in it.
+- [ ] **Line numbers may be computed against the wrong source.** Two failures in two *different*
+      test blocks both reported `(line 114)`. Unchased and possibly an artifact of how that fence
+      was built — but if the offset is wrong the number is worse than none, because it sends you
+      confidently to the wrong place. Someone who knows `firstUserStackFrame` should look.
+      **Relevant to us beyond that repo:** this release already fixed one doc-test false green,
+      and a wrong line number is the same class of defect — the lane reporting something it
+      cannot back up.
+- [ ] **Page-level behaviour has nowhere to go** (their editor races its own `src` against an
+      explicit `load()`). Fine in itself, but it means the browser lane does not go to zero and
+      a promotion pitch should say so.
+
+## Fail loudly as a review lens — 25% of the backlog is one defect class (#61)
+
+14 of 56 issues are silent failure. Not a theme anyone went looking for; it is what the corpus
+contains. The ask is to adopt it as a **stated design rule and a review lens** rather than
+fixing instances: no empty render on a resolution failure, no swallowed exception in the
+orchestrator or dev server, no destructive filesystem operation without a guard.
+
+The adoption argument is the part worth keeping: the release loop is fast because the primary
+consumer has commit rights on both ends and files within hours. A consumer without that
+relationship gets the same regressions and none of the recourse, so they rationally pin and lag
+— and the project loses the thing that makes the velocity work.
+
+- [ ] Decide whether this becomes a standing lens (shared practices) or a repo rule here.
+- [ ] Three unfiled instances named in the issue: an example whose import is missing from
+      `installContext` renders nothing with no console error; the dev server does not watch
+      `tosijs-site.config.ts` (sibling of #49); `.doc-content`'s `max-width` is an **inline**
+      style, so consumers need `!important` and full-bleed is impossible (#52).
+
 ## Doc-System Roadmap
 
 See [doc-system-roadmap.md](doc-system-roadmap.md) for the full plan. North star:
