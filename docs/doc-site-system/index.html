@@ -43,7 +43,7 @@
 <script>if('serviceWorker'in navigator){navigator.serviceWorker.register('/module-cache-sw.js').catch(function(){})}</script><script>globalThis.__TJS_LOCAL_BASE="/tjs/"</script><script>globalThis.__TOSI_IMPORT_RESOLVER={"prefix":"/lib/","workerUrl":"/import-resolver-worker.js","reloadOnFirstInstall":false}</script>
 </head>
 <body>
-  <tosi-doc-system docs="../docs.json?v=6d4180df14d4" config="{&quot;projectName&quot;:&quot;tosijs-ui&quot;,&quot;projectLinks&quot;:{&quot;tosijs&quot;:&quot;https://tosijs.net&quot;,&quot;github&quot;:&quot;https://github.com/tonioloewald/tosijs-ui&quot;}}" localized="../localized-strings.txt">
+  <tosi-doc-system docs="../docs.json?v=b2e3c1f2b7b8" config="{&quot;projectName&quot;:&quot;tosijs-ui&quot;,&quot;projectLinks&quot;:{&quot;tosijs&quot;:&quot;https://tosijs.net&quot;,&quot;github&quot;:&quot;https://github.com/tonioloewald/tosijs-ui&quot;}}" localized="../localized-strings.txt">
   <article class="doc-content">
 <!--{"pin":"bottom","title":"Doc-Site System","description":"How tosijs-ui's static, pre-rendered, hydrating documentation-site system works — and how to adopt it (tosijs-ui/site) in your own project.","parent":"Appendices"}-->
 
@@ -457,7 +457,7 @@ the example, plus ten pages importing a symbol their barrel did not export.</p>
 <tbody><tr>
 <td><code>prebuild</code></td>
 <td>—</td>
-<td><code>() =&gt; void | Promise&lt;void&gt;</code> run first, for source-tree codegen (version stamp, icon data, …). Runs before <code>dist</code>/output are reset — don&#39;t write there</td>
+<td><code>() =&gt; void | Promise&lt;void&gt;</code> run first, for source-tree codegen (version stamp, icon data, …). The output dir is reset after it runs — don&#39;t write there. <code>dist/</code> is reset only when <code>emitLibrary</code>/<code>libraryTsconfig</code> own it (#130)</td>
 </tr>
 <tr>
 <td><code>emitLibrary</code></td>
@@ -1512,10 +1512,14 @@ system (or host its API docs as a separate site).</li>
 own path (<code>/{slug}/</code>), so a <code>./asset</code> reference inside a <code>/*# … */</code> block now
 resolves under that slug, not the site root. Use <strong>root-absolute</strong> URLs
 (<code>/asset</code>) for images and links in doc content.</li>
-<li><strong><code>prebuild</code> runs before <code>dist/</code> exists and <code>outputDir</code> is wiped.</strong> Use the
-<code>prebuild</code> hook for source-tree codegen (version stamp, icon data, …) and
-write into a <code>staticDirs</code> folder for assets — not <code>dist/</code> or the output dir,
-which the build resets immediately after.</li>
+<li><strong><code>prebuild</code> runs before <code>outputDir</code> is wiped.</strong> Use it for source-tree codegen
+(version stamp, icon data, …) and write assets into a <code>staticDirs</code> folder — not the
+output dir, which the build resets immediately after.</li>
+<li><strong><code>dist/</code> is reset only when this build owns it (#130).</strong> <code>emitLibrary</code> or
+<code>libraryTsconfig</code> means the build produces <code>dist/</code>, so it clears it first. A
+<code>libraryBuild</code> function owns the directory and may deliberately emit a subset, so it is
+never cleared — and with no library configured, the doc build writes nothing into <code>dist/</code>
+and does not touch it. <strong>If you supply <code>libraryBuild</code>, cleaning <code>dist/</code> is yours.</strong></li>
 <li><strong>Anything <code>prebuild</code> writes into a watched path is an infinite rebuild loop.</strong> The
 file it writes triggers the watcher, which rebuilds, which writes it again. The dev
 server&#39;s storm detector will stop you (and name the file), but the fix is on your side:

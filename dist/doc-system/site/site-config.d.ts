@@ -129,8 +129,12 @@ export interface SiteConfig {
     basePath?: string;
     /**
      * Project-specific codegen run first, before doc extraction and the build
-     * (e.g. stamp a version file, regenerate icon data). Runs before the dist
-     * dir is reset, so don't emit into dist here — use it for src/ codegen.
+     * (e.g. stamp a version file, regenerate icon data). The output dir is always
+     * reset after this runs, so never emit there.
+     *
+     * `dist/` is reset only when this build OWNS it — i.e. `emitLibrary` or
+     * `libraryTsconfig` is set. With a `libraryBuild` function, or with no library
+     * configured at all, `dist/` is left alone and cleaning it is yours (#130).
      */
     prebuild?: () => void | Promise<void>;
     /**

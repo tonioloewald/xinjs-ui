@@ -2,6 +2,49 @@
 
 ## 1.14.0 (unreleased)
 
+### Live `ts` examples load a pinned TypeScript compiler
+
+tjs-lang's `fromTS` lazy-loads the TypeScript compiler from `DEFAULT_TYPESCRIPT_URL` —
+`https://esm.sh/typescript@5`, an **unpinned major range**. It was the one hop in the entire
+live-example chain that was neither same-origin nor pinned: everything else routes through
+`__TJS_LOCAL_BASE` or a `TJS_VERSION`-pinned CDN. Because it is fetched at runtime it appears
+in no lockfile, so `bun audit` cannot see it and "which compiler ran in a reader's browser" had
+no answer.
+
+Now pinned, via the `typescriptUrl` option tjs-lang already exposes, to the **exact version
+this repo type-checks with** — so a doc example is lowered by the same compiler that validates
+the source it was extracted from. A drift test asserts the pin against the **installed**
+compiler rather than the declared range, because `typescript` is a caret dependency here and a
+range check would call `^5.9.3` satisfied while the pin said something else.
+
+esm.sh stays as the host — tjs-lang measured it as the only CDN that reliably serves
+`typescript` as ESM. The fix is the pin, not the host; a same-origin copy is the upstream ask.
+
+Nobody was exposed: this repo's corpus contains no executable ` ```ts ` fences.
+
+### `MenuAction.action` is optional, so a drop-only menu item is expressible
+
+`acceptsDrop` + `dropAction` with no `action` — a target you can drag onto but not click — is
+a shape the runtime supports and `popDropMenu`'s docs describe, but the type required `action`.
+When the new typecheck lane compiled the tests for the first time, four literals were silenced
+with `as unknown as MenuItem` rather than the type being corrected.
+
+The casts are gone. Two tests now pin what the widened type admits: a drop-only item appears
+**disabled** in a click menu and is removed only under `hideDisabled` — the documented
+`hideDisabled` contract. (The first draft of that test asserted it was filtered out entirely,
+and failed; the finding implied a behaviour the code does not have.)
+
+### `buildSite` docs: `dist/` is reset only when the build owns it (#130)
+
+Three shipped surfaces still promised an unconditional reset — the config table and the
+gotchas list in `doc-site-system.md`, and the `prebuild` JSDoc, which reaches
+`dist/doc-system/site/site-config.d.ts` and is what an adopter reads on editor hover.
+
+`dist/` is cleared only when `emitLibrary` or `libraryTsconfig` means this build produces it.
+A `libraryBuild` function owns the directory and may deliberately emit a subset, so it is never
+cleared — **if you supply `libraryBuild`, cleaning `dist/` is yours.** The output dir is still
+always reset, which is the part `prebuild` authors actually need to know.
+
 ### Security: the source editor can no longer write files the build executes (#128)
 
 `editableSources` writes were contained only to the project root — which includes

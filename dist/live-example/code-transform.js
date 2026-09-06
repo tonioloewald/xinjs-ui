@@ -200,6 +200,26 @@ export async function executeCode(code, context, transform) {
 // against the local bundle and the published site runs against whatever this string says.
 // Flagged by tjs-lang in tosijs-ui#135, alongside noticing we had sat on a deprecated 0.13.4.
 export const TJS_VERSION = '0.13.11';
+/*
+The TypeScript compiler a live `ts` example is transpiled with.
+
+tjs-lang's `fromTS` lazy-loads it from `DEFAULT_TYPESCRIPT_URL` — `https://esm.sh/typescript@5`,
+an unpinned major range — and that was the ONE hop in the whole live-example chain that was
+neither same-origin nor pinned. Everything else routes through `__TJS_LOCAL_BASE` or a
+`TJS_VERSION`-pinned CDN. It is invisible to `bun.lock` and therefore to `bun audit`, so
+"which compiler ran in a reader's browser" had no answer and could change under us.
+
+Pinned to the exact version this repo type-checks with (`typescript` devDep), so an example
+is lowered by the same compiler that validates the source it came from. **Bump the two
+together** — the devDep is the source of truth, this is the browser's copy of it.
+
+esm.sh is kept as the host: tjs-lang measured it as the only CDN that reliably serves
+typescript as ESM (jsDelivr `+esm` and esm.run time out on its ~10MB CommonJS; skypack is
+dead). The fix here is the pin, not the host. A same-origin copy would be better still and is
+the upstream ask — tjs-lang exposes `typescriptUrl` for exactly that.
+*/
+export const TYPESCRIPT_VERSION = '5.9.3';
+export const TYPESCRIPT_URL = `https://esm.sh/typescript@${TYPESCRIPT_VERSION}`;
 // Where to fetch a tjs-lang browser bundle from, in priority order:
 //  1. SAME-ORIGIN — the doc-site build copies the bundles next to the iife and
 //     sets `__TJS_LOCAL_BASE`, so the transpiler ships in lockstep with the page,
@@ -376,7 +396,10 @@ export async function loadTransform(dialect = 'js') {
             // async: fromTS lazy-loads the TypeScript compiler on first use.
             return (async () => {
                 const tjsSource = fromTS
-                    ? (await fromTS(code, { emitTJS: true })).code
+                    ? (await fromTS(code, {
+                        emitTJS: true,
+                        typescriptUrl: TYPESCRIPT_URL,
+                    })).code
                     : code;
                 const result = {
                     code: tjs(tjsSource, { dialect: 'tjs', runTests: false }).code,

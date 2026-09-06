@@ -7,7 +7,19 @@ export interface MenuAction {
     shortcut?: string;
     checked?: () => boolean;
     enabled?: () => boolean;
-    action: ActionCallback | string;
+    /**
+     * What clicking does. **Optional**, because a drop-only item is a supported shape:
+     * `acceptsDrop` + `dropAction` with no `action` is a target you can drag onto but not
+     * click, and `filterForClick` branches on `action || menuItems` precisely so it drops
+     * out of click menus. Required here until 1.14.0 — which made the documented shape
+     * inexpressible, so four literals in `menu.test.ts` were cast through
+     * `as unknown as MenuItem` rather than the type being corrected.
+     *
+     * An item with neither `action` nor `dropAction` does nothing; that is inert, not
+     * unsafe, and no narrower type expresses "one of these two" without splitting the
+     * union in a way every consumer would feel.
+     */
+    action?: ActionCallback | string;
     icon?: string | Element;
     tooltip?: string;
     properties?: ElementProps;
