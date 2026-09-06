@@ -171,6 +171,31 @@ rather than with blanket `any`.
 A type-level test asserts nothing if nothing compiles it — which was already the argument for
 `typecheck-guards`, applied to everything else.
 
+### The test lane itself, honestly
+
+Three things the pre-release review found in the tests rather than in the code, recorded
+because a suite that is quietly wrong is worse than one that is loudly red.
+
+**Six tests were deleted and the suite stayed green.** Adding the #139 cases to
+`insert-examples.test.ts`, `cat >` was used instead of `cat >>`, wiping two `describe` blocks
+that covered still-shipping behaviour — grouping across a baked `<script>`, and fenced
+execution modes. Nothing complained, because fewer tests all passed. That is the exact shape of
+a coverage regression no gate catches: green is not a measurement of how much you asked. The
+blocks are restored, and the #139 cases rewritten against the same stub creator the originals
+used.
+
+**`ENOENT reading "https://esm.sh/typescript@5"` during `bun test`** came from the same
+rewrite: the real `liveExample` transpiled a `ts` fence, and the rejection leaked across test
+files, printing under an unrelated file's header. Zero occurrences now — and worth noting that
+the message named a URL while claiming `ENOENT`, which is why it read as noise for as long as
+it did.
+
+**`caddy-install.test.ts` was flaky about one run in ten.** Each of its tests cold-starts a
+real `bun` to exercise the generated remote script, so its cost is interpreter startup — ~1.2s
+each, with the file swinging 3.5s to 10.1s under load. Under bun's 5s default that put single
+tests over the line whenever the machine was busy. They now carry a 20s budget that describes
+the work; a test exceeding *that* is a real defect rather than machine load.
+
 ### Every bin answers `--help`, and refuses what it does not understand (#85)
 
 `caddy-install`, `deploy-preview`, `tunnel` and `release-notes` each carried their own
@@ -215,6 +240,12 @@ be part of a real code — and ignores hyphens and spaces.
 Rate limiting is unchanged and still does the heavy lifting: redemption is serialized at ~10
 attempts/second, so 22⁸ takes ~174 years to exhaust and a five-minute window is about 1 in 18
 million.
+
+`dev-auth.ts` itself went on arguing from **32⁷** — ~111 years, 1 in 11 million — for the whole
+of the change that made the token 22⁸. The conclusion never stopped holding, which is precisely
+why nothing surfaced it: a safety argument that survives its own premises being replaced is not
+being read. The figures are corrected in place, with the superseded ones kept beside them, since
+this is the one file where the numbers *are* the argument rather than a description of it.
 
 The invite page's code box (shipped for #75) covers most of the rest of the ask: bookmark the
 host once, then each session is eight letters into a text field. The `dev.tosijs.net/<code>`
