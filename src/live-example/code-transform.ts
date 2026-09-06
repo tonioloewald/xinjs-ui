@@ -183,18 +183,18 @@ export function rewriteImports(
     const m = moduleName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
     // import { a, b } from 'mod'
     result = result.replace(
-      new RegExp(`import\\s*\\{([^}]*)\\}\\s*from\\s*'${m}'`, 'g'),
+      new RegExp(`import\\s*\\{([^}]*)\\}\\s*from\\s*['"]${m}['"]`, 'g'),
       (_, names: string) =>
         `const { ${names.replace(/\s+/g, ' ').trim()} } = ${js}`
     )
     // import * as X from 'mod'
     result = result.replace(
-      new RegExp(`import\\s*\\*\\s*as\\s+(\\w+)\\s+from\\s*'${m}'`, 'g'),
+      new RegExp(`import\\s*\\*\\s*as\\s+(\\w+)\\s+from\\s*['"]${m}['"]`, 'g'),
       (_, name: string) => `const ${name} = ${js}`
     )
     // import X from 'mod'  (default)
     result = result.replace(
-      new RegExp(`import\\s+(\\w+)\\s+from\\s*'${m}'`, 'g'),
+      new RegExp(`import\\s+(\\w+)\\s+from\\s*['"]${m}['"]`, 'g'),
       (_, name: string) => `const ${name} = ${js}`
     )
   }
@@ -206,15 +206,32 @@ export function rewriteImports(
   const leftover = result.match(/^\s*import\s+['"{*\w][^\n]*/m)
   if (leftover) {
     const statement = leftover[0].trim()
-    throw new UnsupportedImportError(
-      `live example: unsupported import \`${statement}\` — imports ` +
-        `from the example context (${contextKeys.join(
-          ', '
-        )}) are supported in ` +
-        `{ named }, * as ns, or default form` +
+    /*
+    Name the token we choked on, not the grammar we accept (#141).
+
+    The old message listed the supported FORMS and the context keys — so a failing
+    `import { x } from "pkg"`, which is a listed package in the `{ named }` form, was
+    answered with a sentence that ruled out its own cause and pointed at three things that
+    were all fine. It cost the reporter ~40 minutes and sent them to rewrite a multiline
+    import that was never the problem.
+
+    The two causes are different and now say so: a specifier the context does not carry, vs
+    a clause shape the rewriter does not handle.
+    */
+    const spec = statement.match(/from\s*['"]([^'"]+)['"]/)?.[1]
+    const known = spec !== undefined && contextKeys.includes(spec)
+    const detail = known
+      ? `\`${spec}\` IS in the example context, so the import CLAUSE is what could not be ` +
+        `rewritten — supported forms are \`{ named }\`, \`* as ns\`, \`default\`, and ` +
+        `\`default, { named }\`.`
+      : `${
+          spec ? `\`${spec}\` is not` : 'that specifier is not'
+        } in the example context (${contextKeys.join(', ')})` +
         (importPrefix
-          ? `, and other packages resolve via the import-resolver.`
-          : ` (enable importResolver to import other packages).`),
+          ? `, and the import-resolver did not rewrite it.`
+          : `. Enable importResolver to import other packages.`)
+    throw new UnsupportedImportError(
+      `live example: unsupported import \`${statement}\` — ${detail}`,
       statement
     )
   }

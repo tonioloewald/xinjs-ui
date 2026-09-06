@@ -314,3 +314,39 @@ describe('mode="tjs" — the headline 1.7 feature', () => {
     expect(languageForMode('ajs')).toBeDefined()
   })
 })
+
+/*
+The diff `<tosi-code>` mounts itself must be readable by default (#143).
+
+Reported from tosijs-platform/loewald.com: `<tosi-diff>` resolves its surface as
+`--tosi-diff-bg || --background`, and inside a code editor `--background` is still the page's
+white while `--text-color` is the light code colour — so the diff's unchanged lines were
+near-white on white. The adopter's fix reached into a component nested inside another
+component's shadow tree, setting undeclared custom properties held together by a caret range.
+*/
+describe('#143: the nested diff inherits the editor palette', () => {
+  const spec = (
+    CodeEditor as unknown as {
+      shadowStyleSpec: Record<string, Record<string, string>>
+    }
+  ).shadowStyleSpec['[part="diffHost"]']
+
+  test('--background is redefined for the subtree, so the diff surface follows --code-bg', () => {
+    expect(spec._background).toBe('var(--code-bg, var(--input-bg, #fdfdfd))')
+  })
+
+  test('a consumer --tosi-diff-bg still wins — it is checked BEFORE our fallback', () => {
+    // Setting `--tosi-diff-*` on this element would override the adopter's value instead
+    // (an inner definition beats an inherited one), silently breaking the escape hatch.
+    expect(spec.background).toBe('var(--tosi-diff-bg, var(--code-bg, #fdfdfd))')
+    expect(Object.keys(spec)).not.toContain('_tosiDiffBg')
+    expect(Object.keys(spec)).not.toContain('_tosiDiffColor')
+  })
+
+  test('--text-color is NOT redeclared here — that would be a cycle', () => {
+    // `--text-color: var(…, var(--text-color, …))` is invalid at computed-value time: the
+    // property unsets rather than falling back, which looks like a fix and is not. The text
+    // was already correct; only the surface was wrong.
+    expect(Object.keys(spec)).not.toContain('_textColor')
+  })
+})

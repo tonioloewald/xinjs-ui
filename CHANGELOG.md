@@ -2,6 +2,44 @@
 
 ## 1.14.0 (unreleased)
 
+### Quote style no longer decides whether a live example runs (#141)
+
+The live-example import rewriter accepted `'single-quoted'` specifiers and rejected
+`"double-quoted"` ones — the same import, the same `{ named }` form, differing only in quotes.
+
+On its own that is a papercut. What made it serious is **Prettier**: it formats fenced code
+inside markdown and normalises quotes to double, so on any project that formats its `.md`,
+every live example was silently converted into a non-running one. The only symptom was a
+build-time warning that reads as advisory.
+
+Reported from tosijs-3d-ensemble, where the README's headline example — the one showing what a
+game imports — had never run for the life of the repo. Because it never ran, nothing noticed it
+also named a function the package has never exported. Two defects in the most-read code block
+there, both invisible for the same reason. Found by the doc-test corpus, not by reading.
+
+All three context forms (`{ named }`, `* as ns`, default) now accept either quote style, as
+does the `.elements` accessor.
+
+**And the error message named the wrong thing.** It listed the supported forms and the context
+packages — so a failing `import { x } from "pkg"`, a listed package in a listed form, was
+answered with a sentence that ruled out its own cause. The reporter spent ~40 minutes rewriting
+a multiline import that was never the problem. The message now separates the two real causes: a
+specifier the context does not carry, versus a clause shape the rewriter cannot handle.
+
+### `<tosi-code>`'s own diff overlay is readable by default (#143)
+
+`<tosi-diff>` resolves its surface as `--tosi-diff-bg || --background`. Inside `<tosi-code>`,
+`--background` is still the page's white while `--text-color` is deliberately the light code
+colour — so the diff `showDiff()` mounts rendered near-white text on white, and its unchanged
+lines were invisible. The one place the component mounts a diff itself was the one place the
+default did not work.
+
+`--background` is now redefined for that subtree to follow `--code-bg`, so the nested diff
+inherits the editor's palette. Deliberately **not** by setting `--tosi-diff-*` here: an inner
+definition beats an inherited one, so that would have overridden the very custom properties
+adopters are already using as an escape hatch — a silent break of the thing the issue was
+about. A consumer's `--tosi-diff-bg` is still checked first and still wins.
+
 ### Live `ts` examples load a pinned TypeScript compiler
 
 tjs-lang's `fromTS` lazy-loads the TypeScript compiler from `DEFAULT_TYPESCRIPT_URL` —

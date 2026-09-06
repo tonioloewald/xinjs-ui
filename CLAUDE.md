@@ -394,7 +394,7 @@ How grouping works (`insert-examples.ts`):
 **Execution model** (`src/live-example/execution.ts`):
 
 - Each code block type (`js`, `test`) runs as a **separate** `AsyncFunction` invocation
-- `import { x } from 'tosijs-ui'` is rewritten to `const { x } = tosijsui` (also works for `'tosijs'` → `tosijs`). Only named imports with `{ }` and single quotes are supported.
+- `import { x } from 'tosijs-ui'` is rewritten to `const { x } = tosijsui` (also works for `'tosijs'` → `tosijs`). `{ named }`, `* as ns` and default forms are all supported, in **either quote style** — single-quote-only was a real trap, because Prettier normalises fenced code in `.md` to double quotes and silently turned every example into a non-running one (#141).
 - `import { x } from 'tosijs'.elements` works — the `.elements` accessor is preserved after rewriting
 - Variables/imports from a `js` block are NOT available in `test` blocks — each block has its own scope
 - The `preview` DOM element is injected as a context variable, shared across blocks in the same example

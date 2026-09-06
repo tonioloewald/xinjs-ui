@@ -209,3 +209,61 @@ test('F10a: the TypeScript pin matches the installed compiler, and is exact', as
     'a range or tag here defeats the point of pinning'
   ).toMatch(/@\d+\.\d+\.\d+$/)
 })
+
+/*
+Double-quoted specifiers (#141).
+
+The three context rewrites hardcoded `'${m}'`, so the identical import failed on quote style
+alone. That is a papercut on its own — what made it serious is Prettier: it formats fenced code
+inside markdown and normalises quotes to double, so on any project that formats its `.md`,
+EVERY live example silently became a non-running one. The only symptom was a build warning that
+reads as advisory. Reported from tosijs-3d-ensemble, where the README's headline example had
+never run for the life of the repo — and because it never ran, nothing noticed it also called a
+function the package does not export.
+*/
+describe('#141: quote style must not decide whether an example runs', () => {
+  const CTX = ['tosijs', 'tosijs-ui']
+
+  test.each([
+    [
+      'named',
+      `import { elements } from %Qtosijs%Q`,
+      'const { elements } = tosijs',
+    ],
+    ['namespace', `import * as X from %Qtosijs%Q`, 'const X = tosijs'],
+    ['default', `import Foo from %Qtosijs-ui%Q`, 'const Foo = tosijsui'],
+    [
+      'the .elements accessor',
+      `import { div } from %Qtosijs%Q.elements`,
+      'const { div } = tosijs.elements',
+    ],
+  ])('%s reads the same single- or double-quoted', (_label, tpl, expected) => {
+    expect(rewriteImports(tpl.replace(/%Q/g, "'"), CTX)).toBe(expected)
+    expect(rewriteImports(tpl.replace(/%Q/g, '"'), CTX)).toBe(expected)
+  })
+
+  test('the error names the specifier, not the grammar', () => {
+    // A package the context does not carry: say THAT, and say which ones it does.
+    let msg = ''
+    try {
+      rewriteImports(`import { x } from "no-such-pkg"`, CTX)
+    } catch (e) {
+      msg = (e as Error).message
+    }
+    expect(msg).toContain('no-such-pkg')
+    expect(msg).toContain('not in the example context')
+    expect(msg).toContain('tosijs-ui')
+  })
+
+  test('a context package in an unhandled CLAUSE says the clause is the problem', () => {
+    let msg = ''
+    try {
+      // `import a, * as b from` is valid JS the rewriter does not handle.
+      rewriteImports(`import a, * as b from 'tosijs'`, CTX)
+    } catch (e) {
+      msg = (e as Error).message
+    }
+    expect(msg).toContain('IS in the example context')
+    expect(msg).toContain('CLAUSE')
+  })
+})

@@ -337,12 +337,36 @@ export class CodeEditor extends WebComponent {
             height: '100%',
         },
         '[part="host"]': { height: '100%' },
+        /*
+        The nested `<tosi-diff>` inherits the EDITOR's palette, not the page's (#143).
+    
+        `<tosi-diff>` resolves its own surface as `--tosi-diff-bg || --background` and its text as
+        `--tosi-diff-color || --text-color`. Inside `<tosi-code>`, `--text-color` is deliberately
+        the light code colour — so CodeMirror text reads against the dark `--code-bg` — while
+        `--background` is still the page's white. The nested diff therefore rendered near-white
+        text on a white surface, and its unchanged/context lines were invisible. The one place the
+        component mounts a diff ITSELF was the one place the default did not work.
+    
+        Only the SURFACE is redefined. The text was already right: `--text-color` inside a code
+        editor IS the code colour, which is why the diff's own `--tosi-diff-color || --text-color`
+        chain lands correctly and only its background was wrong. (Writing `--text-color` here would
+        also have been a self-referential cycle — invalid at computed-value time, so the property
+        silently unsets rather than falling back, which looks like a fix and is not.)
+    
+        Fixed by redefining what the FALLBACK means inside this subtree rather than by setting
+        `--tosi-diff-*` here: the consumer's `--tosi-diff-bg`/`--tosi-diff-color` is still checked
+        first and still wins, so the workaround adopters already shipped keeps working. Setting the
+        `--tosi-diff-*` properties on this element would have overridden them instead — an inner
+        definition beats an inherited one — which is a silent break of exactly the escape hatch
+        #143 was filed about.
+        */
         '[part="diffHost"]': {
             position: 'absolute',
             inset: '0',
             zIndex: '5',
             overflow: 'auto',
-            background: varDefault.tosiDiffBg(varDefault.background('#fff')),
+            _background: varDefault.codeBg(varDefault.inputBg('#fdfdfd')),
+            background: varDefault.tosiDiffBg(varDefault.codeBg('#fdfdfd')),
         },
         '.cm-editor': { height: '100%' },
         '.cm-scroller': {

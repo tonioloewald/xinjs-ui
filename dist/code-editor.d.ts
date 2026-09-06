@@ -85,6 +85,7 @@ export declare class CodeEditor extends WebComponent<CodeEditorParts> {
             inset: string;
             zIndex: string;
             overflow: string;
+            _background: string;
             background: string;
         };
         '.cm-editor': {
