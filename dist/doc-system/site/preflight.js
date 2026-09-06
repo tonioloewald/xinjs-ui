@@ -21,20 +21,34 @@ Build-time only (Bun/Node APIs). Never import this from browser code.
 import * as os from 'os';
 import { $ } from 'bun';
 /**
- * Parse `ps -eo pid=,rss=,etime=,args=` output. Bytes are KB in `ps`; the command
- * is everything after the third field, so it may contain spaces.
+ * Parse `ps -eo pid=,ppid=,rss=,etime=,args=` output. Bytes are KB in `ps`; the command
+ * is everything after the fourth field, so it may contain spaces.
+ *
+ * Still accepts the older four-field `pid,rss,etime,args` shape — `parsePs` is exported, and
+ * a caller feeding it the old format should get rows without a ppid rather than garbage.
  */
 export function parsePs(output) {
     const procs = [];
     for (const line of output.split('\n')) {
-        const m = line.trim().match(/^(\d+)\s+(\d+)\s+(\S+)\s+(.*)$/);
-        if (!m)
+        const five = line.trim().match(/^(\d+)\s+(\d+)\s+(\d+)\s+(\S+)\s+(.*)$/);
+        if (five) {
+            procs.push({
+                pid: Number(five[1]),
+                ppid: Number(five[2]),
+                rssMb: Math.round(Number(five[3]) / 1024),
+                etime: five[4],
+                command: five[5],
+            });
+            continue;
+        }
+        const four = line.trim().match(/^(\d+)\s+(\d+)\s+(\S+)\s+(.*)$/);
+        if (!four)
             continue;
         procs.push({
-            pid: Number(m[1]),
-            rssMb: Math.round(Number(m[2]) / 1024),
-            etime: m[3],
-            command: m[4],
+            pid: Number(four[1]),
+            rssMb: Math.round(Number(four[2]) / 1024),
+            etime: four[3],
+            command: four[4],
         });
     }
     return procs;
@@ -225,6 +239,54 @@ export function assessProcesses(procs, opts) {
                 `warning, not a refusal${budgetNote}`,
         };
     }
+    /*
+    WASTE, not size (tosijs-ui#93 / the 1.14.0 review's F5).
+  
+    Every rule above asks "is one process too big?". The reported machine was 69 orphaned
+    `bun build --watch` bundlers at ~194MB each — 13.09GB between them, and not one of them
+    within a mile of any threshold. Dropping the `--watch` exemption made them *visible*; it did
+    not make them *catchable*, and the changelog claimed otherwise.
+  
+    The owner's framing is the right one and is why this is not a memory rule at all:
+  
+      "How is an orphaned build process OK? It's wasting memory and doing nothing. I don't care
+       if it 'only' uses X RAM."
+      "If I bring up top or activity monitor and I see a bunch of shit with similar names on
+       idle or whatever I tend to give a shit regardless of how little they're using."
+  
+    So the rule never consults RSS at all:
+  
+      ORPHANED   a watcher reparented to init (ppid 1) — its launcher is gone, so nothing will
+                 ever consume its output or clean it up. One is already a defect, at any size.
+  
+    "A bunch with similar names" was the other candidate signal and it is NOT used, because an
+    existing test encodes why: three identical `bun bin/site.ts` lines are three SIBLING PROJECTS
+    each running their own dev server, which is healthy. Identical argv does not mean duplicate
+    work — the distinguishing fact is the cwd, which `ps` does not give us and which
+    `killStrayServer` has to shell out to `lsof` for, per process. Orphanhood catches the
+    reported machine (all 69 were reparented) without that cost or that false positive.
+  
+    WARNS, never refuses. These are someone's stray processes, not a dying machine, and this
+    guard's refusal is reserved for "do not add load to a box that is already failing". A build
+    that will not start because a colleague left a watcher open is a guard people disable — and
+    a disabled guard is how the machine went down twice. Named on every build with the kill
+    command is the pressure that actually works.
+    */
+    const isWatcher = (p) => isDevProcess(p.command) && /(^|\s)--watch(\s|$)/.test(p.command);
+    const orphaned = others.filter((p) => isWatcher(p) && p.ppid === 1);
+    if (orphaned.length) {
+        const wasted = orphaned;
+        return {
+            level: 'warn',
+            offenders: wasted.sort(bySize),
+            reason: `${wasted.length} orphaned watcher${wasted.length === 1 ? '' : 's'} (parent gone) — ${gb(wasted.reduce((n, p) => n + p.rssMb, 0))} doing nothing. ` +
+                `Size is not the point: these will never be used and nothing else will clean them ` +
+                `up. Kill them: kill ${wasted
+                    .map((p) => p.pid)
+                    .slice(0, 12)
+                    .join(' ')}${wasted.length > 12 ? ' …' : ''}`,
+        };
+    }
     return { level: 'ok', offenders: [], reason: '' };
 }
 const gb = (mb) => mb >= 1024 ? `${(mb / 1024).toFixed(mb >= 10240 ? 0 : 1)}GB` : `${mb}MB`;
@@ -306,7 +368,7 @@ async function cwdOf(pid) {
     }
 }
 async function snapshot() {
-    const out = await $ `ps -eo pid=,rss=,etime=,args=`.quiet().text();
+    const out = await $ `ps -eo pid=,ppid=,rss=,etime=,args=`.quiet().text();
     return parsePs(out);
 }
 /** pids descended from `pid` — our own build children, which we must never judge. */

@@ -55,6 +55,16 @@ function writeEnv(contents: string) {
 const FULL_ENV =
   'PREVIEW_TOKEN=s3cret-invite\nACME_EMAIL=me@example.com\nPREVIEW_DOMAIN=dev.example.com\n'
 
+/*
+Every test here cold-starts a real `bun` to run the bin, so its cost is interpreter startup,
+not the assertion. Measured: ~1.2s each in isolation, and the file swings between 3.5s and
+10.1s depending on what else the machine is doing — which put single tests past bun's 5s
+default roughly one run in ten. That is a budget that does not describe the work, not a hang:
+`SPAWN_TIMEOUT` is what a cold interpreter under contention actually needs. A test that
+exceeds THIS is a real defect.
+*/
+const SPAWN_TIMEOUT = 20_000
+
 async function run(args: string[] = [], templatePath?: string) {
   const proc = Bun.spawn(
     [
@@ -78,84 +88,111 @@ async function run(args: string[] = [], templatePath?: string) {
   return { code: await proc.exited, out: stdout + stderr }
 }
 
-test('refuses when the box has no preview.env, naming what to create', () => {
-  // Without it there is nothing to substitute FROM, and guessing would install placeholders.
-  return run().then(({ code, out }) => {
+test(
+  'refuses when the box has no preview.env, naming what to create',
+  () => {
+    // Without it there is nothing to substitute FROM, and guessing would install placeholders.
+    return run().then(({ code, out }) => {
+      expect(code).not.toBe(0)
+      expect(out).toContain('preview.env')
+      expect(existsSync(etc('Caddyfile'))).toBe(false)
+    })
+  },
+  SPAWN_TIMEOUT
+)
+
+test(
+  'refuses when a required variable is missing, naming which',
+  async () => {
+    writeEnv('ACME_EMAIL=me@example.com\nPREVIEW_DOMAIN=dev.example.com\n')
+    const { code, out } = await run()
     expect(code).not.toBe(0)
-    expect(out).toContain('preview.env')
+    expect(out).toContain('PREVIEW_TOKEN')
     expect(existsSync(etc('Caddyfile'))).toBe(false)
-  })
-})
+  },
+  SPAWN_TIMEOUT
+)
 
-test('refuses when a required variable is missing, naming which', async () => {
-  writeEnv('ACME_EMAIL=me@example.com\nPREVIEW_DOMAIN=dev.example.com\n')
-  const { code, out } = await run()
-  expect(code).not.toBe(0)
-  expect(out).toContain('PREVIEW_TOKEN')
-  expect(existsSync(etc('Caddyfile'))).toBe(false)
-})
-
-test('REGRESSION: refuses to install a template with placeholders left in it', async () => {
-  /*
+test(
+  'REGRESSION: refuses to install a template with placeholders left in it',
+  async () => {
+    /*
   The reason this tool exists rather than a documented `sed` pipeline. Installing
   `{{ANYTHING}}` verbatim yields a preview host whose invite gate is a literal string
   published in a public repo, issuing certs under someone else's ACME account. A template
   with a placeholder nothing substitutes must FAIL, not ship.
   */
-  writeEnv(FULL_ENV)
-  const tpl = join(sandbox, 'Leftover')
-  writeFileSync(
-    tpl,
-    'site {\n  email {{ACME_EMAIL}}\n  secret {{UNSUBSTITUTED}}\n}\n'
-  )
-  const { code, out } = await run(['--go'], tpl)
-  expect(code).not.toBe(0)
-  expect(out).toContain('Unsubstituted placeholders remain')
-  expect(out).toContain('UNSUBSTITUTED')
-  expect(existsSync(etc('Caddyfile'))).toBe(false)
-})
+    writeEnv(FULL_ENV)
+    const tpl = join(sandbox, 'Leftover')
+    writeFileSync(
+      tpl,
+      'site {\n  email {{ACME_EMAIL}}\n  secret {{UNSUBSTITUTED}}\n}\n'
+    )
+    const { code, out } = await run(['--go'], tpl)
+    expect(code).not.toBe(0)
+    expect(out).toContain('Unsubstituted placeholders remain')
+    expect(out).toContain('UNSUBSTITUTED')
+    expect(existsSync(etc('Caddyfile'))).toBe(false)
+  },
+  SPAWN_TIMEOUT
+)
 
-test('a dry run changes nothing, and leaves no scratch file behind', async () => {
-  writeEnv(FULL_ENV)
-  const tpl = join(sandbox, 'Ok')
-  writeFileSync(tpl, 'x.{{PREVIEW_DOMAIN}} {\n  respond "hi"\n}\n')
-  const { code, out } = await run([], tpl)
-  expect(code).toBe(0)
-  expect(out).toContain('dry run')
-  expect(existsSync(etc('Caddyfile'))).toBe(false)
-  expect(existsSync(etc('Caddyfile.new'))).toBe(false)
-})
+test(
+  'a dry run changes nothing, and leaves no scratch file behind',
+  async () => {
+    writeEnv(FULL_ENV)
+    const tpl = join(sandbox, 'Ok')
+    writeFileSync(tpl, 'x.{{PREVIEW_DOMAIN}} {\n  respond "hi"\n}\n')
+    const { code, out } = await run([], tpl)
+    expect(code).toBe(0)
+    expect(out).toContain('dry run')
+    expect(existsSync(etc('Caddyfile'))).toBe(false)
+    expect(existsSync(etc('Caddyfile.new'))).toBe(false)
+  },
+  SPAWN_TIMEOUT
+)
 
-test('--go substitutes and installs', async () => {
-  writeEnv(FULL_ENV)
-  const tpl = join(sandbox, 'Ok')
-  writeFileSync(tpl, 'x.{{PREVIEW_DOMAIN}} {\n  respond "{{ACME_EMAIL}}"\n}\n')
-  const { code } = await run(['--go'], tpl)
-  expect(code).toBe(0)
-  const installed = readFileSync(etc('Caddyfile'), 'utf8')
-  expect(installed).toContain('x.dev.example.com')
-  expect(installed).toContain('me@example.com')
-  expect(installed).not.toContain('{{')
-  expect(existsSync(etc('Caddyfile.new'))).toBe(false)
-})
+test(
+  '--go substitutes and installs',
+  async () => {
+    writeEnv(FULL_ENV)
+    const tpl = join(sandbox, 'Ok')
+    writeFileSync(
+      tpl,
+      'x.{{PREVIEW_DOMAIN}} {\n  respond "{{ACME_EMAIL}}"\n}\n'
+    )
+    const { code } = await run(['--go'], tpl)
+    expect(code).toBe(0)
+    const installed = readFileSync(etc('Caddyfile'), 'utf8')
+    expect(installed).toContain('x.dev.example.com')
+    expect(installed).toContain('me@example.com')
+    expect(installed).not.toContain('{{')
+    expect(existsSync(etc('Caddyfile.new'))).toBe(false)
+  },
+  SPAWN_TIMEOUT
+)
 
-test('the invite secret is redacted from the dry-run diff', async () => {
-  /*
+test(
+  'the invite secret is redacted from the dry-run diff',
+  async () => {
+    /*
   The diff is printed on the DEVELOPER's terminal, and scrollback is forever. The token
   never needs to be read by a human here, so it must not be shown — and it is substituted
   into the file being diffed, so this is not hypothetical.
   */
-  writeEnv(FULL_ENV)
-  writeFileSync(etc('Caddyfile'), 'old config\n')
-  const tpl = join(sandbox, 'Tok')
-  writeFileSync(tpl, 'gate __PREVIEW_TOKEN__\n')
-  const { code, out } = await run([], tpl)
-  expect(code).toBe(0)
-  expect(out).not.toContain('s3cret-invite')
-  expect(out).toContain('REDACTED')
-  // …and the live config is untouched by a dry run.
-  expect(readFileSync(etc('Caddyfile'), 'utf8')).toBe('old config\n')
-})
+    writeEnv(FULL_ENV)
+    writeFileSync(etc('Caddyfile'), 'old config\n')
+    const tpl = join(sandbox, 'Tok')
+    writeFileSync(tpl, 'gate __PREVIEW_TOKEN__\n')
+    const { code, out } = await run([], tpl)
+    expect(code).toBe(0)
+    expect(out).not.toContain('s3cret-invite')
+    expect(out).toContain('REDACTED')
+    // …and the live config is untouched by a dry run.
+    expect(readFileSync(etc('Caddyfile'), 'utf8')).toBe('old config\n')
+  },
+  SPAWN_TIMEOUT
+)
 
 test('the shipped template still carries the placeholders the guard looks for', () => {
   // If someone "helpfully" bakes real values into the shipped template, the guard above
@@ -166,33 +203,41 @@ test('the shipped template still carries the placeholders the guard looks for', 
   expect(shipped).toContain('__PREVIEW_TOKEN__')
 })
 
-test('--go keeps the outgoing config as .bak', () => {
-  // It replaces a file that may be serving OTHER sites, and "validated" only means it
-  // parses — not that it is the config you meant.
-  writeEnv(FULL_ENV)
-  const tpl = join(sandbox, 'Ok')
-  writeFileSync(tpl, 'x.{{PREVIEW_DOMAIN}} {\n  respond "hi"\n}\n')
-  writeFileSync(etc('Caddyfile'), 'the previous config\n')
-  return run(['--go'], tpl).then(({ code }) => {
-    expect(code).toBe(0)
-    expect(readFileSync(etc('Caddyfile.bak'), 'utf8')).toBe(
-      'the previous config\n'
-    )
-  })
-})
+test(
+  '--go keeps the outgoing config as .bak',
+  () => {
+    // It replaces a file that may be serving OTHER sites, and "validated" only means it
+    // parses — not that it is the config you meant.
+    writeEnv(FULL_ENV)
+    const tpl = join(sandbox, 'Ok')
+    writeFileSync(tpl, 'x.{{PREVIEW_DOMAIN}} {\n  respond "hi"\n}\n')
+    writeFileSync(etc('Caddyfile'), 'the previous config\n')
+    return run(['--go'], tpl).then(({ code }) => {
+      expect(code).toBe(0)
+      expect(readFileSync(etc('Caddyfile.bak'), 'utf8')).toBe(
+        'the previous config\n'
+      )
+    })
+  },
+  SPAWN_TIMEOUT
+)
 
-test('an unknown flag is refused before anything reaches the network', async () => {
-  /*
+test(
+  'an unknown flag is refused before anything reaches the network',
+  async () => {
+    /*
   `--status` was not a flag this bin parses, so it was IGNORED — and the bin went straight on
   to ssh into the configured host, whose remote script opens with an unconditional
   `cat > /etc/caddy/Caddyfile.tpl`. That turned a release lane into a writer on someone's
   real server. A tool that contacts a machine must not read an instruction it does not
   understand as consent to proceed.
   */
-  writeEnv(FULL_ENV)
-  const { code, out } = await run(['--status'])
-  expect(code).not.toBe(0)
-  expect(out).toContain('Unknown option')
-  // Nothing was written, because nothing was run.
-  expect(existsSync(etc('Caddyfile.tpl'))).toBe(false)
-})
+    writeEnv(FULL_ENV)
+    const { code, out } = await run(['--status'])
+    expect(code).not.toBe(0)
+    expect(out).toContain('Unknown option')
+    // Nothing was written, because nothing was run.
+    expect(existsSync(etc('Caddyfile.tpl'))).toBe(false)
+  },
+  SPAWN_TIMEOUT
+)

@@ -1,5 +1,12 @@
 export interface ProcInfo {
     pid: number;
+    /**
+     * Parent pid. `1` means the launcher is gone — the process was reparented to init.
+     *
+     * Optional because `parsePs` is exported and older callers pass three-field rows; an
+     * absent ppid simply cannot be an orphan, which is the safe direction.
+     */
+    ppid?: number;
     rssMb: number;
     /** elapsed time as `ps` reports it, e.g. `01:23:45` or `2-04:11:07` */
     etime: string;
@@ -13,8 +20,11 @@ export interface Assessment {
     reason: string;
 }
 /**
- * Parse `ps -eo pid=,rss=,etime=,args=` output. Bytes are KB in `ps`; the command
- * is everything after the third field, so it may contain spaces.
+ * Parse `ps -eo pid=,ppid=,rss=,etime=,args=` output. Bytes are KB in `ps`; the command
+ * is everything after the fourth field, so it may contain spaces.
+ *
+ * Still accepts the older four-field `pid,rss,etime,args` shape — `parsePs` is exported, and
+ * a caller feeding it the old format should get rows without a ppid rather than garbage.
  */
 export declare function parsePs(output: string): ProcInfo[];
 /** `ps` etime — `[[dd-]hh:]mm:ss` — as hours. */

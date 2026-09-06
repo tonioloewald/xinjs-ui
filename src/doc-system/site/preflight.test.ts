@@ -398,3 +398,91 @@ describe('isDevProcess (#93)', () => {
     ).toBe(false)
   })
 })
+
+/*
+Waste is not a size question (#93 / the 1.14.0 review's F5).
+
+The reported machine was 69 orphaned `bun build --watch` bundlers at ~194MB each. Dropping the
+`--watch` exemption made them visible to the guard; every trigger was still per-process RSS, so
+`assessProcesses` returned `{ level: 'ok', offenders: [] }` for 13GB of waste — while the
+changelog claimed the guard had "stopped exempting" them.
+
+The owner's framing, which is why these rules never consult RSS:
+
+  "How is an orphaned build process OK? It's wasting memory and doing nothing. I don't care if
+   it 'only' uses X RAM."
+*/
+const WATCH_CMD =
+  'bun build src/main.ts --outdir dist --target browser --sourcemap=linked --watch'
+
+describe('waste detection (#93 F5)', () => {
+  const orphan = (n: number, rssMb = 194) =>
+    Array.from({ length: n }, (_, i) => ({
+      pid: 9000 + i,
+      ppid: 1,
+      rssMb,
+      etime: '05:12:33',
+      command: WATCH_CMD,
+    }))
+
+  test('the reported machine: 69 orphans, 13GB, previously assessed ok', () => {
+    const a = assessProcesses(orphan(69), { totalRamMb: 131072 })
+    expect(a.level).toBe('warn')
+    expect(a.offenders.length).toBe(69)
+    expect(a.reason).toContain('orphaned')
+    expect(a.reason).toContain('kill ')
+  })
+
+  test('a SINGLE 12MB orphan warns — size is not the point', () => {
+    const a = assessProcesses(orphan(1, 12), { totalRamMb: 131072 })
+    expect(a.level).toBe('warn')
+    expect(a.offenders.length).toBe(1)
+  })
+
+  test('a healthy watcher with a live parent is not waste', () => {
+    const a = assessProcesses(
+      [
+        {
+          pid: 42,
+          ppid: 500,
+          rssMb: 194,
+          etime: '00:05:00',
+          command: WATCH_CMD,
+        },
+      ],
+      { totalRamMb: 131072 }
+    )
+    expect(a.level).toBe('ok')
+  })
+
+  test('sibling projects sharing a command line are NOT waste — the cwd differs', () => {
+    // Three `bun --watch bin/dev.ts` lines with live parents are three PROJECTS, each with its
+    // own dev server. This is why "a bunch with similar names" is not a signal on its own.
+    const siblings = [1, 2, 3].map((i) => ({
+      pid: i,
+      ppid: 500,
+      rssMb: 30,
+      etime: '02:00:00',
+      command: 'bun --watch bin/dev.ts',
+    }))
+    expect(assessProcesses(siblings, { totalRamMb: 131072 }).level).toBe('ok')
+  })
+
+  test('a row with no ppid cannot be an orphan — the safe direction', () => {
+    const a = assessProcesses(
+      [{ pid: 1, rssMb: 194, etime: '05:00:00', command: WATCH_CMD }],
+      { totalRamMb: 131072 }
+    )
+    expect(a.level).toBe('ok')
+  })
+})
+
+test('parsePs reads ppid, and still accepts the older four-field rows', () => {
+  const five = parsePs('123 1 198000 05:12:33 bun build x.ts --watch')
+  expect(five[0].ppid).toBe(1)
+  expect(five[0].rssMb).toBe(193)
+  expect(five[0].command).toBe('bun build x.ts --watch')
+  const four = parsePs('123 198000 05:12:33 bun build x.ts --watch')
+  expect(four[0].ppid).toBeUndefined()
+  expect(four[0].command).toBe('bun build x.ts --watch')
+})

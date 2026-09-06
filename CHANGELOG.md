@@ -416,7 +416,7 @@ per page on first use** — not at import, since `elementCreator()` registers ea
 with several scenes would spam its own console, which is how a deprecation notice teaches
 people to filter warnings rather than act on them.
 
-### The machine-health guard stopped exempting 13GB of orphans (#93)
+### The machine-health guard now reports 13GB of orphans instead of skipping them (#93)
 
 `isDevProcess` decided what was even a _candidate_ for the runaway check, and excluded
 `build` — because we spawn the bundler ourselves and a build peaking mid-run must not look
@@ -435,6 +435,19 @@ handled, and handled _precisely_, by parentage — the assessor filters `process
 `descendantsOf(process.pid)` before assessing anything. That is the exact test where a
 subcommand name was a blunt proxy for it, so this costs no false positives. `bun run` with
 `--watch` is caught too; the reported machine had four such servers up to 18 days old.
+
+**Visible is not the same as caught**, and the first pass at this shipped the difference. Every
+trigger in the assessor asks "is _one_ process too big?", and 194MB is nowhere near any of them —
+so dropping the exemption walked the guard past all 69 orphans and returned `ok` for 13GB, while
+the note above claimed they had been dealt with. The assessor now carries a rule that never
+consults RSS: **a watcher whose parent is gone (`ppid` 1) is waste at any size**, reported with
+the `kill` command. One 12MB orphan warns. It warns rather than refuses, because a build that
+will not start because of someone's stray process is a guard people switch off.
+
+"A bunch of similar names" was the other candidate signal and is deliberately _not_ used: three
+identical `bun --watch bin/dev.ts` lines are usually three sibling projects each running their
+own server. Identical argv is not duplicate work — the distinguishing fact is the cwd, which
+`ps` does not report.
 
 **And the other half, in `doc-site-system.md`:** "shell out so the OS reclaims the memory on
 exit" is only true if the child _exits_. A `dev.ts` that spawns `bun build --watch`, itself run
