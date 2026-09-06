@@ -396,6 +396,17 @@ Filed during the 1.7 adoption (CodeMirror + first-class tjs + inline WASM), agai
 
 ### Open (waiting on tjs-lang)
 
+**[#55](https://github.com/tonioloewald/tjs-lang/issues/55) — `DEFAULT_TYPESCRIPT_URL` is an
+unpinned major range** (filed 2026-09-06, observed on 0.13.11). `browser-from-ts` defaults the
+TypeScript compiler to `https://esm.sh/typescript@5`. Fetched at runtime, so it is in no
+lockfile and invisible to `bun audit` — it was the only hop in our live-example chain that was
+neither same-origin nor pinned. **Not blocking:** `typescriptUrl` already exists and we pass an
+exact version (`TYPESCRIPT_VERSION` in `code-transform.ts`, drift-tested against the installed
+compiler). The ask is that the *default* stop being a range, plus a documented same-origin seam
+for the compiler — the equivalent of `__TJS_LOCAL_BASE`. Ours: F10a in
+`reviews/1.14.0-pre-release.md`.
+
+
 _**Status checked 2026-08-24.** Latest published tjs-lang is **0.13.2**, and we now ship
 `^0.13.1` / dev-pin `0.13.2` (`TJS_VERSION` in `code-transform.ts` moved in lockstep). Re-poll
 #9, #11, #13, #14 against 0.13.x — the note below that "no new release carries a fix" described
