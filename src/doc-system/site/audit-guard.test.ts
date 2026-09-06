@@ -514,6 +514,7 @@ describe('waiver marker (#56)', () => {
     invalid: [],
     stale: [],
     belowThreshold: [],
+    reach: {},
   }
   const gate = (severity: string) => ({
     advisory: { package: 'p', id: '1', severity, title: 't' },

@@ -937,6 +937,19 @@ export async function devServer(
     const rel = new URL(request.url).searchParams.get('file') ?? ''
     const resolved = resolveInRepo(rel)
     if (!resolved) return new Response('path outside repo', { status: 400 })
+    /*
+    Same allow-list as the write half (#128).
+
+    This was left ungated when writes were narrowed, on the grounds that the reported issue
+    was a drive-by WRITE — but the endpoint reads any file under the repo root, with the same
+    loopback+CSRF gating and no better justification, so a tunnel invitee could read
+    `.env`-adjacent files or anything else in the tree. The 1.14.0 review named it, and the
+    argument for waiting was weaker than the argument for symmetry: "view source" only ever
+    reads a doc's own source, and a doc's own source is in the corpus by definition.
+    */
+    if (!mayEditSource(resolved, await allowedSources())) {
+      return new Response('not an editable doc source', { status: 403 })
+    }
     const file = Bun.file(resolved)
     if (!(await file.exists()))
       return new Response('not found', { status: 404 })

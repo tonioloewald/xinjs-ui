@@ -22,6 +22,41 @@ when it cannot see is the failure this is meant to prevent, not a convenience to
 
 import * as path from 'path'
 
+/*
+Files the BUILD EXECUTES, which must never be writable however they are documented.
+
+The corpus-derived allow-list was necessary and not sufficient: a doc source can itself be an
+executed script. Found by the 1.14.0 review against the REAL corpus —
+`bin/make-icon-data.js` carries a `/*#` block, so it was a doc source, so it was writable, and
+`bin/dev.ts` spawns it on every build and every watch rebuild. A session holder could write
+arbitrary JS there and have it run with the developer's privileges at the next rebuild — which
+is verbatim the class the allow-list was introduced to close.
+
+The unit tests passed because the synthetic corpus omitted `bin/`; the live check used
+`.git/hooks/pre-commit`, which the corpus never contained. Both proved something true and
+irrelevant.
+
+The `-cli` scripts under src and `generate-css` are spawned as children too. They are absent from the
+corpus today — but only because nobody has written a `/*#` block in them, which is not a
+guarantee. Named explicitly so the protection does not depend on that continuing.
+
+The cost, stated: the doc comments inside these files cannot be edited through the browser.
+Editing a doc comment in an executed script means writing an executed script, and there is no
+version of that which is safe. Edit them directly.
+*/
+const EXECUTED_BY_BUILD: RegExp[] = [
+  /^bin\//,
+  /(^|\/)[a-z0-9-]+-cli\.[tj]s$/,
+  /(^|\/)generate-css\.[tj]s$/,
+  /(^|\/)make-icon-data\.[tj]s$/,
+]
+
+/** Is this repo-relative path something the build runs? */
+export function isExecutedByBuild(relPath: string): boolean {
+  const normalized = relPath.replace(/^\.\//, '')
+  return EXECUTED_BY_BUILD.some((re) => re.test(normalized))
+}
+
 /** Absolute paths the source editor may read or write, from the doc corpus. */
 export function editableSourcePaths(
   corpus: Array<{ path?: string }> | null | undefined,
@@ -39,6 +74,8 @@ export function editableSourcePaths(
     ) {
       continue
     }
+    // A doc source that the build EXECUTES is not editable, however well documented.
+    if (isExecutedByBuild(doc.path.replace(/^\/+/, ''))) continue
     allowed.add(resolved)
   }
   return allowed

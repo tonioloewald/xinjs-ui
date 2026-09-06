@@ -1,3 +1,5 @@
+/** Is this repo-relative path something the build runs? */
+export declare function isExecutedByBuild(relPath: string): boolean;
 /** Absolute paths the source editor may read or write, from the doc corpus. */
 export declare function editableSourcePaths(corpus: Array<{
     path?: string;

@@ -28,6 +28,7 @@ never import this from browser code.
 */
 
 import { $ } from 'bun'
+import { runtimeReachable, classifyReach, type Reach } from './audit-reach.js'
 
 export type AuditSeverity = 'info' | 'low' | 'moderate' | 'high' | 'critical'
 export type AuditMode = 'fail' | 'warn' | 'off'
@@ -234,6 +235,13 @@ export interface AuditResult {
   invalid: Array<{ gate: AuditGate; problem: string }>
   /** valid gates that matched no current advisory — safe to delete */
   stale: AuditGate[]
+  /**
+   * package name → where it sits in the tree, when it could be determined (#56).
+   *
+   * Empty when the manifest graph could not be walked. Labelling only — what BLOCKS is
+   * decided by `blockOn`, which defaults to severity.
+   */
+  reach: Record<string, Reach>
   /** findings below the blocking threshold (reported, never blocking) */
   belowThreshold: AuditAdvisory[]
 }
@@ -440,6 +448,7 @@ export async function auditDependencies(
   const base: AuditResult = {
     ran: false,
     ok: true,
+    reach: {},
     mode,
     level,
     blocking: [],
@@ -489,8 +498,58 @@ export async function auditDependencies(
 
   const usedGates = new Set<AuditGate>()
 
+  /*
+  Reachability, computed once (#56).
+
+  Conservative: an unreadable manifest yields an EMPTY set, and an empty set means every
+  package classifies `build-only` — so `blockOn: 'runtime'` would stop blocking. That is the
+  wrong direction to fail, so a failed walk disables the runtime filter entirely rather than
+  silently excusing everything.
+  */
+  let reach: Record<string, Reach> = {}
+  let reachUsable = false
+  try {
+    const rootManifest = JSON.parse(
+      await Bun.file(`${process.cwd()}/package.json`).text()
+    )
+    const reachable = runtimeReachable(rootManifest, (pkg) => {
+      try {
+        return JSON.parse(
+          require('fs').readFileSync(
+            `${process.cwd()}/node_modules/${pkg}/package.json`,
+            'utf8'
+          )
+        ).dependencies
+      } catch {
+        return undefined
+      }
+    })
+    reachUsable = reachable.size > 0
+    for (const adv of advisories)
+      reach[adv.package] = classifyReach(adv.package, reachable)
+  } catch {
+    reach = {}
+    reachUsable = false
+  }
+  result.reach = reach
+
+  const blockOn = cfg.blockOn ?? 'severity'
+
   for (const adv of advisories) {
     if (SEVERITY_RANK[adv.severity] < threshold) {
+      result.belowThreshold.push(adv)
+      continue
+    }
+    /*
+    `blockOn: 'runtime'` excuses a build-only finding from BLOCKING — it is still reported.
+    Only applied when the walk actually produced a graph; otherwise everything blocks as
+    before, because "we could not tell" must not read as "not reachable".
+    */
+    if (
+      blockOn === 'runtime' &&
+      reachUsable &&
+      reach[adv.package] === 'build-only'
+    ) {
       result.belowThreshold.push(adv)
       continue
     }
@@ -688,6 +747,26 @@ export function reportAudit(result: AuditResult, label = 'Build'): void {
   // Everything below the blocking threshold, one line each, severity-sorted. These
   // used to be collected and never printed — invisible until the day one is
   // re-scored upward. Shown whether or not the build is failing.
+  /*
+  Reach labelling (#56). Printed next to the count so a consumer can see at a glance whether a
+  red build is proportionate — which was the reporter's "cheaper middle ground", and the half
+  that needs no policy decision.
+  */
+  // Defensive: `reportAudit` is exported, and a caller holding an older result shape must
+  // not crash the reporter over a labelling nicety.
+  const reachMap = result.reach ?? {}
+  const buildOnly = Object.values(reachMap).filter(
+    (r) => r === 'build-only'
+  ).length
+  if (buildOnly > 0) {
+    console.warn(
+      `\nℹ️  ${label}: ${buildOnly} of ${
+        Object.keys(reachMap).length
+      } advisory package(s) are BUILD-ONLY — not reachable from a runtime dependency. ` +
+        `Set \`audit: { blockOn: 'runtime' }\` to stop those blocking.`
+    )
+  }
+
   if (result.belowThreshold.length) {
     const groups = groupAdvisories(result.belowThreshold).sort((a, b) =>
       bySeverityThenNature(a.advisory, b.advisory)

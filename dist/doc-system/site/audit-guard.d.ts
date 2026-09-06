@@ -1,3 +1,4 @@
+import { type Reach } from './audit-reach.js';
 export type AuditSeverity = 'info' | 'low' | 'moderate' | 'high' | 'critical';
 export type AuditMode = 'fail' | 'warn' | 'off';
 /** One advisory as `bun audit --json` reports it, flattened with its package. */
@@ -98,6 +99,13 @@ export interface AuditResult {
     }>;
     /** valid gates that matched no current advisory — safe to delete */
     stale: AuditGate[];
+    /**
+     * package name → where it sits in the tree, when it could be determined (#56).
+     *
+     * Empty when the manifest graph could not be walked. Labelling only — what BLOCKS is
+     * decided by `blockOn`, which defaults to severity.
+     */
+    reach: Record<string, Reach>;
     /** findings below the blocking threshold (reported, never blocking) */
     belowThreshold: AuditAdvisory[];
 }

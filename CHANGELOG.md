@@ -2,6 +2,129 @@
 
 ## 1.14.0 (unreleased)
 
+### Security: the source editor can no longer write files the build executes (#128)
+
+`editableSources` writes were contained only to the project root — which includes
+`.git/hooks/*`, `bunfig.toml` (preload), `package.json` scripts and `bin/`, every one of which
+runs on the developer's next ordinary command. With CSRF closed (#90/#121) there was no known
+path to an unauthorised write; this removes the *consequence* of a future one.
+
+`editableSourcePaths` / `mayEditSource` build an **allow-list derived from the doc corpus**,
+not a deny-list of dangerous names: the endpoint exists to edit the source of a page you are
+looking at, so the writable set is exactly what the extractor scraped. A deny-list needs
+extending every time someone invents a new way to make a file execute and is wrong by default;
+this is right by default. It **fails closed** — an unreadable corpus permits nothing.
+
+**The first version of this was not enough, and the pre-release review caught it.** A doc
+source can itself be an executed script: `bin/make-icon-data.js` carries a `/*#` block, so it
+was a doc source, so it was writable — and `bin/dev.ts` spawns it on *every* build. The
+original tests passed because the synthetic corpus omitted `bin/`, and the live check used
+`.git/hooks/pre-commit`, which the corpus never contained. Both proved something true and
+irrelevant. There is now an `isExecutedByBuild` deny layer (all of `bin/`, the spawned `-cli`
+scripts, `generate-css`), and the tests run against the **shipped** corpus with an assertion
+that the dangerous entry is really in it — otherwise the refusal test proves nothing.
+
+The **read** half is gated by the same predicate. It was left open initially on the grounds
+that the reported issue was a drive-by write; the review was right that the argument for
+symmetry was stronger, since "view source" only ever reads a doc's own source.
+
+### The dependency audit knows where a package sits (#56)
+
+`runtimeReachable` / `classifyReach` walk the manifest graph and label an advisory's package
+**runtime** or **build-only**. Reported from an app monorepo running `buildSite`: 18
+high/critical advisories of which the runtime-reachable subset was a small fraction, so
+blocking on all of them would have bricked local dev over risk they do not carry.
+
+Conservative by construction — root `dependencies`, `optionalDependencies` **and
+`peerDependencies`** are runtime seeds (a peer ends up in the consumer's app), and an
+unresolvable package counts as reachable. A finding silently downgraded is the one outcome
+worth engineering against.
+
+`audit.blockOn: 'severity' | 'runtime'` defaults to `'severity'` — today's behaviour. Set
+`'runtime'` and a build-only finding is reported but does not block. If the manifest walk fails
+the filter is disabled entirely, because "we could not tell" must not read as "not reachable".
+
+A build that passes **only because of an active gate** now says so:
+
+```
+🟡 Build: PASSING ON A WAIVER — 1 finding(s) at or above high are suppressed
+   by an active gate. This is not a clean audit.
+```
+
+Only when the waiver is load-bearing: a gate suppressing something below the threshold would
+have passed anyway, and flagging that would train people to ignore the marker.
+
+### The doc-test runner stopped executing pages that only *mention* tests
+
+`docsWithTests` matched ` ```test ` as a **substring anywhere in the document**, so a page
+merely writing about the test tier qualified — and was rendered in a background iframe with its
+examples executed. A failure in an example on a page with *no tests* therefore surfaced through
+the doc-test tier, and only sometimes, depending on how quickly the TypeScript compiler loaded.
+
+That produced a **false green**: a standalone doc-tests run reported "62 passed" against a build
+the full suite failed on. Page selection now requires a fence at the start of a line, the same
+rule the doc extractor applies to `/*#`.
+
+The example it was hiding was ours: a ` ```ts ` fence in `doc-site-system.md` — added in the
+#93 write-up — was **executable**, so the doc-test lane ran `Bun.spawn` and `process.on` in a
+browser and threw `ReferenceError: process is not defined`. It is now ` ```typescript `, which
+is display-only. One character, and it had been red on `main` from the moment it was pushed.
+
+Related and still open (#138): an example that *compiles and then throws* is caught by nothing
+on a page without a ` ```test ` block. The build-time check catches what will not compile, not
+what compiles and fails.
+
+### An existing `firebase.json` is checked against `outputDir` (#134)
+
+`host: 'firebase'` scaffolds a config for a fresh project and keeps its hands off an existing
+one — but checked nothing, so `buildSite` could write `docs/` while `firebase deploy` published
+`.demo/`. Both commands succeed and the site serves whatever was there last. It now warns,
+handling multi-site arrays, framework-aware hosting with no `public`, and `./docs` vs `docs`
+spelling, and warns only when *every* declared target disagrees.
+
+### tjs-lang 0.13.4 → 0.13.11, and the two pins can no longer drift (#135)
+
+We were pinned to a version npm has **deprecated**, seven releases behind. The deprecation's
+threat model does not reach live-example — it is about a server transpiling submitted source —
+but sitting on a deprecated version with seven releases of fixes is its own problem.
+
+`TJS_VERSION` (what the *published site* fetches from a CDN) and the exact devDependency (what
+tests and local builds use) live in different files, so a test now asserts they agree. Drift
+there is invisible exactly where it matters: every lane stays green while the deployed site
+transpiles with a different version.
+
+### `<tosi-example>` warns when executable fences collide (#139)
+
+`js`/`tjs`/`ts` all write the same single-valued slot, so a second executable fence silently
+overwrote the first — the earlier block vanished from the page, the example ran as the later
+dialect, and nothing said so. Behaviour is unchanged (last one still wins); it now names the
+file and which dialect survived. This is the seam a dialect selector needs, which is why it is
+worth fixing before that feature rather than during it.
+
+### `getSelectText` returned the empty string on every call
+
+`<tosi-filter>` read `select.options[select.selectedIndex]`, and `selectedIndex` has never
+existed on `TosiSelect` — it selects by value. So every filter chip read ` "needle"` with two
+blanks where the field and condition belong, which looks like a styling bug. Found by adopting
+tosijs 1.10.0, whose removal of `Component`'s `[key: string]: any` index signature made the
+compiler able to see it for the first time.
+
+### Markdown is no longer formatted, and `bun format` is green again
+
+`*.md` is in `.prettierignore` by request from tosijs. `proseWrap` was already `preserve`, so
+prettier's only remaining markdown behaviours were escaping literal characters
+(`a * literal` → `a \* literal`), padding table cells, and rewriting `*` bullets — the first of
+which edits a document's *content*, and markdown is the product here.
+
+Separately, `bun format` had been exiting 1 on seven ESLint errors: CI gates `format-check`,
+which runs prettier only, so the ESLint half of the documented pre-commit command was red
+without failing anything. Among the fixes: two dead locals in the CSRF same-origin check
+(checked rather than assumed — the logic was sound, only the initialisers were dead); a dead
+`explanation` in `dev-server.ts` that was built and never used, left over from before
+`invite-page.ts` took ownership of that copy in #114; and an
+`AsyncFunction` construction failure that now rethrows with `{ cause }` so the engine's own
+error — the one naming *which* parameter it choked on — is not discarded.
+
 ### `icons.*` was typed `SVGElement`, and composites are spans
 
 **This is why the release is a minor.** `SVGIconMap` declared every icon as

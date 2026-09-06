@@ -27,6 +27,7 @@ native-heavy API in a long-lived process" rule. Build-time only (Bun/Node APIs);
 never import this from browser code.
 */
 import { $ } from 'bun';
+import { runtimeReachable, classifyReach } from './audit-reach.js';
 const SEVERITY_RANK = {
     info: 0,
     low: 1,
@@ -293,6 +294,7 @@ export async function auditDependencies(config, opts = {}) {
     const base = {
         ran: false,
         ok: true,
+        reach: {},
         mode,
         level,
         blocking: [],
@@ -343,8 +345,49 @@ export async function auditDependencies(config, opts = {}) {
         }
     }
     const usedGates = new Set();
+    /*
+    Reachability, computed once (#56).
+  
+    Conservative: an unreadable manifest yields an EMPTY set, and an empty set means every
+    package classifies `build-only` — so `blockOn: 'runtime'` would stop blocking. That is the
+    wrong direction to fail, so a failed walk disables the runtime filter entirely rather than
+    silently excusing everything.
+    */
+    let reach = {};
+    let reachUsable = false;
+    try {
+        const rootManifest = JSON.parse(await Bun.file(`${process.cwd()}/package.json`).text());
+        const reachable = runtimeReachable(rootManifest, (pkg) => {
+            try {
+                return JSON.parse(require('fs').readFileSync(`${process.cwd()}/node_modules/${pkg}/package.json`, 'utf8')).dependencies;
+            }
+            catch {
+                return undefined;
+            }
+        });
+        reachUsable = reachable.size > 0;
+        for (const adv of advisories)
+            reach[adv.package] = classifyReach(adv.package, reachable);
+    }
+    catch {
+        reach = {};
+        reachUsable = false;
+    }
+    result.reach = reach;
+    const blockOn = cfg.blockOn ?? 'severity';
     for (const adv of advisories) {
         if (SEVERITY_RANK[adv.severity] < threshold) {
+            result.belowThreshold.push(adv);
+            continue;
+        }
+        /*
+        `blockOn: 'runtime'` excuses a build-only finding from BLOCKING — it is still reported.
+        Only applied when the walk actually produced a graph; otherwise everything blocks as
+        before, because "we could not tell" must not read as "not reachable".
+        */
+        if (blockOn === 'runtime' &&
+            reachUsable &&
+            reach[adv.package] === 'build-only') {
             result.belowThreshold.push(adv);
             continue;
         }
@@ -496,6 +539,19 @@ export function reportAudit(result, label = 'Build') {
     // Everything below the blocking threshold, one line each, severity-sorted. These
     // used to be collected and never printed — invisible until the day one is
     // re-scored upward. Shown whether or not the build is failing.
+    /*
+    Reach labelling (#56). Printed next to the count so a consumer can see at a glance whether a
+    red build is proportionate — which was the reporter's "cheaper middle ground", and the half
+    that needs no policy decision.
+    */
+    // Defensive: `reportAudit` is exported, and a caller holding an older result shape must
+    // not crash the reporter over a labelling nicety.
+    const reachMap = result.reach ?? {};
+    const buildOnly = Object.values(reachMap).filter((r) => r === 'build-only').length;
+    if (buildOnly > 0) {
+        console.warn(`\nℹ️  ${label}: ${buildOnly} of ${Object.keys(reachMap).length} advisory package(s) are BUILD-ONLY — not reachable from a runtime dependency. ` +
+            `Set \`audit: { blockOn: 'runtime' }\` to stop those blocking.`);
+    }
     if (result.belowThreshold.length) {
         const groups = groupAdvisories(result.belowThreshold).sort((a, b) => bySeverityThenNature(a.advisory, b.advisory));
         console.warn(`\nℹ️  ${label}: ${groups.length} advisory(ies) below the ${result.level} ` +
