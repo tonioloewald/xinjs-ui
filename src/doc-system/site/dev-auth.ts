@@ -306,8 +306,13 @@ Guess-rate control: redemption is SERIALIZED, and every attempt takes at least 1
 Two lines of policy, and between them brute force stops being a thing that can happen.
 Concurrency of one means an attacker cannot parallelise across connections; a 100ms floor
 means the whole server answers at most ten redemption attempts per second no matter how many
-they open. Against 32⁷ ≈ 3.4 × 10¹⁰ that is ~111 years to exhaust, and within a single
-five-minute link window it is ~2,900 guesses — odds of about 1 in 11 million.
+they open. Against 22⁸ ≈ 5.5 × 10¹⁰ that is ~174 years to exhaust, and within a single
+five-minute link window it is ~2,900 guesses — odds of about 1 in 18 million.
+
+(Those figures moved with the alphabet: the token was seven Crockford base32 characters
+(32⁷ ≈ 3.4 × 10¹⁰, ~111 years, ~1 in 11 million) before it became eight letters. This is the
+one file where the numbers ARE the argument, so they are updated rather than left
+conservative-but-stale.)
 
 After **ten consecutive failures the slot widens to a second**, which costs a guesser another
 factor of ten and costs a human nothing: nobody mistypes eight characters ten times running,

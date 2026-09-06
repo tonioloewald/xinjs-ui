@@ -23,7 +23,7 @@ This scans for:
 ### 2. Create Your Doc Browser
 
 ```typescript
-import { createDocBrowser } from 'tosijs-ui'
+import { createDocBrowser } from 'tosijs-ui/doc-browser'
 import * as mylib from './my-library.js'
 import docs from './docs.json'
 
@@ -114,7 +114,7 @@ const docs = extractDocs({
 saveDocsJSON(docs, './docs.json')
 
 // Or use the docs directly
-import { createDocBrowser } from 'tosijs-ui'
+import { createDocBrowser } from 'tosijs-ui/doc-browser'
 const browser = createDocBrowser({ docs, context: { mylib } })
 ```
 

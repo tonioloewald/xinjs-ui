@@ -7,6 +7,32 @@ this applies — go to the [Quick Start](/) instead.
 
 Current releases are described in [CHANGELOG.md](https://github.com/tonioloewald/tosijs-ui/blob/main/CHANGELOG.md).
 
+## The doc-system cluster moved off the root barrel — 1.14.0
+
+If you import `<tosi-code>`, the doc browser, `<tosi-doc-system>` or `<live-example>` from the
+package root, change the import. Everything else is unaffected.
+
+```typescript
+// before
+import { tosiCode, createDocBrowser } from 'tosijs-ui'
+
+// after — the same things, by subpath
+import { tosiCode } from 'tosijs-ui/code-editor'
+import { createDocBrowser } from 'tosijs-ui/doc-browser'
+```
+
+**This one can fail at RUNTIME rather than at build time.** A bare `import 'tosijs-ui'` used to
+register `<tosi-code>`, `<tosi-doc-system>` and `<live-example>` as a side effect; it no longer
+does, so a page using those tags renders nothing and the console says only that an unknown
+element was not upgraded. If a custom element stopped appearing after this upgrade, this is why.
+
+Why: those four modules pull CodeMirror and tjs-lang, and because the package has no
+`sideEffects` field (correctly — `elementCreator()` registers elements at import time, so a
+blanket `sideEffects: false` would tree-shake a bare import down to zero registrations) a
+bundler had to treat them as reachable from *any* import of the barrel. Measured on a real
+15 MB app bundle: **1.35 MB / 8.9% saved**. The doc site and CDN `<script>` users are
+unaffected — the IIFE imports all four explicitly.
+
 ## Validation is supplied, not imported — 1.11.0
 
 If you use `<tosi-schema-form>`, `<tosi-crud>` or an editable `<tosi-table>` **from ESM**, add

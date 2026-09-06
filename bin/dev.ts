@@ -81,11 +81,12 @@ const config = {
   },
 }
 
-// The dependency audit runs synchronously in every mode — it is sub-second, and a
-// gate you wait for cannot be raced. One-shot builds (`--build-only`, `--test`)
-// audit inside buildSite; the interactive dev server skips it here and audits in
-// devServer() just before it binds the port, so `bun start` audits exactly once.
-// Watch rebuilds skip it (see dev-server.ts).
+// One-shot builds (`--build-only`, `--test`) audit SYNCHRONOUSLY inside buildSite, where a
+// finding fails the build. The interactive dev server skips it here and audits in
+// devServer() AFTER binding the port — reporting, never refusing — so `bun start` audits
+// exactly once without paying for it. The old "synchronous everywhere" rested on the audit
+// being sub-second; it is not (79.5s measured, 20s timeout, fails open).
+// Watch rebuilds skip it entirely (see dev-server.ts).
 const interactive = !buildOnly && !testMode
 const ok = await buildSite(config, { skipAudit: interactive })
 

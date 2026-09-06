@@ -43,7 +43,7 @@
 <script>if('serviceWorker'in navigator){navigator.serviceWorker.register('/module-cache-sw.js').catch(function(){})}</script><script>globalThis.__TJS_LOCAL_BASE="/tjs/"</script><script>globalThis.__TOSI_IMPORT_RESOLVER={"prefix":"/lib/","workerUrl":"/import-resolver-worker.js","reloadOnFirstInstall":false}</script>
 </head>
 <body>
-  <tosi-doc-system docs="../docs.json?v=7f4a5a7fdaa3" config="{&quot;projectName&quot;:&quot;tosijs-ui&quot;,&quot;projectLinks&quot;:{&quot;tosijs&quot;:&quot;https://tosijs.net&quot;,&quot;github&quot;:&quot;https://github.com/tonioloewald/tosijs-ui&quot;}}" localized="../localized-strings.txt">
+  <tosi-doc-system docs="../docs.json?v=6d4180df14d4" config="{&quot;projectName&quot;:&quot;tosijs-ui&quot;,&quot;projectLinks&quot;:{&quot;tosijs&quot;:&quot;https://tosijs.net&quot;,&quot;github&quot;:&quot;https://github.com/tonioloewald/tosijs-ui&quot;}}" localized="../localized-strings.txt">
   <article class="doc-content">
 <h1>doc-browser</h1>
 <p>The <code>tosijs-ui</code> library provides everything you need to create a self-documented testbed similar
@@ -60,7 +60,7 @@ to set up and maintain.</p>
 <li>Multi-line comments starting with <code>/*#</code> in <code>.ts</code>, <code>.js</code>, <code>.css</code> files</li>
 </ul>
 <h3>2. Create Your Doc Browser</h3>
-<pre><code class="language-typescript">import { createDocBrowser } from &#39;tosijs-ui&#39;
+<pre><code class="language-typescript">import { createDocBrowser } from &#39;tosijs-ui/doc-browser&#39;
 import * as mylib from &#39;./my-library.js&#39;
 import docs from &#39;./docs.json&#39;
 
@@ -134,7 +134,7 @@ const docs = extractDocs({
 saveDocsJSON(docs, &#39;./docs.json&#39;)
 
 // Or use the docs directly
-import { createDocBrowser } from &#39;tosijs-ui&#39;
+import { createDocBrowser } from &#39;tosijs-ui/doc-browser&#39;
 const browser = createDocBrowser({ docs, context: { mylib } })
 </code></pre>
 <h2>createDocBrowser Options</h2>

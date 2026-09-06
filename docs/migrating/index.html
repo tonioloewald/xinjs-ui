@@ -43,7 +43,7 @@
 <script>if('serviceWorker'in navigator){navigator.serviceWorker.register('/module-cache-sw.js').catch(function(){})}</script><script>globalThis.__TJS_LOCAL_BASE="/tjs/"</script><script>globalThis.__TOSI_IMPORT_RESOLVER={"prefix":"/lib/","workerUrl":"/import-resolver-worker.js","reloadOnFirstInstall":false}</script>
 </head>
 <body>
-  <tosi-doc-system docs="../docs.json?v=7f4a5a7fdaa3" config="{&quot;projectName&quot;:&quot;tosijs-ui&quot;,&quot;projectLinks&quot;:{&quot;tosijs&quot;:&quot;https://tosijs.net&quot;,&quot;github&quot;:&quot;https://github.com/tonioloewald/tosijs-ui&quot;}}" localized="../localized-strings.txt">
+  <tosi-doc-system docs="../docs.json?v=6d4180df14d4" config="{&quot;projectName&quot;:&quot;tosijs-ui&quot;,&quot;projectLinks&quot;:{&quot;tosijs&quot;:&quot;https://tosijs.net&quot;,&quot;github&quot;:&quot;https://github.com/tonioloewald/tosijs-ui&quot;}}" localized="../localized-strings.txt">
   <article class="doc-content">
 <h1>Migrating from older versions</h1>
 <!--{ "pin": "bottom", "parent": "Appendices", "order": 60, "description": "Breaking changes and migration checklists for tosijs-ui releases you may be upgrading past — 1.11.0's validator seam, 1.9.1's Node resolution fix, 1.7.0's editor change and the 1.3.0 xinjs-ui rename." }-->
@@ -51,6 +51,26 @@
 <p>Notices for releases you may be upgrading <em>past</em>. If you are starting fresh, none of
 this applies — go to the <a href="/">Quick Start</a> instead.</p>
 <p>Current releases are described in <a href="https://github.com/tonioloewald/tosijs-ui/blob/main/CHANGELOG.md">CHANGELOG.md</a>.</p>
+<h2>The doc-system cluster moved off the root barrel — 1.14.0</h2>
+<p>If you import <code>&lt;tosi-code&gt;</code>, the doc browser, <code>&lt;tosi-doc-system&gt;</code> or <code>&lt;live-example&gt;</code> from the
+package root, change the import. Everything else is unaffected.</p>
+<pre><code class="language-typescript">// before
+import { tosiCode, createDocBrowser } from &#39;tosijs-ui&#39;
+
+// after — the same things, by subpath
+import { tosiCode } from &#39;tosijs-ui/code-editor&#39;
+import { createDocBrowser } from &#39;tosijs-ui/doc-browser&#39;
+</code></pre>
+<p><strong>This one can fail at RUNTIME rather than at build time.</strong> A bare <code>import &#39;tosijs-ui&#39;</code> used to
+register <code>&lt;tosi-code&gt;</code>, <code>&lt;tosi-doc-system&gt;</code> and <code>&lt;live-example&gt;</code> as a side effect; it no longer
+does, so a page using those tags renders nothing and the console says only that an unknown
+element was not upgraded. If a custom element stopped appearing after this upgrade, this is why.</p>
+<p>Why: those four modules pull CodeMirror and tjs-lang, and because the package has no
+<code>sideEffects</code> field (correctly — <code>elementCreator()</code> registers elements at import time, so a
+blanket <code>sideEffects: false</code> would tree-shake a bare import down to zero registrations) a
+bundler had to treat them as reachable from <em>any</em> import of the barrel. Measured on a real
+15 MB app bundle: <strong>1.35 MB / 8.9% saved</strong>. The doc site and CDN <code>&lt;script&gt;</code> users are
+unaffected — the IIFE imports all four explicitly.</p>
 <h2>Validation is supplied, not imported — 1.11.0</h2>
 <p>If you use <code>&lt;tosi-schema-form&gt;</code>, <code>&lt;tosi-crud&gt;</code> or an editable <code>&lt;tosi-table&gt;</code> <strong>from ESM</strong>, add
 one line. Nothing else changes, and nothing breaks silently — a form with no validator warns

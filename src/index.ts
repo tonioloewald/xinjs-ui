@@ -10,8 +10,18 @@ unconditionally eager in any app importing anything from this barrel.
 
 Measured by snowfox-app moving a 15MB React bundle to the bun bundler:
 
-  barrel as shipped                     1.83 MB
-  barrel without the four doc modules   0.38 MB   ← the cluster is 79% of the barrel
+  barrel as shipped                     1.68 MB
+  barrel without the four doc modules   0.38 MB   ← the cluster is 77% of the barrel
+
+Measured with, and only comparable to, this exact command — a different `--external` set or
+dropping `--minify` moves it by a factor, which is how three different figures for the same
+win ended up published at once:
+
+  bun build <entry importing 4 named component creators> --minify --target browser
+
+snowfox-app reported 1.83 MB / 79% on tosijs-ui@1.12.7 against their own bundler config; the
+figures above are the local reproduction on this tree. Both are honest; neither is a
+reproduction of the other.
   real app bundle, before               15.21 MB
   real app bundle, after                13.86 MB  ← 1.35 MB / 8.9% saved
 
