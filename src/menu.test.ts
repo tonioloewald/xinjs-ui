@@ -624,7 +624,7 @@ describe('menu', () => {
           caption: 'Drop only',
           acceptsDrop: ['text/plain'],
           dropAction: () => {},
-        } as unknown as MenuItem,
+        },
       ]
       const result = filterForClick(items, true)
       expect(result.length).toBe(1)
@@ -638,7 +638,7 @@ describe('menu', () => {
           caption: 'Drop only',
           acceptsDrop: ['text/plain'],
           dropAction: () => {},
-        } as unknown as MenuItem,
+        },
       ]
       const result = filterForClick(items)
       expect(result.length).toBe(2)
@@ -665,7 +665,7 @@ describe('menu', () => {
               caption: 'Drop only',
               acceptsDrop: ['text/plain'],
               dropAction: () => {},
-            } as unknown as MenuItem,
+            },
           ],
         },
       ]
@@ -682,7 +682,7 @@ describe('menu', () => {
               caption: 'Drop only',
               acceptsDrop: ['text/plain'],
               dropAction: () => {},
-            } as unknown as MenuItem,
+            },
           ],
         },
       ]
@@ -868,5 +868,32 @@ describe('menu', () => {
       expect(match!.path[0].caption).toBe('Level 1')
       expect(match!.path[1].caption).toBe('Level 2')
     })
+  })
+})
+
+describe('a drop-only item is expressible and excluded from click menus (F8)', () => {
+  /*
+  `acceptsDrop` + `dropAction` with no `action` is a shape the runtime supports and the docs
+  describe, but `MenuAction.action` was required until 1.14.0 — so the four literals above
+  compiled only through `as unknown as MenuItem`. The casts are gone; these assert the
+  behaviour the type was hiding, so widening it cannot quietly become "anything goes".
+  */
+  const dropOnly: MenuItem = {
+    caption: 'Documents',
+    acceptsDrop: ['text/plain'],
+    dropAction: () => {},
+  }
+
+  test('it survives as a literal with no cast, and shows DISABLED in a click menu', () => {
+    // Not removed: `hideDisabled` is what decides that, and it defaults to false — a
+    // drop target you cannot click is still worth showing, greyed, so the menu does not
+    // change shape between a drag and a click.
+    expect(filterForClick([dropOnly], false).length).toBe(1)
+    expect(filterForClick([dropOnly], true)).toEqual([])
+  })
+
+  test('an item WITH an action survives hideDisabled — the filter keys on action', () => {
+    const clickable: MenuItem = { ...dropOnly, action: () => {} }
+    expect(filterForClick([clickable], true).length).toBe(1)
   })
 })

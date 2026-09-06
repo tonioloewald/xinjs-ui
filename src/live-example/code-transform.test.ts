@@ -4,6 +4,8 @@ import {
   AsyncFunction,
   loadTransform,
   TJS_VERSION,
+  TYPESCRIPT_VERSION,
+  TYPESCRIPT_URL,
 } from './code-transform.js'
 
 describe("loadTransform('js')", () => {
@@ -177,4 +179,33 @@ test('#135: the CDN pin matches the installed tjs-lang', async () => {
     TJS_VERSION,
     `TJS_VERSION (${TJS_VERSION}) is what the published site fetches; package.json says ${declared}`
   ).toBe(declared)
+})
+
+/*
+The same drift, one level down (the 1.14.0 review's F10a).
+
+tjs-lang's `fromTS` defaults to `https://esm.sh/typescript@5` — an unpinned major range, the
+only hop in the live-example chain that was neither same-origin nor pinned, and invisible to
+`bun.lock` and `bun audit`. We now pass an exact `typescriptUrl`, which means a second pin that
+can silently diverge from the compiler this repo actually type-checks with.
+
+`typescript` is a CARET dev dep here (unlike tjs-lang), so the assertion is against the
+INSTALLED version — a `bun update` moving 5.9.3 → 5.9.4 must fail this, not slip past a range
+check that would call `^5.9.3` satisfied.
+*/
+test('F10a: the TypeScript pin matches the installed compiler, and is exact', async () => {
+  const installed = (
+    await Bun.file(
+      `${import.meta.dir}/../../node_modules/typescript/package.json`
+    ).json()
+  ).version
+  expect(
+    TYPESCRIPT_VERSION,
+    `live \`ts\` examples load typescript@${TYPESCRIPT_VERSION}; this repo type-checks with ${installed}`
+  ).toBe(installed)
+  expect(TYPESCRIPT_URL).toBe(`https://esm.sh/typescript@${installed}`)
+  expect(
+    TYPESCRIPT_URL,
+    'a range or tag here defeats the point of pinning'
+  ).toMatch(/@\d+\.\d+\.\d+$/)
 })
