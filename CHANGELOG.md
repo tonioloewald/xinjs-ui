@@ -1,6 +1,6 @@
 # Changelog
 
-## 1.14.0 (unreleased)
+## 1.14.0
 
 ### Quote style no longer decides whether a live example runs (#141)
 
