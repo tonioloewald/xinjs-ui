@@ -378,6 +378,37 @@ relationship gets the same regressions and none of the recourse, so they rationa
       `tosijs-site.config.ts` (sibling of #49); `.doc-content`'s `max-width` is an **inline**
       style, so consumers need `!important` and full-bleed is impossible (#52).
 
+## Doc-system adoption: what first-time onboarding still costs (from #144–#146)
+
+Four defects in one adoption. All silent. The pattern is that **the doc system's failure mode
+is an inert-but-serving site**, which no signal available to the adopter distinguishes from a
+working one.
+
+- [ ] **An "adopting the doc system" page** — asked for in #145, and #144/#146 would both have
+      been prevented by it. A minimal working `bundleEntry`, the `baseUrl`/`basePath` pair, the
+      executable fence set, and the grouping rule. This is where that material belongs; a
+      configuration reference is not read before a first build.
+- [ ] **`devServer` holds the config it imported at startup** — editing `*-site.config.ts` has
+      no effect, and a delegated build rebuilds with the stale one while printing what reads as
+      success (#144, reported separately at the end). Needs the watcher to treat the config as
+      an input and restart rather than rebuild. The misleading success message is the worse
+      half.
+- [ ] **`checkExamples` heuristics for `css`/`html` fences** (#146 suggestion 3), deliberately
+      deferred: "warn on a css fence with no scoped selector" and "warn on an html fence whose
+      root isn't a custom element" both fire on legitimate demos, and a warning that fires on
+      correct code gets filtered. The safe narrow version — warn when a css fence's selectors
+      are ALL bare element/custom-element names — wants a corpus to test against first.
+- [ ] **#148: no way to scope menu theme variables to one component's dropdowns.** The popup
+      mounts in a body-level `<tosi-float>` with no link back to its trigger, so custom
+      properties set on the host reach nothing and `:root` is the only thing that works — which
+      restyles every menu on the page, including the doc system's own. Needs an API decision
+      (a class on the popup, or a trigger handle to hang `:has()` on); the reporter has not
+      shipped their fix because a component re-theming the page around it is the wrong
+      direction.
+- [ ] **#147: `tosi-table` windows before it filters and sorts.** Filed from snowfox's
+      production report. Fix is filter → sort → window; the tradeoff is that sort then runs
+      over all matches rather than over the cap, which is a real cost at 300k rows.
+
 ## Doc-System Roadmap
 
 See [doc-system-roadmap.md](doc-system-roadmap.md) for the full plan. North star:
