@@ -316,6 +316,42 @@ Analysis worth keeping (full version in the issue thread):
       adopted. **This is the first application of the idea that is ours rather than
       hypothetical, and it does not need the RFC settled.** It also could not have come from
       the 3D reports: a renderer has no "before" state — the first frame is the first frame.
+- [ ] **Snapshot identity is six fields, not one** — forced open by four consumers, each
+      invisible from every vantage but theirs: **viewport**, **scroll offset** (two-dimensional;
+      `preserveScroll` anchors the top visible ROW vertically, but `scrollLeft` is a raw pixel
+      and is the unstable axis), **filter state**, **library version**, **mount context**, and
+      **frame liveness**. A matcher designed from one substrate ships with one of these and
+      discovers the rest as flakiness.
+- [ ] **Mount context is DOM-only and does not travel** (snowfox). `bounds` is a function of the
+      ancestor chain and the host page's globals; `tosi-table` renders light DOM so its cells are
+      styled from outside by definition, and a doc-page fence reproduces neither app's cascade.
+      A baseline must record where it was mounted (host page + a hash of applicable global
+      stylesheets), and a diff across mount contexts is a comparison error. **Corollary with
+      teeth: a probe must be a SPECIFICITY TWIN, not merely the same tag** — their empty probe
+      button did not match `:not(:empty)` and measured 0 while the real button was 44px.
+- [ ] **A rAF-based settle primitive can NEVER RESOLVE on this substrate, not merely resolve
+      late.** I asserted the opposite in #142 ("our pipeline is rAF-driven, so rAF is correct"),
+      which answers whether the clock ticks with a fact about what it is made of. A starved tab
+      reports `visibilityState: 'visible'` while rAF never fires, and `queueRender()` is
+      documented as possibly never firing off-screen. Every settle helper needs a frame budget
+      and a **distinguishable** timeout — "the frame clock never ticked" is a different diagnosis
+      from "the assertion failed".
+- [ ] **In a starved tab, geometry is trustworthy but ABSENCE is not** — an element that never
+      mounted is indistinguishable from one that should not exist. So the two halves of the diff
+      need different *confidence*, not just different tolerances: moved/resized degrades
+      gracefully, absent/added does not.
+- [ ] **`describe({ styles: true })` should refuse capture from a non-composited tab.** A
+      transition that never advances pins its START value, and animations outrank the cascade —
+      beating specificity, `!important` and inline styles. With `transition: 0.2s` on every
+      control that is the whole interactive surface reporting stale colours as if CSS were
+      broken. Tell: `el.getAnimations()` showing a `CSSTransition` at `currentTime: 0,
+      playState: 'running'`.
+- [ ] **Every primitive must say what it does with nothing to measure, and the answer is never
+      "passes."** Two independent reports (tosijs-platform §4, snowfox §4), so this is a rule now.
+      Sharpest instance: `enableAgentInterface()` exposes nothing by default — correct posture —
+      so a fence that forgets to opt in gets an EMPTY map, over which `not.toBeDrawn()` passes and
+      a diff of two empties reports no changes. Snapshot primitives should throw on an empty map
+      unless the author passes `{ expectEmpty: true }`.
 - [ ] **Get 2D practitioners into #142 before designing the matcher family.** Four things this
       thread structurally cannot supply: lived experience of visual-regression tooling
       (Chromatic/Percy/BackstopJS have fought the snapshot-noise reputation problem
