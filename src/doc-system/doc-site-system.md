@@ -42,6 +42,12 @@ Static and hydrated output share the same slug + markdown rendering
 
 ## Quick start (adopting in your project)
 
+> **First time?** Read **[Adopting the doc system](/adopting-the-doc-system/)** first. This
+> section is the configuration; that one is the narrow path plus the four things that fail
+> silently while the site still serves 200s — most of which cost a real adopter an afternoon
+> each (#144, #145, #146).
+
+
 **1. `site.config.ts`** at your repo root:
 
 ```typescript

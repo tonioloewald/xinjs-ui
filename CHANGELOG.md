@@ -25,6 +25,23 @@ bugs in ten minutes. The tests were fine; the reporting was a lie, and a comfort
 is why it survived. **"We didn't look" and "we looked and it's fine" must not produce the same
 output** — a reported total is that same lie one level up.
 
+### New page: "Adopting the doc system"
+
+Three of the four onboarding defects this release fixes (#144, #145, #146) would have been
+prevented by a page that did not exist — a narrow path to read *before* the first build, as
+opposed to a configuration reference nobody reads until something is already wrong.
+
+It is organised around the thing that makes this system hard to adopt: **its failure mode is a
+site that serves perfectly and shows nothing.** Not a crash, not a 404 — pages return 200, the
+markup is in the HTML, the adopter's own elements register, and the page is inert. So the page
+leads with a "how to tell it actually worked" checklist (is `tosi-doc-system` defined, is the
+chrome there, read one emitted `<head>`, do the examples run) and then explains the four silent
+failures behind those checks.
+
+Includes the complete `bundleEntry` file rather than naming it, since "your entry should import
+what your pages need" was the sentence that cost #145's reporter the most — it reads as *your*
+content, not as the doc system that renders the entire site.
+
 ### `<tosi-table>` filters and sorts the whole table, not the first `maxVisibleRows` (#147)
 
 The window was applied **first**, so both the filter and the sort saw only the first N rows.
