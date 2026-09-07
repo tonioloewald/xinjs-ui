@@ -488,6 +488,8 @@ export function createDocBrowser(options) {
                 passed: 0,
                 failed: 0,
                 pages: pageTestResults,
+                pagesWithTests,
+                pagesTested,
             };
             for (const pageResults of Object.values(pageTestResults)) {
                 allResults.passed += pageResults.totalPassed;
@@ -1723,7 +1725,13 @@ export function createDocBrowser(options) {
         }
         if (pagesWithTests === 0) {
             if (testResultsResolve) {
-                testResultsResolve({ passed: 0, failed: 0, pages: {} });
+                testResultsResolve({
+                    passed: 0,
+                    failed: 0,
+                    pages: {},
+                    pagesWithTests: 0,
+                    pagesTested: 0,
+                });
                 testResultsResolve = undefined;
             }
             return;
@@ -1826,7 +1834,13 @@ export function createDocBrowser(options) {
                 setTimeout(() => markPageTested(currentDoc.filename), 2000);
             }
             else if (testResultsResolve) {
-                testResultsResolve({ passed: 0, failed: 0, pages: {} });
+                testResultsResolve({
+                    passed: 0,
+                    failed: 0,
+                    pages: {},
+                    pagesWithTests: 0,
+                    pagesTested: 0,
+                });
                 testResultsResolve = undefined;
             }
         }

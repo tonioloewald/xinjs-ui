@@ -221,6 +221,20 @@ export interface DocTestResults {
   passed: number
   failed: number
   pages: Record<string, PageTestResults>
+  /**
+   * How many pages the runner INTENDED to run, and how many reported back.
+   *
+   * `passed + failed > 0` only proves the runner started. It cannot tell a full corpus from
+   * a corpus that silently lost half its pages — and a page-selection defect that ran 16 of
+   * 17 pages is exactly the false green fixed in 1.14.0, so this is a live failure mode
+   * rather than a hypothetical one. A consumer gate should assert
+   * `pagesTested === pagesWithTests && pagesWithTests > 0`.
+   *
+   * Framed by tosijs-platform in #142: "we didn't look" and "we looked and it's fine" must
+   * not produce the same output. Reporting a total is how a skipped run stays comfortable.
+   */
+  pagesWithTests: number
+  pagesTested: number
 }
 
 declare global {
@@ -675,6 +689,8 @@ export function createDocBrowser(options: DocBrowserOptions): HTMLElement {
         passed: 0,
         failed: 0,
         pages: pageTestResults,
+        pagesWithTests,
+        pagesTested,
       }
 
       for (const pageResults of Object.values(pageTestResults)) {
@@ -2100,7 +2116,13 @@ export function createDocBrowser(options: DocBrowserOptions): HTMLElement {
 
     if (pagesWithTests === 0) {
       if (testResultsResolve) {
-        testResultsResolve({ passed: 0, failed: 0, pages: {} })
+        testResultsResolve({
+          passed: 0,
+          failed: 0,
+          pages: {},
+          pagesWithTests: 0,
+          pagesTested: 0,
+        })
         testResultsResolve = undefined
       }
       return
@@ -2216,7 +2238,13 @@ export function createDocBrowser(options: DocBrowserOptions): HTMLElement {
         setTestWidgetRunning()
         setTimeout(() => markPageTested(currentDoc.filename), 2000)
       } else if (testResultsResolve) {
-        testResultsResolve({ passed: 0, failed: 0, pages: {} })
+        testResultsResolve({
+          passed: 0,
+          failed: 0,
+          pages: {},
+          pagesWithTests: 0,
+          pagesTested: 0,
+        })
         testResultsResolve = undefined
       }
     }

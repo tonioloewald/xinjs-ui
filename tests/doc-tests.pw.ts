@@ -23,6 +23,8 @@ interface DocTestResults {
   passed: number
   failed: number
   pages: Record<string, PageResult>
+  pagesWithTests: number
+  pagesTested: number
 }
 
 /*
@@ -68,8 +70,34 @@ async function runTierAt(
     () => window.__docTestResults as unknown as Promise<DocTestResults>
   )) as DocTestResults
 
-  // A corpus with real tests must actually have run some — a silent "0 tested" would
-  // let this pass vacuously while gating nothing.
+  /*
+  Three separate vacuity guards, because "green" has three different ways of being a lie here
+  and only the first was covered.
+
+  The corpus HAS test pages — otherwise this whole lane gates nothing, and a build that
+  dropped ```test extraction would report a serene pass.
+
+  EVERY such page reported — `passed + failed > 0` only proves the runner started. A run that
+  silently lost half the corpus satisfies it completely, and that is not hypothetical: the
+  false green fixed in 1.14.0 was a page-SELECTION defect (a substring match counted 17 pages
+  where 16 had tests). Fixing the selection did not add a guard against the next one.
+
+  Some assertions actually executed — a page can report zero tests.
+
+  Framed by tosijs-platform in #142, from a suite that reported "140 pass, 0 fail" while twelve
+  cases had never run: "we didn't look" and "we looked and it's fine" must not produce the same
+  output. Their skip-guard printed `[SKIPPED]` and asserted `expect(true).toBe(true)`; a
+  reported total is the same comfortable lie one level up.
+  */
+  expect(
+    results.pagesWithTests,
+    'the corpus contains NO pages with ```test blocks — this lane is gating nothing'
+  ).toBeGreaterThan(0)
+  expect(
+    results.pagesTested,
+    `only ${results.pagesTested} of ${results.pagesWithTests} pages with tests reported — ` +
+      `the runner dropped pages rather than failing them`
+  ).toBe(results.pagesWithTests)
   const ran = results.passed + results.failed
   expect(
     ran,

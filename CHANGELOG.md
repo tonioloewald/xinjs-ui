@@ -1,5 +1,30 @@
 # Changelog
 
+## 1.14.1 (unreleased)
+
+### The doc-test gate can tell a dropped page from a passing one
+
+`__docTestResults` reported `{ passed, failed, pages }`, so a consumer gate could assert that
+tests ran and that none failed — but not that **all** of them ran. A runner that silently lost
+half the corpus satisfied every check.
+
+That is not hypothetical. The false green fixed in 1.14.0 was a page-**selection** defect: a
+substring match counted 17 pages where 16 had tests, and ran a prose page's examples in a
+background iframe. Fixing the selection did not add a guard against the next one.
+
+The resolved object now carries `pagesWithTests` and `pagesTested`, and
+`tests/doc-tests.pw.ts` asserts three things where it previously asserted one: the corpus
+contains test pages at all, every such page reported, and some assertions executed. A corpus
+with genuinely no tests resolves with honest zeros, so "no tests exist" stays distinguishable
+from "tests exist and ran".
+
+Framed by tosijs-platform in #142, from a suite that reported **140 pass, 0 fail while twelve
+cases had never executed** — skip-guarded behind emulators that were not running, asserting
+`expect(true).toBe(true)`. When the emulators were finally started it found three production
+bugs in ten minutes. The tests were fine; the reporting was a lie, and a comfortable one, which
+is why it survived. **"We didn't look" and "we looked and it's fine" must not produce the same
+output** — a reported total is that same lie one level up.
+
 ## 1.14.0
 
 ### Quote style no longer decides whether a live example runs (#141)

@@ -10,6 +10,20 @@ export interface DocTestResults {
     passed: number;
     failed: number;
     pages: Record<string, PageTestResults>;
+    /**
+     * How many pages the runner INTENDED to run, and how many reported back.
+     *
+     * `passed + failed > 0` only proves the runner started. It cannot tell a full corpus from
+     * a corpus that silently lost half its pages — and a page-selection defect that ran 16 of
+     * 17 pages is exactly the false green fixed in 1.14.0, so this is a live failure mode
+     * rather than a hypothetical one. A consumer gate should assert
+     * `pagesTested === pagesWithTests && pagesWithTests > 0`.
+     *
+     * Framed by tosijs-platform in #142: "we didn't look" and "we looked and it's fine" must
+     * not produce the same output. Reporting a total is how a skipped run stays comfortable.
+     */
+    pagesWithTests: number;
+    pagesTested: number;
 }
 declare global {
     interface Window {
