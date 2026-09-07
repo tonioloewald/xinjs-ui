@@ -307,6 +307,15 @@ Analysis worth keeping (full version in the issue thread):
       `getActiveMeshes()` does not have to be built.
 - [ ] Scope honestly: this is a layout oracle for **bound** UI. Unwired presentational elements
       are not in the map, and a matcher must say so rather than report "not visible".
+- [ ] **"Zero-flash hydration" is an untested claim in our own published docs, and the
+      structural diff is the test for it.** `tests/doc-system.pw.ts` checks hydration ADOPTS
+      the pre-rendered `<article>` rather than re-rendering it — node identity, better than
+      most projects have — but nothing checks whether anything MOVED. A bounds diff across
+      hydration is exactly the tri-state: identical = the claim holds; moved/resized = a
+      flash, sized in pixels and named by element; absent/added = replaced rather than
+      adopted. **This is the first application of the idea that is ours rather than
+      hypothetical, and it does not need the RFC settled.** It also could not have come from
+      the 3D reports: a renderer has no "before" state — the first frame is the first frame.
 - [ ] **Get 2D practitioners into #142 before designing the matcher family.** Four things this
       thread structurally cannot supply: lived experience of visual-regression tooling
       (Chromatic/Percy/BackstopJS have fought the snapshot-noise reputation problem
