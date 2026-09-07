@@ -384,10 +384,7 @@ Four defects in one adoption. All silent. The pattern is that **the doc system's
 is an inert-but-serving site**, which no signal available to the adopter distinguishes from a
 working one.
 
-- [ ] **An "adopting the doc system" page** — asked for in #145, and #144/#146 would both have
-      been prevented by it. A minimal working `bundleEntry`, the `baseUrl`/`basePath` pair, the
-      executable fence set, and the grouping rule. This is where that material belongs; a
-      configuration reference is not read before a first build.
+- [x] **An "adopting the doc system" page** — done, `src/docs/adopting-the-doc-system.md`.
 - [ ] **`devServer` holds the config it imported at startup** — editing `*-site.config.ts` has
       no effect, and a delegated build rebuilds with the stale one while printing what reads as
       success (#144, reported separately at the end). Needs the watcher to treat the config as
@@ -398,16 +395,15 @@ working one.
       root isn't a custom element" both fire on legitimate demos, and a warning that fires on
       correct code gets filtered. The safe narrow version — warn when a css fence's selectors
       are ALL bare element/custom-element names — wants a corpus to test against first.
-- [ ] **#148: no way to scope menu theme variables to one component's dropdowns.** The popup
+- [x] **#148: menu theming** — done, `menuClass` / `menu-class`, propagating to submenus.
+- [ ] ~~#148 (original text)~~: no way to scope menu theme variables to one component's dropdowns.** The popup
       mounts in a body-level `<tosi-float>` with no link back to its trigger, so custom
       properties set on the host reach nothing and `:root` is the only thing that works — which
       restyles every menu on the page, including the doc system's own. Needs an API decision
       (a class on the popup, or a trigger handle to hang `:has()` on); the reporter has not
       shipped their fix because a component re-theming the page around it is the wrong
       direction.
-- [ ] **#147: `tosi-table` windows before it filters and sorts.** Filed from snowfox's
-      production report. Fix is filter → sort → window; the tradeoff is that sort then runs
-      over all matches rather than over the cap, which is a real cost at 300k rows.
+- [x] **#147: `tosi-table` filter/sort/window order** — done, filter → sort → window, memoized.
 
 ## Doc-System Roadmap
 
