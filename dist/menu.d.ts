@@ -70,6 +70,27 @@ export interface PopMenuOptions {
     hideDisabled?: boolean;
     onClose?: () => void;
     role?: 'menu' | 'listbox';
+    /**
+     * Extra class(es) for the popup element, so ONE component's menus can be themed without
+     * restyling every menu on the page.
+     *
+     * The popup is created per-invocation and mounted in a body-level `<tosi-float>`, so it is
+     * not a descendant of whatever opened it. Custom properties inherit down the DOM, which
+     * means setting `--menu-item-height` on your component reaches nothing, and `:root` — the
+     * only thing that does work — restyles every `tosi-menu` on the page, including the doc
+     * system's own when your component is documented on a `tosijs-ui/site` site (#148).
+     *
+     * ```js
+     * popMenu({ target, menuItems, menuClass: 'my-editor-menu' })
+     * ```
+     * ```css
+     * .my-editor-menu { --menu-item-height: 30px; --menu-item-padding: 0 16px }
+     * ```
+     *
+     * **Propagates to submenus**, which are separate popups — without that the theming would
+     * apply at depth 0 and silently stop one level down.
+     */
+    menuClass?: string;
     _dropMode?: boolean;
     _dataTypes?: readonly string[];
     disclosureDelay?: number;
@@ -116,6 +137,7 @@ export declare class TosiMenu extends Component<TosiMenuParts> {
         acceptsDrop: string;
         disclosureDelay: number;
         hideDisabled: boolean;
+        menuClass: string;
     };
     menuItems: MenuItem[];
     dropAction: ((dataTransfer: DataTransfer) => void) | null;

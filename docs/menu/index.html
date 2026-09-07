@@ -43,7 +43,7 @@
 <script>if('serviceWorker'in navigator){navigator.serviceWorker.register('/module-cache-sw.js').catch(function(){})}</script><script>globalThis.__TJS_LOCAL_BASE="/tjs/"</script><script>globalThis.__TOSI_IMPORT_RESOLVER={"prefix":"/lib/","workerUrl":"/import-resolver-worker.js","reloadOnFirstInstall":false}</script>
 </head>
 <body>
-  <tosi-doc-system docs="../docs.json?v=fcff25710912" config="{&quot;projectName&quot;:&quot;tosijs-ui&quot;,&quot;projectLinks&quot;:{&quot;tosijs&quot;:&quot;https://tosijs.net&quot;,&quot;github&quot;:&quot;https://github.com/tonioloewald/tosijs-ui&quot;}}" localized="../localized-strings.txt">
+  <tosi-doc-system docs="../docs.json?v=45d20d92e97d" config="{&quot;projectName&quot;:&quot;tosijs-ui&quot;,&quot;projectLinks&quot;:{&quot;tosijs&quot;:&quot;https://tosijs.net&quot;,&quot;github&quot;:&quot;https://github.com/tonioloewald/tosijs-ui&quot;}}" localized="../localized-strings.txt">
   <article class="doc-content">
 <h1>menu</h1>
 <p>Being able to pop a menu up anywhere is just so nice, and <code>tosijs-ui</code> allows menus
@@ -259,6 +259,7 @@ preview.querySelector(&#39;button&#39;).addEventListener(&#39;click&#39;, (event
   localized?: boolean,
   showChecked?: boolean,  // if true, scroll checked item(s) into view
   hideDisabled?: boolean, // if true, non-applicable items are hidden (default: shown disabled)
+  menuClass?: string,     // extra class(es) on the popup — see &quot;Theming ONE component&#39;s menus&quot;
 }
 </code></pre>
 <p><code>popMenu</code> will spawn a menu on a target element. A menu is just a <code>MenuItem[]</code>.</p>
@@ -346,6 +347,31 @@ e.g.</p>
 <li><code>^F</code> or <code>ctrl-f</code></li>
 <li><code>⌥x</code>, <code>⎇x</code>, <code>alt-x</code> or <code>option-x</code></li>
 </ul>
+<h2>Theming ONE component&#39;s menus</h2>
+<p>Menu metrics are all theme variables — <code>--menu-item-height</code>, <code>--menu-item-padding</code>,
+<code>--menu-bg</code>, <code>--menu-inset</code>, <code>--menu-separator-margin</code>, <code>--menu-item-gap</code>. Setting them on
+your component <strong>does not work</strong>, and it is worth knowing why rather than concluding they are
+broken: the popup is built per-invocation and mounted in a body-level <code>&lt;tosi-float&gt;</code>, so it is
+not a descendant of whatever opened it. Custom properties inherit down the DOM, so there is
+nothing for them to inherit from.</p>
+<p>The only selector that reaches it is <code>:root</code> — which restyles <strong>every</strong> menu on the page,
+including the doc system&#39;s own if your component is documented on a <code>tosijs-ui/site</code> site. A
+component reaching out to re-theme the page around it is the wrong direction.</p>
+<p>So pass a class:</p>
+<pre><code class="language-typescript">popMenu({ target, menuItems, menuClass: &#39;my-editor-menu&#39; })
+</code></pre>
+<pre><code class="language-xml">&lt;tosi-menu menu-class=&quot;my-editor-menu&quot; icon=&quot;menu&quot;&gt;&lt;/tosi-menu&gt;
+</code></pre>
+<pre><code class="language-scss">.my-editor-menu {
+  --menu-item-height: 30px;
+  --menu-item-padding: 0 16px;
+}
+</code></pre>
+<p>The class lands on the popup beside <code>xin-menu tosi-menu</code>, takes a space-separated list, and
+<strong>propagates to submenus</strong> — which are separate popups, so without that the theming would
+apply at the top level and silently revert one level down.</p>
+<p><code>&lt;tosi-select&gt;</code> takes the same <code>menu-class</code> attribute for its listbox, which mounts the same
+way.</p>
 <h2>Localization</h2>
 <p>If you set <code>localized: true</code> in <code>PopMenuOptions</code> then menu captions will be be
 passed through <code>localize</code>. You&#39;ll need to provide the appropriate localized strings,

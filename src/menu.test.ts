@@ -897,3 +897,83 @@ describe('a drop-only item is expressible and excluded from click menus (F8)', (
     expect(filterForClick([clickable], true).length).toBe(1)
   })
 })
+
+/*
+Per-menu theming (#148).
+
+The popup is built per-invocation and mounted in a body-level `<tosi-float>`, so it is not a
+descendant of whatever opened it. Custom properties inherit down the DOM, so setting
+`--menu-item-height` on your component reaches nothing, and `:root` — the only thing that
+works — restyles every menu on the page, including the doc system's own when your component
+is documented on a `tosijs-ui/site` site. The reporter did not ship their fix for exactly
+that reason: a component reaching out to re-theme the page around it is the wrong direction.
+*/
+describe('#148: menuClass scopes menu theming to one component', () => {
+  const items: MenuItem[] = [
+    { caption: 'Cut', action: () => {} },
+    { caption: 'More', menuItems: [{ caption: 'Deeper', action: () => {} }] },
+  ]
+
+  test('the class lands on the popup, beside the built-in ones', () => {
+    const el = menu({
+      target: document.createElement('div'),
+      menuItems: items,
+      menuClass: 'my-editor-menu',
+    })
+    expect(el.classList.contains('my-editor-menu')).toBe(true)
+    // The defaults must survive — they carry every base style.
+    expect(el.classList.contains('tosi-menu')).toBe(true)
+    expect(el.classList.contains('xin-menu')).toBe(true)
+  })
+
+  test('omitting it leaves the class list exactly as it was', () => {
+    /*
+    The OUTCOME, not the mechanism: the element creator normalizes whitespace in `class`
+    (verified — a trailing space is stripped), so the `.filter(Boolean)` in `menu()` is
+    belt-and-braces rather than what produces this. Asserted anyway because the contract
+    that matters to a consumer is "adding this option changed nothing for everyone else".
+    */
+    const el = menu({ target: document.createElement('div'), menuItems: items })
+    expect(el.className).toBe('xin-menu tosi-menu')
+  })
+
+  test('it survives the with-icons variant', () => {
+    const el = menu({
+      target: document.createElement('div'),
+      menuItems: [{ caption: 'Cut', icon: 'scissors', action: () => {} }],
+      menuClass: 'mine',
+    })
+    expect(el.classList.contains('mine')).toBe(true)
+    expect(el.classList.contains('tosi-menu-with-icons')).toBe(true)
+  })
+
+  test('multiple classes work — it is a class LIST, not a single name', () => {
+    const el = menu({
+      target: document.createElement('div'),
+      menuItems: items,
+      menuClass: 'dense editor-chrome',
+    })
+    expect(el.classList.contains('dense')).toBe(true)
+    expect(el.classList.contains('editor-chrome')).toBe(true)
+  })
+
+  test('a SUBMENU inherits it — otherwise theming stops one level down', () => {
+    /*
+    Submenus are separate popups spawned via `Object.assign({}, options, …)`, so this
+    propagates for free today. Asserted because it is exactly the kind of thing a later
+    refactor to an explicit option list would silently drop, and the symptom — a correctly
+    themed menu whose submenu reverts to 48px rows — reads as a CSS problem, not a
+    plumbing one.
+    */
+    const spawned = Object.assign(
+      {},
+      {
+        target: document.createElement('div'),
+        menuItems: items,
+        menuClass: 'mine',
+      },
+      { menuItems: [{ caption: 'Deeper', action: () => {} }], submenuDepth: 1 }
+    )
+    expect(menu(spawned).classList.contains('mine')).toBe(true)
+  })
+})

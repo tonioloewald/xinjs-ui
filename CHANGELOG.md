@@ -25,6 +25,31 @@ bugs in ten minutes. The tests were fine; the reporting was a lie, and a comfort
 is why it survived. **"We didn't look" and "we looked and it's fine" must not produce the same
 output** — a reported total is that same lie one level up.
 
+### `menuClass` — theme one component's menus without restyling the page (#148)
+
+Menu metrics are all theme variables, and setting them on your component **did not work**.
+The popup is built per-invocation and mounted in a body-level `<tosi-float>`, so it is not a
+descendant of whatever opened it, and custom properties have nothing to inherit from. The only
+selector that reached it was `:root` — which restyles every menu on the page, including the doc
+system's own when your component is documented on a `tosijs-ui/site` site. The reporter had not
+shipped their denser menubar for exactly that reason: a component reaching out to re-theme the
+page around it is the wrong direction.
+
+```
+popMenu({ target, menuItems, menuClass: 'my-editor-menu' })
+<tosi-menu menu-class="my-editor-menu">
+<tosi-select menu-class="my-listbox">      // its listbox mounts the same way
+```
+
+The class lands beside `xin-menu tosi-menu`, takes a space-separated list, and **propagates to
+submenus** — which are separate popups, so without that the theming would apply at the top
+level and silently revert one level down. `menuWidth` was already a per-menu attribute, so
+per-menu styling is not new here; this is the same idea for the rest of the knobs.
+
+Chosen over the two alternatives in the report: copying the trigger's computed variables onto
+the popup needs no change from adopters but is considerably more magic, and stamping a
+`data-menu-owner` back-reference solves selection without solving theming.
+
 ### Adoption blockers found by tosijs-editor onboarding (#144, #145, #146)
 
 Three defects and a credential, all found by one project adopting `tosijs-ui/site` for the

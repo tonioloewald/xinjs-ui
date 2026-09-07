@@ -83,6 +83,7 @@ export declare class TosiSelect extends Component<SelectParts> {
         disabled: boolean;
         required: boolean;
         name: string;
+        menuClass: string;
     };
     private _options;
     get options(): SelectOptions;

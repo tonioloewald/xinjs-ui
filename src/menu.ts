@@ -228,6 +228,7 @@ export interface PopMenuOptions {
   localized?: boolean,
   showChecked?: boolean,  // if true, scroll checked item(s) into view
   hideDisabled?: boolean, // if true, non-applicable items are hidden (default: shown disabled)
+  menuClass?: string,     // extra class(es) on the popup — see "Theming ONE component's menus"
 }
 ```
 
@@ -332,6 +333,43 @@ e.g.
 - `⇧P` for `shift-P`
 - `^F` or `ctrl-f`
 - `⌥x`, `⎇x`, `alt-x` or `option-x`
+
+## Theming ONE component's menus
+
+Menu metrics are all theme variables — `--menu-item-height`, `--menu-item-padding`,
+`--menu-bg`, `--menu-inset`, `--menu-separator-margin`, `--menu-item-gap`. Setting them on
+your component **does not work**, and it is worth knowing why rather than concluding they are
+broken: the popup is built per-invocation and mounted in a body-level `<tosi-float>`, so it is
+not a descendant of whatever opened it. Custom properties inherit down the DOM, so there is
+nothing for them to inherit from.
+
+The only selector that reaches it is `:root` — which restyles **every** menu on the page,
+including the doc system's own if your component is documented on a `tosijs-ui/site` site. A
+component reaching out to re-theme the page around it is the wrong direction.
+
+So pass a class:
+
+```typescript
+popMenu({ target, menuItems, menuClass: 'my-editor-menu' })
+```
+
+```xml
+<tosi-menu menu-class="my-editor-menu" icon="menu"></tosi-menu>
+```
+
+```scss
+.my-editor-menu {
+  --menu-item-height: 30px;
+  --menu-item-padding: 0 16px;
+}
+```
+
+The class lands on the popup beside `xin-menu tosi-menu`, takes a space-separated list, and
+**propagates to submenus** — which are separate popups, so without that the theming would
+apply at the top level and silently revert one level down.
+
+`<tosi-select>` takes the same `menu-class` attribute for its listbox, which mounts the same
+way.
 
 ## Localization
 
@@ -1390,9 +1428,16 @@ export const menu = (options: PopMenuOptions): HTMLDivElement => {
 
   const menuDiv = div(
     {
-      class: hasIcons
-        ? 'xin-menu tosi-menu xin-menu-with-icons tosi-menu-with-icons'
-        : 'xin-menu tosi-menu',
+      class: [
+        hasIcons
+          ? 'xin-menu tosi-menu xin-menu-with-icons tosi-menu-with-icons'
+          : 'xin-menu tosi-menu',
+        options.menuClass ?? '',
+      ]
+        // The creator normalizes `class` whitespace anyway; this keeps the intent local
+        // rather than resting on that.
+        .filter(Boolean)
+        .join(' '),
       role,
       onClick() {
         if (!options._dropMode) {
@@ -1494,6 +1539,27 @@ export interface PopMenuOptions {
   hideDisabled?: boolean
   onClose?: () => void
   role?: 'menu' | 'listbox'
+  /**
+   * Extra class(es) for the popup element, so ONE component's menus can be themed without
+   * restyling every menu on the page.
+   *
+   * The popup is created per-invocation and mounted in a body-level `<tosi-float>`, so it is
+   * not a descendant of whatever opened it. Custom properties inherit down the DOM, which
+   * means setting `--menu-item-height` on your component reaches nothing, and `:root` — the
+   * only thing that does work — restyles every `tosi-menu` on the page, including the doc
+   * system's own when your component is documented on a `tosijs-ui/site` site (#148).
+   *
+   * ```js
+   * popMenu({ target, menuItems, menuClass: 'my-editor-menu' })
+   * ```
+   * ```css
+   * .my-editor-menu { --menu-item-height: 30px; --menu-item-padding: 0 16px }
+   * ```
+   *
+   * **Propagates to submenus**, which are separate popups — without that the theming would
+   * apply at depth 0 and silently stop one level down.
+   */
+  menuClass?: string
   _dropMode?: boolean
   _dataTypes?: readonly string[]
   disclosureDelay?: number
@@ -1638,6 +1704,13 @@ export class TosiMenu extends Component<TosiMenuParts> {
     acceptsDrop: '',
     disclosureDelay: 0,
     hideDisabled: false,
+    /*
+    Extra class for the popup, so one component's dropdowns can be themed without a `:root`
+    rule that restyles every menu on the page (#148). `menuWidth` was already a per-menu
+    attribute, so per-menu styling is not foreign here — this is the same idea for the rest
+    of the knobs.
+    */
+    menuClass: '',
   }
 
   menuItems: MenuItem[] = []
@@ -1659,6 +1732,7 @@ export class TosiMenu extends Component<TosiMenuParts> {
         width: this.menuWidth,
         localized: this.localized,
         menuItems: this.menuItems,
+        menuClass: this.menuClass,
       })
       event.stopPropagation()
       event.preventDefault()
@@ -1680,6 +1754,7 @@ export class TosiMenu extends Component<TosiMenuParts> {
         localized: this.localized,
         disclosureDelay: this.disclosureDelay || undefined,
         hideDisabled: this.hideDisabled,
+        menuClass: this.menuClass,
       })
     }
     event.preventDefault()
