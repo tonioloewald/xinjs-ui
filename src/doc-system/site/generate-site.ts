@@ -19,7 +19,12 @@ component (src/doc-system/*) so static and hydrated output agree.
 import type { Doc } from './docs.js'
 import { pageTitle } from '../doc-title.js'
 import type { ProjectLinks, LinkItem } from '../../doc-browser.js'
-import { buildSlugMap, pathForSlug, rewriteDocLinks } from '../routing.js'
+import {
+  buildSlugMap,
+  pathForSlug,
+  rewriteDocLinks,
+  withBase,
+} from '../routing.js'
 import { buildNavTree, navOpenPath, NavNode } from '../nav-tree.js'
 import {
   renderDocMarkdown,
@@ -198,10 +203,7 @@ function absUrl(baseUrl: string, pathOrUrl: string): string {
  * legitimately need the real absolute origin+path. *Functional* URLs go through
  * `relativeUrl` instead, so the artifact is mount-agnostic. See `relativeUrl`.
  */
-function withBase(basePath: string | undefined, p: string): string {
-  if (!p || !basePath || basePath === '/' || /^(https?:)?\/\//.test(p)) return p
-  return basePath.replace(/\/$/, '') + (p.startsWith('/') ? p : '/' + p)
-}
+// `withBase` now lives in ../routing.ts — see the note there (#144).
 
 /**
  * Depth of a page below the site root: 0 for the root index (served at the mount

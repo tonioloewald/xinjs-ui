@@ -1,5 +1,6 @@
-import { test, expect } from 'bun:test'
+import { test, expect, describe } from 'bun:test'
 import { entriesFromCorpus, generateLlmsTxt } from './make-llms-txt.js'
+import { buildSlugMap, pathForSlug, withBase } from '../routing.js'
 import { mkdtempSync, readFileSync } from 'fs'
 import { tmpdir } from 'os'
 import { join } from 'path'
@@ -81,4 +82,59 @@ test('the rAF caveat travels with the affordance, not separately', () => {
   // never going to paint — the exact wrong conclusion this project has drawn before.
   const text = written({ name: 'x', haltijaDev: true })
   expect(text).toContain('requestAnimationFrame')
+})
+
+/*
+`baseUrl` meant two different things (#144).
+
+`generate-site` emitted `baseUrl + withBase(basePath, path)` — origin only — while this module
+emitted `baseUrl + path` with no basePath at all. On a GitHub project page NO configuration
+satisfied both: an origin-only `baseUrl` dropped `/repo` from every llms.txt link, and an
+origin+path `baseUrl` doubled it in every canonical URL and sitemap entry. The reporter's site
+shipped to Pages before anyone noticed, because `basePath` affects metadata only — the site
+itself works, with assets resolving relative.
+
+There were also TWO copies of `withBase` (generate-site, epub — the latter commented "mirrors
+generate-site's withBase") and this third consumer with none. One rule, three implementations,
+one of them the empty one.
+*/
+describe('#144: llms.txt links respect basePath', () => {
+  const corpus = [
+    { filename: 'README.md', title: 'Home', text: 'x' },
+    { filename: 'widget.ts', title: 'Widget', text: 'y' },
+  ] as Parameters<typeof entriesFromCorpus>[0]
+
+  test('a project page gets the mount path, exactly once', () => {
+    const links = entriesFromCorpus(corpus, {
+      baseUrl: 'https://tonioloewald.github.io',
+      basePath: '/tosijs-editor/',
+    }).map((e) => e.link)
+    for (const link of links) {
+      expect(
+        link.startsWith('https://tonioloewald.github.io/tosijs-editor')
+      ).toBe(true)
+      // The doubling this was reported for, from the other side.
+      expect(link).not.toContain('/tosijs-editor/tosijs-editor')
+    }
+  })
+
+  test('these are the SAME URLs generate-site emits as canonical', () => {
+    // The whole defect was these two disagreeing, so assert the agreement directly.
+    const meta = { baseUrl: 'https://x.dev', basePath: '/repo/' }
+    const slugMap = buildSlugMap(corpus)
+    for (const entry of entriesFromCorpus(corpus, meta)) {
+      const doc = corpus.find((d) => d.title === entry.title)!
+      const canonical =
+        meta.baseUrl +
+        withBase(meta.basePath, pathForSlug(slugMap[doc.filename]))
+      expect(entry.link).toBe(canonical)
+    }
+  })
+
+  test('no basePath is unchanged — the common case must not move', () => {
+    const [home] = entriesFromCorpus(corpus, {
+      baseUrl: 'https://ui.tosijs.net',
+    })
+    expect(home.link).toBe('https://ui.tosijs.net/')
+  })
 })

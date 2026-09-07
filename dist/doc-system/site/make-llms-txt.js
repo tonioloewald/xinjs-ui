@@ -1,6 +1,6 @@
 import * as fs from 'fs';
 import * as path from 'path';
-import { buildSlugMap, pathForSlug } from '../routing.js';
+import { buildSlugMap, pathForSlug, withBase } from '../routing.js';
 const SRC = 'src';
 const DIST = 'dist';
 function extractTitle(text) {
@@ -48,7 +48,7 @@ export function entriesFromCorpus(corpus, meta) {
         .map((doc) => ({
         title: doc.title,
         description: doc.description?.trim() || extractDescription(doc.text ?? ''),
-        link: base + pathForSlug(slugMap[doc.filename]),
+        link: base + withBase(meta.basePath, pathForSlug(slugMap[doc.filename])),
     }))
         .sort((a, b) => a.title.localeCompare(b.title));
 }

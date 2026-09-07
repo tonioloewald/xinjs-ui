@@ -11,7 +11,7 @@ Build-time only (uses Bun.write). Shares slug + markdown rendering with the runt
 component (src/doc-system/*) so static and hydrated output agree.
 */
 import { pageTitle } from '../doc-title.js';
-import { buildSlugMap, pathForSlug, rewriteDocLinks } from '../routing.js';
+import { buildSlugMap, pathForSlug, rewriteDocLinks, withBase, } from '../routing.js';
 import { buildNavTree, navOpenPath } from '../nav-tree.js';
 import { renderDocMarkdown, docDescription, } from '../render.js';
 const escapeAttr = (s) => s
@@ -83,11 +83,7 @@ function absUrl(baseUrl, pathOrUrl) {
  * legitimately need the real absolute origin+path. *Functional* URLs go through
  * `relativeUrl` instead, so the artifact is mount-agnostic. See `relativeUrl`.
  */
-function withBase(basePath, p) {
-    if (!p || !basePath || basePath === '/' || /^(https?:)?\/\//.test(p))
-        return p;
-    return basePath.replace(/\/$/, '') + (p.startsWith('/') ? p : '/' + p);
-}
+// `withBase` now lives in ../routing.ts — see the note there (#144).
 /**
  * Depth of a page below the site root: 0 for the root index (served at the mount
  * root), 1 for every `/slug/` page. The generator only ever emits a flat `/slug/`

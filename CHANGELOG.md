@@ -25,6 +25,51 @@ bugs in ten minutes. The tests were fine; the reporting was a lie, and a comfort
 is why it survived. **"We didn't look" and "we looked and it's fine" must not produce the same
 output** — a reported total is that same lie one level up.
 
+### Adoption blockers found by tosijs-editor onboarding (#144, #145, #146)
+
+Three defects and a credential, all found by one project adopting `tosijs-ui/site` for the
+first time. Every one of them failed silently.
+
+**A live Mapbox token shipped in `dist/` (#145).** Two `<tosi-map>` doc examples carried a
+real `pk.` token. Public tokens are meant to be visible in client code, so nothing looked
+wrong — but a doc example is compiled into `dist/mapbox.js`, inlined into `iife.js`, and lands
+in every adopter's sourcemap. It billed its owner for their traffic, and because it matches
+Mapbox's published secret pattern, **GitHub push protection blocked adopters the first time
+they committed their built site** — a wall with someone else's name on it. Replaced with
+`YOUR_MAPBOX_TOKEN`, the console error now says where to get one, and
+`src/no-secrets.test.ts` fails the build on any credential-shaped string in `src/`. A doc
+example may describe a credential; it must not contain one.
+
+**`bundleEntry` REPLACES the default bundle rather than extending it (#145).** An entry that
+imports only your own library produces a site where every page renders its prerendered markup
+and nothing else — no header, no nav, no menu, no live examples — with no console error, no
+build warning and no 404. `<tosi-doc-system>` sits in the HTML, inert, because nothing defined
+it, while your own elements register fine and make the bundle look healthy. The jsdoc now says
+this in the imperative with the two-line fix, and the build **scans the emitted bundle and
+warns** when `tosi-doc-system` is absent (and `tosi-example`, when the corpus has executable
+fences). Grepping is sound here for once: `customElements.define` needs the literal tag, so
+minification cannot erase it.
+
+**`baseUrl` meant two different things (#144).** `generate-site` treated it as the origin and
+added `basePath` on top; `make-llms-txt` treated it as origin-plus-path and ignored `basePath`
+entirely. On a GitHub project page no configuration satisfied both — matching the canonical
+URLs doubled the prefix in `llms.txt`, matching `llms.txt` dropped it from every canonical and
+sitemap entry. Underneath were **two copies of `withBase`** (`generate-site`, and `epub`, whose
+comment read "mirrors generate-site's withBase") plus this third consumer with none: one rule,
+three implementations, one of them empty. `withBase` now lives once in `routing.ts`, `llms.txt`
+applies it, `baseUrl` is documented as origin-only, and the build warns on the combination that
+is always wrong.
+
+**Which fence languages execute was undocumented (#146).** Six run — `js`, `ts`, `tjs`,
+`html`, `css`, `test` — and the only place the distinction appeared named a subset, so the
+mental model everyone formed was "js/ts/tjs/test run, everything else is display". A ` ```css `
+fence showing how to style the component in your app is injected as a page-wide `<style>`; a
+lone ` ```html ` fence showing the markup something compiles to renders as a broken-looking
+example. Neither fails the build. Now documented as a table with display-only alternatives
+(`xml` for markup), along with the grouping rule — adjacent fences form one example, prose
+between them starts a new one — which is why moving a `test` block under its own heading
+silently detaches it from the demo it was written against.
+
 ## 1.14.0
 
 ### Quote style no longer decides whether a live example runs (#141)

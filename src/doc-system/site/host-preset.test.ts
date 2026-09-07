@@ -1,5 +1,9 @@
 import { test, expect, describe } from 'bun:test'
-import { firebasePublicMismatch } from './host-preset.js'
+import {
+  basePathDoubling,
+  bundleRegistrations,
+  firebasePublicMismatch,
+} from './host-preset.js'
 
 /*
 #134: an existing firebase.json is never checked against outputDir.
@@ -72,5 +76,70 @@ describe('firebasePublicMismatch (#134)', () => {
     expect(firebasePublicMismatch(j({ functions: {} }), 'docs')).toBeNull()
     expect(firebasePublicMismatch('{ not json', 'docs')).toBeNull()
     expect(firebasePublicMismatch('', 'docs')).toBeNull()
+  })
+})
+
+describe('#144: baseUrl and basePath both carrying a path', () => {
+  test('the always-wrong combination is named, with the fix', () => {
+    const msg = basePathDoubling({
+      baseUrl: 'https://tonioloewald.github.io/tosijs-editor',
+      basePath: '/tosijs-editor/',
+    })
+    expect(msg).toContain('repeat it')
+    expect(msg).toContain('ORIGIN ONLY')
+    // The point of the message is showing the doubled result, not describing it.
+    expect(msg).toContain(
+      'https://tonioloewald.github.io/tosijs-editor/tosijs-editor/'
+    )
+  })
+
+  test.each([
+    [
+      'origin-only baseUrl + basePath — the correct project-page setup',
+      'https://x.github.io',
+      '/repo/',
+    ],
+    [
+      'baseUrl carries the path, no basePath — also correct',
+      'https://x.github.io/repo',
+      undefined,
+    ],
+    ['basePath is root', 'https://x.github.io/repo', '/'],
+    ['no baseUrl at all', undefined, '/repo/'],
+    [
+      'a malformed baseUrl is not our business — it fails louder elsewhere',
+      'not-a-url',
+      '/repo/',
+    ],
+  ])('stays quiet: %s', (_label, baseUrl, basePath) => {
+    expect(basePathDoubling({ baseUrl, basePath })).toBeUndefined()
+  })
+})
+
+describe('#145: a bundleEntry that forgets the doc system', () => {
+  test('the failure it detects: own elements registered, doc system missing', () => {
+    // Exactly the reporter's bundle — their element defines fine, which is what made the
+    // bundle look healthy while every page rendered inert markup.
+    const theirs = `customElements.define("tosi-styled-editor",class extends HTMLElement{})`
+    expect(bundleRegistrations(theirs)).toEqual({
+      docSystem: false,
+      liveExample: false,
+    })
+  })
+
+  test('a correct entry registers both', () => {
+    const good = `customElements.define("tosi-doc-system",D);customElements.define("tosi-example",E)`
+    expect(bundleRegistrations(good)).toEqual({
+      docSystem: true,
+      liveExample: true,
+    })
+  })
+
+  test('the tag string survives minification — which is why grepping is sound HERE', () => {
+    // `customElements.define` needs the literal tag name, so it cannot be mangled. This is
+    // the exception to "never grep a minified bundle": we look for a string the runtime
+    // must contain, not a package path minification erases.
+    const minified = `var a=1;customElements.define("tosi-doc-system",class extends a{});`
+    expect(bundleRegistrations(minified).docSystem).toBe(true)
   })
 })

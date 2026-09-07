@@ -11,3 +11,43 @@ export interface HostConfigMismatch {
  * multi-site config that serves the built directory from any of its targets is fine.
  */
 export declare function firebasePublicMismatch(firebaseJson: string, outputDir: string): HostConfigMismatch | null;
+/**
+ * `baseUrl` is the ORIGIN; `basePath` is the mount path. Supplying the path in BOTH is
+ * always wrong and always silent: `generate-site` emits `baseUrl + withBase(basePath, …)`,
+ * so every canonical URL, `og:url` and sitemap entry carries the prefix twice.
+ *
+ * Nothing fails — `basePath` affects metadata only (#25), so the site builds, serves and
+ * navigates correctly with assets resolving relative. You find it by reading the emitted
+ * `<head>`, or from Search Console. The reporter's shipped to GitHub Pages first (#144).
+ *
+ * Warns rather than throws: the emitted site is usable, and refusing to build over a
+ * metadata defect would be disproportionate. But it names the exact fix, because "these two
+ * fields overlap" is not something a reader can act on.
+ */
+export declare function basePathDoubling(config: {
+    baseUrl?: string;
+    basePath?: string;
+}): string | undefined;
+/**
+ * Does a custom `bundleEntry` bundle actually contain the doc system?
+ *
+ * `bundleEntry` REPLACES tosijs-ui's bundle rather than extending it, so an entry that
+ * imports only the adopter's own library produces a site where every page renders its
+ * prerendered markup and nothing else: no header, no nav, no menu, no live examples. Nothing
+ * fails — `docs.json`, `hydrate.js` and the HTML all serve 200, `<tosi-doc-system>` is
+ * present in the markup, and the adopter's own `customElements.get('their-element')` returns
+ * true, so the bundle looks healthy. It is inert because nothing defined `tosi-doc-system`
+ * (tosijs-ui#145; cost the reporter more than any other onboarding problem).
+ *
+ * Checked by looking for the tag names in the built output, which survives minification
+ * because `customElements.define` needs the literal string. This is the one case where
+ * grepping a bundle is sound — we are looking for a STRING the runtime must contain, not for
+ * a package path that minification erases.
+ *
+ * `liveExample` is reported separately: a corpus with no executable fences legitimately does
+ * not need it, so the caller decides whether its absence is worth mentioning.
+ */
+export declare function bundleRegistrations(bundleSource: string): {
+    docSystem: boolean;
+    liveExample: boolean;
+};

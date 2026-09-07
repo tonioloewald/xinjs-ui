@@ -15,8 +15,15 @@ interface LlmsEntry {
 export interface LlmsTxtMeta {
     name?: string;
     description?: string;
-    /** site origin, used for the Docs link and to make page links absolute */
+    /**
+     * Site **ORIGIN ONLY** — `https://example.github.io`, not
+     * `https://example.github.io/repo`. The path the site is mounted under is `basePath`,
+     * and this module applies it (#144). Putting the path here doubles it in every
+     * canonical URL and sitemap entry, because `generate-site` adds `basePath` on top.
+     */
     baseUrl?: string;
+    /** URL prefix the site is mounted under — mirrors `SiteConfig.basePath`. */
+    basePath?: string;
     /** project links — `github` / `npm` (or any) become Source/npm links */
     projectLinks?: Record<string, string | undefined>;
     /** optional framing line(s) under the description */

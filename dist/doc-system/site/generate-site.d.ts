@@ -75,6 +75,14 @@ export interface GenerateSiteConfig {
     headExtra?: string;
 }
 /**
+ * Prefix a root-relative path with basePath. No-op for '/', empty, protocol-
+ * relative (`//…`), or absolute (`https://…`) URLs.
+ *
+ * Used ONLY for *metadata* URLs now (canonical, og:url, og:image, sitemap) — they
+ * legitimately need the real absolute origin+path. *Functional* URLs go through
+ * `relativeUrl` instead, so the artifact is mount-agnostic. See `relativeUrl`.
+ */
+/**
  * Depth of a page below the site root: 0 for the root index (served at the mount
  * root), 1 for every `/slug/` page. The generator only ever emits a flat `/slug/`
  * tree (see `pathForSlug`), so a non-root page is always exactly one directory deep.

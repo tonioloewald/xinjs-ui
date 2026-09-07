@@ -53,11 +53,10 @@ here.addEventListener('click', async () => {
 })
 ```
 ```html
-<!-- please don't abuse my mapbox token -->
 <tosi-map
   style="width: 100%; height: 100%"
   coords="14.0093606,120.995083,17"
-  token="pk.eyJ1IjoicG9kcGVyc29uIiwiYSI6ImNqc2JlbWU0bjA1ZmY0YW5ycHZod3VhbWcifQ.arvqfpOqMgFYkKgQ35UScA"
+  token="YOUR_MAPBOX_TOKEN"
   map-style="mapbox://styles/mapbox/streets-v12"
 ></tosi-map>
 <select>
@@ -94,6 +93,16 @@ and [use the standard mapbox APIs directly](https://docs.mapbox.com/api/maps/sty
 
 ## Form Integration
 
+**The examples below will not render a map until you supply a token.** Replace
+`YOUR_MAPBOX_TOKEN` with a public (`pk.`) token from
+[account.mapbox.com](https://account.mapbox.com/access-tokens/), and restrict it to your own
+domains while you are there.
+
+A real token used to be inlined here. It shipped in `dist/mapbox.js`, reached every adopter's
+`iife.js.map`, billed its owner for their traffic, and — because it matches Mapbox's published
+secret pattern — **GitHub push protection blocked adopters the first time they committed their
+built site** (tosijs-ui#145). A token in a doc example is a token in everyone's bundle.
+
 `<tosi-map>` is form-associated, making it useful as a location picker in forms:
 
 ```html
@@ -104,7 +113,7 @@ and [use the standard mapbox APIs directly](https://docs.mapbox.com/api/maps/sty
       name="location"
       style="width: 100%; height: 200px"
       coords="40.7128,-74.0060,10"
-      token="pk.eyJ1IjoicG9kcGVyc29uIiwiYSI6ImNqc2JlbWU0bjA1ZmY0YW5ycHZod3VhbWcifQ.arvqfpOqMgFYkKgQ35UScA"
+      token="YOUR_MAPBOX_TOKEN"
     ></tosi-map>
   </label>
   <button type="submit">Submit Location</button>
@@ -209,7 +218,10 @@ export class MapBox extends WebComponent {
     super.connectedCallback()
     if (!this.token) {
       console.error(
-        'mapbox requires an access token which you can provide via the token attribute'
+        '<tosi-map> needs a Mapbox access token: <tosi-map token="pk.…">, or set ' +
+          '`element.token`. Get a free one at https://account.mapbox.com/access-tokens/ — ' +
+          'it is a PUBLIC (`pk.`) token and is meant to be visible in client code, but it ' +
+          'bills to whoever owns it, so use your own and restrict it to your domains.'
       )
     }
   }

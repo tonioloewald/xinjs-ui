@@ -17,7 +17,7 @@ Build-time only (Bun APIs + the `zip` CLI); never import from browser code.
 import * as fs from 'fs';
 import * as path from 'path';
 import { renderDocMarkdown } from '../render.js';
-import { buildSlugMap, pathForSlug, slugForPath } from '../routing.js';
+import { buildSlugMap, pathForSlug, slugForPath, withBase } from '../routing.js';
 import { buildNavTree } from '../nav-tree.js';
 import { partitionByBook, DEFAULT_BOOK } from '../book-target.js';
 import { epubVolumeIdentity } from './epub-volumes.js';
@@ -158,12 +158,6 @@ function collectExamplePres(el, out) {
             collectExamplePres(child, out);
         }
     }
-}
-/** Prefix a root-relative path with basePath (mirrors generate-site's withBase). */
-function withBase(basePath, p) {
-    if (!p || !basePath || basePath === '/' || /^(https?:)?\/\//.test(p))
-        return p;
-    return basePath.replace(/\/$/, '') + (p.startsWith('/') ? p : '/' + p);
 }
 /**
  * Rewrite in-book cross-links so they resolve INSIDE the EPUB (#15). renderDocMarkdown

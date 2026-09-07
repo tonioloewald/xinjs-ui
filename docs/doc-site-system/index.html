@@ -43,7 +43,7 @@
 <script>if('serviceWorker'in navigator){navigator.serviceWorker.register('/module-cache-sw.js').catch(function(){})}</script><script>globalThis.__TJS_LOCAL_BASE="/tjs/"</script><script>globalThis.__TOSI_IMPORT_RESOLVER={"prefix":"/lib/","workerUrl":"/import-resolver-worker.js","reloadOnFirstInstall":false}</script>
 </head>
 <body>
-  <tosi-doc-system docs="../docs.json?v=b2e3c1f2b7b8" config="{&quot;projectName&quot;:&quot;tosijs-ui&quot;,&quot;projectLinks&quot;:{&quot;tosijs&quot;:&quot;https://tosijs.net&quot;,&quot;github&quot;:&quot;https://github.com/tonioloewald/tosijs-ui&quot;}}" localized="../localized-strings.txt">
+  <tosi-doc-system docs="../docs.json?v=fcff25710912" config="{&quot;projectName&quot;:&quot;tosijs-ui&quot;,&quot;projectLinks&quot;:{&quot;tosijs&quot;:&quot;https://tosijs.net&quot;,&quot;github&quot;:&quot;https://github.com/tonioloewald/tosijs-ui&quot;}}" localized="../localized-strings.txt">
   <article class="doc-content">
 <!--{"pin":"bottom","title":"Doc-Site System","description":"How tosijs-ui's static, pre-rendered, hydrating documentation-site system works — and how to adopt it (tosijs-ui/site) in your own project.","parent":"Appendices"}-->
 
@@ -1492,9 +1492,71 @@ the section <code>parent</code>, all in the same block.</li>
 title, then filename. Use <strong><code>order</code></strong> (a number, <strong>lower first</strong>; default 500)
 to rank items <em>within</em> the same <code>pin</code> — e.g. two <code>&quot;pin&quot;: &quot;top&quot;</code> docs with
 <code>&quot;order&quot;: 1</code> and <code>&quot;order&quot;: 2</code>. Siblings inside a section sort the same way.</li>
-<li><strong>Consecutive <code>js</code>/<code>html</code>/<code>css</code>/<code>test</code> code blocks</strong> become one live example
-(see the main project&#39;s &quot;Live example code blocks&quot; docs).</li>
 </ul>
+<h3>Which fence languages EXECUTE</h3>
+<p><strong>Six languages run. Everything else is display-only.</strong> This catches people out because two
+of the six do not look like code you are asking to be <em>run</em> (#146):</p>
+<table>
+<thead>
+<tr>
+<th>fence</th>
+<th>what happens</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>js</code> <code>ts</code> <code>tjs</code></td>
+<td>executed as the example&#39;s script (<code>ts</code>/<code>tjs</code> are transpiled)</td>
+</tr>
+<tr>
+<td><code>html</code></td>
+<td><strong>rendered as the example&#39;s markup</strong></td>
+</tr>
+<tr>
+<td><code>css</code></td>
+<td><strong>injected as a <code>&lt;style&gt;</code> on the page</strong></td>
+</tr>
+<tr>
+<td><code>test</code></td>
+<td>executed as assertions, in its own scope</td>
+</tr>
+<tr>
+<td>anything else</td>
+<td>display-only — highlighted, never run</td>
+</tr>
+</tbody></table>
+<p>The two in bold turn ordinary API documentation into live bugs, and neither fails the build:</p>
+<ul>
+<li>A <code>```css</code> fence showing *&quot;here is how you&#39;d style this in your app&quot;* is applied to the
+whole page. A rule like <code>tosi-widget { background: white }</code> then fights the doc system&#39;s
+own theme and is a white slab in dark mode.</li>
+<li>A lone <code>```html</code> fence showing <em>&quot;the markup this compiles to&quot;</em> renders as an example —
+typically unstyled, because the rules live in a component&#39;s shadow DOM and there is no
+component around it. It reads as a broken demo rather than an illustration.</li>
+</ul>
+<p><strong>Display-only alternatives</strong>: <code>typescript</code> for TS, <strong><code>xml</code> for markup</strong>, and any
+non-executing name for styles (<code>less</code> and <code>scss</code> both highlight fine). The rule is simply
+that the fence&#39;s language must not be one of the six.</p>
+<p>If you want the styles to be real <em>and</em> scoped, write them against the doc system&#39;s theme
+variables (<code>--tosi-bg</code>, <code>--tosi-text</code>, …) rather than literal colours, and scope the selector
+to your example&#39;s own markup.</p>
+<h3>How fences GROUP into examples</h3>
+<p><strong>Adjacent fences form one <code>&lt;tosi-example&gt;</code>; any prose between them starts a new one.</strong></p>
+<p>So this is one example with three tabs:</p>
+<pre><code>```html
+&lt;tosi-widget&gt;&lt;/tosi-widget&gt;
+```
+```js
+preview.querySelector(&#39;tosi-widget&#39;).value = 3
+```
+```test
+test(&#39;it renders&#39;, () =&gt; { … })
+```
+</code></pre>
+<p>…and moving that <code>test</code> block under its own <code>## Testing</code> heading silently detaches it from
+the demo it was written against, giving it a second, empty editor. The tests still run; they
+just no longer run against that example&#39;s DOM.</p>
+<p>One executable script block per example: <code>js</code>, <code>ts</code> and <code>tjs</code> are the same slot, so
+consecutive ones discard all but the last (#139).</p>
 <h2>Notes &amp; gotchas</h2>
 <ul>
 <li><strong>Build-time only.</strong> The orchestrator and generators run under Bun and never

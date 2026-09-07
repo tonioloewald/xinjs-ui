@@ -18,7 +18,7 @@ Build-time only (Bun APIs + the `zip` CLI); never import from browser code.
 import * as fs from 'fs'
 import * as path from 'path'
 import { renderDocMarkdown } from '../render.js'
-import { buildSlugMap, pathForSlug, slugForPath } from '../routing.js'
+import { buildSlugMap, pathForSlug, slugForPath, withBase } from '../routing.js'
 import { buildNavTree, NavNode } from '../nav-tree.js'
 import type { Doc } from './docs.js'
 import { partitionByBook, DEFAULT_BOOK } from '../book-target.js'
@@ -241,12 +241,6 @@ function collectExamplePres(el: any, out: any[]): void {
       collectExamplePres(child, out)
     }
   }
-}
-
-/** Prefix a root-relative path with basePath (mirrors generate-site's withBase). */
-function withBase(basePath: string | undefined, p: string): string {
-  if (!p || !basePath || basePath === '/' || /^(https?:)?\/\//.test(p)) return p
-  return basePath.replace(/\/$/, '') + (p.startsWith('/') ? p : '/' + p)
 }
 
 /**

@@ -26,7 +26,7 @@ import { generateSite } from './generate-site.js';
 import { findOutputDirOverlap, resolveBundleDir } from './output-guard.js';
 import { acquireBuildLock, describeHolder } from './build-lock.js';
 import { sourcemapWarning } from './sourcemap-check.js';
-import { firebasePublicMismatch } from './host-preset.js';
+import { basePathDoubling, bundleRegistrations, firebasePublicMismatch, } from './host-preset.js';
 import { preflight } from './preflight.js';
 import { auditDependencies, reportAudit } from './audit-guard.js';
 import { gatherBuildStamp, hashOutput, stampToWrite, } from './build-stamp.js';
@@ -587,9 +587,10 @@ export async function buildSite(config, opts = {}) {
                     console.warn(`⚠️  doc-site build: ${warnings.length} live example block(s) can't run ` +
                         `here and were left as display-only:\n\n` +
                         formatExampleProblems(warnings) +
-                        `\n\nTag each with a display-only language like \`typescript\` (instead of` +
-                        ` \`js\`/\`ts\`) to silence this, or enable \`importResolver\` to import` +
-                        ` other packages.\n`);
+                        `\n\nSix fence languages EXECUTE — \`js\`, \`ts\`, \`tjs\`, \`html\`, \`css\`, ` +
+                        `\`test\`. Anything else is display-only, so retag these (\`typescript\` for TS, ` +
+                        `\`xml\` for markup) to silence this, or enable \`importResolver\` to import ` +
+                        `other packages.\n`);
                 }
                 if (problems.length) {
                     throw new Error(`doc-site build: ${problems.length} live example(s) failed to build:\n\n` +
@@ -922,6 +923,52 @@ export async function buildSite(config, opts = {}) {
                 // imports its chunks by RELATIVE path, so they must sit right beside it.
                 await $ `cp -R ${HYDRATE_DIR}/. ${PUBLIC}/`.text();
                 hydrateName = 'hydrate.js';
+                /*
+                `bundleEntry` REPLACES our bundle rather than extending it, and an entry that forgets
+                the doc system yields a site of inert prerendered markup — no header, no nav, no
+                examples, and no error anywhere (#145). The build is the only place that can see it,
+                so it says so here rather than leaving it to be discovered in a browser.
+        
+                Reads the ENTRY plus its chunks, since `--splitting` can move the registration into a
+                chunk. Warns rather than fails: a deliberately headless embedding is a legitimate,
+                if unusual, thing to build.
+                */
+                {
+                    /*
+                    Only worth mentioning `live-example` when the corpus actually has executable
+                    fences — a prose/book site legitimately has none, and a warning it cannot act on
+                    is how a warning becomes something people filter.
+                    */
+                    let docsHaveExamples = false;
+                    try {
+                        const corpus = JSON.parse(await Bun.file(DOCS_JSON).text());
+                        docsHaveExamples = corpus.some((d) => /^[ \t]*```(js|ts|tjs|test)[ \t]*$/m.test(d.text ?? ''));
+                    }
+                    catch {
+                        // corpus unreadable — the doc-system warning below still stands on its own
+                    }
+                    let bundled = '';
+                    for (const f of await Array.fromAsync(new Bun.Glob('**/*.js').scan({ cwd: PUBLIC, absolute: true }))) {
+                        bundled += await Bun.file(f).text();
+                    }
+                    const reg = bundleRegistrations(bundled);
+                    if (!reg.docSystem) {
+                        console.warn(`\n⚠️  ${config.bundleEntry} does not register <tosi-doc-system>, so every page\n` +
+                            `    will render its prerendered markup and nothing else — no header, no nav,\n` +
+                            `    no menu, no live examples, and no error in the console.\n\n` +
+                            `    bundleEntry REPLACES tosijs-ui's bundle; it does not extend it. Add:\n` +
+                            `        import 'tosijs-ui/doc-browser'\n` +
+                            (docsHaveExamples && !reg.liveExample
+                                ? `        import 'tosijs-ui/live-example'   // this corpus has live examples\n`
+                                : '') +
+                            `    to ${config.bundleEntry}.\n`);
+                    }
+                    else if (docsHaveExamples && !reg.liveExample) {
+                        console.warn(`\n⚠️  This corpus has executable fences but ${config.bundleEntry} does not\n` +
+                            `    register <tosi-example>. Add \`import 'tosijs-ui/live-example'\` — the\n` +
+                            `    code blocks will render as plain text otherwise.\n`);
+                    }
+                }
                 // Report the always-loaded weight (entry, not the lazy editor chunks) so a
                 // regression that pulls CodeMirror back into the entry is visible.
                 {
@@ -963,6 +1010,7 @@ export async function buildSite(config, opts = {}) {
                         name: config.name,
                         description: config.description,
                         baseUrl: config.baseUrl,
+                        basePath: config.basePath,
                         projectLinks: config.projectLinks,
                         haltijaDev: config.haltijaDev,
                     }, corpus);
@@ -1171,6 +1219,9 @@ export async function buildSite(config, opts = {}) {
                 writes one place and `firebase deploy` publishes another, both succeed, and the site
                 serves whatever was in that directory last.
                 */
+                const doubled = basePathDoubling(config);
+                if (doubled)
+                    console.warn(`\n⚠️  ${doubled}\n`);
                 const mismatch = firebasePublicMismatch(await Bun.file('firebase.json')
                     .text()
                     .catch(() => ''), config.outputDir ?? 'docs');

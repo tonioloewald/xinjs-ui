@@ -1,6 +1,6 @@
 import * as fs from 'fs'
 import * as path from 'path'
-import { buildSlugMap, pathForSlug } from '../routing.js'
+import { buildSlugMap, pathForSlug, withBase } from '../routing.js'
 
 const SRC = 'src'
 const DIST = 'dist'
@@ -58,8 +58,15 @@ function extractDescription(text: string): string {
 export interface LlmsTxtMeta {
   name?: string
   description?: string
-  /** site origin, used for the Docs link and to make page links absolute */
+  /**
+   * Site **ORIGIN ONLY** — `https://example.github.io`, not
+   * `https://example.github.io/repo`. The path the site is mounted under is `basePath`,
+   * and this module applies it (#144). Putting the path here doubles it in every
+   * canonical URL and sitemap entry, because `generate-site` adds `basePath` on top.
+   */
   baseUrl?: string
+  /** URL prefix the site is mounted under — mirrors `SiteConfig.basePath`. */
+  basePath?: string
   /** project links — `github` / `npm` (or any) become Source/npm links */
   projectLinks?: Record<string, string | undefined>
   /** optional framing line(s) under the description */
@@ -95,7 +102,7 @@ export function entriesFromCorpus(
       title: doc.title as string,
       description:
         doc.description?.trim() || extractDescription(doc.text ?? ''),
-      link: base + pathForSlug(slugMap[doc.filename]),
+      link: base + withBase(meta.basePath, pathForSlug(slugMap[doc.filename])),
     }))
     .sort((a, b) => a.title.localeCompare(b.title))
 }

@@ -67,11 +67,29 @@ export interface SiteConfig {
      */
     docsJson?: string;
     /**
-     * Path to YOUR bundle entrypoint. If set, the build bundles it (IIFE) and
-     * pages load it. Your entry should import what your pages/live-examples need
-     * from tosijs / tosijs-ui / your own lib, so custom elements register AND
-     * inline `js`/`test` examples can resolve those imports.
-     * If omitted, pages fall back to `scriptUrl` (tosijs-ui's published iife.js).
+     * Path to YOUR bundle entrypoint. If set, the build bundles it (IIFE) and pages load it
+     * **INSTEAD OF** tosijs-ui's own bundle — it REPLACES, it does not extend.
+     *
+     * **Your entry MUST therefore register the doc system itself:**
+     *
+     * ```ts
+     * import 'tosijs-ui/doc-browser'   // <tosi-doc-system> — the whole site UI
+     * import 'tosijs-ui/live-example'  // <tosi-example> — only if you use live examples
+     * import './src/index'             // your own components
+     * ```
+     *
+     * Omit those and every page renders its prerendered markup with **no header, no nav, no
+     * menu and no live examples** — silently. There is no console error, no build warning and
+     * no 404: `<tosi-doc-system>` is right there in the HTML, inert, because nothing ever
+     * defined it. Your own elements register fine, which makes the bundle look healthy
+     * (tosijs-ui#145). The build now warns when it can tell, but the warning is a safety net,
+     * not the contract.
+     *
+     * Importing the package ROOT (`import 'tosijs-ui'`) also works and registers everything,
+     * but pulls in every component. Prefer the subpaths above.
+     *
+     * If omitted, pages fall back to `scriptUrl` (tosijs-ui's published iife.js), which
+     * already contains the doc system.
      */
     bundleEntry?: string;
     /** modules to leave external in the bundle, e.g. ['jolt-physics'] */

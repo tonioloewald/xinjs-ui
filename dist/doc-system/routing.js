@@ -128,3 +128,23 @@ export function resolveParent(parentValue, docs, slugMap) {
             return d.filename;
     return '';
 }
+/**
+ * Prefix a root-relative path with the site's `basePath`.
+ *
+ * THE ONE COPY. There were two identical implementations (`generate-site.ts`, `epub.ts` —
+ * the latter's comment said "mirrors generate-site's withBase") and a third consumer,
+ * `make-llms-txt.ts`, that had none at all. So `baseUrl` meant the ORIGIN to the page
+ * generator and ORIGIN-PLUS-PATH to llms.txt, and on a GitHub project page no configuration
+ * satisfied both: matching the canonical URLs doubled the prefix in llms.txt, and matching
+ * llms.txt dropped it from every canonical and sitemap entry (tosijs-ui#144).
+ *
+ * Nothing failed — `basePath` affects metadata only, so the site works and you find it by
+ * reading the emitted `<head>`. The reporter's shipped to Pages before they noticed.
+ *
+ * `baseUrl` is the ORIGIN ONLY. Absolute URLs and an empty/`/` basePath pass through.
+ */
+export function withBase(basePath, p) {
+    if (!p || !basePath || basePath === '/' || /^(https?:)?\/\//.test(p))
+        return p;
+    return basePath.replace(/\/$/, '') + (p.startsWith('/') ? p : '/' + p);
+}

@@ -1297,8 +1297,58 @@ case is fully covered.
   title, then filename. Use **`order`** (a number, **lower first**; default 500)
   to rank items _within_ the same `pin` — e.g. two `"pin": "top"` docs with
   `"order": 1` and `"order": 2`. Siblings inside a section sort the same way.
-- **Consecutive `js`/`html`/`css`/`test` code blocks** become one live example
-  (see the main project's "Live example code blocks" docs).
+### Which fence languages EXECUTE
+
+**Six languages run. Everything else is display-only.** This catches people out because two
+of the six do not look like code you are asking to be *run* (#146):
+
+| fence | what happens |
+|---|---|
+| `js` `ts` `tjs` | executed as the example's script (`ts`/`tjs` are transpiled) |
+| `html` | **rendered as the example's markup** |
+| `css` | **injected as a `<style>` on the page** |
+| `test` | executed as assertions, in its own scope |
+| anything else | display-only — highlighted, never run |
+
+The two in bold turn ordinary API documentation into live bugs, and neither fails the build:
+
+- A ` ```css ` fence showing *"here is how you'd style this in your app"* is applied to the
+  whole page. A rule like `tosi-widget { background: white }` then fights the doc system's
+  own theme and is a white slab in dark mode.
+- A lone ` ```html ` fence showing *"the markup this compiles to"* renders as an example —
+  typically unstyled, because the rules live in a component's shadow DOM and there is no
+  component around it. It reads as a broken demo rather than an illustration.
+
+**Display-only alternatives**: `typescript` for TS, **`xml` for markup**, and any
+non-executing name for styles (`less` and `scss` both highlight fine). The rule is simply
+that the fence's language must not be one of the six.
+
+If you want the styles to be real *and* scoped, write them against the doc system's theme
+variables (`--tosi-bg`, `--tosi-text`, …) rather than literal colours, and scope the selector
+to your example's own markup.
+
+### How fences GROUP into examples
+
+**Adjacent fences form one `<tosi-example>`; any prose between them starts a new one.**
+
+So this is one example with three tabs:
+
+    ```html
+    <tosi-widget></tosi-widget>
+    ```
+    ```js
+    preview.querySelector('tosi-widget').value = 3
+    ```
+    ```test
+    test('it renders', () => { … })
+    ```
+
+…and moving that `test` block under its own `## Testing` heading silently detaches it from
+the demo it was written against, giving it a second, empty editor. The tests still run; they
+just no longer run against that example's DOM.
+
+One executable script block per example: `js`, `ts` and `tjs` are the same slot, so
+consecutive ones discard all but the last (#139).
 
 ## Notes & gotchas
 
