@@ -297,8 +297,23 @@ Analysis worth keeping (full version in the issue thread):
       rAF-driven) and wrong for Babylon (`onBeforeRenderObservable` fires after rAF — it shifted
       manta-recon's results by one row and looked like a real finding). A shared helper would be
       right for one and silently wrong for the other. **Also cheap, also independent of the RFC.**
+- [ ] **A snapshot must record its viewport and scroll offset, and a diff across differing
+      offsets is a comparison ERROR, not a finding.** `<tosi-table>` renders only the visible
+      window, so for virtualized content scroll position changes which records **exist** — not
+      merely where they are. That churn lands in the identity half of the diff, the half that
+      takes no tolerance, so the most common enterprise widget would produce the loudest
+      possible failure for the least possible reason. The upside of the same fact: DOM
+      virtualization already yields a post-culling draw list, so the analogue of
+      `getActiveMeshes()` does not have to be built.
 - [ ] Scope honestly: this is a layout oracle for **bound** UI. Unwired presentational elements
       are not in the map, and a matcher must say so rather than report "not visible".
+- [ ] **Get 2D practitioners into #142 before designing the matcher family.** Four things this
+      thread structurally cannot supply: lived experience of visual-regression tooling
+      (Chromatic/Percy/BackstopJS have fought the snapshot-noise reputation problem
+      commercially for a decade); font-loading reflow, which has no 3D analogue and makes DOM
+      layout deterministic only given viewport *and* fonts; responsive breakpoints, where one
+      page has several correct layouts; and whether the accessibility tree is a better second
+      structural projection than `wiring`.
 
 ## Fail loudly as a review lens — 25% of the backlog is one defect class (#61)
 
