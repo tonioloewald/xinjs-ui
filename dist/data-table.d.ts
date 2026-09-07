@@ -238,6 +238,8 @@ export declare class TosiTable extends WebComponent {
     private _sort?;
     private _rowGroupId;
     private _visibleGroupedRowIds;
+    private _visibleMemo;
+    private computeVisibleRows;
     private _nonRepeatingGroupedRowCells;
     private _pinnedTopRows?;
     private _pinnedBottomRows?;

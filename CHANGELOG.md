@@ -25,6 +25,38 @@ bugs in ten minutes. The tests were fine; the reporting was a lie, and a comfort
 is why it survived. **"We didn't look" and "we looked and it's fine" must not produce the same
 output** — a reported total is that same lie one level up.
 
+### `<tosi-table>` filters and sorts the whole table, not the first `maxVisibleRows` (#147)
+
+The window was applied **first**, so both the filter and the sort saw only the first N rows.
+Two consequences, both reported from production at 300k rows:
+
+- **A matching row past the cap could never be found.** A newly-created company appended to a
+  12,000-row list, with the cap at 10,000, did not exist as far as search was concerned.
+- **Sorting did not sort the table.** You got the first N rows in *data* order, arranged
+  nicely — not the top N by the sort.
+
+This was known and the answer had been a warning: the comment in the render path read *"every
+count, filter and sort then ran on the truncated set, so the numbers were self-consistent and
+wrong"* (#82). A warning does not help someone whose search returns nothing, and it named row
+counts rather than the consequence — so "showing 10,000 of 12,000 rows" gave no clue why a
+search failed.
+
+The order is now **filter → force → sort → cluster → window**. `maxVisibleRows` is a *layout*
+ceiling — the browser's maximum element height — so it belongs at the end, against what will be
+drawn, rather than at the start against the data.
+
+**Cost, measured on 300k rows**, since this moves the sort from "at most `maxVisibleRows`" to
+"every match": the common case (no sort set) is **0.9ms, down from 2.9ms**; a filter narrowing
+to ~1% is 2.0ms; a broad sort over all 300k is **108ms**. That last one is the price of sorting
+the real table, and it is paid when you click a column header — but `pinColumns()`, a schema
+change and a column resize all trigger a render without changing row order, so the pipeline is
+memoized against the identities that determine it (array, filter, sort, groupId, forced ids).
+A render that changes none of them reuses the result.
+
+The truncation warning now counts against the **filtered** set — "10,000 of 300,000" is
+alarming and wrong once a filter has narrowed things to 40 — and says that the rows shown are
+the right ones, there are simply more than the browser can lay out.
+
 ### `menuClass` — theme one component's menus without restyling the page (#148)
 
 Menu metrics are all theme variables, and setting them on your component **did not work**.

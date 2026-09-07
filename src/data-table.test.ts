@@ -1,4 +1,4 @@
-import { test, expect, afterEach } from 'bun:test'
+import { test, expect, afterEach, describe } from 'bun:test'
 import { tosiTable, derivedMaxVisibleRows } from './data-table.js'
 import { initLocalization, i18n } from './localize.js'
 
@@ -205,4 +205,106 @@ test('#84: a virtual table never gets the advice, however many rows', () => {
   } finally {
     console.warn = realWarn
   }
+})
+
+/*
+Order of operations: filter → sort → window (#147).
+
+`maxVisibleRows` used to be applied FIRST, so both the filter and the sort saw only the first
+N rows. Reported from production at 300k rows across two apps: a newly-created company
+appended past the cap could never be found by search, because filtering ran over a window
+that ended before it.
+
+The window is a LAYOUT ceiling — the browser's maximum element height — so it belongs at the
+end, against what will be drawn, not at the start against the data.
+*/
+describe('#147: the window is applied last', () => {
+  const makeTable = (rows: any[], cap: number) => {
+    const table = tosiTable() as any
+    table.maxVisibleRows = cap
+    table.columns = [{ name: 'name', prop: 'name' }]
+    table.array = rows
+    return table
+  }
+  const rows = Array.from({ length: 12_000 }, (_, i) => ({
+    id: i,
+    name: `co-${i}`,
+    n: i,
+  }))
+
+  test('a matching row PAST the cap is found — the production symptom', () => {
+    const table = makeTable(rows, 10_000)
+    table.filter = (a: any[]) => a.filter((r) => r.name === 'co-11500')
+    table.render()
+    expect(table.visibleRows.length).toBe(1)
+    expect(table.visibleRows[0].name).toBe('co-11500')
+  })
+
+  test('sorting sorts the TABLE, not an arbitrary window of it', () => {
+    // Descending by n: the top row must be the largest in the whole array, not the
+    // largest within the first `cap` rows.
+    const table = makeTable(rows, 10_000)
+    table.sort = (a: any, b: any) => b.n - a.n
+    table.render()
+    expect(table.visibleRows[0].n).toBe(11_999)
+  })
+
+  test('the cap still bounds what is RENDERED', () => {
+    const table = makeTable(rows, 10_000)
+    table.render()
+    expect(table.visibleRows.length).toBe(10_000)
+  })
+
+  test('a filter narrowing below the cap renders everything it matched', () => {
+    const table = makeTable(rows, 10_000)
+    table.filter = (a: any[]) => a.filter((r) => r.n % 1000 === 0)
+    table.render()
+    expect(table.visibleRows.length).toBe(12)
+  })
+
+  test('sorting does not reorder the CALLER’s array', () => {
+    /*
+    `filter` defaults to `passThru`, which returns the array it was GIVEN, so an in-place
+    sort would reorder the consumer's data.
+
+    Needs `pinnedTopRows` to reach the hazard, which is the interesting part: without any
+    pinning, `effectiveBaseData` returns `this._array.slice(…)` — a copy — and an in-place
+    sort is harmless. WITH pinned rows it returns `this._array` itself. So the `.slice()`
+    before `.sort()` is load-bearing on exactly one path, and a test written the obvious way
+    passes whether or not the copy is there (verified by mutation).
+    */
+    const data = [{ n: 3 }, { n: 1 }, { n: 2 }]
+    const table = makeTable(data, 100)
+    table.pinnedTopRows = []
+    table.sort = (a: any, b: any) => a.n - b.n
+    table.render()
+    expect(table.visibleRows.map((r: any) => r.n)).toEqual([1, 2, 3])
+    expect(data.map((r) => r.n)).toEqual([3, 1, 2])
+  })
+
+  test('a render that changes no input reuses the memo — the 108ms sort is paid once', () => {
+    /*
+    Correcting the order moved the sort from "at most `cap` rows" to "every match". That is
+    the price of sorting the real table, but `pinColumns()`, a schema change and a column
+    resize all call `queueRender` without changing the row order, and re-sorting 300k rows
+    for a column pin would read as the O(1)-in-rows claim breaking.
+    */
+    const table = makeTable(rows, 10_000)
+    table.sort = (a: any, b: any) => b.n - a.n
+    table.render()
+    const first = table.visibleRows
+    table.render()
+    expect(table.visibleRows).toBe(first) // same array identity — not recomputed
+  })
+
+  test('changing the sort DOES invalidate it', () => {
+    const table = makeTable(rows, 10_000)
+    table.sort = (a: any, b: any) => b.n - a.n
+    table.render()
+    const first = table.visibleRows
+    table.sort = (a: any, b: any) => a.n - b.n
+    table.render()
+    expect(table.visibleRows).not.toBe(first)
+    expect(table.visibleRows[0].n).toBe(0)
+  })
 })

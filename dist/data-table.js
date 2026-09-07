@@ -1453,6 +1453,76 @@ export class TosiTable extends WebComponent {
     _sort;
     _rowGroupId = null;
     _visibleGroupedRowIds = null;
+    /*
+    Memo for the filter → force → sort → cluster pipeline (#147).
+  
+    Correcting the order moved the sort from "at most `maxVisibleRows` rows" to "every matching
+    row", which is the price of sorting the actual table. Measured on 300k rows: a broad sort is
+    **108ms**, against 2.9ms for the old (wrong) window-first order. Paying that once when the
+    user clicks a column header is fine. Paying it on `pinColumns()`, a schema change or a
+    column resize — all of which call `queueRender` and none of which change the row order — is
+    not, and would read as the O(1)-in-rows claim quietly breaking.
+  
+    So the result is cached against the identities that actually determine it. Everything else
+    that triggers a render reuses it. With no sort set (the common case) the whole pipeline is
+    0.9ms and this never earns its keep — it exists for the case where the fix would otherwise
+    regress a real table.
+    */
+    _visibleMemo = null;
+    computeVisibleRows(baseData, groupId, sort) {
+        const memo = this._visibleMemo;
+        if (memo &&
+            memo.array === this._array &&
+            memo.filter === this._filter &&
+            memo.sort === sort &&
+            memo.groupId === groupId &&
+            memo.forcedIds === this._visibleGroupedRowIds) {
+            return memo.result;
+        }
+        let rows = this.filter(baseData);
+        /*
+        Forcing runs BEFORE the sort, so a row re-admitted by `visibleGroupedRowIds` is ordered
+        like any other row rather than being tacked on the end. It re-admits from the full
+        pre-filter set, which is what `baseData` now is.
+        */
+        if (groupId) {
+            rows = withForcedGroups(rows, baseData, groupId, this._visibleGroupedRowIds);
+        }
+        /*
+        `filter` defaults to `passThru`, which returns the SAME array — sorting it in place would
+        reorder the caller's data. Copy only when we are about to mutate.
+        */
+        if (sort)
+            rows = rows.slice().sort(sort);
+        // Clustering LAST — the spec is "grouped, then sorted within the grouping", so any other
+        // sort is applied first and survives inside each group.
+        if (groupId)
+            rows = clusterByGroup(rows, groupId);
+        // The window, last: it is a layout ceiling on what gets DRAWN.
+        const limit = this.maxVisibleRows;
+        if (rows.length > limit) {
+            if (!this._warnedTruncation) {
+                this._warnedTruncation = true;
+                console.warn(`<tosi-table> is showing ${limit.toLocaleString()} of ${rows.length.toLocaleString()} matching rows.\n` +
+                    `  maxVisibleRows is ${limit.toLocaleString()}${this._maxVisibleRows === undefined
+                        ? ` — derived from this browser's maximum element height (${probeMaxElementHeight().toLocaleString() || 'unknown'}px) at rowHeight ${this.rowHeight}.`
+                        : ' — set explicitly on this element.'}\n` +
+                    `  Filtering and sorting run over the FULL set, so the rows shown are the right\n` +
+                    `  ones — there are simply more of them than the browser can lay out. Raise it\n` +
+                    `  with \`table.maxVisibleRows = n\`, or narrow the filter.`);
+            }
+            rows = rows.slice(0, limit);
+        }
+        this._visibleMemo = {
+            array: this._array,
+            filter: this._filter,
+            sort,
+            groupId,
+            forcedIds: this._visibleGroupedRowIds,
+            result: rows,
+        };
+        return rows;
+    }
     _nonRepeatingGroupedRowCells = null;
     // Optional explicit arrays of pinned items. When set, they are managed
     // separately from `array` and override the `pinnedTop` / `pinnedBottom`
@@ -3073,25 +3143,13 @@ export class TosiTable extends WebComponent {
         const pinnedTopData = this.effectivePinnedTopData;
         const pinnedBottomData = this.effectivePinnedBottomData;
         const baseData = this.effectiveBaseData;
-        const limit = this.maxVisibleRows;
-        const cap = Math.min(baseData.length, limit);
         /*
-        Say so when rows are dropped. Truncating in silence meant the table disagreed with the
-        data and nothing anywhere said why — every count, filter and sort then ran on the
-        truncated set, so the numbers were self-consistent and wrong (#82).
-    
-        Once per table, and only when it actually bites: a notice on every render of every table
-        is how a warning becomes something people filter.
+        The truncation warning moved into `computeVisibleRows`, where the window is now applied
+        (#147). It has to be counted against the FILTERED set: "showing 10,000 of 300,000 rows"
+        is alarming and wrong once the filter has already narrowed things to 40. Kept as a
+        once-per-table notice — one on every render of every table is how a warning becomes
+        something people filter (#82).
         */
-        if (cap < baseData.length && !this._warnedTruncation) {
-            this._warnedTruncation = true;
-            console.warn(`<tosi-table> is showing ${cap.toLocaleString()} of ${baseData.length.toLocaleString()} rows.\n` +
-                `  maxVisibleRows is ${limit.toLocaleString()}${this._maxVisibleRows === undefined
-                    ? ` — derived from this browser's maximum element height (${probeMaxElementHeight().toLocaleString() || 'unknown'}px) at rowHeight ${this.rowHeight}.`
-                    : ' — set explicitly on this element.'}\n` +
-                `  Raise it with \`table.maxVisibleRows = n\`. Beyond the layout ceiling the\n` +
-                `  spacer stops growing, so the far end simply cannot be scrolled to.`);
-        }
         /*
         A big table with no `rowHeight` is a misconfiguration, not a use case (#84).
     
@@ -3120,29 +3178,35 @@ export class TosiTable extends WebComponent {
                 `  depending on row count at all — virtual tables are O(1) in rows.\n` +
                 `  rowHeight 0 is for SMALL tables and for variable row heights.`);
         }
-        const scope = baseData.slice(0, cap);
         // Fresh per render — see `_groupIdMemo`. Must happen before `groupIdFn` is read.
         this._groupIdMemo = new WeakMap();
         const groupId = this.groupIdFn;
-        let visibleData = this.filter(scope);
-        /*
-        Forcing runs BEFORE the sort, so a row re-admitted by `visibleGroupedRowIds` is ordered
-        like any other row rather than being tacked on the end.
-        */
-        if (groupId) {
-            visibleData = withForcedGroups(visibleData, scope, groupId, this._visibleGroupedRowIds);
-        }
         const { sort } = this;
-        if (sort)
-            visibleData.sort(sort);
-        // Clustering LAST — the spec is "grouped, then sorted within the grouping", so any
-        // other sort is applied first and survives inside each group.
+        /*
+        ORDER: filter → force → sort → cluster → WINDOW (#147).
+    
+        `maxVisibleRows` used to be applied FIRST, so both the filter and the sort saw only the
+        first N rows. Two consequences a user would call bugs, and both were reported from
+        production at 300k rows:
+    
+          - a matching row past the cap could never be found. Search for a company appended to
+            the end of a 12,000-row list, with the cap at 10,000, and it does not exist.
+          - sorting did not sort the table. You got the first N rows in DATA order, arranged
+            nicely — not the top N by the sort.
+    
+        The comment on the truncation warning above already said this ("every count, filter and
+        sort then ran on the truncated set, so the numbers were self-consistent and wrong"), and
+        #82's answer was to warn. A warning does not help someone whose search returns nothing.
+    
+        The window is a LAYOUT ceiling — the browser's maximum element height — so it belongs at
+        the end, against what will actually be shown, not at the start against the data.
+        */
+        const visibleData = this.computeVisibleRows(baseData, groupId, sort);
         if (groupId) {
-            visibleData = clusterByGroup(visibleData, groupId);
             this._grouping = groupRenderMeta(visibleData, groupId);
-            // Counted from `scope` (pre-filter) against the final rendered set, and assigned
-            // BEFORE the rows below are stamped, so a cell renderer can read it as it renders.
-            this._rowGroupCounts = groupCounts(scope, visibleData, groupId);
+            // Counted from the full PRE-FILTER set against the rendered set, and assigned BEFORE
+            // the rows below are stamped, so a cell renderer can read it as it renders.
+            this._rowGroupCounts = groupCounts(baseData, visibleData, groupId);
         }
         else {
             this._grouping = null;
