@@ -260,6 +260,46 @@ The reporter's own framing, which we should keep: fences replace the **browser l
       explicit `load()`). Fine in itself, but it means the browser lane does not go to zero and
       a promotion pitch should say so.
 
+### The structural-diff idea, and what the DOM side needs (#142, 2026-09-06)
+
+The strongest thing in the thread, from tosijs-3d-ensemble: **fuzzy-match the STRUCTURE instead
+of comparing images.** They built `sceneFloorplan()` / `floorplanDiff(a, b, epsilon)` for 3D;
+the DOM parallel is `describe().wiring` (structure, precise) beside `schematicSVG` →
+`rasterizeSVG` (picture, at a glance). Both substrates get both, and neither structure is
+cosmetic — which is what makes fuzzy matching meaningful rather than a threshold you tune.
+
+Verified against the shipped `tosijs/agent` types: `AgentWiringRecord` already carries `bounds`,
+`viewportFixed`, `structural` and optional `style`; `schematicSVG`/`rasterizeSVG`/`boundsOf` are
+exported; and **`auditAccessibility` is already the "snapshot in a fence, verdict as a pure
+function over plain data" split** ensemble proposed. A DOM differ is the second instance of an
+existing pattern here, not a new one.
+
+Analysis worth keeping (full version in the issue thread):
+
+- [ ] **Absent/added and moved/resized are different questions**, not three points on a scale.
+      The first is identity, the second is geometry, and only the second takes a tolerance. This
+      is the actual defect in pixel diffing — a heat map cannot separate "gone" from "moved 1px",
+      so one threshold has to answer both and answers neither.
+- [ ] **Pair by BINDING PATH, count where there is none.** DOM is ahead of 3D here: a record's
+      `value ⟷ app.user.name` is intrinsic and survives re-render and reorder, so a failure can
+      name the Save button. Two nearby keys are wrong — the wiring **index is documented as not
+      surviving re-renders**, and `ref` is producer-supplied so it is absent when nobody is
+      driving. For `list` bindings `idPath` is the same key one level down, which is also the
+      honest answer to ensemble's repeat-counting problem.
+- [ ] **Distinguish *not in the map* from *in the map with zero area*.** Zero-size bounds means
+      "not visible", which overloads a deleted element with a collapsed one — different
+      diagnoses, and a naive differ calls both `GONE`. This is the DOM twin of the draw-order
+      bug ensemble caught: one line, and it fails in the direction that looks like a finding.
+      **Cheap and worth doing regardless of whether the tier gets promoted.**
+- [ ] **Write down the settle asymmetry before anyone unifies it.** `settled(predicate)` belongs
+      in the harness and is universal; `nextFrame()` belongs to the substrate and is a claim
+      about someone else's scheduler. rAF is correct for tosijs (the render pipeline is
+      rAF-driven) and wrong for Babylon (`onBeforeRenderObservable` fires after rAF — it shifted
+      manta-recon's results by one row and looked like a real finding). A shared helper would be
+      right for one and silently wrong for the other. **Also cheap, also independent of the RFC.**
+- [ ] Scope honestly: this is a layout oracle for **bound** UI. Unwired presentational elements
+      are not in the map, and a matcher must say so rather than report "not visible".
+
 ## Fail loudly as a review lens — 25% of the backlog is one defect class (#61)
 
 14 of 56 issues are silent failure. Not a theme anyone went looking for; it is what the corpus
