@@ -837,6 +837,24 @@ Two of #132's three asks landed in 1.14.0: the code is **8 letters, no digits**,
 invite page already had a code box (from #75) so a bookmarked host plus eight letters is the
 whole entry flow. The third needs infrastructure this repo does not own:
 
+**Design constraint from real headset usage (2026-09-08): the code must be LAST, with
+nothing after it.** In practice the URL is never typed fresh — you get a link once and then
+*edit the code in place* each session, which is why the 8-letter change helped as much as it
+did. Editing the tail of a string on a virtual keyboard is "select the last eight characters";
+editing the middle is laser-pointer surgery. So `dev.tosijs.net/CODE` is right and any shape
+with a trailing path segment silently gives back most of the win. `?t=CODE` already has this
+property, which is presumably why the current flow is tolerable.
+
+**QR codes: considered and rejected (2026-09-08).** Proposed to skip typing entirely, killed
+on two independent grounds. The Quest browser cannot scan them — Meta gates the passthrough
+cameras from `getUserMedia`, defensibly (a headset camera sees your whole home continuously in
+3D), and offers no system-mediated scanner as the mitigation. And on a phone it is moot: the
+link is already clickable in the terminal the developer is sitting in. That leaves "human, plus
+a second device with a camera, looking at a screen they cannot click from", which is not a case
+worth carrying code for. Worth recording that a QR is an *image encoding of text* — strictly
+worse than the string for anything that can read text, so it is never the answer for the agent
+half of "give the agent or the user a link".
+
 - **`dev.tosijs.net/<code>` → 302 to the tunnel.** Saves ~18 characters and, more to the
   point, every piece of punctuation: no scheme, no `?`, no `=`, no four-dots-and-a-hyphen
   host. It needs a service at the apex that maps a code to a subdomain, which means the
