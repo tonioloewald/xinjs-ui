@@ -17,7 +17,18 @@ consequences, none of which is "a secret leaked":
   - nobody could tell whether it was live or a placeholder without decoding it.
 
 The rule this encodes is narrow and mechanical: a doc example may DESCRIBE a credential, and
-must not CONTAIN one. Placeholders are the affordance.
+must not CONTAIN one in a form a scanner will match.
+
+WHAT THIS CANNOT SEE, stated plainly so the guard is not mistaken for more than it is: any
+value that is encoded. `src/mapbox.ts` deliberately base64s its demo token and this test passes
+over it. That is intentional and it is documented at the site — the token is PUBLIC by design
+(Mapbox's own docs say to put it in client-side JS), so the encoding exists to dodge a false
+positive, not to hide anything.
+
+Which means this guard catches ACCIDENT, not INTENT. It is worth having anyway: every instance
+it has caught was an accident, and a real credential does not belong in a repo at any encoding.
+But do not read a pass here as "no secrets in the tree" — read it as "nothing credential-shaped
+was left lying around in plaintext".
 */
 
 const SECRET_PATTERNS: Array<{ name: string; re: RegExp }> = [

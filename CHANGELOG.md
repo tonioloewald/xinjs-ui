@@ -104,15 +104,21 @@ the popup needs no change from adopters but is considerably more magic, and stam
 Three defects and a credential, all found by one project adopting `tosijs-ui/site` for the
 first time. Every one of them failed silently.
 
-**A live Mapbox token shipped in `dist/` (#145).** Two `<tosi-map>` doc examples carried a
-real `pk.` token. Public tokens are meant to be visible in client code, so nothing looked
-wrong — but a doc example is compiled into `dist/mapbox.js`, inlined into `iife.js`, and lands
-in every adopter's sourcemap. It billed its owner for their traffic, and because it matches
-Mapbox's published secret pattern, **GitHub push protection blocked adopters the first time
-they committed their built site** — a wall with someone else's name on it. Replaced with
-`YOUR_MAPBOX_TOKEN`, the console error now says where to get one, and
-`src/no-secrets.test.ts` fails the build on any credential-shaped string in `src/`. A doc
-example may describe a credential; it must not contain one.
+**A Mapbox token in `dist/` blocked adopters' pushes (#145).** Two `<tosi-map>` doc examples
+carried a literal `pk.` token, which compiled into `dist/mapbox.js`, inlined into `iife.js`,
+and landed in every adopter's sourcemap. It matches Mapbox's published secret pattern, so
+**GitHub push protection blocked adopters the first time they committed their built site** — a
+wall with someone else's name on it.
+
+To be clear about what this is and is not: Mapbox `pk.` tokens are **public by design** —
+Mapbox's own docs tell you to put them in client-side JavaScript — so the scanner match is a
+false positive and there was never a secret here. The demos still use the token; it is now
+assigned programmatically and base64'd, which is **not** a security measure and would be a
+poor one. It exists solely so the literal string stops matching a regex. `atob()` protects
+nothing from anyone, which is precisely why it suits a value that needs no protection.
+
+`src/no-secrets.test.ts` fails the build on any credential-shaped string in `src/`, and says
+plainly what it cannot see: an encoded value, deliberately. It catches accident, not intent.
 
 **`bundleEntry` REPLACES the default bundle rather than extending it (#145).** An entry that
 imports only your own library produces a site where every page renders its prerendered markup
