@@ -1,6 +1,6 @@
 # Changelog
 
-## 1.14.1 (unreleased)
+## 1.14.1
 
 ### The doc-test gate can tell a dropped page from a passing one
 
