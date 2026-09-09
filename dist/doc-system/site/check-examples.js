@@ -22,7 +22,7 @@ executed, so they're skipped.
 Build-time only (bun). Never import from browser code.
 */
 import { marked } from 'marked';
-import { rewriteImports, AsyncFunction, loadTransform, UnsupportedImportError, } from '../../live-example/code-transform.js';
+import { rewriteImports, AsyncFunction, loadTransform, transformAvailable, UnsupportedImportError, } from '../../live-example/code-transform.js';
 // The default live-example context (matches the IIFE globals the pages provide).
 // A project that sets a custom `context` on its <tosi-doc-system> can pass its
 // own keys; these are the tosijs-ui defaults.
@@ -79,12 +79,33 @@ export async function checkExamples(docs, opts = {}) {
     const problems = [];
     const warnings = [];
     const bakes = new Map();
+    /*
+    Never diagnose a dialect we cannot actually parse (#154).
+  
+    `loadTransform` degrades to identity when tjs-lang is unresolvable — correct at runtime,
+    where an example should still render something. Here it meant valid TJS was syntax-checked
+    as raw JavaScript, producing ~30 confident errors that told the author to fix correct code.
+    The degradation was announced, once, far from the errors it caused.
+  
+    So: ask first, skip what we cannot check, and say how many we skipped and why. "We did not
+    look" and "we looked and it is fine" must not produce the same output — and neither may
+    masquerade as "your document is broken".
+    */
+    const unavailable = new Set();
+    for (const d of ['tjs', 'ts'])
+        if (!(await transformAvailable(d)))
+            unavailable.add(d);
+    const skipped = new Map();
     for (const doc of docs) {
         for (const block of collectCodeTokens(doc.text)) {
             if (!EXECUTABLE.has(block.lang))
                 continue;
             // `test` blocks are conventional JS/TS, transpiled as plain js.
             const dialect = block.lang === 'test' ? 'js' : block.lang;
+            if (unavailable.has(dialect)) {
+                skipped.set(dialect, (skipped.get(dialect) ?? 0) + 1);
+                continue;
+            }
             try {
                 const rewritten = rewriteImports(block.text, contextKeys, opts.importPrefix);
                 let js;
@@ -134,7 +155,20 @@ export async function checkExamples(docs, opts = {}) {
             }
         }
     }
-    return { problems, warnings, bakes };
+    if (skipped.size) {
+        const detail = [...skipped.entries()]
+            .map(([d, n]) => `${n} \`${d}\` block(s)`)
+            .join(', ');
+        console.warn(`\n⚠️  checkExamples SKIPPED ${detail} — no transpiler for ${[
+            ...skipped.keys(),
+        ]
+            .map((d) => `\`${d}\``)
+            .join('/')} could be resolved, so they are UNCHECKED rather than checked.\n` +
+            `   They are not broken; nothing looked at them. Install tjs-lang where the doc\n` +
+            `   build can resolve it — note a self-documenting library must be resolvable AS A\n` +
+            `   PACKAGE from inside node_modules, which a bundler alias does not cover.\n`);
+    }
+    return { problems, warnings, bakes, skipped };
 }
 /** Format problems for a build log. */
 export function formatExampleProblems(problems) {

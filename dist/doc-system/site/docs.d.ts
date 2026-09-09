@@ -63,6 +63,17 @@ export interface Doc {
     author?: string;
     date?: string;
 }
+/**
+ * Directories a doc site should not publish, excluded by default (tosijs-ui#153).
+ *
+ * `reviews/` is where this ecosystem's practices tell you to write pre-release review
+ * reports — documents that name adopters and carry BLOCK verdicts. A `docPaths: ['docs']`
+ * took the directory wholesale and published thirteen of them. Nothing failed; the way you
+ * found out was reading the output file list after a successful build.
+ *
+ * An explicit entry in `docPaths` still wins, so publishing one deliberately remains possible.
+ */
+export declare const DEFAULT_DOC_IGNORES: string[];
 export interface ExtractDocsOptions {
     paths: string[];
     ignore?: string[];

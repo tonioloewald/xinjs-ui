@@ -4,6 +4,7 @@ import {
   AsyncFunction,
   loadTransform,
   TJS_VERSION,
+  transformAvailable,
   TYPESCRIPT_VERSION,
   TYPESCRIPT_URL,
 } from './code-transform.js'
@@ -266,4 +267,25 @@ describe('#141: quote style must not decide whether an example runs', () => {
     expect(msg).toContain('IS in the example context')
     expect(msg).toContain('CLAUSE')
   })
+})
+
+/*
+Never diagnose a dialect you cannot parse (#154).
+
+`loadTransform` degrades to identity when tjs-lang is unresolvable — right at RUNTIME, where
+an example should still render something. It is wrong for a build-time check: identity means
+valid TJS gets parsed as raw JavaScript and the author is told to fix correct code. The
+reporter got ~30 such errors, each ending "Fix the code", about code their own toolchain
+accepts.
+
+`transformAvailable` is the question `checkExamples` must ask first. The SKIP itself is only
+reachable with tjs-lang absent, so it is covered at integration level rather than here — this
+pins the predicate the skip depends on.
+*/
+test('#154: transformAvailable reports what can actually be parsed', async () => {
+  // `js` needs no transpiler, so it is always available.
+  expect(await transformAvailable('js')).toBe(true)
+  // tjs-lang IS installed here, so these are true; the point of the function is that it
+  // returns FALSE rather than silently handing back an identity transform.
+  expect(await transformAvailable('tjs')).toBe(true)
 })

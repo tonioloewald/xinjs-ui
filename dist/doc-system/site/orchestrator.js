@@ -22,6 +22,8 @@ import { extractDocs } from './docs.js';
 import { checkExamples, formatExampleProblems, } from './check-examples.js';
 import { ensureSections } from './sections.js';
 import { generateLlmsTxt } from './make-llms-txt.js';
+import { DEFAULT_DOC_IGNORES } from './docs.js';
+import { writesOutsideOutputDir } from './host-preset.js';
 import { generateSite } from './generate-site.js';
 import { findOutputDirOverlap, resolveBundleDir } from './output-guard.js';
 import { acquireBuildLock, describeHolder } from './build-lock.js';
@@ -435,6 +437,38 @@ export async function buildSite(config, opts = {}) {
         mkdirSync(path.dirname(path.resolve(PROJECT_ROOT, DOCS_JSON)), {
             recursive: true,
         });
+        /*
+        Say which EXISTING files outside `outputDir` this build is about to overwrite (#154).
+    
+        `outputDir` reads as a box the build stays inside and is not one. An adopter set it to a
+        scratch directory specifically to evaluate the doc system without touching their repo,
+        and lost their `llms.txt` and their playground's `docs.json` — the latter being the file
+        that playground reads at runtime. Both were committed, so git restored them; without that
+        they were gone.
+    
+        Announced once, on the initial build only — a watch rebuild repeats nothing, and this is
+        information you need before the first write, not on every keystroke.
+        */
+        /*
+        Only when `outputDir` has been MOVED off its default.
+    
+        That is the "I am containing this build" gesture, and it is exactly what the reporter did
+        — `outputDir: '.b1-scratch'`, specifically to evaluate without touching their repo. A
+        project on the default `docs/` has an ordinary setup where these writes are the point, and
+        warning it every build would be noise of the kind that teaches people to stop reading
+        warnings.
+        */
+        if (!opts.skipAudit && (config.outputDir ?? 'docs') !== 'docs') {
+            const clobbered = writesOutsideOutputDir({
+                docsJson: DOCS_JSON,
+                llmsTxt: config.llmsTxt === false ? null : 'llms.txt',
+            }, PUBLIC, (f) => existsSync(path.resolve(PROJECT_ROOT, f)), (f) => path.resolve(PROJECT_ROOT, f));
+            if (clobbered.length) {
+                console.warn(`\n⚠️  This build writes outside outputDir ("${PUBLIC}") and will OVERWRITE:\n` +
+                    clobbered.map((f) => `      ${f}`).join('\n') +
+                    `\n   Set \`docsJson\` (and \`llmsTxt: false\`) if those are yours to keep.\n`);
+            }
+        }
         // ── prebuild ──────────────────────────────────────────────────────────────
         console.time('prebuild');
         // Project-specific codegen (version stamp, icon data, …) before anything else.
@@ -513,7 +547,23 @@ export async function buildSite(config, opts = {}) {
                 paths: docPaths,
                 // Skip the build's own output dir by path (not by the name 'docs', so a
                 // source dir like src/docs is still scanned).
-                ignore: ['node_modules', 'dist', 'build', PUBLIC],
+                /*
+                Built-ins, the output dir, the default review exclusion, and the consumer's own.
+      
+                `reviews` is excluded BY DEFAULT (#153): a doc site that scans a directory
+                containing review reports publishes them, silently, and the practices doc that
+                tells you to write those reports is the same one that warns publishing them is the
+                bad outcome. An explicit entry in `docPaths` still wins — the exclusion is by
+                basename during traversal, so naming a path directly opts back in.
+                */
+                ignore: [
+                    'node_modules',
+                    'dist',
+                    'build',
+                    PUBLIC,
+                    ...DEFAULT_DOC_IGNORES,
+                    ...(config.ignoreDocPaths ?? []),
+                ],
                 output: DOCS_JSON,
             });
             extract();
@@ -1143,12 +1193,57 @@ export async function buildSite(config, opts = {}) {
             opposite reason — see the note below.) Falls back to the generator version, then the
             commit, so a project without a version still gets something that moves.
             */
-            const assetStamp = (await Bun.file(`${process.cwd()}/package.json`)
+            /*
+            In DEV the stamp must move on every build; in a RELEASE it must be stable (#151).
+      
+            The version alone is right for a published site — every visitor with a cached bundle
+            gets the new one when you ship, and nobody re-downloads on an unchanged rebuild. It is
+            catastrophic in development: `package.json` does not change while you work, so
+            `hydrate.js?v=0.2.0` is byte-identical across every rebuild and the browser keeps
+            executing the bundle it cached hours ago. Through edits. Through reloads.
+      
+            The failure looks exactly like "my change had no effect", which is what makes it
+            expensive — the reporter spent a long session measuring computed styles and editing CSS
+            that was already correct and already being served. `curl` showed the new bundle; the
+            page was running the old one.
+      
+            So: a content hash in dev (moves precisely when the output does, and NOT when it
+            doesn't), the version in a release build.
+            */
+            const releaseStamp = (await Bun.file(`${process.cwd()}/package.json`)
                 .json()
                 .then((p) => p.version)
                 .catch(() => undefined)) ??
                 buildStamp.generator ??
                 buildStamp.commit;
+            /*
+            Hash the ASSETS the stamp guards, not the output dir: this runs BEFORE pages are
+            written, so hashing the directory would hash the previous build. The bundle and the
+            stylesheet exist by now, and they are exactly what a stale cache serves.
+            */
+            const stampInputs = [
+                hydrateName && `${PUBLIC}/${hydrateName}`,
+                `${PUBLIC}/${scriptName}`,
+                `${PUBLIC}/doc-system.css`,
+            ].filter(Boolean);
+            const assetStamp = opts.lock
+                ? releaseStamp
+                : await (async () => {
+                    const hasher = new Bun.CryptoHasher('sha256');
+                    let sawAny = false;
+                    for (const f of stampInputs) {
+                        const file = Bun.file(f);
+                        if (!(await file.exists()))
+                            continue;
+                        sawAny = true;
+                        hasher.update(new Uint8Array(await file.arrayBuffer()));
+                    }
+                    // No assets to hash yet — fall back to something that always moves, rather
+                    // than to the version, which is the bug this replaces.
+                    return sawAny
+                        ? hasher.digest('hex').slice(0, 12)
+                        : `${releaseStamp}-${buildStamp.commit ?? 'dev'}`;
+                })();
             /*
             `docs.json` gets its OWN stamp, keyed to its own bytes.
       

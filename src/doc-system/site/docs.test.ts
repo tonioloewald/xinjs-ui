@@ -4,6 +4,7 @@ import {
   extractDocs,
   SCRAPED_SOURCE_EXTENSIONS,
   titleFromMarkdown,
+  DEFAULT_DOC_IGNORES,
 } from './docs.js'
 import fs from 'fs'
 import os from 'os'
@@ -192,4 +193,89 @@ test('#100: an unterminated comment yields no title rather than a fake one', () 
   deliberately hidden.
   */
   expect(titleFromMarkdown('<!-- oops\n# Not a title\n')).toBe('')
+})
+
+describe('#153: reviews are not published by default', () => {
+  test('DEFAULT_DOC_IGNORES excludes reviews', () => {
+    /*
+    A `docPaths: ['docs']` took the directory wholesale and published 13 internal pre-release
+    review reports — including BLOCK verdicts naming an adopter. Nothing failed; the way the
+    reporter found out was reading the output file list after a successful build. The
+    practices doc that tells you to write those reports is the same one warning that
+    publishing them is the bad outcome, so the safe thing is now the default.
+    */
+    expect(DEFAULT_DOC_IGNORES).toContain('reviews')
+  })
+
+  test('a reviews/ directory is skipped when scanning a parent', () => {
+    const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'docignore-'))
+    try {
+      fs.mkdirSync(path.join(dir, 'reviews'), { recursive: true })
+      fs.writeFileSync(path.join(dir, 'public.md'), '# Public\n\ntext\n')
+      fs.writeFileSync(
+        path.join(dir, 'reviews', 'secret.md'),
+        '# Verdict: BLOCK\n\nnames an adopter\n'
+      )
+      const docs = extractDocs({
+        paths: [dir],
+        ignore: [...DEFAULT_DOC_IGNORES],
+      })
+      const titles = docs.map((d) => d.title)
+      expect(titles).toContain('Public')
+      expect(titles.join(' ')).not.toContain('BLOCK')
+    } finally {
+      fs.rmSync(dir, { recursive: true, force: true })
+    }
+  })
+})
+
+describe('#156: a doc that DOCUMENTS the metadata format', () => {
+  const write = (body: string) => {
+    const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'meta156-'))
+    fs.writeFileSync(path.join(dir, 'guide.md'), body)
+    return {
+      dir,
+      cleanup: () => fs.rmSync(dir, { recursive: true, force: true }),
+    }
+  }
+
+  test('an example INSIDE a fence is prose, not the document’s own directive', () => {
+    /*
+    tjs-lang's CLAUDE.md teaches how to author a playground example and shows the format.
+    The matcher read the illustration as frontmatter and published the file classified by it.
+    Nothing failed — found by diffing the corpus field by field.
+    */
+    const { dir, cleanup } = write(
+      '# Authoring Guide\n\nPut this at the top:\n\n```\n<!--{"order":16,"title":"Not This"}-->\n```\n\nThat is all.\n'
+    )
+    try {
+      const [doc] = extractDocs({ paths: [dir] })
+      expect(doc.title).toBe('Authoring Guide')
+      expect(doc.order).toBeUndefined()
+    } finally {
+      cleanup()
+    }
+  })
+
+  test('a REAL directive at the start of a line still works', () => {
+    const { dir, cleanup } = write('# Real Doc\n\n<!--{"order":3}-->\n\nbody\n')
+    try {
+      const [doc] = extractDocs({ paths: [dir] })
+      expect(doc.order).toBe(3)
+    } finally {
+      cleanup()
+    }
+  })
+
+  test('an INLINE mention mid-sentence is prose', () => {
+    const { dir, cleanup } = write(
+      '# Inline\n\nWrite <!--{"order":9}--> to set the order.\n'
+    )
+    try {
+      const [doc] = extractDocs({ paths: [dir] })
+      expect(doc.order).toBeUndefined()
+    } finally {
+      cleanup()
+    }
+  })
 })

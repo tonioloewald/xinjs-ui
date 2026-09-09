@@ -51,3 +51,23 @@ export declare function bundleRegistrations(bundleSource: string): {
     docSystem: boolean;
     liveExample: boolean;
 };
+/**
+ * Paths this build writes OUTSIDE `outputDir`, that already exist.
+ *
+ * `outputDir` reads as a box the build stays inside, and it is not one: `docsJson` defaults
+ * to `demo/docs.json` and `llms.txt` is written at the project root. An adopter who set
+ * `outputDir: '.scratch'` **specifically to evaluate the doc system without touching their
+ * repo** had both overwritten — a 344-line agent index and a 1,252-line doc corpus, the
+ * latter being the exact file their playground reads at runtime (tosijs-ui#154).
+ *
+ * They were committed, so `git checkout` restored them. Someone without that guard loses the
+ * originals silently.
+ *
+ * Returns what to say, not whether to stop: these writes are correct for the projects that
+ * configured them, and refusing would break every existing site. What was missing is that
+ * nobody was told.
+ */
+export declare function writesOutsideOutputDir(paths: {
+    docsJson: string;
+    llmsTxt: string | null;
+}, outputDir: string, exists: (p: string) => boolean, resolve: (p: string) => string): string[];

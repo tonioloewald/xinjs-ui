@@ -378,6 +378,28 @@ let warnedNoFromTs = false;
  * (`dialect: 'js'` is a no-op on it), so we pass the code through. A `ts` page
  * with no from-ts available likewise falls back to running the source as JS.
  */
+/**
+ * Is a REAL transform available for this dialect, or would `loadTransform` degrade?
+ *
+ * `loadTransform` falls back to identity when tjs-lang cannot be resolved, which is right at
+ * RUNTIME — an example that will not transpile should still render as something. It is wrong
+ * for a build-time CHECK: identity means the block is then parsed as raw JavaScript, so valid
+ * TJS produces a confident syntax error attributed to the author's document.
+ *
+ * That is what happened (tosijs-ui#154): ~30 "errors" in correct TJS, each advising the
+ * author to fix code that was already right, with the one line explaining the degradation
+ * printed far away. Callers that DIAGNOSE must ask this first and skip what they cannot
+ * actually check.
+ */
+export async function transformAvailable(dialect) {
+    if (dialect === 'js')
+        return true;
+    if (!(await (tjsOnce ??= loadTjs())))
+        return false;
+    if (dialect === 'ts')
+        return Boolean(await (fromTsOnce ??= loadFromTs()));
+    return true;
+}
 export async function loadTransform(dialect = 'js') {
     // `js` needs no transpiler. tjs's `js` dialect leaves vanilla JS untouched, and
     // the build check guarantees js/`test` blocks ARE vanilla JS (a TS-typed one

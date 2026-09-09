@@ -74,6 +74,23 @@ export interface SiteConfig {
    */
   docPaths?: string[]
   /**
+   * Directories to skip while scanning `docPaths` — by basename (skipped wherever it
+   * appears) or by path (skipped only at that location). Added to the built-in
+   * `node_modules` / `dist` / `build` / output-dir set, never replacing it.
+   *
+   * **`docs/reviews` is excluded by default** (tosijs-ui#153). A `docPaths: ['docs']` took
+   * the directory wholesale and published 13 internal pre-release review reports as public
+   * pages — including ones whose verdict is BLOCK and which name an adopter. Nothing failed;
+   * the discovery mode was reading the output file list after a successful build. This
+   * ecosystem's own practices doc tells you to put review reports in `reviews/`, so the safe
+   * thing is now the default rather than the informed choice.
+   *
+   * Pass `reviews: false`-style exceptions by naming your own paths; to publish a directory
+   * called `reviews` deliberately, list it in `docPaths` explicitly — an explicit path always
+   * wins over the default exclusion.
+   */
+  ignoreDocPaths?: string[]
+  /**
    * Directory where the build writes auto-created section ("parent") docs and
    * regenerates their `<!-- toc -->` blocks. Committed source (like
    * src/version.ts) so authors can add intro prose + metadata. Default

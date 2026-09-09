@@ -2,6 +2,48 @@
 
 ## 1.15.0 (unreleased)
 
+### Four adoption defects from tjs-lang (#151, #153, #154, #156)
+
+All four are silent — the build succeeds and something is quietly wrong, which is #61's thesis
+in four more instances.
+
+**`SiteConfig` gained `ignoreDocPaths`, and `reviews/` is excluded by default (#153).** A
+`docPaths: ['docs']` takes the directory wholesale, and one adopter's first successful build
+**published 13 internal pre-release review reports as public pages** — including BLOCK
+verdicts naming an adopter. `extractDocs` already had `ignore`; it simply was not reachable
+from the config. The practices doc that tells you to write review reports is the same one
+warning that publishing them is the bad outcome, so the safe thing is now the default rather
+than the informed choice. An explicit `docPaths` entry still wins.
+
+**The build says which files outside `outputDir` it will overwrite (#154).** `outputDir` reads
+as a box the build stays inside and is not one: `docsJson` defaults to `demo/docs.json` and
+`llms.txt` is written at the project root. An adopter who set `outputDir` to a scratch
+directory *specifically to evaluate without touching their repo* lost both — including the
+`docs.json` their playground reads at runtime. Warned only when `outputDir` has been moved off
+its default, which is the "I am containing this build" gesture; a project on the default has an
+ordinary setup where these writes are the point.
+
+**`checkExamples` no longer blames the document for a transpiler it could not load (#154).**
+`loadTransform` degrades to identity when tjs-lang is unresolvable — right at runtime, wrong
+for a build-time check, because the block is then parsed as raw JavaScript. The reporter got
+~30 syntax errors in **valid TJS**, each advising them to fix correct code, with the one line
+explaining the degradation printed far away. Unparseable dialects are now **skipped and
+reported as unchecked** — "we did not look" and "we looked and it is fine" must not produce the
+same output, and neither may masquerade as "your document is broken".
+
+**Dev rebuilds bust the browser cache (#151).** Assets were stamped with the package version,
+which does not change while you work — so `hydrate.js?v=0.2.0` was byte-identical across every
+rebuild and the browser kept executing the bundle it cached hours ago, through edits and
+reloads. It looks exactly like "my change had no effect": the reporter spent a long session
+editing CSS that was already correct and already being served. Dev builds now stamp with a
+**content hash** of the bundle and stylesheet, so it moves when the output moves and *only*
+then; release builds keep the version.
+
+**A doc that documents the metadata format is no longer classified by its own example
+(#156).** `<!--{…}-->` matched anywhere in the file, so a page teaching the convention was
+published with the illustration's `title` and `order`. Fenced code is now stripped before
+scanning and the block must start a line — the same rule `/*#` doc comments already follow.
+
 ### Static code is syntax-highlighted — on the page, in the ePub, and in print
 
 Display-only code was highlighted **nowhere**. The pre-rendered page emitted a bare

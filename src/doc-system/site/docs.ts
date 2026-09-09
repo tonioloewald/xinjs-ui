@@ -179,6 +179,18 @@ export interface Doc {
   date?: string
 }
 
+/**
+ * Directories a doc site should not publish, excluded by default (tosijs-ui#153).
+ *
+ * `reviews/` is where this ecosystem's practices tell you to write pre-release review
+ * reports — documents that name adopters and carry BLOCK verdicts. A `docPaths: ['docs']`
+ * took the directory wholesale and published thirteen of them. Nothing failed; the way you
+ * found out was reading the output file list after a successful build.
+ *
+ * An explicit entry in `docPaths` still wins, so publishing one deliberately remains possible.
+ */
+export const DEFAULT_DOC_IGNORES = ['reviews']
+
 export interface ExtractDocsOptions {
   paths: string[]
   ignore?: string[]
@@ -282,8 +294,30 @@ function metadata(content: string, filePath: string): Partial<Doc> {
   // Ignore metadata-style comments INSIDE /*# ... */ doc blocks — those are
   // documentation examples, not real directives. Only line-starting blocks count
   // as docs (see findMarkdownFiles), so strip exactly those.
-  const scannable = content.replace(/^[ \t]*\/\*#[\s\S]*?\*\//gm, '')
-  const source = scannable.match(/<!--(\{.*\})-->|\/\*(\{.*\})\*\//)
+  const scannable = content
+    .replace(/^[ \t]*\/\*#[\s\S]*?\*\//gm, '')
+    /*
+    Strip FENCED CODE too (#156).
+
+    A document that teaches the metadata format shows the format, and the matcher read the
+    illustration as the document's own directive. tjs-lang's `CLAUDE.md` explains how to
+    author a playground example, shows `<!--{"section":"tjs","type":"example",…}-->` on line
+    815 as prose, and was published classified by it. Nothing failed — they found it diffing
+    the new corpus against the old one field by field.
+
+    Same reasoning as the `/*#` strip above: an example of a directive is not a directive.
+    */
+    .replace(
+      /^[ \t]*(?:```|~~~)[^\n]*\n[\s\S]*?^[ \t]*(?:```|~~~)[ \t]*$/gm,
+      ''
+    )
+  /*
+  And it must START A LINE. A metadata block is a standalone directive, so an inline mention
+  in a sentence is prose — exactly the rule `/*#` doc blocks already follow.
+  */
+  const source = scannable.match(
+    /^[ \t]*<!--(\{.*\})-->|^[ \t]*\/\*(\{.*\})\*\//m
+  )
   let data: Partial<Doc> = {}
   if (source) {
     try {

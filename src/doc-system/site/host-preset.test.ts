@@ -3,6 +3,7 @@ import {
   basePathDoubling,
   bundleRegistrations,
   firebasePublicMismatch,
+  writesOutsideOutputDir,
 } from './host-preset.js'
 
 /*
@@ -141,5 +142,56 @@ describe('#145: a bundleEntry that forgets the doc system', () => {
     // must contain, not a package path minification erases.
     const minified = `var a=1;customElements.define("tosi-doc-system",class extends a{});`
     expect(bundleRegistrations(minified).docSystem).toBe(true)
+  })
+})
+
+describe('#154: writes outside outputDir', () => {
+  const exists = (p: string) => !p.includes('missing')
+  const resolve = (p: string) => (p.startsWith('/') ? p : `/repo/${p}`)
+
+  test('names the EXISTING files a contained build would clobber', () => {
+    // The reporter set outputDir to a scratch dir specifically to avoid touching their
+    // repo, and lost llms.txt and their playground's docs.json anyway.
+    expect(
+      writesOutsideOutputDir(
+        { docsJson: 'demo/docs.json', llmsTxt: 'llms.txt' },
+        '.b1-scratch',
+        exists,
+        resolve
+      )
+    ).toEqual(['demo/docs.json', 'llms.txt'])
+  })
+
+  test('a path INSIDE outputDir is not a clobber — that is the point of the box', () => {
+    expect(
+      writesOutsideOutputDir(
+        { docsJson: '.b1-scratch/docs.json', llmsTxt: '.b1-scratch/llms.txt' },
+        '.b1-scratch',
+        exists,
+        resolve
+      )
+    ).toEqual([])
+  })
+
+  test('a file that does not exist yet is not a clobber', () => {
+    expect(
+      writesOutsideOutputDir(
+        { docsJson: 'demo/missing.json', llmsTxt: null },
+        'out',
+        exists,
+        resolve
+      )
+    ).toEqual([])
+  })
+
+  test('a prefix match is not containment — `outX` is not inside `out`', () => {
+    expect(
+      writesOutsideOutputDir(
+        { docsJson: 'outX/docs.json', llmsTxt: null },
+        'out',
+        exists,
+        resolve
+      )
+    ).toEqual(['outX/docs.json'])
   })
 })

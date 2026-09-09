@@ -31,6 +31,12 @@ export interface ExampleCheck {
      * See self-contained-examples-plan.md.
      */
     bakes: Map<string, ExampleBakes>;
+    /**
+     * Blocks NOT checked, by dialect, because no transpiler for them could be resolved.
+     * Distinct from `problems` (checked, broken) and `warnings` (checked, can't run here) —
+     * a caller must not report these as either (#154).
+     */
+    skipped?: Map<string, number>;
 }
 /**
  * Transpile-check every executable block in the corpus. Returns the problems and
