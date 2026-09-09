@@ -51,6 +51,31 @@ function bakedJsForBlock(block: Element): string | undefined {
 /**
  * Find and replace sequences of code blocks with live examples
  */
+/**
+ * How fences are treated when no per-fence mode says otherwise.
+ *
+ * `'auto'` (default) — the six executable languages run, which is every corpus written
+ * before 1.15 and stays correct for a component library's docs.
+ * `'opt-in'` — nothing runs unless its fence asks, via `:inline` / `:iframe` / `:ide`.
+ */
+export type ExamplePolicy = 'auto' | 'opt-in'
+
+/*
+Read at insert time rather than captured, so the page can set it before hydration without
+ordering constraints. The static build stamps `globalThis.__TOSI_EXAMPLE_POLICY` into the
+page head — the same channel `__TJS_LOCAL_BASE` uses — and a consumer embedding the browser
+directly can call `setExamplePolicy`.
+*/
+export function examplePolicy(): ExamplePolicy {
+  const g = globalThis as { __TOSI_EXAMPLE_POLICY?: string }
+  return g.__TOSI_EXAMPLE_POLICY === 'opt-in' ? 'opt-in' : 'auto'
+}
+
+export function setExamplePolicy(policy: ExamplePolicy): void {
+  ;(globalThis as { __TOSI_EXAMPLE_POLICY?: string }).__TOSI_EXAMPLE_POLICY =
+    policy
+}
+
 export function insertExamples(
   element: HTMLElement,
   context: ExampleContext,
@@ -63,6 +88,26 @@ export function insertExamples(
   // with Foundation B. Omitted when there's no source (e.g. embedded corpora).
   sourceFile?: string
 ): void {
+  /*
+  Which fences become live examples (tosijs-ui#140, #146).
+
+  Six languages execute, and two of them — `html` and `css` — do not look like code anyone
+  is asking to RUN. A `css` fence showing "here is how you'd style this in your app" was
+  injected as a page-wide stylesheet; an `html` fence showing "the markup this compiles to"
+  rendered as a broken-looking demo. Neither fails a build, so a doc site could ship both
+  and never know. Until now a static sample in those languages was impossible: the only
+  workaround was to mislabel the fence (`xml` for HTML), which changes the highlighting to
+  a language it isn't.
+
+  Two escapes, and the DEFAULT IS UNCHANGED so no existing corpus moves:
+
+    ```js:static     one fence, opted out — works whatever the policy
+    policy 'opt-in'  nothing runs unless it asks to, with `:inline`/`:iframe`/`:ide`
+
+  `opt-in` is the setting for a prose or book site, where code is overwhelmingly
+  illustration and a runaway `css` fence is a restyled chapter.
+  */
+  const optIn = examplePolicy() === 'opt-in'
   const sources: SourceBlock[] = [
     ...element.querySelectorAll(
       '.language-html,.language-js,.language-tjs,.language-ts,.language-css,.language-test'
@@ -78,6 +123,12 @@ export function insertExamples(
         (code.parentElement as HTMLElement).getAttribute('data-example-mode') ||
         undefined,
     }))
+    .filter((s) => {
+      if (s.mode === 'static') return false
+      // In opt-in mode a fence must ASK to run. `static` is still honoured above so a
+      // corpus can be written to work under either policy.
+      return optIn ? s.mode !== undefined : true
+    })
 
   // Per-doc ordinal: the Nth live example on the page. Combined with sourceFile
   // it's the key back to the originating fenced-block group in the source.

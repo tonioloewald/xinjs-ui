@@ -91,6 +91,22 @@ export interface SiteConfig {
      * If omitted, pages fall back to `scriptUrl` (tosijs-ui's published iife.js), which
      * already contains the doc system.
      */
+    /**
+     * Whether fenced code runs by default (tosijs-ui#140).
+     *
+     * - `'auto'` (default) — the six executable languages (`js`, `ts`, `tjs`, `html`, `css`,
+     *   `test`) become live examples. Correct for a component library, and unchanged from
+     *   every release before 1.15.
+     * - `'opt-in'` — nothing runs unless its fence asks: ` ```js:inline `, `:iframe`, `:ide`.
+     *
+     * Set `'opt-in'` for a prose or book site, where code is overwhelmingly illustration.
+     * `html` and `css` are the ones that bite: a fence showing how to style the component in
+     * YOUR app is injected as a page-wide stylesheet, and a fence showing the markup something
+     * compiles to renders as an unstyled demo. Neither fails the build.
+     *
+     * Per-fence, ` ```js:static ` opts a single block out under either policy.
+     */
+    liveExamples?: 'auto' | 'opt-in';
     bundleEntry?: string;
     /** modules to leave external in the bundle, e.g. ['jolt-physics'] */
     bundleExternals?: string[];

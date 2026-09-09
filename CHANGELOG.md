@@ -1,5 +1,32 @@
 # Changelog
 
+## 1.15.0 (unreleased)
+
+### Live examples can be opt-in, and a single fence can opt out (#140, #146)
+
+Six fence languages execute — `js`, `ts`, `tjs`, `html`, `css`, `test` — and until now a
+**static sample in one of them was impossible.** The only workaround was to mislabel the fence
+(`xml` for HTML, `scss` for CSS), which changes the syntax highlighting to a language it isn't.
+
+Two escapes. **The default does not move**, so no existing corpus changes:
+
+```
+```js:static          one fence, opted out — works under either policy
+liveExamples: 'opt-in'   nothing runs unless its fence asks (`:inline` / `:iframe` / `:ide`)
+```
+
+`'opt-in'` is the setting for a **prose or book site**, where code is overwhelmingly
+illustration. `html` and `css` are the ones that bite, because neither looks like something
+you are asking to run: a fence showing how to style the component *in your app* is injected as
+a page-wide stylesheet — a white slab in dark mode — and a fence showing the markup something
+compiles to renders as an unstyled demo. Neither fails a build, so a site can ship both and
+nobody finds out.
+
+The policy reaches the client the same way `__TJS_LOCAL_BASE` does, and is **only emitted when
+it differs from the default**, so an `auto` site's HTML is byte-identical to before.
+
+`:static` is honoured under both policies, so one corpus can be written to work either way.
+
 ## 1.14.1
 
 ### The doc-test gate can tell a dropped page from a passing one

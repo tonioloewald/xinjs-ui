@@ -1230,6 +1230,16 @@ export async function buildSite(
         // tjs-lang not installed — live examples fall back to the CDN chain
       }
 
+      /*
+      The example policy, stamped for the client the same way `__TJS_LOCAL_BASE` is (#140).
+      Only emitted when it differs from the default, so an `auto` site's HTML is unchanged
+      byte-for-byte and no existing corpus moves.
+      */
+      const policyHead =
+        config.liveExamples === 'opt-in'
+          ? `<script>globalThis.__TOSI_EXAMPLE_POLICY="opt-in"</script>`
+          : ''
+
       // Optional (tjs-lang 0.11+): the import-resolver service worker. Lets live examples
       // import real npm packages from anywhere — bare specifiers the doc-system doesn't
       // inject become `/<prefix>/<spec>` requests the worker resolves + caches. GATED behind
@@ -1379,7 +1389,7 @@ export async function buildSite(
         hydrateUrl: hydrateName ? `/${hydrateName}` : undefined,
         bakes: exampleBakes,
         headExtra:
-          [config.headExtra, tjsHead, importResolverHead]
+          [config.headExtra, tjsHead, policyHead, importResolverHead]
             .filter(Boolean)
             .join('') || undefined,
         scriptUrl: config.scriptUrl,

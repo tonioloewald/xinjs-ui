@@ -1,5 +1,5 @@
-import { describe, expect, test } from 'bun:test'
-import { insertExamples } from './insert-examples.js'
+import { afterEach, describe, expect, test } from 'bun:test'
+import { insertExamples, setExamplePolicy } from './insert-examples.js'
 
 // A minimal stand-in for the live-example element: insertExamples only sets
 // js/html/css/test/dialect + id on it and calls two lifecycle no-ops, so a plain
@@ -143,5 +143,52 @@ describe('executable fence collisions (#139)', () => {
 
   test('a display-only ```typescript fence is not executable and does not collide', () => {
     expect(warn(pre('js', 'JS') + pre('typescript', 'SHOWN'))).toBe('')
+  })
+})
+
+/*
+Which fences run, and how a consumer turns that off (#140, #146).
+
+A static code sample in an executable language was impossible: the only workaround was to
+mislabel the fence (`xml` for HTML), which changes the highlighting to a language it isn't.
+Two escapes, and the DEFAULT MUST NOT MOVE — every corpus written before 1.15 assumes `auto`.
+*/
+describe('#140: example policy', () => {
+  afterEach(() => setExamplePolicy('auto'))
+
+  test('DEFAULT is unchanged — executable fences still run', () => {
+    // Every corpus written before 1.15 assumes this. Prose splits them into two examples.
+    expect(run(pre('js', 'A') + '<p>x</p>' + pre('css', 'B')).length).toBe(2)
+  })
+
+  test('`:static` opts ONE fence out, under the default policy', () => {
+    expect(
+      run(pre('js', 'A') + '<p>x</p>' + pre('css', 'B', 'static')).length
+    ).toBe(1)
+  })
+
+  test('opt-in: nothing runs unless the fence asks', () => {
+    setExamplePolicy('opt-in')
+    expect(
+      run(
+        pre('js', 'A') +
+          '<p>x</p>' +
+          pre('css', 'B') +
+          '<p>x</p>' +
+          pre('html', 'C')
+      ).length
+    ).toBe(0)
+  })
+
+  test('opt-in: a fence that asks still runs', () => {
+    setExamplePolicy('opt-in')
+    expect(
+      run(pre('js', 'A', 'inline') + '<p>x</p>' + pre('css', 'B')).length
+    ).toBe(1)
+  })
+
+  test('`:static` still wins under opt-in — one corpus can target both policies', () => {
+    setExamplePolicy('opt-in')
+    expect(run(pre('js', 'A', 'static')).length).toBe(0)
   })
 })
