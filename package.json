@@ -46,6 +46,7 @@
     "@resvg/resvg-js": "^2.6.2",
     "@types/jsdom": "^21.1.7",
     "@types/node": "^22.20.1",
+    "@types/prismjs": "^1.26.6",
     "@types/react": "^19.2.17",
     "bun-types": "latest",
     "chokidar": "^4.0.3",
@@ -54,6 +55,7 @@
     "happy-dom": "^20.11.1",
     "playwright": "^1.62.0",
     "prettier": "^2.8.8",
+    "prismjs": "^1.30.0",
     "tjs-lang": "0.13.11",
     "tosijs": "1.9.1",
     "tosijs-schema": "1.8.0",
@@ -153,6 +155,10 @@
       "types": "./dist/diff.d.ts",
       "import": "./dist/diff.js",
       "default": "./dist/diff.js"
+    },
+    "./highlight-block": {
+      "types": "./dist/highlight-block.d.ts",
+      "import": "./dist/highlight-block.js"
     },
     "./theme": {
       "types": "./dist/theme.d.ts",

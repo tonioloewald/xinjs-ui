@@ -15,6 +15,7 @@ import {
   XinStyleSheet,
   XinStyleRule,
   vars,
+  varDefault,
   Color,
   invertLuminance,
 } from 'tosijs'
@@ -502,6 +503,50 @@ export function docSystemStyleSpec(theme: DocSystemTheme = {}): XinStyleSheet {
       fontFamily: vars.codeFontFamily,
       _textColor: vars.brandColor,
     },
+    /*
+    Prism token colours for STATIC code blocks (the ones that are not live examples).
+    Token markup is emitted at BUILD time, so these styles serve the pre-rendered page, the
+    ePub, print and a no-JS reader alike — everywhere a runtime highlighter would not reach.
+
+    Derived from the theme rather than hardcoded, so a consumer who re-themes the site gets
+    highlighting that still belongs to it, and dark mode is one recomputation rather than a
+    second palette. Every colour goes through `varDefault` so an adopter can override any
+    single token type without replacing the set.
+
+    Deliberately narrow: Prism emits dozens of token classes and most pages use six. The
+    ones below cover js/ts/css/html/json/shell; anything unmatched inherits the code colour,
+    which is a readable default rather than an invisible one.
+    */
+    '.token.comment, .token.prolog, .token.cdata': {
+      color: varDefault.tokenComment('#6a9955'),
+      fontStyle: 'italic',
+    },
+    '.token.punctuation': { color: varDefault.tokenPunctuation('#8a8a8a') },
+    '.token.string, .token.char, .token.attr-value, .token.regex': {
+      color: varDefault.tokenString('#ce9178'),
+    },
+    '.token.number, .token.boolean, .token.constant': {
+      color: varDefault.tokenNumber('#b5cea8'),
+    },
+    '.token.keyword, .token.important, .token.atrule': {
+      color: varDefault.tokenKeyword('#569cd6'),
+    },
+    '.token.function, .token.class-name': {
+      color: varDefault.tokenFunction('#dcdcaa'),
+    },
+    '.token.operator, .token.entity, .token.url': {
+      color: varDefault.tokenOperator('#d4d4d4'),
+    },
+    '.token.tag, .token.selector, .token.builtin': {
+      color: varDefault.tokenTag('#4ec9b0'),
+    },
+    '.token.attr-name, .token.property': {
+      color: varDefault.tokenAttr('#9cdcfe'),
+    },
+    '.token.deleted': { color: varDefault.tokenDeleted('#f48771') },
+    '.token.inserted': { color: varDefault.tokenInserted('#6a9955') },
+    '.token.bold': { fontWeight: 'bold' },
+    '.token.italic': { fontStyle: 'italic' },
     '.transparent, .iconic': {
       background: 'none',
     },

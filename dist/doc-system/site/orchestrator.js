@@ -1167,6 +1167,7 @@ export async function buildSite(config, opts = {}) {
                 .slice(0, 12);
             const docs = JSON.parse(docsJsonText);
             const pageCount = await generateSite({
+                liveExamples: config.liveExamples,
                 docs,
                 outputDir: PUBLIC,
                 projectName: config.name,

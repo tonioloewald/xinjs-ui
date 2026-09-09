@@ -43,7 +43,7 @@
 <script>if('serviceWorker'in navigator){navigator.serviceWorker.register('/module-cache-sw.js').catch(function(){})}</script><script>globalThis.__TJS_LOCAL_BASE="/tjs/"</script><script>globalThis.__TOSI_IMPORT_RESOLVER={"prefix":"/lib/","workerUrl":"/import-resolver-worker.js","reloadOnFirstInstall":false}</script>
 </head>
 <body>
-  <tosi-doc-system docs="../docs.json?v=9ac9be55231a" config="{&quot;projectName&quot;:&quot;tosijs-ui&quot;,&quot;projectLinks&quot;:{&quot;tosijs&quot;:&quot;https://tosijs.net&quot;,&quot;github&quot;:&quot;https://github.com/tonioloewald/tosijs-ui&quot;}}" localized="../localized-strings.txt">
+  <tosi-doc-system docs="../docs.json?v=8063daa272a9" config="{&quot;projectName&quot;:&quot;tosijs-ui&quot;,&quot;projectLinks&quot;:{&quot;tosijs&quot;:&quot;https://tosijs.net&quot;,&quot;github&quot;:&quot;https://github.com/tonioloewald/tosijs-ui&quot;}}" localized="../localized-strings.txt">
   <article class="doc-content">
 <h1>theme</h1>
 <p>The theme system provides consistent CSS variables across all tosijs-ui components,
@@ -135,16 +135,16 @@ with support for automatic dark mode via tosijs&#39;s <code>Color</code> class a
 </tr>
 </tbody></table>
 <h2>Creating Themes</h2>
-<pre><code class="language-typescript">import { Color } from &#39;tosijs&#39;
-import { createTheme, applyTheme } from &#39;tosijs-ui&#39;
+<pre><code class="language-typescript" data-highlighted><span class="token keyword">import</span> <span class="token punctuation">{</span> Color <span class="token punctuation">}</span> <span class="token keyword">from</span> <span class="token string">'tosijs'</span>
+<span class="token keyword">import</span> <span class="token punctuation">{</span> createTheme<span class="token punctuation">,</span> applyTheme <span class="token punctuation">}</span> <span class="token keyword">from</span> <span class="token string">'tosijs-ui'</span>
 
-const myTheme = createTheme({
-  accent: Color.fromCss(&#39;#0064d2&#39;),
-  background: Color.fromCss(&#39;#ffffff&#39;),
-  text: Color.fromCss(&#39;#1a1a1a&#39;),
-})
+<span class="token keyword">const</span> myTheme <span class="token operator">=</span> <span class="token function">createTheme</span><span class="token punctuation">(</span><span class="token punctuation">{</span>
+  accent<span class="token operator">:</span> Color<span class="token punctuation">.</span><span class="token function">fromCss</span><span class="token punctuation">(</span><span class="token string">'#0064d2'</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+  background<span class="token operator">:</span> Color<span class="token punctuation">.</span><span class="token function">fromCss</span><span class="token punctuation">(</span><span class="token string">'#ffffff'</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+  text<span class="token operator">:</span> Color<span class="token punctuation">.</span><span class="token function">fromCss</span><span class="token punctuation">(</span><span class="token string">'#1a1a1a'</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+<span class="token punctuation">}</span><span class="token punctuation">)</span>
 
-applyTheme(myTheme, &#39;my-theme&#39;)
+<span class="token function">applyTheme</span><span class="token punctuation">(</span>myTheme<span class="token punctuation">,</span> <span class="token string">'my-theme'</span><span class="token punctuation">)</span>
 </code></pre>
 <h2>Dark Mode</h2>
 <p>Toggle between light and dark themes. <code>createTheme</code> and <code>createDarkTheme</code> return
@@ -212,6 +212,7 @@ For example, tosi-select derives from base:</p>
     <li><a class="doc-link" href="../adopting-the-doc-system/">Adopting the doc system</a></li>
     <li><a class="doc-link" href="../">tosijs-ui</a></li>
     <li><a class="doc-link" href="../one-source-every-artifact/">One Source</a></li>
+    <li><a class="doc-link" href="../highlight-block/">highlight-block</a></li>
     <li><a class="doc-link" href="../icons/">icons</a></li>
     <li><a class="doc-link" href="../natural-compare/">naturalCompare</a></li>
     <li><details><summary><a class="doc-link" href="../components/">Components</a></summary>

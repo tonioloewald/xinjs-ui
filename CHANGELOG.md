@@ -2,6 +2,48 @@
 
 ## 1.15.0 (unreleased)
 
+### Static code is syntax-highlighted — on the page, in the ePub, and in print
+
+Display-only code was highlighted **nowhere**. The pre-rendered page emitted a bare
+`<pre><code class="language-ts">`, the client never touched it, and the ePub stripped the
+language class entirely — so a doc system that publishes books had no highlighting in the
+books.
+
+Highlighting now happens at **build time**, which is the only thing that reaches an ePub
+(readers may run no JavaScript), print, a no-JS reader, or a crawler. Token markup is in the
+HTML; all it needs is CSS.
+
+- **Site**: colours derive from the theme, so a re-themed site gets highlighting that belongs
+  to it and dark mode is a recomputation rather than a second palette. Every colour is a
+  `varDefault`, so a single token type can be overridden without replacing the set.
+- **Book and print**: a separate LIGHT palette, contrast-checked against the `#f6f8fa` code
+  background (the weakest is ~4.6:1, above WCAG AA). Reusing the site's dark-background
+  palette here would have been light-on-light — the same invisible-text failure as #143.
+- **Client**: the same pass runs after client-side navigation, and skips anything already
+  highlighted, which is what keeps the pre-rendered page and its hydrated self identical.
+
+**Executable fences are never highlighted** — they are live-example *source*, and tokenizing
+them hands the example markup where it expected code. The build and the client now ask that
+question through one shared predicate (`doc-system/example-policy.ts`), because for one build
+they disagreed and seven doc tests failed as "Expected 0 to be 4": an example that rendered
+nothing, reported as a broken component rather than a broken pipeline.
+
+### New: `<tosi-highlight>` for code that arrives at runtime
+
+A tree-shakeable component for a fetched snippet, a generated example, an API response — the
+cases the build cannot know about. Renders readable plain text synchronously and upgrades when
+the grammar arrives, so a reader never sees an empty box and a missing grammar degrades to
+plain code rather than failing.
+
+Prism is a **lazy chunk**: an app that imports a button ships none of it. `src/index.test.ts`
+asserts that against a real split bundle, since the property is easy to lose to a stray static
+import.
+
+Prism rather than reusing the CodeMirror we already ship, because #120 is an open issue about
+CodeMirror being in every IIFE at 94% of the bundle — and routing static highlighting through
+it would deepen exactly the dependency that issue wants to escape. It also covers the languages
+a prose corpus uses and the editor never bundled: shell, python, rust, yaml, diff.
+
 ### Live examples can be opt-in, and a single fence can opt out (#140, #146)
 
 Six fence languages execute — `js`, `ts`, `tjs`, `html`, `css`, `test` — and until now a

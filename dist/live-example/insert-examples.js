@@ -1,3 +1,4 @@
+import { isLiveFence } from '../doc-system/example-policy.js';
 // A block's `<pre>` may be followed by a hidden `<script type="application/tosi-
 // transpiled">` carrying its build-time transpiled JS (see
 // self-contained-examples-plan.md). It sits BETWEEN consecutive code blocks, so the
@@ -83,13 +84,10 @@ sourceFile) {
         mode: code.parentElement.getAttribute('data-example-mode') ||
             undefined,
     }))
-        .filter((s) => {
-        if (s.mode === 'static')
-            return false;
-        // In opt-in mode a fence must ASK to run. `static` is still honoured above so a
-        // corpus can be written to work under either policy.
-        return optIn ? s.mode !== undefined : true;
-    });
+        // THE shared rule — see doc-system/example-policy.ts. The static highlighter asks the
+        // same question, and for one build the two disagreed: it tokenized the `html` fence of
+        // every grouped example, and this read spans instead of markup.
+        .filter((s) => isLiveFence(s.language ?? '', s.mode, optIn ? 'opt-in' : 'auto'));
     // Per-doc ordinal: the Nth live example on the page. Combined with sourceFile
     // it's the key back to the originating fenced-block group in the source.
     let ordinal = 0;

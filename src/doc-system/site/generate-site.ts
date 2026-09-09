@@ -18,6 +18,7 @@ component (src/doc-system/*) so static and hydrated output agree.
 // in a SEPARATE subprocess for exactly this reason.
 import type { Doc } from './docs.js'
 import { pageTitle } from '../doc-title.js'
+import { highlightHtml } from '../highlight.js'
 import type { ProjectLinks, LinkItem } from '../../doc-browser.js'
 import {
   buildSlugMap,
@@ -38,6 +39,12 @@ declare global {
 
 export interface GenerateSiteConfig {
   docs: Doc[]
+  /**
+   * Mirrors `SiteConfig.liveExamples`. The static highlighter needs it so it skips the
+   * fences that will become live examples — a highlighted block hands the example markup
+   * where it expected source. See `doc-system/example-policy.ts`.
+   */
+  liveExamples?: 'auto' | 'opt-in'
   /** directory to write pages into (the served web root, e.g. ./docs) */
   outputDir: string
   projectName?: string
@@ -231,12 +238,12 @@ export function relativeUrl(depth: number, p: string): string {
   return rel === '' ? './' : rel
 }
 
-function pageHtml(
+async function pageHtml(
   doc: Doc,
   config: GenerateSiteConfig,
   slugMap: Record<string, string>,
   configAttr: string
-): string {
+): Promise<string> {
   const {
     projectName = '',
     baseUrl = '',
@@ -290,7 +297,12 @@ function pageHtml(
   // static HTML is correct for no-JS readers and crawlers (the doc-browser also
   // does this client-side after hydration).
   const body = rewriteDocLinks(
-    renderDocMarkdown(doc.text, { bakes: bakes?.get(doc.filename) }),
+    await highlightHtml(
+      renderDocMarkdown(doc.text, { bakes: bakes?.get(doc.filename) }),
+      // The SAME policy the client will apply, so the build and the browser agree about
+      // which blocks are live examples and which are static code to highlight.
+      config.liveExamples ?? 'auto'
+    ),
     (filename) =>
       slugMap[filename] !== undefined
         ? relativeUrl(depth, pathForSlug(slugMap[filename]))
@@ -473,7 +485,7 @@ export async function generateSite(
     const dir = slug === '' ? outputDir : `${outputDir}/${slug}`
     await Bun.write(
       `${dir}/index.html`,
-      pageHtml(doc, config, slugMap, configAttr)
+      await pageHtml(doc, config, slugMap, configAttr)
     )
     count += 1
   }

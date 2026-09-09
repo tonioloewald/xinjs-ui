@@ -181,6 +181,7 @@ import {
   disableTests,
 } from './live-example.js'
 import { TestResults } from './live-example/test-harness.js'
+import { highlightBlocks } from './doc-system/highlight.js'
 import { tosiSidenav, TosiSidenav } from './side-nav.js'
 import { icons } from './icons.js'
 import { tosiLocalized } from './localize.js'
@@ -1116,6 +1117,18 @@ export function createDocBrowser(options: DocBrowserOptions): HTMLElement {
     // Stamp each example with its source file (for the source↔doc map). doc.path
     // is the extracted file (.md, or a source file with doc comments).
     LiveExample.insertExamples(docContent, context, doc.path || undefined)
+    /*
+    Highlight whatever is left — the static blocks that are not live examples.
+
+    A no-op on the page you LANDED on: the build already emitted token markup and the pass
+    skips anything carrying it, which is what keeps the pre-rendered page and its hydrated
+    self byte-identical. It does real work only on client-side navigation, where the markdown
+    was rendered here and has never been highlighted. Fire-and-forget because a page that is
+    readable but unhighlighted for a frame is strictly better than one that blocks on Prism.
+    */
+    void highlightBlocks(docContent, {
+      liveExampleTag: (LiveExample.tagName as string) || undefined,
+    }).catch(() => {})
     scrollToHashExample()
     if (routing === 'path') {
       // The SAME rule the static generator used for this page's <head> (doc-title.ts).

@@ -18,6 +18,7 @@ Build-time only (Bun APIs + the `zip` CLI); never import from browser code.
 import * as fs from 'fs'
 import * as path from 'path'
 import { renderDocMarkdown } from '../render.js'
+import { highlightHtml } from '../highlight.js'
 import { buildSlugMap, pathForSlug, slugForPath, withBase } from '../routing.js'
 import { buildNavTree, NavNode } from '../nav-tree.js'
 import type { Doc } from './docs.js'
@@ -881,8 +882,14 @@ export async function buildEpub(
     const pageUrl =
       baseUrl +
       withBase(config.basePath, pathForSlug(slugMap[doc.filename] ?? ''))
+    /*
+    Highlight before the XHTML pass. An ePub reader may run no JavaScript at all, so the
+    token markup has to be IN the file — a runtime highlighter reaches the book never. This
+    is the same `highlightHtml` the static pages use, so a code block looks the same on the
+    site, in the book and in print.
+    */
     const html = rewriteInBookLinks(
-      renderDocMarkdown(stripDocMeta(doc.text)),
+      await highlightHtml(renderDocMarkdown(stripDocMeta(doc.text))),
       bookFiles,
       slugMap,
       config.basePath

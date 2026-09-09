@@ -43,7 +43,7 @@
 <script>if('serviceWorker'in navigator){navigator.serviceWorker.register('/module-cache-sw.js').catch(function(){})}</script><script>globalThis.__TJS_LOCAL_BASE="/tjs/"</script><script>globalThis.__TOSI_IMPORT_RESOLVER={"prefix":"/lib/","workerUrl":"/import-resolver-worker.js","reloadOnFirstInstall":false}</script>
 </head>
 <body>
-  <tosi-doc-system docs="../docs.json?v=9ac9be55231a" config="{&quot;projectName&quot;:&quot;tosijs-ui&quot;,&quot;projectLinks&quot;:{&quot;tosijs&quot;:&quot;https://tosijs.net&quot;,&quot;github&quot;:&quot;https://github.com/tonioloewald/tosijs-ui&quot;}}" localized="../localized-strings.txt">
+  <tosi-doc-system docs="../docs.json?v=8063daa272a9" config="{&quot;projectName&quot;:&quot;tosijs-ui&quot;,&quot;projectLinks&quot;:{&quot;tosijs&quot;:&quot;https://tosijs.net&quot;,&quot;github&quot;:&quot;https://github.com/tonioloewald/tosijs-ui&quot;}}" localized="../localized-strings.txt">
   <article class="doc-content">
 <h1>Migrating from older versions</h1>
 <!--{ "pin": "bottom", "parent": "Appendices", "order": 60, "description": "Breaking changes and migration checklists for tosijs-ui releases you may be upgrading past — 1.11.0's validator seam, 1.9.1's Node resolution fix, 1.7.0's editor change and the 1.3.0 xinjs-ui rename." }-->
@@ -54,12 +54,12 @@ this applies — go to the <a href="/">Quick Start</a> instead.</p>
 <h2>The doc-system cluster moved off the root barrel — 1.14.0</h2>
 <p>If you import <code>&lt;tosi-code&gt;</code>, the doc browser, <code>&lt;tosi-doc-system&gt;</code> or <code>&lt;live-example&gt;</code> from the
 package root, change the import. Everything else is unaffected.</p>
-<pre><code class="language-typescript">// before
-import { tosiCode, createDocBrowser } from &#39;tosijs-ui&#39;
+<pre><code class="language-typescript" data-highlighted><span class="token comment">// before</span>
+<span class="token keyword">import</span> <span class="token punctuation">{</span> tosiCode<span class="token punctuation">,</span> createDocBrowser <span class="token punctuation">}</span> <span class="token keyword">from</span> <span class="token string">'tosijs-ui'</span>
 
-// after — the same things, by subpath
-import { tosiCode } from &#39;tosijs-ui/code-editor&#39;
-import { createDocBrowser } from &#39;tosijs-ui/doc-browser&#39;
+<span class="token comment">// after — the same things, by subpath</span>
+<span class="token keyword">import</span> <span class="token punctuation">{</span> tosiCode <span class="token punctuation">}</span> <span class="token keyword">from</span> <span class="token string">'tosijs-ui/code-editor'</span>
+<span class="token keyword">import</span> <span class="token punctuation">{</span> createDocBrowser <span class="token punctuation">}</span> <span class="token keyword">from</span> <span class="token string">'tosijs-ui/doc-browser'</span>
 </code></pre>
 <p><strong>This one can fail at RUNTIME rather than at build time.</strong> A bare <code>import &#39;tosijs-ui&#39;</code> used to
 register <code>&lt;tosi-code&gt;</code>, <code>&lt;tosi-doc-system&gt;</code> and <code>&lt;live-example&gt;</code> as a side effect; it no longer
@@ -110,8 +110,8 @@ this only matters across a restart mid-session.</p>
 hyphens ignored — because it is meant to be read off one screen and typed on another.</p>
 <h2><code>Cannot find module</code> under Node — fixed in 1.9.1</h2>
 <p>If an import of <code>tosijs-ui</code> (any entry point) fails under <strong>Node</strong> with something like:</p>
-<pre><code class="language-text">Cannot find module &#39;.../dist/doc-system/site/site-config&#39;
-imported from &#39;.../dist/doc-system/site/index.js&#39;
+<pre><code class="language-text" data-highlighted>Cannot find module '.../dist/doc-system/site/site-config'
+imported from '.../dist/doc-system/site/index.js'
 </code></pre>
 <p>you are on <strong>1.9.0 or earlier</strong>. Upgrade to <strong>1.9.1</strong>; there is no workaround on the older
 versions and no code change needed on yours.</p>
@@ -186,6 +186,7 @@ be removed in a future major version.</p>
     <li><a class="doc-link" href="../adopting-the-doc-system/">Adopting the doc system</a></li>
     <li><a class="doc-link" href="../">tosijs-ui</a></li>
     <li><a class="doc-link" href="../one-source-every-artifact/">One Source</a></li>
+    <li><a class="doc-link" href="../highlight-block/">highlight-block</a></li>
     <li><a class="doc-link" href="../icons/">icons</a></li>
     <li><a class="doc-link" href="../natural-compare/">naturalCompare</a></li>
     <li><details><summary><a class="doc-link" href="../components/">Components</a></summary>

@@ -43,7 +43,7 @@
 <script>if('serviceWorker'in navigator){navigator.serviceWorker.register('/module-cache-sw.js').catch(function(){})}</script><script>globalThis.__TJS_LOCAL_BASE="/tjs/"</script><script>globalThis.__TOSI_IMPORT_RESOLVER={"prefix":"/lib/","workerUrl":"/import-resolver-worker.js","reloadOnFirstInstall":false}</script>
 </head>
 <body>
-  <tosi-doc-system docs="../docs.json?v=9ac9be55231a" config="{&quot;projectName&quot;:&quot;tosijs-ui&quot;,&quot;projectLinks&quot;:{&quot;tosijs&quot;:&quot;https://tosijs.net&quot;,&quot;github&quot;:&quot;https://github.com/tonioloewald/tosijs-ui&quot;}}" localized="../localized-strings.txt">
+  <tosi-doc-system docs="../docs.json?v=8063daa272a9" config="{&quot;projectName&quot;:&quot;tosijs-ui&quot;,&quot;projectLinks&quot;:{&quot;tosijs&quot;:&quot;https://tosijs.net&quot;,&quot;github&quot;:&quot;https://github.com/tonioloewald/tosijs-ui&quot;}}" localized="../localized-strings.txt">
   <article class="doc-content">
 <h1>schema-form</h1>
 <!--{ "parent": "Components" }-->
@@ -81,9 +81,9 @@ component here. The inputs are a <strong>view</strong> of <code>value</code>; th
 schema-form libraries do, means a field your schema does not describe is <strong>dropped on save</strong> —
 so editing one field can discard timestamps, provenance, or anything else added since the
 schema was written. Here <code>value</code> is a plain object that is copied, never rebuilt:</p>
-<pre><code class="language-typescript">schemaForm.value = { name: &#39;Ada&#39;, _id: &#39;abc&#39;, updatedAt: &#39;2020-01-01&#39; }
-// edit `name` in the UI …
-schemaForm.value // → { name: &#39;Grace&#39;, _id: &#39;abc&#39;, updatedAt: &#39;2020-01-01&#39; }
+<pre><code class="language-typescript" data-highlighted>schemaForm<span class="token punctuation">.</span>value <span class="token operator">=</span> <span class="token punctuation">{</span> name<span class="token operator">:</span> <span class="token string">'Ada'</span><span class="token punctuation">,</span> _id<span class="token operator">:</span> <span class="token string">'abc'</span><span class="token punctuation">,</span> updatedAt<span class="token operator">:</span> <span class="token string">'2020-01-01'</span> <span class="token punctuation">}</span>
+<span class="token comment">// edit `name` in the UI …</span>
+schemaForm<span class="token punctuation">.</span>value <span class="token comment">// → { name: 'Grace', _id: 'abc', updatedAt: '2020-01-01' }</span>
 </code></pre>
 <p>Editing also never mutates the object you handed in — you get a new one, so
 <code>diff(original, schemaForm.value)</code> is a usable dirty check.</p>
@@ -119,10 +119,10 @@ preview.append(schemaForm, report)
 <h3>Give it a validator</h3>
 <p>The form does not import a validation library. It asks for two functions, and you supply
 them once, anywhere before or after the form renders:</p>
-<pre><code class="language-typescript">import { setSchemaValidator } from &#39;tosijs-ui&#39;
-import { validate, inferSchema, unenforcedKeywords } from &#39;tosijs-schema&#39; // ^1.8.0
+<pre><code class="language-typescript" data-highlighted><span class="token keyword">import</span> <span class="token punctuation">{</span> setSchemaValidator <span class="token punctuation">}</span> <span class="token keyword">from</span> <span class="token string">'tosijs-ui'</span>
+<span class="token keyword">import</span> <span class="token punctuation">{</span> validate<span class="token punctuation">,</span> inferSchema<span class="token punctuation">,</span> unenforcedKeywords <span class="token punctuation">}</span> <span class="token keyword">from</span> <span class="token string">'tosijs-schema'</span> <span class="token comment">// ^1.8.0</span>
 
-setSchemaValidator({ validate, inferSchema, unenforcedKeywords })
+<span class="token function">setSchemaValidator</span><span class="token punctuation">(</span><span class="token punctuation">{</span> validate<span class="token punctuation">,</span> inferSchema<span class="token punctuation">,</span> unenforcedKeywords <span class="token punctuation">}</span><span class="token punctuation">)</span>
 </code></pre>
 <p>Pass <strong>all three</strong>. <code>unenforcedKeywords</code> is what lets the form ask the validator <em>&quot;which
 keywords do you not check?&quot;</em> — omit it and the form falls back to a built-in list frozen at
@@ -545,14 +545,14 @@ test(&#39;the note tracks the VALIDATOR, not a hard-coded list&#39;, () =&gt; {
 <p><code>registerFieldPlugin(format, plugin)</code> claims a schema <code>format</code> and renders it yourself. The
 plugin owns the <strong>control</strong>; the form still owns the label and the error slot, so a plugin
 does not have to re-implement either and cannot drift from the rest of the form.</p>
-<pre><code class="language-typescript">registerFieldPlugin(&#39;percent&#39;, {
-  // build the control element
-  render({ value, set, elements }) { return elements.div() },
-  // put a value back into it
-  sync(element, value) {},
-  // injected into its own stylesheet when the plugin registers
-  styles: { &#39;.my-widget&#39;: { display: &#39;flex&#39; } },
-})
+<pre><code class="language-typescript" data-highlighted><span class="token function">registerFieldPlugin</span><span class="token punctuation">(</span><span class="token string">'percent'</span><span class="token punctuation">,</span> <span class="token punctuation">{</span>
+  <span class="token comment">// build the control element</span>
+  <span class="token function">render</span><span class="token punctuation">(</span><span class="token punctuation">{</span> value<span class="token punctuation">,</span> set<span class="token punctuation">,</span> elements <span class="token punctuation">}</span><span class="token punctuation">)</span> <span class="token punctuation">{</span> <span class="token keyword">return</span> elements<span class="token punctuation">.</span><span class="token function">div</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">}</span><span class="token punctuation">,</span>
+  <span class="token comment">// put a value back into it</span>
+  <span class="token function">sync</span><span class="token punctuation">(</span>element<span class="token punctuation">,</span> value<span class="token punctuation">)</span> <span class="token punctuation">{</span><span class="token punctuation">}</span><span class="token punctuation">,</span>
+  <span class="token comment">// injected into its own stylesheet when the plugin registers</span>
+  styles<span class="token operator">:</span> <span class="token punctuation">{</span> <span class="token string-property property">'.my-widget'</span><span class="token operator">:</span> <span class="token punctuation">{</span> display<span class="token operator">:</span> <span class="token string">'flex'</span> <span class="token punctuation">}</span> <span class="token punctuation">}</span><span class="token punctuation">,</span>
+<span class="token punctuation">}</span><span class="token punctuation">)</span>
 </code></pre>
 <p><code>sync</code> is <strong>required</strong>. A control that cannot take a value back is not compatible with a form
 whose model owns the data, and finding that out while writing the plugin beats finding it out
@@ -769,6 +769,7 @@ test(&#39;editing keeps unknown keys, fires change, and does not rebuild under t
     <li><a class="doc-link" href="../adopting-the-doc-system/">Adopting the doc system</a></li>
     <li><a class="doc-link" href="../">tosijs-ui</a></li>
     <li><a class="doc-link" href="../one-source-every-artifact/">One Source</a></li>
+    <li><a class="doc-link" href="../highlight-block/">highlight-block</a></li>
     <li><a class="doc-link" href="../icons/">icons</a></li>
     <li><a class="doc-link" href="../natural-compare/">naturalCompare</a></li>
     <li><details open><summary><a class="doc-link" href="../components/">Components</a></summary>

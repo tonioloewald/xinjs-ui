@@ -43,7 +43,7 @@
 <script>if('serviceWorker'in navigator){navigator.serviceWorker.register('/module-cache-sw.js').catch(function(){})}</script><script>globalThis.__TJS_LOCAL_BASE="/tjs/"</script><script>globalThis.__TOSI_IMPORT_RESOLVER={"prefix":"/lib/","workerUrl":"/import-resolver-worker.js","reloadOnFirstInstall":false}</script>
 </head>
 <body>
-  <tosi-doc-system docs="../docs.json?v=9ac9be55231a" config="{&quot;projectName&quot;:&quot;tosijs-ui&quot;,&quot;projectLinks&quot;:{&quot;tosijs&quot;:&quot;https://tosijs.net&quot;,&quot;github&quot;:&quot;https://github.com/tonioloewald/tosijs-ui&quot;}}" localized="../localized-strings.txt">
+  <tosi-doc-system docs="../docs.json?v=8063daa272a9" config="{&quot;projectName&quot;:&quot;tosijs-ui&quot;,&quot;projectLinks&quot;:{&quot;tosijs&quot;:&quot;https://tosijs.net&quot;,&quot;github&quot;:&quot;https://github.com/tonioloewald/tosijs-ui&quot;}}" localized="../localized-strings.txt">
   <article class="doc-content">
 <!--{"pin":"bottom","title":"Doc-Site System","description":"How tosijs-ui's static, pre-rendered, hydrating documentation-site system works — and how to adopt it (tosijs-ui/site) in your own project.","parent":"Appendices"}-->
 
@@ -89,24 +89,24 @@ silently while the site still serves 200s — most of which cost a real adopter 
 each (#144, #145, #146).</p>
 </blockquote>
 <p><strong>1. <code>site.config.ts</code></strong> at your repo root:</p>
-<pre><code class="language-typescript">import { defineSiteConfig } from &#39;tosijs-ui/site&#39;
+<pre><code class="language-typescript" data-highlighted><span class="token keyword">import</span> <span class="token punctuation">{</span> defineSiteConfig <span class="token punctuation">}</span> <span class="token keyword">from</span> <span class="token string">'tosijs-ui/site'</span>
 
-export default defineSiteConfig({
-  name: &#39;my-lib&#39;,
-  description: &#39;What my library does.&#39;,
-  baseUrl: &#39;https://my-lib.example.com&#39;,
-  host: &#39;github-pages&#39;, // emits .nojekyll + CNAME (domain from baseUrl)
-  bundleEntry: &#39;demo/site.ts&#39;, // omit to use tosijs-ui&#39;s published iife.js
-  navbarLinks: [
-    { href: &#39;https://github.com/me/my-lib&#39;, label: &#39;github&#39;, icon: &#39;github&#39; },
-  ],
-})
+<span class="token keyword">export</span> <span class="token keyword">default</span> <span class="token function">defineSiteConfig</span><span class="token punctuation">(</span><span class="token punctuation">{</span>
+  name<span class="token operator">:</span> <span class="token string">'my-lib'</span><span class="token punctuation">,</span>
+  description<span class="token operator">:</span> <span class="token string">'What my library does.'</span><span class="token punctuation">,</span>
+  baseUrl<span class="token operator">:</span> <span class="token string">'https://my-lib.example.com'</span><span class="token punctuation">,</span>
+  host<span class="token operator">:</span> <span class="token string">'github-pages'</span><span class="token punctuation">,</span> <span class="token comment">// emits .nojekyll + CNAME (domain from baseUrl)</span>
+  bundleEntry<span class="token operator">:</span> <span class="token string">'demo/site.ts'</span><span class="token punctuation">,</span> <span class="token comment">// omit to use tosijs-ui's published iife.js</span>
+  navbarLinks<span class="token operator">:</span> <span class="token punctuation">[</span>
+    <span class="token punctuation">{</span> href<span class="token operator">:</span> <span class="token string">'https://github.com/me/my-lib'</span><span class="token punctuation">,</span> label<span class="token operator">:</span> <span class="token string">'github'</span><span class="token punctuation">,</span> icon<span class="token operator">:</span> <span class="token string">'github'</span> <span class="token punctuation">}</span><span class="token punctuation">,</span>
+  <span class="token punctuation">]</span><span class="token punctuation">,</span>
+<span class="token punctuation">}</span><span class="token punctuation">)</span>
 </code></pre>
 <p><strong>2. <code>bin/site.ts</code></strong> — the only build file you write:</p>
-<pre><code class="language-typescript">import { buildSite, devServer } from &#39;tosijs-ui/site&#39;
-import config from &#39;../site.config&#39;
+<pre><code class="language-typescript" data-highlighted><span class="token keyword">import</span> <span class="token punctuation">{</span> buildSite<span class="token punctuation">,</span> devServer <span class="token punctuation">}</span> <span class="token keyword">from</span> <span class="token string">'tosijs-ui/site'</span>
+<span class="token keyword">import</span> config <span class="token keyword">from</span> <span class="token string">'../site.config'</span>
 
-process.argv.includes(&#39;--build&#39;) ? buildSite(config) : devServer(config)
+process<span class="token punctuation">.</span>argv<span class="token punctuation">.</span><span class="token function">includes</span><span class="token punctuation">(</span><span class="token string">'--build'</span><span class="token punctuation">)</span> <span class="token operator">?</span> <span class="token function">buildSite</span><span class="token punctuation">(</span>config<span class="token punctuation">)</span> <span class="token operator">:</span> <span class="token function">devServer</span><span class="token punctuation">(</span>config<span class="token punctuation">)</span>
 </code></pre>
 <blockquote>
 <p><strong>If your build does more than <code>buildSite</code></strong> — e.g. you bundle your own
@@ -117,25 +117,25 @@ pass it to <code>devServer</code> as <code>{ build }</code>. <code>buildSite</co
 first file-change rebuild; without <code>build</code>, the watcher only re-runs
 <code>buildSite</code> and never regenerates it, so <code>/iife.js</code> 404s into the SPA fallback
 and &quot;loads as html&quot;. The initial build still runs your steps explicitly:</p>
-<pre><code class="language-typescript">const build = async () =&gt; {
-  if (!(await buildSite(config))) throw new Error(&#39;site build failed&#39;)
-  await buildMyIifeBundle() // re-create what buildSite&#39;s rm -rf removed
-}
-if (!(await buildSite(config))) process.exit(1)
-await buildMyIifeBundle()
-if (process.argv.includes(&#39;--build&#39;)) process.exit(0)
-await devServer(config, { build }) // ← watcher runs the full pipeline
+<pre><code class="language-typescript" data-highlighted><span class="token keyword">const</span> <span class="token function-variable function">build</span> <span class="token operator">=</span> <span class="token keyword">async</span> <span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">=></span> <span class="token punctuation">{</span>
+  <span class="token keyword">if</span> <span class="token punctuation">(</span><span class="token operator">!</span><span class="token punctuation">(</span><span class="token keyword">await</span> <span class="token function">buildSite</span><span class="token punctuation">(</span>config<span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">)</span> <span class="token keyword">throw</span> <span class="token keyword">new</span> <span class="token class-name">Error</span><span class="token punctuation">(</span><span class="token string">'site build failed'</span><span class="token punctuation">)</span>
+  <span class="token keyword">await</span> <span class="token function">buildMyIifeBundle</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token comment">// re-create what buildSite's rm -rf removed</span>
+<span class="token punctuation">}</span>
+<span class="token keyword">if</span> <span class="token punctuation">(</span><span class="token operator">!</span><span class="token punctuation">(</span><span class="token keyword">await</span> <span class="token function">buildSite</span><span class="token punctuation">(</span>config<span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">)</span> process<span class="token punctuation">.</span><span class="token function">exit</span><span class="token punctuation">(</span><span class="token number">1</span><span class="token punctuation">)</span>
+<span class="token keyword">await</span> <span class="token function">buildMyIifeBundle</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+<span class="token keyword">if</span> <span class="token punctuation">(</span>process<span class="token punctuation">.</span>argv<span class="token punctuation">.</span><span class="token function">includes</span><span class="token punctuation">(</span><span class="token string">'--build'</span><span class="token punctuation">)</span><span class="token punctuation">)</span> process<span class="token punctuation">.</span><span class="token function">exit</span><span class="token punctuation">(</span><span class="token number">0</span><span class="token punctuation">)</span>
+<span class="token keyword">await</span> <span class="token function">devServer</span><span class="token punctuation">(</span>config<span class="token punctuation">,</span> <span class="token punctuation">{</span> build <span class="token punctuation">}</span><span class="token punctuation">)</span> <span class="token comment">// ← watcher runs the full pipeline</span>
 </code></pre>
 </blockquote>
 <p><strong>3. scripts</strong> in <code>package.json</code>:</p>
-<pre><code class="language-json">{
-  &quot;scripts&quot;: { &quot;start&quot;: &quot;bun bin/site.ts&quot;, &quot;build&quot;: &quot;bun bin/site.ts --build&quot; }
-}
+<pre><code class="language-json" data-highlighted><span class="token punctuation">{</span>
+  <span class="token property">"scripts"</span><span class="token operator">:</span> <span class="token punctuation">{</span> <span class="token property">"start"</span><span class="token operator">:</span> <span class="token string">"bun bin/site.ts"</span><span class="token punctuation">,</span> <span class="token property">"build"</span><span class="token operator">:</span> <span class="token string">"bun bin/site.ts --build"</span> <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
 </code></pre>
 <p><strong>4. build-time dependencies.</strong> The build (not your shipped library) needs a few
 tools installed alongside tosijs-ui. They&#39;re declared as optional peers, so
 install whichever the build reports missing:</p>
-<pre><code class="language-bash">bun add -d happy-dom tjs-lang marked
+<pre><code class="language-bash" data-highlighted>bun <span class="token function">add</span> <span class="token parameter variable">-d</span> happy-dom tjs-lang marked
 </code></pre>
 <p><code>happy-dom</code> powers the theme-stylesheet step (the build runs with no real DOM);
 <code>tjs-lang</code> transpiles live-examples (vanilla JS via <code>dialect: &#39;js&#39;</code>, plus real
@@ -144,7 +144,7 @@ is absent the build fails mid-run with a <code>Cannot find package …</code> fr
 <code>node_modules/tosijs-ui/dist/…</code> — that means a build-time peer isn&#39;t installed.</p>
 <p><strong>5. dev-server TLS (once).</strong> <code>devServer</code> serves over HTTPS and looks for
 <code>tls/key.pem</code> + <code>tls/certificate.pem</code>; if they&#39;re missing it tells you to run:</p>
-<pre><code class="language-bash">bunx tosijs-dev-certs
+<pre><code class="language-bash" data-highlighted>bunx tosijs-dev-certs
 </code></pre>
 <p>This ships with tosijs-ui — it uses <a href="https://github.com/FiloSottile/mkcert">mkcert</a>
 to write a <strong>locally-trusted</strong> cert into <code>./tls/</code> (no browser warnings), valid
@@ -163,15 +163,15 @@ components).</strong> The build bundles your entrypoint to IIFE and pages load i
 reference</strong>, and expose any custom modules to live examples by setting each
 <code>&lt;tosi-doc-system&gt;</code>&#39;s <code>context</code> property (live examples resolve
 <code>import { x } from &#39;my-lib&#39;</code> against <code>context[&#39;my-lib&#39;]</code>):</p>
-<pre><code class="language-typescript">// demo/site.ts
-import &#39;tosijs-ui&#39; // registers tosi-* elements + the doc-system component
-import * as mylib from &#39;../src/index&#39; // your own components/exports
+<pre><code class="language-typescript" data-highlighted><span class="token comment">// demo/site.ts</span>
+<span class="token keyword">import</span> <span class="token string">'tosijs-ui'</span> <span class="token comment">// registers tosi-* elements + the doc-system component</span>
+<span class="token keyword">import</span> <span class="token operator">*</span> <span class="token keyword">as</span> mylib <span class="token keyword">from</span> <span class="token string">'../src/index'</span> <span class="token comment">// your own components/exports</span>
 
-// Expose your library to live examples. tosijs / tosijs-ui are provided by
-// default (from the IIFE globals); add your own here.
-for (const el of document.querySelectorAll(&#39;tosi-doc-system&#39;)) {
-  ;(el as any).context = { &#39;my-lib&#39;: mylib }
-}
+<span class="token comment">// Expose your library to live examples. tosijs / tosijs-ui are provided by</span>
+<span class="token comment">// default (from the IIFE globals); add your own here.</span>
+<span class="token keyword">for</span> <span class="token punctuation">(</span><span class="token keyword">const</span> el <span class="token keyword">of</span> document<span class="token punctuation">.</span><span class="token function">querySelectorAll</span><span class="token punctuation">(</span><span class="token string">'tosi-doc-system'</span><span class="token punctuation">)</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+  <span class="token punctuation">;</span><span class="token punctuation">(</span>el <span class="token keyword">as</span> <span class="token builtin">any</span><span class="token punctuation">)</span><span class="token punctuation">.</span>context <span class="token operator">=</span> <span class="token punctuation">{</span> <span class="token string-property property">'my-lib'</span><span class="token operator">:</span> mylib <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
 </code></pre>
 <p><strong>Where it lands.</strong> The bundle and its sourcemap are written into your <strong>site output</strong>
 (<code>outputDir</code>, default <code>docs/</code>), so the map sits beside the script it describes and a
@@ -213,22 +213,22 @@ icons or <strong>overrides a default by reusing its name</strong>. Registered ic
 <code>icons.name()</code>, <code>&lt;tosi-icon icon=&quot;name&quot;&gt;</code>, and the composition language; an icon&#39;s
 <code>class=&quot;filled|stroked|color&quot;</code> sets its default styling. Do this in your bundle
 entry so the icons are available before the page renders:</p>
-<pre><code class="language-typescript">// demo/site.ts
-import { defineIcons } from &#39;tosijs-ui&#39;
+<pre><code class="language-typescript" data-highlighted><span class="token comment">// demo/site.ts</span>
+<span class="token keyword">import</span> <span class="token punctuation">{</span> defineIcons <span class="token punctuation">}</span> <span class="token keyword">from</span> <span class="token string">'tosijs-ui'</span>
 
-defineIcons({
-  // a brand glyph, and an override of the default `star`
-  acme: &#39;&lt;svg class=&quot;stroked&quot; viewBox=&quot;0 0 24 24&quot;&gt;&lt;path d=&quot;…&quot;/&gt;&lt;/svg&gt;&#39;,
-  star: &#39;&lt;svg class=&quot;filled&quot; viewBox=&quot;0 0 24 24&quot;&gt;&lt;path d=&quot;…&quot;/&gt;&lt;/svg&gt;&#39;,
-})
+<span class="token function">defineIcons</span><span class="token punctuation">(</span><span class="token punctuation">{</span>
+  <span class="token comment">// a brand glyph, and an override of the default `star`</span>
+  acme<span class="token operator">:</span> <span class="token string">'&lt;svg class="stroked" viewBox="0 0 24 24">&lt;path d="…"/>&lt;/svg>'</span><span class="token punctuation">,</span>
+  star<span class="token operator">:</span> <span class="token string">'&lt;svg class="filled" viewBox="0 0 24 24">&lt;path d="…"/>&lt;/svg>'</span><span class="token punctuation">,</span>
+<span class="token punctuation">}</span><span class="token punctuation">)</span>
 </code></pre>
 <p>For a <strong>folder of SVGs</strong>, generate a ready-to-register module with the bundled
 CLI (it scales/rounds coordinates and emits <code>export default { name: &#39;&lt;svg&gt;&#39; }</code>):</p>
-<pre><code class="language-bash">bunx tosijs-make-icons --input ./my-icons --output ./src/my-icons.ts
+<pre><code class="language-bash" data-highlighted>bunx tosijs-make-icons <span class="token parameter variable">--input</span> ./my-icons <span class="token parameter variable">--output</span> ./src/my-icons.ts
 </code></pre>
-<pre><code class="language-typescript">import { defineIcons } from &#39;tosijs-ui&#39;
-import myIcons from &#39;./my-icons&#39;
-defineIcons(myIcons)
+<pre><code class="language-typescript" data-highlighted><span class="token keyword">import</span> <span class="token punctuation">{</span> defineIcons <span class="token punctuation">}</span> <span class="token keyword">from</span> <span class="token string">'tosijs-ui'</span>
+<span class="token keyword">import</span> myIcons <span class="token keyword">from</span> <span class="token string">'./my-icons'</span>
+<span class="token function">defineIcons</span><span class="token punctuation">(</span>myIcons<span class="token punctuation">)</span>
 </code></pre>
 <p>(Each SVG file&#39;s <code>class</code> attribute — <code>filled</code> / <code>stroked</code> / <code>color</code> — is preserved.)</p>
 <h2>Configuration reference</h2>
@@ -401,7 +401,7 @@ display-only and the build stays green — which matters when you read the next 
 <p>Example imports resolve against the doc-system&#39;s example context, which is <code>tosijs</code> and
 <code>tosijs-ui</code> by default. A library that documents <strong>itself</strong> imports its own package name, so
 extend the context rather than turning the check off:</p>
-<pre><code class="language-typescript">checkExamples: { contextKeys: [&#39;my-lib&#39;] }   // ADDED to the defaults, not substituted
+<pre><code class="language-typescript" data-highlighted>checkExamples<span class="token operator">:</span> <span class="token punctuation">{</span> contextKeys<span class="token operator">:</span> <span class="token punctuation">[</span><span class="token string">'my-lib'</span><span class="token punctuation">]</span> <span class="token punctuation">}</span>   <span class="token comment">// ADDED to the defaults, not substituted</span>
 </code></pre>
 <p><code>checkExamples: false</code> disables it entirely. Worth knowing what that costs: with the guard
 off, one adopter published a page teaching its own core contract with a hard <code>SyntaxError</code> in
@@ -672,15 +672,15 @@ verdict: filtering on either would have downgraded exactly that finding to a war
 </ul>
 <p><strong>Gating an accepted risk — with a deadline.</strong> You can&#39;t always patch immediately.
 Instead of silencing a finding forever, gate it with a reason and an <strong>expiry</strong>:</p>
-<pre><code class="language-typescript">audit: {
-  allow: [
-    {
-      advisory: &#39;GHSA-25h7-pfq9-p65f&#39;, // GHSA id, the numeric id, or a package name
-      reason: &#39;no untrusted parse path reaches it; patch tracked in #123&#39;,
-      expires: &#39;2026-08-15&#39;, // YYYY-MM-DD — after this the gate stops suppressing
-    },
-  ],
-}
+<pre><code class="language-typescript" data-highlighted>audit<span class="token operator">:</span> <span class="token punctuation">{</span>
+  allow<span class="token operator">:</span> <span class="token punctuation">[</span>
+    <span class="token punctuation">{</span>
+      advisory<span class="token operator">:</span> <span class="token string">'GHSA-25h7-pfq9-p65f'</span><span class="token punctuation">,</span> <span class="token comment">// GHSA id, the numeric id, or a package name</span>
+      reason<span class="token operator">:</span> <span class="token string">'no untrusted parse path reaches it; patch tracked in #123'</span><span class="token punctuation">,</span>
+      expires<span class="token operator">:</span> <span class="token string">'2026-08-15'</span><span class="token punctuation">,</span> <span class="token comment">// YYYY-MM-DD — after this the gate stops suppressing</span>
+    <span class="token punctuation">}</span><span class="token punctuation">,</span>
+  <span class="token punctuation">]</span><span class="token punctuation">,</span>
+<span class="token punctuation">}</span>
 </code></pre>
 <p>On/after <code>expires</code> the gate stops working and the build fails again — the risk is
 forced back onto the table rather than living in an allowlist nobody re-reads. A
@@ -730,17 +730,17 @@ signalled — one leaked bundler per edit, ~200MB each. Observed: <strong>69 orp
 13.09GB</strong>, ~55 of them from a single 61-minute window, on a 128GB machine left with
 116MB free.</p>
 <p>A long-lived child needs both halves:</p>
-<pre><code class="language-typescript">let child: ReturnType&lt;typeof Bun.spawn&gt; | undefined
-const spawnBundler = () =&gt; {
-  child?.kill() // kill the PREVIOUS one before starting another
-  child = Bun.spawn([&#39;bun&#39;, &#39;build&#39;, ...args, &#39;--watch&#39;], { stdout: &#39;inherit&#39; })
-}
-for (const sig of [&#39;SIGINT&#39;, &#39;SIGTERM&#39;] as const)
-  process.on(sig, () =&gt; {
-    child?.kill()
-    process.exit(0)
-  })
-process.on(&#39;beforeExit&#39;, () =&gt; child?.kill())
+<pre><code class="language-typescript" data-highlighted><span class="token keyword">let</span> child<span class="token operator">:</span> ReturnType<span class="token operator">&lt;</span><span class="token keyword">typeof</span> Bun<span class="token punctuation">.</span>spawn<span class="token operator">></span> <span class="token operator">|</span> <span class="token keyword">undefined</span>
+<span class="token keyword">const</span> <span class="token function-variable function">spawnBundler</span> <span class="token operator">=</span> <span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">=></span> <span class="token punctuation">{</span>
+  child<span class="token operator">?.</span><span class="token function">kill</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token comment">// kill the PREVIOUS one before starting another</span>
+  child <span class="token operator">=</span> Bun<span class="token punctuation">.</span><span class="token function">spawn</span><span class="token punctuation">(</span><span class="token punctuation">[</span><span class="token string">'bun'</span><span class="token punctuation">,</span> <span class="token string">'build'</span><span class="token punctuation">,</span> <span class="token operator">...</span>args<span class="token punctuation">,</span> <span class="token string">'--watch'</span><span class="token punctuation">]</span><span class="token punctuation">,</span> <span class="token punctuation">{</span> stdout<span class="token operator">:</span> <span class="token string">'inherit'</span> <span class="token punctuation">}</span><span class="token punctuation">)</span>
+<span class="token punctuation">}</span>
+<span class="token keyword">for</span> <span class="token punctuation">(</span><span class="token keyword">const</span> sig <span class="token keyword">of</span> <span class="token punctuation">[</span><span class="token string">'SIGINT'</span><span class="token punctuation">,</span> <span class="token string">'SIGTERM'</span><span class="token punctuation">]</span> <span class="token keyword">as</span> <span class="token keyword">const</span><span class="token punctuation">)</span>
+  process<span class="token punctuation">.</span><span class="token function">on</span><span class="token punctuation">(</span>sig<span class="token punctuation">,</span> <span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">=></span> <span class="token punctuation">{</span>
+    child<span class="token operator">?.</span><span class="token function">kill</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+    process<span class="token punctuation">.</span><span class="token function">exit</span><span class="token punctuation">(</span><span class="token number">0</span><span class="token punctuation">)</span>
+  <span class="token punctuation">}</span><span class="token punctuation">)</span>
+process<span class="token punctuation">.</span><span class="token function">on</span><span class="token punctuation">(</span><span class="token string">'beforeExit'</span><span class="token punctuation">,</span> <span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">=></span> child<span class="token operator">?.</span><span class="token function">kill</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
 </code></pre>
 <p>A one-shot <code>bun build</code> needs none of this — it exits on its own, which is why this
 project&#39;s own builds are unaffected. It is <code>--watch</code> that turns a child into something
@@ -800,8 +800,8 @@ way to say anything at all — and in a WebXR session there is no console and
 remaining channel is a human reading an in-scene panel aloud.</p>
 <p>Set <code>debugSink: true</code> and the dev server accepts <code>POST /__debug-sink</code>, appending one line per
 event to a JSONL file whose path it prints at startup:</p>
-<pre><code class="language-javascript">// page side — fire-and-forget, and survives rAF suspension
-navigator.sendBeacon(&#39;/__debug-sink&#39;, JSON.stringify({ t: Date.now(), tag, ...event }))
+<pre><code class="language-javascript" data-highlighted><span class="token comment">// page side — fire-and-forget, and survives rAF suspension</span>
+navigator<span class="token punctuation">.</span><span class="token function">sendBeacon</span><span class="token punctuation">(</span><span class="token string">'/__debug-sink'</span><span class="token punctuation">,</span> <span class="token constant">JSON</span><span class="token punctuation">.</span><span class="token function">stringify</span><span class="token punctuation">(</span><span class="token punctuation">{</span> <span class="token literal-property property">t</span><span class="token operator">:</span> Date<span class="token punctuation">.</span><span class="token function">now</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">,</span> tag<span class="token punctuation">,</span> <span class="token operator">...</span>event <span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
 </code></pre>
 <pre><code>Debug sink: POST /__debug-sink  -&gt;  tail -f /tmp/tosijs-debug-6fe6a9b0.jsonl
 </code></pre>
@@ -868,10 +868,10 @@ it: viewport, pose, input, stereo layout.</p>
 <p>Set <code>haltijaDev: &#39;tunnel&#39;</code> and the channel is also served <strong>same-origin over the tunnel</strong>,
 so the page in the headset attaches to the haltija running on your machine and <code>hj</code> drives
 it exactly as it drives a local page:</p>
-<pre><code class="language-typescript">export default defineSiteConfig({
-  haltijaDev: &#39;tunnel&#39;,
-  preview: { tunnel: { url: &#39;https://myproject.edit.dev.example.com&#39; } },
-})
+<pre><code class="language-typescript" data-highlighted><span class="token keyword">export</span> <span class="token keyword">default</span> <span class="token function">defineSiteConfig</span><span class="token punctuation">(</span><span class="token punctuation">{</span>
+  haltijaDev<span class="token operator">:</span> <span class="token string">'tunnel'</span><span class="token punctuation">,</span>
+  preview<span class="token operator">:</span> <span class="token punctuation">{</span> tunnel<span class="token operator">:</span> <span class="token punctuation">{</span> url<span class="token operator">:</span> <span class="token string">'https://myproject.edit.dev.example.com'</span> <span class="token punctuation">}</span> <span class="token punctuation">}</span><span class="token punctuation">,</span>
+<span class="token punctuation">}</span><span class="token punctuation">)</span>
 </code></pre>
 <p>Redeem an edit link on the device (<code>tosijs-tunnel --link</code> gives you a 7-character code),
 load the page, and it appears in <code>hj windows</code> like any other.</p>
@@ -915,11 +915,11 @@ default for good reason. But a doc site is not only prose: a demo, a dashboard, 
 a canvas is <em>worse</em> squeezed into a column, and having to pick one habit for the whole site is
 what makes people build a second site.</p>
 <p>Set <code>layout</code> in a page&#39;s metadata — the same place as <code>pin</code>, <code>order</code> or <code>parent</code>:</p>
-<pre><code class="language-markdown">&lt;!--{ &quot;layout&quot;: &quot;full-width&quot; }--&gt;
+<pre><code class="language-markdown" data-highlighted><span class="token comment">&lt;!--{ "layout": "full-width" }--></span>
 </code></pre>
-<pre><code class="language-yaml">---
-layout: full-width
----
+<pre><code class="language-yaml" data-highlighted><span class="token punctuation">---</span>
+<span class="token key atrule">layout</span><span class="token punctuation">:</span> full<span class="token punctuation">-</span>width
+<span class="token punctuation">---</span>
 </code></pre>
 <p>The nav and the chrome stay; only the measure goes. Unset means the reading column, so nothing
 changes for a corpus that never asks.</p>
@@ -937,9 +937,9 @@ paint.</p>
 <h4><code>preview</code> — deploy the built site to a host you control</h4>
 <p>A doc site is a folder of static files, so sharing one is a copy, not a pipeline. Set a
 host and deploy:</p>
-<pre><code class="language-typescript">preview: {
-  url: &#39;https://ui.dev.example.com&#39;, // optional; also names the route to register
-}
+<pre><code class="language-typescript" data-highlighted>preview<span class="token operator">:</span> <span class="token punctuation">{</span>
+  url<span class="token operator">:</span> <span class="token string">'https://ui.dev.example.com'</span><span class="token punctuation">,</span> <span class="token comment">// optional; also names the route to register</span>
+<span class="token punctuation">}</span>
 </code></pre>
 <p><strong>Do not put <code>host</code> in a committed config.</strong> The bins resolve
 <code>--host=</code> &gt; <code>PREVIEW_HOST</code> &gt; <code>PREVIEW_SSH</code> &gt; config &gt; <code>~/local-secrets/tosijs-preview.env</code>,
@@ -951,8 +951,8 @@ A profile-only <code>export</code> is present for a human and absent for every t
 documented &quot;keep it out of a committed config&quot; here while its own <code>tosijs-site.config.ts</code>
 published the address in a public repo&#39;s history for months. <strong>A credential that has ever
 been committed is public — rotate it.</strong> Rewriting history does not un-publish anything.</p>
-<pre><code class="language-bash">bun run deploy        # DRY RUN — shows exactly what would change
-bun run deploy --go   # sync, self-register, refresh the host&#39;s index
+<pre><code class="language-bash" data-highlighted>bun run deploy        <span class="token comment"># DRY RUN — shows exactly what would change</span>
+bun run deploy <span class="token parameter variable">--go</span>   <span class="token comment"># sync, self-register, refresh the host's index</span>
 </code></pre>
 <p><strong>Dry run is the default</strong> because this is <code>rsync --delete</code> — the remote must mirror the
 build so stale pages can&#39;t linger, which is destructive if aimed wrong. It also <strong>warns
@@ -1026,19 +1026,19 @@ shared invite secret) have to be filled in.</p>
 is a literal string published in a public repo, issuing certificates under someone else&#39;s
 account. So don&#39;t do it by hand — <strong><code>tosijs-caddy-install</code> does it and refuses when it would
 go wrong</strong>:</p>
-<pre><code class="language-bash"># 1. on the box, once: the values the template needs
-#    (a secret you invent; never in the Caddyfile, never in git)
-cat &gt; /etc/caddy/preview.env &lt;&lt;&#39;EOF&#39;
-PREVIEW_TOKEN=&lt;a long random string&gt;
+<pre><code class="language-bash" data-highlighted><span class="token comment"># 1. on the box, once: the values the template needs</span>
+<span class="token comment">#    (a secret you invent; never in the Caddyfile, never in git)</span>
+<span class="token function">cat</span> <span class="token operator">></span> /etc/caddy/preview.env <span class="token operator">&lt;&lt;</span><span class="token string">'EOF'
+PREVIEW_TOKEN=&lt;a long random string>
 ACME_EMAIL=you@example.com
 PREVIEW_DOMAIN=dev.example.com
-EOF
+EOF</span>
 
-# 2. from your project — DRY RUN, prints a diff against the live config, changes nothing
+<span class="token comment"># 2. from your project — DRY RUN, prints a diff against the live config, changes nothing</span>
 tosijs-caddy-install
 
-# 3. once the diff looks right
-tosijs-caddy-install --go
+<span class="token comment"># 3. once the diff looks right</span>
+tosijs-caddy-install <span class="token parameter variable">--go</span>
 </code></pre>
 <p>It reads <code>preview.host</code> from your site config (or <code>--host=user@box</code>, or <code>PREVIEW_HOST</code>), and:</p>
 <ul>
@@ -1060,20 +1060,20 @@ project needs no registrar visit, and sshd running <code>GatewayPorts no</code>.
 <p>The build writes an ePub per volume — but a file nobody links to is a file nobody can
 download. Three ways to surface them, cheapest first.</p>
 <p><strong>A marker in any page.</strong> Drop this where you want the list:</p>
-<pre><code class="language-text">- [tosijs-ui](/tosijs-ui.epub) *(ePub)*
+<pre><code class="language-text" data-highlighted>- [tosijs-ui](/tosijs-ui.epub) *(ePub)*
 </code></pre>
 <p>It is replaced at build time with one markdown link per volume, using each volume&#39;s title
 and its real output URL. Substituted into the corpus before pages render, so the static
 HTML and the hydrated SPA show the same thing.</p>
 <p><strong>A manifest.</strong> Every build writes <code>/epub-volumes.json</code> to the output dir:</p>
-<pre><code class="language-json">[
-  { &quot;book&quot;: &quot;&quot;, &quot;title&quot;: &quot;my-project&quot;, &quot;filename&quot;: &quot;my-project.epub&quot;, &quot;url&quot;: &quot;/my-project.epub&quot; },
-  { &quot;book&quot;: &quot;field-guide&quot;, &quot;title&quot;: &quot;my-project — field-guide&quot;,
-    &quot;filename&quot;: &quot;my-project-field-guide.epub&quot;, &quot;url&quot;: &quot;/my-project-field-guide.epub&quot; }
-]
+<pre><code class="language-json" data-highlighted><span class="token punctuation">[</span>
+  <span class="token punctuation">{</span> <span class="token property">"book"</span><span class="token operator">:</span> <span class="token string">""</span><span class="token punctuation">,</span> <span class="token property">"title"</span><span class="token operator">:</span> <span class="token string">"my-project"</span><span class="token punctuation">,</span> <span class="token property">"filename"</span><span class="token operator">:</span> <span class="token string">"my-project.epub"</span><span class="token punctuation">,</span> <span class="token property">"url"</span><span class="token operator">:</span> <span class="token string">"/my-project.epub"</span> <span class="token punctuation">}</span><span class="token punctuation">,</span>
+  <span class="token punctuation">{</span> <span class="token property">"book"</span><span class="token operator">:</span> <span class="token string">"field-guide"</span><span class="token punctuation">,</span> <span class="token property">"title"</span><span class="token operator">:</span> <span class="token string">"my-project — field-guide"</span><span class="token punctuation">,</span>
+    <span class="token property">"filename"</span><span class="token operator">:</span> <span class="token string">"my-project-field-guide.epub"</span><span class="token punctuation">,</span> <span class="token property">"url"</span><span class="token operator">:</span> <span class="token string">"/my-project-field-guide.epub"</span> <span class="token punctuation">}</span>
+<span class="token punctuation">]</span>
 </code></pre>
 <p><strong>The helper</strong>, if you are generating links in your own code:</p>
-<pre><code class="language-typescript">import { listEpubVolumes, epubVolumeIdentity } from &#39;tosijs-ui/site&#39;
+<pre><code class="language-typescript" data-highlighted><span class="token keyword">import</span> <span class="token punctuation">{</span> listEpubVolumes<span class="token punctuation">,</span> epubVolumeIdentity <span class="token punctuation">}</span> <span class="token keyword">from</span> <span class="token string">'tosijs-ui/site'</span>
 </code></pre>
 <blockquote>
 <p><strong>Do not hard-code the filename.</strong> It is <em>derived</em> — <code>&lt;project&gt;-&lt;volume&gt;.epub</code> — so a
@@ -1089,14 +1089,14 @@ the former without moving the latter, so published links survive a retitle.</p>
 server on your machine</strong>, at an authenticated public URL, so you can read and edit real
 source from a phone or a borrowed laptop. The box does no compute — it terminates TLS and
 routes — which is what lets one small VPS front many projects.</p>
-<pre><code class="language-typescript">preview: {
-  host: &#39;me@vps.example.com&#39;,
-  path: &#39;/srv/preview/my-project&#39;,
-  url:  &#39;https://my-project.dev.example.com&#39;,        // static snapshot
-  tunnel: {
-    url: &#39;https://my-project.edit.dev.example.com&#39;,  // live workspace
-  },
-}
+<pre><code class="language-typescript" data-highlighted>preview<span class="token operator">:</span> <span class="token punctuation">{</span>
+  host<span class="token operator">:</span> <span class="token string">'me@vps.example.com'</span><span class="token punctuation">,</span>
+  path<span class="token operator">:</span> <span class="token string">'/srv/preview/my-project'</span><span class="token punctuation">,</span>
+  url<span class="token operator">:</span>  <span class="token string">'https://my-project.dev.example.com'</span><span class="token punctuation">,</span>        <span class="token comment">// static snapshot</span>
+  tunnel<span class="token operator">:</span> <span class="token punctuation">{</span>
+    url<span class="token operator">:</span> <span class="token string">'https://my-project.edit.dev.example.com'</span><span class="token punctuation">,</span>  <span class="token comment">// live workspace</span>
+  <span class="token punctuation">}</span><span class="token punctuation">,</span>
+<span class="token punctuation">}</span>
 </code></pre>
 <p>Two hostnames, because the postures genuinely differ:</p>
 <table>
@@ -1118,10 +1118,10 @@ routes — which is what lets one small VPS front many projects.</p>
 <td>session, always</td>
 </tr>
 </tbody></table>
-<pre><code class="language-bash">tosijs-tunnel            # open the tunnel (foreground; Ctrl-C closes it)
-tosijs-tunnel --status   # is one already up?
-tosijs-tunnel --link     # print a fresh edit link + its 7-character code (5 min)
-tosijs-tunnel --close    # close any tunnel this project opened
+<pre><code class="language-bash" data-highlighted>tosijs-tunnel            <span class="token comment"># open the tunnel (foreground; Ctrl-C closes it)</span>
+tosijs-tunnel <span class="token parameter variable">--status</span>   <span class="token comment"># is one already up?</span>
+tosijs-tunnel <span class="token parameter variable">--link</span>     <span class="token comment"># print a fresh edit link + its 7-character code (5 min)</span>
+tosijs-tunnel <span class="token parameter variable">--close</span>    <span class="token comment"># close any tunnel this project opened</span>
 </code></pre>
 <p><strong>How the gate works.</strong> <code>--link</code> prints a URL carrying a short-lived token (see <em>Link security</em> below). Opening it
 once exchanges the token for a durable <code>HttpOnly; Secure; SameSite=Lax</code> session cookie
@@ -1225,10 +1225,10 @@ cookie. The cookie is the durable credential; the link only delivers it. For tho
 minutes the link is a bearer token — anyone who sees the URL can mint a session — which is a
 deliberate trade: a credential too painful to use is one people route around, and the
 measured alternative was developers abandoning the tunnel to type LAN IP addresses instead.</p>
-<pre><code class="language-typescript">tunnel: {
-  linkPolicy: &#39;single-use&#39;,  // spend it on first redemption
-  linkTtlMinutes: 2,         // …and narrow the window
-}
+<pre><code class="language-typescript" data-highlighted>tunnel<span class="token operator">:</span> <span class="token punctuation">{</span>
+  linkPolicy<span class="token operator">:</span> <span class="token string">'single-use'</span><span class="token punctuation">,</span>  <span class="token comment">// spend it on first redemption</span>
+  linkTtlMinutes<span class="token operator">:</span> <span class="token number">2</span><span class="token punctuation">,</span>         <span class="token comment">// …and narrow the window</span>
+<span class="token punctuation">}</span>
 </code></pre>
 <p><strong>This default was deliberately loosened.</strong> Links used to be single-use, and that collided
 with the feature&#39;s own purpose: glance at a link and close the tab and you need a new one;
@@ -1280,10 +1280,10 @@ it yourself with <code>sshd -T | grep gatewayports</code>.</p>
 <p>Two pieces of doc metadata decide <strong>which book a page binds into, and whether it is
 published at all</strong>. Both are inherited down the <code>parent</code> chain, so you mark a section
 rather than every leaf.</p>
-<pre><code class="language-text">&lt;!--{ &quot;book&quot;: &quot;field-guide&quot; }--&gt;              → bind into a volume called &quot;field-guide&quot;
-&lt;!--{ &quot;book&quot;: [&quot;default&quot;, &quot;field-guide&quot;] }--&gt; → bind into BOTH
-&lt;!--{ &quot;book&quot;: &quot;none&quot; }--&gt;                     → on the site, in NO book
-&lt;!--{ &quot;hidden&quot;: true }--&gt;                     → not published at all
+<pre><code class="language-text" data-highlighted>&lt;!--{ "book": "field-guide" }-->              → bind into a volume called "field-guide"
+&lt;!--{ "book": ["default", "field-guide"] }--> → bind into BOTH
+&lt;!--{ "book": "none" }-->                     → on the site, in NO book
+&lt;!--{ "hidden": true }-->                     → not published at all
 </code></pre>
 <table>
 <thead>
@@ -1337,12 +1337,12 @@ of them. Note the two senses of the word: <code>config.book</code> is the <stron
 and orders docs <em>within</em> a volume; a doc&#39;s <code>book</code> metadata selects <strong>which</strong> volume.</p>
 <h4><code>/version.json</code> — what am I looking at?</h4>
 <p>Every build writes a small build-identity file to the web root:</p>
-<pre><code class="language-json">{
-  &quot;generator&quot;: &quot;1.8.0&quot;,
-  &quot;site&quot;: &quot;tosijs-ui&quot;,
-  &quot;commit&quot;: &quot;66fbc589&quot;,
-  &quot;commitTime&quot;: &quot;2026-07-30T09:10:52+03:00&quot;
-}
+<pre><code class="language-json" data-highlighted><span class="token punctuation">{</span>
+  <span class="token property">"generator"</span><span class="token operator">:</span> <span class="token string">"1.8.0"</span><span class="token punctuation">,</span>
+  <span class="token property">"site"</span><span class="token operator">:</span> <span class="token string">"tosijs-ui"</span><span class="token punctuation">,</span>
+  <span class="token property">"commit"</span><span class="token operator">:</span> <span class="token string">"66fbc589"</span><span class="token punctuation">,</span>
+  <span class="token property">"commitTime"</span><span class="token operator">:</span> <span class="token string">"2026-07-30T09:10:52+03:00"</span>
+<span class="token punctuation">}</span>
 </code></pre>
 <p><code>generator</code> is the <code>tosijs-ui</code> version that produced the site; <code>commit</code> /<code>commitTime</code>
 identify <strong>your project&#39;s</strong> source. Nothing exposed this before — <code>src/version.ts</code> is
@@ -1406,12 +1406,12 @@ front/back matter) add a <code>book</code> manifest. It shapes only the book art
 live-site nav is unchanged (one source, two outputs). Every field is an overlay
 on the defaults — it never adds a new ordering mechanism, it overlays each doc&#39;s
 <code>order</code> so the same nav sort sequences the book (pins/parents still apply):</p>
-<pre><code class="language-typescript">book: {
-  include: [&#39;chapters/**&#39;, &#39;front/**&#39;, &#39;back/**&#39;], // globs (path or filename); default: all
-  exclude: [&#39;**/drafts/**&#39;],                        // removed after include
-  order: [&#39;title&#39;, &#39;copyright&#39;, &#39;dedication&#39;],      // lead sequence; by filename/slug/title
-  sort: &#39;filename&#39;,                                 // &#39;nav&#39; (default) | &#39;filename&#39; natural sort
-}
+<pre><code class="language-typescript" data-highlighted>book<span class="token operator">:</span> <span class="token punctuation">{</span>
+  include<span class="token operator">:</span> <span class="token punctuation">[</span><span class="token string">'chapters/**'</span><span class="token punctuation">,</span> <span class="token string">'front/**'</span><span class="token punctuation">,</span> <span class="token string">'back/**'</span><span class="token punctuation">]</span><span class="token punctuation">,</span> <span class="token comment">// globs (path or filename); default: all</span>
+  exclude<span class="token operator">:</span> <span class="token punctuation">[</span><span class="token string">'**/drafts/**'</span><span class="token punctuation">]</span><span class="token punctuation">,</span>                        <span class="token comment">// removed after include</span>
+  order<span class="token operator">:</span> <span class="token punctuation">[</span><span class="token string">'title'</span><span class="token punctuation">,</span> <span class="token string">'copyright'</span><span class="token punctuation">,</span> <span class="token string">'dedication'</span><span class="token punctuation">]</span><span class="token punctuation">,</span>      <span class="token comment">// lead sequence; by filename/slug/title</span>
+  sort<span class="token operator">:</span> <span class="token string">'filename'</span><span class="token punctuation">,</span>                                 <span class="token comment">// 'nav' (default) | 'filename' natural sort</span>
+<span class="token punctuation">}</span>
 </code></pre>
 <ul>
 <li><strong>Front/back matter</strong> are just regular docs — name them in <code>order</code> (or give
@@ -1703,6 +1703,7 @@ wiring, plus one tool that hasn&#39;t been generalized:</p>
     <li><a class="doc-link" href="../adopting-the-doc-system/">Adopting the doc system</a></li>
     <li><a class="doc-link" href="../">tosijs-ui</a></li>
     <li><a class="doc-link" href="../one-source-every-artifact/">One Source</a></li>
+    <li><a class="doc-link" href="../highlight-block/">highlight-block</a></li>
     <li><a class="doc-link" href="../icons/">icons</a></li>
     <li><a class="doc-link" href="../natural-compare/">naturalCompare</a></li>
     <li><details><summary><a class="doc-link" href="../components/">Components</a></summary>

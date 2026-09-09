@@ -43,7 +43,7 @@
 <script>if('serviceWorker'in navigator){navigator.serviceWorker.register('/module-cache-sw.js').catch(function(){})}</script><script>globalThis.__TJS_LOCAL_BASE="/tjs/"</script><script>globalThis.__TOSI_IMPORT_RESOLVER={"prefix":"/lib/","workerUrl":"/import-resolver-worker.js","reloadOnFirstInstall":false}</script>
 </head>
 <body>
-  <tosi-doc-system docs="../docs.json?v=9ac9be55231a" config="{&quot;projectName&quot;:&quot;tosijs-ui&quot;,&quot;projectLinks&quot;:{&quot;tosijs&quot;:&quot;https://tosijs.net&quot;,&quot;github&quot;:&quot;https://github.com/tonioloewald/tosijs-ui&quot;}}" localized="../localized-strings.txt">
+  <tosi-doc-system docs="../docs.json?v=8063daa272a9" config="{&quot;projectName&quot;:&quot;tosijs-ui&quot;,&quot;projectLinks&quot;:{&quot;tosijs&quot;:&quot;https://tosijs.net&quot;,&quot;github&quot;:&quot;https://github.com/tonioloewald/tosijs-ui&quot;}}" localized="../localized-strings.txt">
   <article class="doc-content">
 <h1>example</h1>
 <p><code>&lt;tosi-example&gt;</code> makes it easy to insert interactive code examples in a web page. It
@@ -387,18 +387,18 @@ resolves on the next microtask with nothing pending, and fails the day some unre
 activity makes that await wait out a real settling round — one that now includes the second
 block&#39;s mutation. Nothing about the code changed; the timing did.</p>
 <p>So: <strong>steps that depend on each other belong in a single <code>test()</code>.</strong></p>
-<pre><code class="language-typescript">// WRONG — two blocks sharing state; they interleave
-test(&#39;it hydrates&#39;, async () =&gt; { await updates(); expect(input.value).toBe(&#39;a&#39;) })
-test(&#39;it responds to input&#39;, async () =&gt; { input.value = &#39;b&#39;; await updates() })
+<pre><code class="language-typescript" data-highlighted><span class="token comment">// WRONG — two blocks sharing state; they interleave</span>
+<span class="token function">test</span><span class="token punctuation">(</span><span class="token string">'it hydrates'</span><span class="token punctuation">,</span> <span class="token keyword">async</span> <span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">=></span> <span class="token punctuation">{</span> <span class="token keyword">await</span> <span class="token function">updates</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span> <span class="token function">expect</span><span class="token punctuation">(</span>input<span class="token punctuation">.</span>value<span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">toBe</span><span class="token punctuation">(</span><span class="token string">'a'</span><span class="token punctuation">)</span> <span class="token punctuation">}</span><span class="token punctuation">)</span>
+<span class="token function">test</span><span class="token punctuation">(</span><span class="token string">'it responds to input'</span><span class="token punctuation">,</span> <span class="token keyword">async</span> <span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">=></span> <span class="token punctuation">{</span> input<span class="token punctuation">.</span>value <span class="token operator">=</span> <span class="token string">'b'</span><span class="token punctuation">;</span> <span class="token keyword">await</span> <span class="token function">updates</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">}</span><span class="token punctuation">)</span>
 
-// RIGHT — one flow, one test
-test(&#39;it hydrates, then responds to input&#39;, async () =&gt; {
-  await updates()
-  expect(input.value).toBe(&#39;a&#39;)
-  input.value = &#39;b&#39;
-  await updates()
-  expect(state.value).toBe(&#39;b&#39;)
-})
+<span class="token comment">// RIGHT — one flow, one test</span>
+<span class="token function">test</span><span class="token punctuation">(</span><span class="token string">'it hydrates, then responds to input'</span><span class="token punctuation">,</span> <span class="token keyword">async</span> <span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">=></span> <span class="token punctuation">{</span>
+  <span class="token keyword">await</span> <span class="token function">updates</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+  <span class="token function">expect</span><span class="token punctuation">(</span>input<span class="token punctuation">.</span>value<span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">toBe</span><span class="token punctuation">(</span><span class="token string">'a'</span><span class="token punctuation">)</span>
+  input<span class="token punctuation">.</span>value <span class="token operator">=</span> <span class="token string">'b'</span>
+  <span class="token keyword">await</span> <span class="token function">updates</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+  <span class="token function">expect</span><span class="token punctuation">(</span>state<span class="token punctuation">.</span>value<span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">toBe</span><span class="token punctuation">(</span><span class="token string">'b'</span><span class="token punctuation">)</span>
+<span class="token punctuation">}</span><span class="token punctuation">)</span>
 </code></pre>
 <p>Two consequences worth knowing. Assertions about <strong>counts</strong> should be deltas rather than
 absolutes, since another example may be adding elements while you look. And a test that
@@ -447,6 +447,7 @@ context = {
     <li><a class="doc-link" href="../adopting-the-doc-system/">Adopting the doc system</a></li>
     <li><a class="doc-link" href="../">tosijs-ui</a></li>
     <li><a class="doc-link" href="../one-source-every-artifact/">One Source</a></li>
+    <li><a class="doc-link" href="../highlight-block/">highlight-block</a></li>
     <li><a class="doc-link" href="../icons/">icons</a></li>
     <li><a class="doc-link" href="../natural-compare/">naturalCompare</a></li>
     <li><details open><summary><a class="doc-link" href="../components/">Components</a></summary>

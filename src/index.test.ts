@@ -128,3 +128,73 @@ test('#133/F9: no heavy source reaches a bundle built from the barrel', async ()
     await rm(dir, { recursive: true, force: true })
   }
 }, 60_000)
+
+/*
+Prism must stay LAZY. `<tosi-highlight>` is in the barrel, and its highlighter dynamically
+imports `prismjs` plus a grammar per language — so an app that imports a button must not pay
+for a syntax highlighter it never renders.
+
+Built WITH `--splitting`, which is what every real bundler does with a dynamic import (bun
+without it inlines them, and that build does show prism in the entry — the difference is the
+whole point of the assertion).
+*/
+test('#133: prism is a lazy chunk, not part of the barrel entry', async () => {
+  const { mkdtemp, writeFile, readFile, rm, readdir } = await import(
+    'fs/promises'
+  )
+  const { tmpdir } = await import('os')
+  const { join } = await import('path')
+  const dir = await mkdtemp(join(tmpdir(), 'prism-lazy-'))
+  try {
+    const entry = join(dir, 'entry.ts')
+    await writeFile(
+      entry,
+      `import { tosiHighlight } from ${JSON.stringify(
+        join(import.meta.dir, '../dist/index.js')
+      )}\nconsole.log(tosiHighlight)\n`
+    )
+    const out = join(dir, 'out')
+    const proc = Bun.spawn(
+      [
+        'bun',
+        'build',
+        entry,
+        '--minify',
+        '--target',
+        'browser',
+        '--splitting',
+        '--format=esm',
+        '--sourcemap=linked',
+        '--outdir',
+        out,
+        '--external',
+        'tosijs',
+        '--external',
+        'marked',
+        '--external',
+        'tjs-lang',
+      ],
+      { stdout: 'pipe', stderr: 'pipe' }
+    )
+    const stderr = await new Response(proc.stderr).text()
+    expect(await proc.exited, `bun build failed:\n${stderr}`).toBe(0)
+
+    const files = await readdir(out)
+    const entryMap = files.find(
+      (f) => f.startsWith('entry') && f.endsWith('.js.map')
+    )!
+    const map = JSON.parse(await readFile(join(out, entryMap), 'utf8'))
+    const prismInEntry = (map.sources as string[]).filter((s) =>
+      /prismjs/.test(s)
+    )
+    expect(
+      prismInEntry,
+      'prismjs reached the barrel ENTRY — an app importing a button now ships a syntax ' +
+        'highlighter. Keep the import in highlight.ts dynamic.'
+    ).toEqual([])
+    // And it must genuinely be split out, not dropped: more than one chunk exists.
+    expect(files.filter((f) => f.endsWith('.js')).length).toBeGreaterThan(1)
+  } finally {
+    await rm(dir, { recursive: true, force: true })
+  }
+}, 60_000)

@@ -43,7 +43,7 @@
 <script>if('serviceWorker'in navigator){navigator.serviceWorker.register('/module-cache-sw.js').catch(function(){})}</script><script>globalThis.__TJS_LOCAL_BASE="/tjs/"</script><script>globalThis.__TOSI_IMPORT_RESOLVER={"prefix":"/lib/","workerUrl":"/import-resolver-worker.js","reloadOnFirstInstall":false}</script>
 </head>
 <body>
-  <tosi-doc-system docs="../docs.json?v=9ac9be55231a" config="{&quot;projectName&quot;:&quot;tosijs-ui&quot;,&quot;projectLinks&quot;:{&quot;tosijs&quot;:&quot;https://tosijs.net&quot;,&quot;github&quot;:&quot;https://github.com/tonioloewald/tosijs-ui&quot;}}" localized="../localized-strings.txt">
+  <tosi-doc-system docs="../docs.json?v=8063daa272a9" config="{&quot;projectName&quot;:&quot;tosijs-ui&quot;,&quot;projectLinks&quot;:{&quot;tosijs&quot;:&quot;https://tosijs.net&quot;,&quot;github&quot;:&quot;https://github.com/tonioloewald/tosijs-ui&quot;}}" localized="../localized-strings.txt">
   <article class="doc-content">
 <h1>Adopting the doc system</h1>
 <!--{ "pin": "top", "order": 20, "description": "A first hour with tosijs-ui/site: the minimum that works, how to tell it is actually working, and the four things that fail silently while the site still serves 200s." }-->
@@ -61,34 +61,34 @@ so &quot;it built and it&#39;s serving&quot; is not evidence that it worked.</p>
 <h2>The minimum that works</h2>
 <p>Three files. This is complete — not a sketch.</p>
 <p><strong><code>site.config.ts</code></strong> at your repo root:</p>
-<pre><code class="language-typescript">import { defineSiteConfig } from &#39;tosijs-ui/site&#39;
+<pre><code class="language-typescript" data-highlighted><span class="token keyword">import</span> <span class="token punctuation">{</span> defineSiteConfig <span class="token punctuation">}</span> <span class="token keyword">from</span> <span class="token string">'tosijs-ui/site'</span>
 
-export default defineSiteConfig({
-  name: &#39;my-lib&#39;,
-  description: &#39;What my library does.&#39;,
-  // ORIGIN ONLY — no path. See &quot;baseUrl and basePath&quot; below.
-  baseUrl: &#39;https://my-lib.example.com&#39;,
-  docPaths: [&#39;src&#39;, &#39;README.md&#39;],
-  bundleEntry: &#39;demo/site.ts&#39;,
-})
+<span class="token keyword">export</span> <span class="token keyword">default</span> <span class="token function">defineSiteConfig</span><span class="token punctuation">(</span><span class="token punctuation">{</span>
+  name<span class="token operator">:</span> <span class="token string">'my-lib'</span><span class="token punctuation">,</span>
+  description<span class="token operator">:</span> <span class="token string">'What my library does.'</span><span class="token punctuation">,</span>
+  <span class="token comment">// ORIGIN ONLY — no path. See "baseUrl and basePath" below.</span>
+  baseUrl<span class="token operator">:</span> <span class="token string">'https://my-lib.example.com'</span><span class="token punctuation">,</span>
+  docPaths<span class="token operator">:</span> <span class="token punctuation">[</span><span class="token string">'src'</span><span class="token punctuation">,</span> <span class="token string">'README.md'</span><span class="token punctuation">]</span><span class="token punctuation">,</span>
+  bundleEntry<span class="token operator">:</span> <span class="token string">'demo/site.ts'</span><span class="token punctuation">,</span>
+<span class="token punctuation">}</span><span class="token punctuation">)</span>
 </code></pre>
 <p><strong><code>demo/site.ts</code></strong> — the bundle. <strong>This file is where first adoptions go wrong</strong>, so it is
 worth understanding rather than copying:</p>
-<pre><code class="language-typescript">// REQUIRED. bundleEntry REPLACES tosijs-ui&#39;s bundle; it does not extend it.
-// Without this line, `&lt;tosi-doc-system&gt;` is never defined and every page is inert.
-import &#39;tosijs-ui/doc-browser&#39;
+<pre><code class="language-typescript" data-highlighted><span class="token comment">// REQUIRED. bundleEntry REPLACES tosijs-ui's bundle; it does not extend it.</span>
+<span class="token comment">// Without this line, `&lt;tosi-doc-system>` is never defined and every page is inert.</span>
+<span class="token keyword">import</span> <span class="token string">'tosijs-ui/doc-browser'</span>
 
-// Required if any doc has an executable fence (```js / ```ts / ```tjs / ```test).
-import &#39;tosijs-ui/live-example&#39;
+<span class="token comment">// Required if any doc has an executable fence (```js / ```ts / ```tjs / ```test).</span>
+<span class="token keyword">import</span> <span class="token string">'tosijs-ui/live-example'</span>
 
-// Your own components, so they register for your examples.
-import &#39;./src/index&#39;
+<span class="token comment">// Your own components, so they register for your examples.</span>
+<span class="token keyword">import</span> <span class="token string">'./src/index'</span>
 </code></pre>
 <p><strong><code>bin/site.ts</code></strong> — the only build file you write:</p>
-<pre><code class="language-typescript">import { buildSite, devServer } from &#39;tosijs-ui/site&#39;
-import config from &#39;../site.config&#39;
+<pre><code class="language-typescript" data-highlighted><span class="token keyword">import</span> <span class="token punctuation">{</span> buildSite<span class="token punctuation">,</span> devServer <span class="token punctuation">}</span> <span class="token keyword">from</span> <span class="token string">'tosijs-ui/site'</span>
+<span class="token keyword">import</span> config <span class="token keyword">from</span> <span class="token string">'../site.config'</span>
 
-process.argv.includes(&#39;--build&#39;) ? buildSite(config) : devServer(config)
+process<span class="token punctuation">.</span>argv<span class="token punctuation">.</span><span class="token function">includes</span><span class="token punctuation">(</span><span class="token string">'--build'</span><span class="token punctuation">)</span> <span class="token operator">?</span> <span class="token function">buildSite</span><span class="token punctuation">(</span>config<span class="token punctuation">)</span> <span class="token operator">:</span> <span class="token function">devServer</span><span class="token punctuation">(</span>config<span class="token punctuation">)</span>
 </code></pre>
 <p>Then <code>bun bin/site.ts</code> to develop and <code>bun bin/site.ts --build</code> to build. The dev server wants
 a local TLS cert the first time — it will tell you to run <code>bunx tosijs-dev-certs</code>.</p>
@@ -99,7 +99,7 @@ a local TLS cert the first time — it will tell you to run <code>bunx tosijs-de
 problem now and finding it after you have deployed.</p>
 <ol>
 <li><p><strong>Is the doc system alive?</strong> In the browser console:</p>
-<pre><code class="language-typescript">customElements.get(&#39;tosi-doc-system&#39;) // must be truthy
+<pre><code class="language-typescript" data-highlighted>customElements<span class="token punctuation">.</span><span class="token function">get</span><span class="token punctuation">(</span><span class="token string">'tosi-doc-system'</span><span class="token punctuation">)</span> <span class="token comment">// must be truthy</span>
 </code></pre>
 <p>If your <em>own</em> element is defined and this one is not, you have the <code>bundleEntry</code> problem
 below. That combination is exactly what makes it confusing — the bundle looks healthy.</p>
@@ -204,6 +204,7 @@ success. Restart it.</p>
     <li><a class="doc-link current" href="../adopting-the-doc-system/" aria-current="page">Adopting the doc system</a></li>
     <li><a class="doc-link" href="../">tosijs-ui</a></li>
     <li><a class="doc-link" href="../one-source-every-artifact/">One Source</a></li>
+    <li><a class="doc-link" href="../highlight-block/">highlight-block</a></li>
     <li><a class="doc-link" href="../icons/">icons</a></li>
     <li><a class="doc-link" href="../natural-compare/">naturalCompare</a></li>
     <li><details><summary><a class="doc-link" href="../components/">Components</a></summary>

@@ -17,6 +17,7 @@ Build-time only (Bun APIs + the `zip` CLI); never import from browser code.
 import * as fs from 'fs';
 import * as path from 'path';
 import { renderDocMarkdown } from '../render.js';
+import { highlightHtml } from '../highlight.js';
 import { buildSlugMap, pathForSlug, slugForPath, withBase } from '../routing.js';
 import { buildNavTree } from '../nav-tree.js';
 import { partitionByBook, DEFAULT_BOOK } from '../book-target.js';
@@ -671,7 +672,13 @@ export async function buildEpub(config, opts = {}) {
         // maps to '/' (not '/index/'), others to '/slug/', with basePath applied.
         const pageUrl = baseUrl +
             withBase(config.basePath, pathForSlug(slugMap[doc.filename] ?? ''));
-        const html = rewriteInBookLinks(renderDocMarkdown(stripDocMeta(doc.text)), bookFiles, slugMap, config.basePath);
+        /*
+        Highlight before the XHTML pass. An ePub reader may run no JavaScript at all, so the
+        token markup has to be IN the file — a runtime highlighter reaches the book never. This
+        is the same `highlightHtml` the static pages use, so a code block looks the same on the
+        site, in the book and in print.
+        */
+        const html = rewriteInBookLinks(await highlightHtml(renderDocMarkdown(stripDocMeta(doc.text))), bookFiles, slugMap, config.basePath);
         // happy-dom occasionally throws on exotic content (e.g. an internal selector
         // bug); fall back to the regex pass for that doc rather than aborting.
         let bodyHtml;

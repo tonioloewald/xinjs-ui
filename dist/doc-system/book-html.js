@@ -58,6 +58,35 @@ pre {
   overflow-wrap: anywhere;
 }
 pre code { background: none; padding: 0; }
+/*
+Prism token colours for the book — a LIGHT palette, deliberately distinct from the site's.
+
+The site's code sits on a dark code background, so its tokens are light. A book does not: the
+pre rule above is #f6f8fa, an ePub reader may impose white or sepia, and paper is paper.
+Reusing the site palette here would be light-on-light — invisible body text dressed as syntax
+highlighting, which is the exact failure a nested diff hit in tosijs-ui#143.
+
+Contrast-checked against #f6f8fa; the comment green is the weakest at ~4.6:1, still above
+WCAG AA for body text. Colours are literal rather than custom properties because this
+stylesheet ships inside an ePub, where custom properties are not reliably supported.
+
+NO BACKTICKS in this comment: it lives inside a JS template literal, so one would end the
+string and drop the rest of the stylesheet into code. (It did. Same shape as a block comment
+ending a doc comment early — punctuation that means something to the container.)
+*/
+.token.comment, .token.prolog, .token.cdata { color: #5c6f5c; font-style: italic; }
+.token.punctuation { color: #666; }
+.token.string, .token.char, .token.attr-value, .token.regex { color: #a03030; }
+.token.number, .token.boolean, .token.constant { color: #0b7285; }
+.token.keyword, .token.important, .token.atrule { color: #0a5bb5; }
+.token.function, .token.class-name { color: #7a4b00; }
+.token.operator, .token.entity, .token.url { color: #444; }
+.token.tag, .token.selector, .token.builtin { color: #0a6b52; }
+.token.attr-name, .token.property { color: #2a5db0; }
+.token.deleted { color: #b02020; }
+.token.inserted { color: #2a6b2a; }
+.token.bold { font-weight: bold; }
+.token.italic { font-style: italic; }
 /* the in-flow Contents page (ePub spine TOC) */
 .toc-title { text-align: center; }
 ol.toc, ol.toc ol { list-style: none; padding-left: 0; }

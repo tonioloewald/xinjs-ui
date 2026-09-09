@@ -80,6 +80,8 @@ use it to inspect STATE; a painted-output check needs a real test lane.
   A simple flex header. Compose it with `elastic()` and `spacer()` from
 - https://ui.tosijs.net/helper-libraries/ — Helper Libraries
   General purpose utilities and behaviors — routing, theming, localization, sorting, drag-and-drop, and other building ...
+- https://ui.tosijs.net/highlight-block/ — highlight-block
+  `<tosi-highlight>` pretty-prints a static code sample. It is **not** an editor — for that
 - https://ui.tosijs.net/icon-composition/ — Icon Composition
   This is a toy for playing with the icon composition language introduced in tosijs-ui 1.5.10. It's documented [here](/...
 - https://ui.tosijs.net/icons/ — icons

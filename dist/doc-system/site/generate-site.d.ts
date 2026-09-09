@@ -6,6 +6,12 @@ declare global {
 }
 export interface GenerateSiteConfig {
     docs: Doc[];
+    /**
+     * Mirrors `SiteConfig.liveExamples`. The static highlighter needs it so it skips the
+     * fences that will become live examples — a highlighted block hands the example markup
+     * where it expected source. See `doc-system/example-policy.ts`.
+     */
+    liveExamples?: 'auto' | 'opt-in';
     /** directory to write pages into (the served web root, e.g. ./docs) */
     outputDir: string;
     projectName?: string;

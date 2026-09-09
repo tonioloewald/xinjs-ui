@@ -11,6 +11,7 @@ Build-time only (uses Bun.write). Shares slug + markdown rendering with the runt
 component (src/doc-system/*) so static and hydrated output agree.
 */
 import { pageTitle } from '../doc-title.js';
+import { highlightHtml } from '../highlight.js';
 import { buildSlugMap, pathForSlug, rewriteDocLinks, withBase, } from '../routing.js';
 import { buildNavTree, navOpenPath } from '../nav-tree.js';
 import { renderDocMarkdown, docDescription, } from '../render.js';
@@ -109,7 +110,7 @@ export function relativeUrl(depth, p) {
     const rel = '../'.repeat(depth) + p.slice(1);
     return rel === '' ? './' : rel;
 }
-function pageHtml(doc, config, slugMap, configAttr) {
+async function pageHtml(doc, config, slugMap, configAttr) {
     const { projectName = '', baseUrl = '', lang = 'en', favicon = '/favicon.svg', docsUrl = '/docs.json', scriptUrl = '/iife.js', hydrateUrl, stylesUrl = '/doc-system.css', assetStamp, docsStamp, localizedUrl = '/localized-strings.txt', basePath, headExtra = '', bakes, } = config;
     // Functional URLs are emitted relative to THIS page's depth so the build is
     // mount-agnostic (issue #25); metadata URLs below stay absolute via withBase.
@@ -141,7 +142,10 @@ function pageHtml(doc, config, slugMap, configAttr) {
     // Rewrite legacy `?filename` content links to clean `/slug/` paths so the
     // static HTML is correct for no-JS readers and crawlers (the doc-browser also
     // does this client-side after hydration).
-    const body = rewriteDocLinks(renderDocMarkdown(doc.text, { bakes: bakes?.get(doc.filename) }), (filename) => slugMap[filename] !== undefined
+    const body = rewriteDocLinks(await highlightHtml(renderDocMarkdown(doc.text, { bakes: bakes?.get(doc.filename) }), 
+    // The SAME policy the client will apply, so the build and the browser agree about
+    // which blocks are live examples and which are static code to highlight.
+    config.liveExamples ?? 'auto'), (filename) => slugMap[filename] !== undefined
         ? relativeUrl(depth, pathForSlug(slugMap[filename]))
         : null);
     const nav = navHtml(config.docs, slugMap, doc.filename, depth);
@@ -290,7 +294,7 @@ export async function generateSite(config) {
     for (const doc of docs) {
         const slug = slugMap[doc.filename];
         const dir = slug === '' ? outputDir : `${outputDir}/${slug}`;
-        await Bun.write(`${dir}/index.html`, pageHtml(doc, config, slugMap, configAttr));
+        await Bun.write(`${dir}/index.html`, await pageHtml(doc, config, slugMap, configAttr));
         count += 1;
     }
     // The corpus the component fetches for nav + client-side rendering of other pages.

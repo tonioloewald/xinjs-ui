@@ -43,7 +43,7 @@
 <script>if('serviceWorker'in navigator){navigator.serviceWorker.register('/module-cache-sw.js').catch(function(){})}</script><script>globalThis.__TJS_LOCAL_BASE="/tjs/"</script><script>globalThis.__TOSI_IMPORT_RESOLVER={"prefix":"/lib/","workerUrl":"/import-resolver-worker.js","reloadOnFirstInstall":false}</script>
 </head>
 <body>
-  <tosi-doc-system docs="../docs.json?v=9ac9be55231a" config="{&quot;projectName&quot;:&quot;tosijs-ui&quot;,&quot;projectLinks&quot;:{&quot;tosijs&quot;:&quot;https://tosijs.net&quot;,&quot;github&quot;:&quot;https://github.com/tonioloewald/tosijs-ui&quot;}}" localized="../localized-strings.txt">
+  <tosi-doc-system docs="../docs.json?v=8063daa272a9" config="{&quot;projectName&quot;:&quot;tosijs-ui&quot;,&quot;projectLinks&quot;:{&quot;tosijs&quot;:&quot;https://tosijs.net&quot;,&quot;github&quot;:&quot;https://github.com/tonioloewald/tosijs-ui&quot;}}" localized="../localized-strings.txt">
   <article class="doc-content">
 <h1>menu</h1>
 <p>Being able to pop a menu up anywhere is just so nice, and <code>tosijs-ui</code> allows menus
@@ -358,14 +358,14 @@ nothing for them to inherit from.</p>
 including the doc system&#39;s own if your component is documented on a <code>tosijs-ui/site</code> site. A
 component reaching out to re-theme the page around it is the wrong direction.</p>
 <p>So pass a class:</p>
-<pre><code class="language-typescript">popMenu({ target, menuItems, menuClass: &#39;my-editor-menu&#39; })
+<pre><code class="language-typescript" data-highlighted><span class="token function">popMenu</span><span class="token punctuation">(</span><span class="token punctuation">{</span> target<span class="token punctuation">,</span> menuItems<span class="token punctuation">,</span> menuClass<span class="token operator">:</span> <span class="token string">'my-editor-menu'</span> <span class="token punctuation">}</span><span class="token punctuation">)</span>
 </code></pre>
-<pre><code class="language-xml">&lt;tosi-menu menu-class=&quot;my-editor-menu&quot; icon=&quot;menu&quot;&gt;&lt;/tosi-menu&gt;
+<pre><code class="language-xml" data-highlighted><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>tosi-menu</span> <span class="token attr-name">menu-class</span><span class="token attr-value"><span class="token punctuation attr-equals">=</span><span class="token punctuation">"</span>my-editor-menu<span class="token punctuation">"</span></span> <span class="token attr-name">icon</span><span class="token attr-value"><span class="token punctuation attr-equals">=</span><span class="token punctuation">"</span>menu<span class="token punctuation">"</span></span><span class="token punctuation">></span></span><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>tosi-menu</span><span class="token punctuation">></span></span>
 </code></pre>
-<pre><code class="language-scss">.my-editor-menu {
-  --menu-item-height: 30px;
-  --menu-item-padding: 0 16px;
-}
+<pre><code class="language-scss" data-highlighted><span class="token selector">.my-editor-menu </span><span class="token punctuation">{</span>
+  <span class="token property">--menu-item-height</span><span class="token punctuation">:</span> 30px<span class="token punctuation">;</span>
+  <span class="token property">--menu-item-padding</span><span class="token punctuation">:</span> 0 16px<span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
 </code></pre>
 <p>The class lands on the popup beside <code>xin-menu tosi-menu</code>, takes a space-separated list, and
 <strong>propagates to submenus</strong> — which are separate popups, so without that the theming would
@@ -758,6 +758,7 @@ preview.append(btn)
     <li><a class="doc-link" href="../adopting-the-doc-system/">Adopting the doc system</a></li>
     <li><a class="doc-link" href="../">tosijs-ui</a></li>
     <li><a class="doc-link" href="../one-source-every-artifact/">One Source</a></li>
+    <li><a class="doc-link" href="../highlight-block/">highlight-block</a></li>
     <li><a class="doc-link" href="../icons/">icons</a></li>
     <li><a class="doc-link" href="../natural-compare/">naturalCompare</a></li>
     <li><details open><summary><a class="doc-link" href="../components/">Components</a></summary>

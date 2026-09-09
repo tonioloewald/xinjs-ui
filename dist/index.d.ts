@@ -6,6 +6,7 @@ export * from './color-input.js';
 export * from './crud.js';
 export * from './data-table.js';
 export * from './diff.js';
+export * from './highlight-block.js';
 export * from './dialog.js';
 export * as dragAndDrop from './drag-and-drop.js';
 export * from './editable-rect.js';

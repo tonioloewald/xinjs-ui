@@ -1,4 +1,5 @@
 import { ElementCreator } from 'tosijs'
+import { isLiveFence } from '../doc-system/example-policy.js'
 import { ExampleContext } from './types.js'
 import type { LiveExample } from './component.js'
 
@@ -123,12 +124,12 @@ export function insertExamples(
         (code.parentElement as HTMLElement).getAttribute('data-example-mode') ||
         undefined,
     }))
-    .filter((s) => {
-      if (s.mode === 'static') return false
-      // In opt-in mode a fence must ASK to run. `static` is still honoured above so a
-      // corpus can be written to work under either policy.
-      return optIn ? s.mode !== undefined : true
-    })
+    // THE shared rule — see doc-system/example-policy.ts. The static highlighter asks the
+    // same question, and for one build the two disagreed: it tokenized the `html` fence of
+    // every grouped example, and this read spans instead of markup.
+    .filter((s) =>
+      isLiveFence(s.language ?? '', s.mode, optIn ? 'opt-in' : 'auto')
+    )
 
   // Per-doc ordinal: the Nth live example on the page. Combined with sourceFile
   // it's the key back to the originating fenced-block group in the source.
