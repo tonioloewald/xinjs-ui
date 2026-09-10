@@ -43,7 +43,7 @@
 <script>if('serviceWorker'in navigator){navigator.serviceWorker.register('/module-cache-sw.js').catch(function(){})}</script><script>globalThis.__TJS_LOCAL_BASE="/tjs/"</script><script>globalThis.__TOSI_IMPORT_RESOLVER={"prefix":"/lib/","workerUrl":"/import-resolver-worker.js","reloadOnFirstInstall":false}</script>
 </head>
 <body>
-  <tosi-doc-system docs="../docs.json?v=8063daa272a9" config="{&quot;projectName&quot;:&quot;tosijs-ui&quot;,&quot;projectLinks&quot;:{&quot;tosijs&quot;:&quot;https://tosijs.net&quot;,&quot;github&quot;:&quot;https://github.com/tonioloewald/tosijs-ui&quot;}}" localized="../localized-strings.txt">
+  <tosi-doc-system docs="../docs.json?v=e0f214d7b08b" config="{&quot;projectName&quot;:&quot;tosijs-ui&quot;,&quot;projectLinks&quot;:{&quot;tosijs&quot;:&quot;https://tosijs.net&quot;,&quot;github&quot;:&quot;https://github.com/tonioloewald/tosijs-ui&quot;}}" localized="../localized-strings.txt">
   <article class="doc-content">
 <h1>icons</h1>
 <div class="center" style="display: flex; gap: 10px; padding: 10px">
@@ -239,6 +239,14 @@ test(&#39;filter input and prefix select exist&#39;, () =&gt; {
 probably be broken out as a standalone library to allow the use of whatever icons you like
 (its source data is currently generated from an <a href="https://icomoon.com/app">icomoon</a>
 <code>selection.json</code> file, but could just as easily be generated from a directory full of SVGs).</p>
+<h3>Need More Icons?</h3>
+<p><a href="https://lucide.dev">lucide</a> is a fork of feather that maintains the style and adds a lot more
+options. Obviously it&#39;s completely compatible with this icon system and generously licensed. A
+good place to find more icons in a pinch.</p>
+<p>Concretely: lucide emits the same geometry feather does — <code>24×24</code> viewBox, <code>fill=&quot;none&quot;</code>,
+<code>stroke=&quot;currentColor&quot;</code>, <code>stroke-width=&quot;2&quot;</code>, round caps and joins — so a downloaded SVG drops
+straight into <code>defineIcons()</code> below and inherits colour and sizing like any built-in. It is
+ISC licensed.</p>
 <h2>Adding and redefining icons</h2>
 <p>Simply pass a map of icon names to svg source strings…</p>
 <pre><code>defineIcons({

@@ -200,6 +200,17 @@ probably be broken out as a standalone library to allow the use of whatever icon
 (its source data is currently generated from an [icomoon](https://icomoon.com/app)
 `selection.json` file, but could just as easily be generated from a directory full of SVGs).
 
+### Need More Icons?
+
+[lucide](https://lucide.dev) is a fork of feather that maintains the style and adds a lot more
+options. Obviously it's completely compatible with this icon system and generously licensed. A
+good place to find more icons in a pinch.
+
+Concretely: lucide emits the same geometry feather does — `24×24` viewBox, `fill="none"`,
+`stroke="currentColor"`, `stroke-width="2"`, round caps and joins — so a downloaded SVG drops
+straight into `defineIcons()` below and inherits colour and sizing like any built-in. It is
+ISC licensed.
+
 ## Adding and redefining icons
 
 Simply pass a map of icon names to svg source strings…
