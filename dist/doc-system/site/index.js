@@ -26,3 +26,15 @@ the failure this whole area exists to prevent. Exporting the reader is what make
 choice also the easy one.
 */
 export { currentHolder, describeHolder, lockPathFor, lockDecision, isProcessAlive, } from './build-lock.js';
+/*
+Syntax highlighting for static code blocks.
+
+`registerGrammar` is the seam for a language that ships its own Prism definition — tjs-lang
+generates one for TJS from the same source that emits their TextMate grammars (#155), and
+hardcoding it in our alias table would put their grammar behind our release cadence.
+
+Registered grammars are used by the BUILD-time pass too, so they reach the pre-rendered page,
+the ePub and print — not just a hydrated browser tab. That matters more than usual here: a
+wrong token colour is cosmetic on the web and permanent in a printed book.
+*/
+export { registerGrammar, registeredGrammars, highlightHtml, highlightBlocks, grammarFor, } from '../highlight.js';

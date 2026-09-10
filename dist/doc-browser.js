@@ -595,7 +595,26 @@ export function createDocBrowser(options) {
                 }
                 closeEditor();
             }
-            navigateTo(filenameFromLocation());
+            /*
+            Only re-render when the DOCUMENT changed (#152).
+      
+            Setting `location.hash` is a fragment navigation, and per spec that fires `popstate`
+            before `hashchange` — so any component keeping state in the hash used to re-mount the
+            whole article on every write. `navigateTo` ends at
+            `docContent.innerHTML = renderDocMarkdown(...)`, which destroys and re-creates EVERY
+            live example on the page: an editor loses focus and its buffer mid-keystroke.
+      
+            The filename is the identity that matters. A hash-only change keeps the same document,
+            so there is nothing to render — `scrollToHashExample` below still handles the anchor.
+            */
+            const next = filenameFromLocation();
+            // `app.currentDoc.filename` is a BoxedScalar — coerce, or `===` compares a proxy to
+            // a string and is never equal, which would make this guard silently do nothing.
+            if (next === String(app.currentDoc.filename)) {
+                scrollToHashExample();
+                return;
+            }
+            navigateTo(next);
         });
         // Reload / tab-close / external navigation: native "leave site?" prompt when
         // there are unsaved source edits (the only guard the browser allows here).

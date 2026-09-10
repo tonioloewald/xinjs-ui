@@ -2,6 +2,53 @@
 
 ## 1.15.0 (unreleased)
 
+### `registerGrammar` — a language can supply its own Prism definition (#155)
+
+Our alias table maps fence names onto Prism's built-in grammars, which is the wrong seam for a
+language that ships its own. tjs-lang is generating a TJS definition from the same source that
+already emits their TextMate grammars; hardcoding it here would put their grammar behind our
+release cadence.
+
+```js
+import { registerGrammar } from 'tosijs-ui/site'
+import { tjsGrammar } from 'tjs-lang/prism'
+registerGrammar('tjs', tjsGrammar)
+```
+
+Registered grammars win over the alias table, install under the **fence** name (so the class
+stays `language-tjs` for a theme to target), and are used by the **build-time** pass — so they
+reach the pre-rendered page, the ePub and print, not just a hydrated browser tab.
+
+That last part is the whole point, and it is their argument rather than mine: a wrong token
+colour is cosmetic on the web and permanent in a printed book. TJS's colon examples
+(`greet(name: 'Alice')`) are *values*; rendered with TypeScript's type colour, the page
+visually asserts the exact misreading the document exists to correct.
+
+### `popstate` no longer re-renders on a hash-only change (#152)
+
+Setting `location.hash` is a fragment navigation, and per spec it fires `popstate` before
+`hashchange` — so any component keeping state in the hash re-mounted the entire article on
+every write, destroying and re-creating every live example on the page. An editor lost focus
+and its buffer mid-keystroke. The handler now compares the resolved filename and only scrolls
+when the document is unchanged.
+
+### No rule redefines a global palette token (#150)
+
+`button, select, .clickable` and `pre, code` each set
+`--text-color: var(--brand-color)` — redefining the token the whole palette derives from
+(`--tosi-text: var(--text-color)`) on an *element* selector. From any button downward it
+stopped meaning "the theme's text colour".
+
+That reaches into anything embedded: an editor deriving its chrome from the page resolved
+correctly in the document and to the brand colour on its own slotted toolbar buttons — oklab
+L≈0.27 against an L 0.16 bar in dark mode, unreadable, with correct body text beside it. The
+`pre, code` instance also put every syntax-highlighting token span in a poisoned palette.
+
+Both now set `color`. A test encodes the distinction rather than an allowlist: a rule may
+redefine the token **only if it owns a background** — `header` is brand-coloured, so its
+contents genuinely need the matching text colour and should inherit it. A rule that only wants
+to colour itself sets `color`.
+
 ### Four adoption defects from tjs-lang (#151, #153, #154, #156)
 
 All four are silent — the build succeeds and something is quietly wrong, which is #61's thesis

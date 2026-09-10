@@ -1,4 +1,11 @@
 import { type ExamplePolicy } from './example-policy.js';
+/**
+ * Supply a Prism grammar for a fence language. Overrides the built-in alias mapping.
+ * Call before the first highlight — at module scope in a bundle entry, or in `prebuild`.
+ */
+export declare function registerGrammar(fenceLang: string, grammar: unknown): void;
+/** Registered grammars, for tests and diagnostics. */
+export declare function registeredGrammars(): string[];
 export declare function grammarFor(fenceLang: string): string;
 /**
  * Load Prism and the grammar for `lang`. Returns false when the grammar does not exist —

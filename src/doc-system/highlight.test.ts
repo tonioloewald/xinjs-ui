@@ -5,6 +5,8 @@ import {
   highlightHtml,
   highlightBlocks,
   languagesIn,
+  registerGrammar,
+  registeredGrammars,
 } from './highlight.js'
 
 /*
@@ -176,5 +178,39 @@ describe('executable fences are NOT highlighted — they are live-example source
     const html =
       '<pre data-example-mode="inline"><code class="language-js">const x = 1</code></pre>'
     expect(await highlightHtml(html, 'opt-in')).toBe(html)
+  })
+})
+
+describe('#155: a language can supply its own grammar', () => {
+  test('a registered grammar WINS over the alias table', async () => {
+    /*
+    `tjs` aliases to `javascript` as a stopgap. tjs-lang is generating a real Prism definition
+    from the same source that emits their TextMate grammars, and it must not have to wait on
+    our release cadence to be used.
+    */
+    expect(grammarFor('tjs')).toBe('javascript') // the stopgap, absent a registration
+    registerGrammar('tjs', {
+      'tjs-example': { pattern: /:\s*'[^']*'/, alias: 'important' },
+      keyword: /\b(?:function|test|wasm|given|extend)\b/,
+    })
+    expect(registeredGrammars()).toContain('tjs')
+    expect(await ensureGrammar('tjs')).toBe(true)
+    const out = await highlightHtml(
+      `<pre data-example-mode="static"><code class="language-tjs">function greet(name: 'Alice') {}</code></pre>`
+    )
+    // The colon example is tokenized as ITSELF, not as a TypeScript type annotation —
+    // which is the whole print argument in #155.
+    expect(out).toContain('token tjs-example')
+    // And the class stays `language-tjs`, so a theme can target it.
+    expect(out).toContain('class="language-tjs"')
+  })
+
+  test('registration reaches the BUILD path, not just the browser', async () => {
+    // A runtime-only registration would leave the ePub and print unhighlighted, which is
+    // exactly where a wrong colour is permanent.
+    const out = await highlightHtml(
+      `<pre data-example-mode="static"><code class="language-tjs">test x() {}</code></pre>`
+    )
+    expect(out).toContain('data-highlighted')
   })
 })

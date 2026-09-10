@@ -73,6 +73,42 @@ const ALIASES: Record<string, string> = {
   test: 'javascript', // doc-test blocks are JS
 }
 
+/*
+Grammars supplied by a consumer, keyed by FENCE language.
+
+The alias table below maps fence names onto Prism's built-in grammars, and it is the wrong
+seam for a language that ships its own. tjs-lang is generating a Prism definition for TJS from
+the same source that already emits their TextMate grammars (tosijs-ui#155), and hardcoding it
+here would put their grammar behind our release cadence.
+
+Registered grammars WIN over the alias table, and are used by the build-time pass as well as
+the browser — so a registered language reaches the pre-rendered page, the ePub and print, not
+just a hydrated tab.
+
+  import { registerGrammar } from 'tosijs-ui/site'
+  import { tjsGrammar } from 'tjs-lang/prism'
+  registerGrammar('tjs', tjsGrammar)
+
+Why this matters more than usual: a wrong token colour is cosmetic on the web and permanent in
+a printed book. TJS's colon examples (`greet(name: 'Alice')`) are VALUES, and rendering them
+with TypeScript's type colour makes the page assert the exact misreading the document exists to
+correct.
+*/
+const registered = new Map<string, unknown>()
+
+/**
+ * Supply a Prism grammar for a fence language. Overrides the built-in alias mapping.
+ * Call before the first highlight — at module scope in a bundle entry, or in `prebuild`.
+ */
+export function registerGrammar(fenceLang: string, grammar: unknown): void {
+  registered.set(fenceLang.toLowerCase(), grammar)
+}
+
+/** Registered grammars, for tests and diagnostics. */
+export function registeredGrammars(): string[] {
+  return [...registered.keys()]
+}
+
 export function grammarFor(fenceLang: string): string {
   const l = fenceLang.toLowerCase()
   return ALIASES[l] ?? l
@@ -143,6 +179,16 @@ export async function ensureGrammar(lang: string): Promise<boolean> {
       return false // Prism not installed — highlighting is optional, not required
     }
   }
+  /*
+  A registered grammar is installed into Prism under the FENCE name, not the alias — so
+  `tjs` becomes a real Prism language rather than resolving to `javascript`, and the emitted
+  class stays `language-tjs` for a theme to target.
+  */
+  const supplied = registered.get(lang.toLowerCase())
+  if (supplied) {
+    prism.languages[lang.toLowerCase()] = supplied
+    return true
+  }
   if (prism.languages[grammar]) return true
   if (BUILTIN.has(grammar)) return Boolean(prism.languages[grammar])
 
@@ -173,7 +219,8 @@ export async function ensureGrammar(lang: string): Promise<boolean> {
  * page never highlights half its blocks.
  */
 export function highlight(code: string, lang: string): string | null {
-  const grammar = grammarFor(lang)
+  const key = lang.toLowerCase()
+  const grammar = registered.has(key) ? key : grammarFor(lang)
   const g = prism?.languages[grammar]
   if (!prism || !g) return null
   return prism.highlight(code, g, grammar)

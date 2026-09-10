@@ -294,8 +294,7 @@ button, select, .clickable {
   align-items: center;
   justify-content: center;
   transition: ease-out 0.2s;
-  --text-color: var(--brand-color);
-  color: var(--text-color);
+  color: var(--brand-color);
   text-decoration: none;
   background: var(--button-bg);
   padding: 0 calc(var(--spacing) * 1.25);
@@ -373,7 +372,7 @@ pre {
 
 pre, code {
   font-family: var(--code-font-family);
-  --text-color: var(--brand-color);
+  color: var(--brand-color);
 }
 
 .token.comment, .token.prolog, .token.cdata {

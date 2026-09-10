@@ -433,8 +433,24 @@ export function docSystemStyleSpec(theme: DocSystemTheme = {}): XinStyleSheet {
       alignItems: 'center',
       justifyContent: 'center',
       transition: 'ease-out 0.2s',
-      _textColor: vars.brandColor,
-      color: vars.textColor,
+      /*
+      Set the COLOUR, do not redefine the palette token (#150).
+
+      This was `--text-color: var(--brand-color); color: var(--text-color)`, which redefines a
+      GLOBAL theme token on an element selector. `--text-color` is what the whole palette is
+      built from (`--tosi-text: var(--text-color)`), so from any `<button>` downward it stopped
+      meaning "the theme's text colour" and meant the brand colour instead.
+
+      That reaches into anything embedded. An editor deriving its chrome from the page
+      (`--editor-text: var(--tosi-text)`) resolved correctly in the document and to the brand
+      colour on its own slotted toolbar buttons — measured at oklab L≈0.27 against an L 0.16
+      bar in dark mode, unreadable, with correct body text beside it.
+
+      Redefining an inherited token on an element selector poisons the subtree for every
+      consumer of that token, not just for this rule. Setting `color` says the same thing and
+      says only it.
+      */
+      color: vars.brandColor,
       textDecoration: 'none',
       background: vars.buttonBg,
       padding: '0 calc(var(--spacing) * 1.25)',
@@ -501,7 +517,11 @@ export function docSystemStyleSpec(theme: DocSystemTheme = {}): XinStyleSheet {
     },
     'pre, code': {
       fontFamily: vars.codeFontFamily,
-      _textColor: vars.brandColor,
+      // Same defect as the button rule above (#150): this redefined the global
+      // `--text-color` token rather than setting a colour, so everything inside a `<pre>`
+      // — including every syntax-highlighting token span — inherited a palette where the
+      // theme's text colour had been replaced by the brand colour.
+      color: vars.brandColor,
     },
     /*
     Prism token colours for STATIC code blocks (the ones that are not live examples).
