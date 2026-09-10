@@ -2405,25 +2405,79 @@ export class TosiTable extends WebComponent {
             }, 'col-resize');
         }
     };
-    selectRow(row, select = true) {
-        if (select) {
-            row[this.selectedKey] = true;
+    /*
+    Stamp the selection key. NO mode enforcement, NO notification (tosijs-ui#157).
+  
+    The click path composes several of these per interaction — a shift-range walks a span, a
+    plain click deselects everything then selects one — and fires `selectionChanged` once at the
+    end. The public API below enforces the mode and notifies exactly once. Keeping the raw stamp
+    private is what lets both be true.
+    */
+    stampSelection(rows, select) {
+        for (const row of rows) {
+            if (select)
+                row[this.selectedKey] = true;
+            else
+                delete row[this.selectedKey];
         }
-        else {
-            delete row[this.selectedKey];
+    }
+    /*
+    The public selection API, which must agree with what clicking can do.
+  
+    It did not. `selectRow`/`selectRows` stamped the key with no reference to `select` or
+    `multiple`, while the click path enforces the mode three separate ways. So
+    `selectRows([a, b, c], true)` on a single-select table left three rows selected — a state no
+    amount of clicking can produce — and with selection disabled outright it still selected.
+    Neither fired `selectionChanged`, so a consumer keeping its own UI in step silently missed
+    every programmatic selection, including the "restore selection after a data refresh" case
+    these methods are documented for.
+  
+    Deselection is deliberately NOT gated on the mode. Gating selection preserves the invariant
+    ("you cannot select more than the mode allows"); deselection can only ever reduce a
+    selection, so refusing it would strand rows that were selected before the mode changed, with
+    no way to clear them.
+    */
+    applySelection(rows, select) {
+        /*
+        Enforce CARDINALITY (`multiple`), not the interaction flag (`select`).
+    
+        The reported defect is that `selectRows([a, b, c], true)` on a single-select table left
+        three rows selected — a state no amount of clicking can produce. That is a data-model
+        invariant and it is enforced below.
+    
+        `select` is a different kind of switch: it governs what the USER may do, not what the
+        program may do. Refusing programmatic selection when it is unset breaks legitimate
+        headless use — restoring a selection after a refresh, driving a table from a controller,
+        and this component's own pinned-row example, which selects a totals row on a table that
+        never enables clicking. So it is deliberately NOT a gate here.
+    
+        This is a narrower rule than tosijs-ui#157 proposed, and the reason is in that example:
+        the reporter's concern is reachability of impossible STATES, which `multiple` covers on
+        its own.
+        */
+        if (select && !this.multiple && rows.length > 1) {
+            /*
+            Single-select given several rows: keep the last, and SAY SO. Silently dropping rows is
+            how a caller comes to believe a table holds a selection it does not have — and the
+            reporter's case is exactly this shape, restoring a saved selection into a single-select
+            table after a refresh.
+            */
+            console.warn(`<tosi-table>.selectRows: ${rows.length} rows given but multiple=false — ` +
+                `keeping the last. Set \`multiple\` to select more than one.`);
+            rows = rows.slice(-1);
         }
+        // Single-select REPLACES, exactly as a plain click does.
+        if (select && !this.multiple)
+            this.stampSelection(this.array, false);
+        this.stampSelection(rows, select);
         this.updateSelectionVisuals();
+        this.selectionChanged(this.visibleSelectedRows);
+    }
+    selectRow(row, select = true) {
+        this.applySelection([row], select);
     }
     selectRows(rows, select = true) {
-        for (const row of rows || this.array) {
-            if (select) {
-                row[this.selectedKey] = true;
-            }
-            else {
-                delete row[this.selectedKey];
-            }
-        }
-        this.updateSelectionVisuals();
+        this.applySelection(rows ?? this.array, select);
     }
     deSelect(rows) {
         this.selectRows(rows, false);
@@ -2474,13 +2528,13 @@ export class TosiTable extends WebComponent {
             // if start is -1 then one of the items is no longer visible
             if (start > -1) {
                 for (let idx = start; idx <= finish; idx++) {
-                    const row = rows[idx];
-                    this.selectRow(row, mode);
+                    // Raw stamp: updateSelection notifies once, at the end.
+                    this.stampSelection([rows[idx]], mode);
                 }
             }
         }
         else if (this.multiple && mouseEvent.metaKey) {
-            this.selectRow(pickedItem, !pickedItem[this.selectedKey]);
+            this.stampSelection([pickedItem], !pickedItem[this.selectedKey]);
             const pickedIndex = rows.indexOf(pickedItem);
             const nextItem = rows[pickedIndex + 1];
             const previousItem = pickedIndex > 0 ? rows[pickedIndex - 1] : undefined;
@@ -2497,8 +2551,8 @@ export class TosiTable extends WebComponent {
         }
         else {
             this.rangeStart = pickedItem;
-            this.deSelect();
-            this.selectRow(pickedItem, true);
+            this.stampSelection(this.array, false);
+            this.stampSelection([pickedItem], true);
         }
         this.selectionChanged(this.visibleSelectedRows);
         this.updateSelectionVisuals();

@@ -356,6 +356,8 @@ export declare class TosiTable extends WebComponent {
     getColumn(event: any): ColumnOptions | undefined;
     private setCursor;
     private resizeColumn;
+    private stampSelection;
+    private applySelection;
     selectRow(row: any, select?: boolean): void;
     selectRows(rows?: any[], select?: boolean): void;
     deSelect(rows?: any[]): void;

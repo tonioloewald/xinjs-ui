@@ -685,6 +685,19 @@ export class TosiCrud extends WebComponent<CrudParts> {
   }
 
   private handleSelectionChanged = (selected: any[]): void => {
+    /*
+    Ignore the table's notification while WE are the ones driving it (tosijs-ui#157).
+
+    `selectRow`/`deSelect` became notifying, so `syncTableSelection` — which deselects and
+    then re-selects — now calls back into here twice. The deselect half reports an empty
+    selection, so this cleared `_selected`, and the record vanished mid-edit.
+
+    `_applyingSelection` already existed to stop `syncTableSelection` re-entering itself; the
+    notification is a second path out of the same operation and needs the same guard. A
+    component that both drives and observes a selection has to be able to tell its own writes
+    from the user's, and this is that line.
+    */
+    if (this._applyingSelection) return
     this.select(selected[0] ?? null)
   }
 

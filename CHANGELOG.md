@@ -2,6 +2,38 @@
 
 ## 1.15.0 (unreleased)
 
+### `<tosi-table>`'s selection API agrees with clicking, and notifies (#157)
+
+`selectRow`/`selectRows` stamped the selection key with no reference to the table's mode,
+while the click path enforces it three separate ways. So `selectRows([a, b, c], true)` on a
+single-select table left **three rows selected** — a state no amount of clicking can produce —
+and neither method fired `selectionChanged`, so a consumer keeping its own UI in step silently
+missed every programmatic selection. Including "restore selection after a data refresh", which
+is what these methods are documented for.
+
+Both now enforce cardinality and notify exactly once. Selecting in single-select mode
+**replaces**, exactly as a plain click does, and warns if handed more than one row rather than
+silently dropping the rest.
+
+**Narrower than the issue proposed, and deliberately.** `multiple` is a data-model invariant
+and is enforced; `select` is not, because it governs what the *user* may do rather than what
+the *program* may do. Gating on it broke legitimate headless use — including this component's
+own pinned-row example, which selects a totals row on a table that never enables clicking.
+Cardinality is the invariant the report is really about, and `multiple` covers it alone.
+
+Deselection is never gated: it can only reduce a selection, and refusing it would strand rows
+selected before the mode changed with no way to clear them.
+
+The click path keeps notifying once per interaction by composing a private non-notifying
+primitive — a plain click deselects everything and then selects one, so a notifying public API
+called from inside would fire several times per click.
+
+**`<tosi-crud>` needed a guard for the new notification**, and the shape is worth knowing if
+you drive a table programmatically: it both drives and observes the selection, so its own
+`deSelect()`/`selectRow()` sync now called back into its handler — the deselect half reporting
+an empty selection, which cleared the current record mid-edit. A component that writes and
+watches the same state has to be able to tell its own writes from the user's.
+
 ### `registerGrammar` — a language can supply its own Prism definition (#155)
 
 Our alias table maps fence names onto Prism's built-in grammars, which is the wrong seam for a

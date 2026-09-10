@@ -308,3 +308,108 @@ describe('#147: the window is applied last', () => {
     expect(table.visibleRows[0].n).toBe(0)
   })
 })
+
+/*
+The programmatic selection API must agree with what clicking can do (#157).
+
+`selectRow`/`selectRows` stamped the selection key with no reference to `select`/`multiple`,
+while the click path enforces the mode three separate ways. So the API could reach states no
+amount of clicking could produce, and neither method fired `selectionChanged` — so a consumer
+keeping its own UI in step silently missed every programmatic selection, including the
+"restore selection after a data refresh" case these methods are documented for.
+*/
+describe('#157: selection API respects mode and notifies', () => {
+  const rows = () => [{ id: 1 }, { id: 2 }, { id: 3 }]
+  const make = (opts: Record<string, unknown>) => {
+    const t = tosiTable() as any
+    t.columns = [{ name: 'id', prop: 'id' }]
+    Object.assign(t, opts)
+    t.array = rows()
+    t.render()
+    return t
+  }
+
+  test('single-select: selectRows keeps ONE, like a click', () => {
+    const t = make({ select: true, multiple: false })
+    t.selectRows(t.array, true)
+    expect(t.array.filter((r: any) => r[t.selectedKey]).length).toBe(1)
+  })
+
+  test('single-select: selecting REPLACES, it does not accumulate', () => {
+    const t = make({ select: true, multiple: false })
+    t.selectRow(t.array[0], true)
+    t.selectRow(t.array[1], true)
+    const selected = t.array.filter((r: any) => r[t.selectedKey])
+    expect(selected.length).toBe(1)
+    expect(selected[0].id).toBe(2)
+  })
+
+  test('multiple: accumulates, as before', () => {
+    const t = make({ select: true, multiple: true })
+    t.selectRows([t.array[0], t.array[2]], true)
+    expect(t.array.filter((r: any) => r[t.selectedKey]).length).toBe(2)
+  })
+
+  test('`select: false` does NOT block programmatic selection', () => {
+    /*
+    `select` governs what the USER may do; refusing the program breaks headless use —
+    restoring a selection after a refresh, driving a table from a controller, and this
+    component's own pinned-row example, which selects a totals row on a table that never
+    enables clicking. The invariant #157 is actually about is CARDINALITY, which `multiple`
+    covers on its own.
+    */
+    const t = make({ select: false, multiple: false })
+    t.selectRows(t.array, true)
+    // Single-select cardinality still holds.
+    expect(t.array.filter((r: any) => r[t.selectedKey]).length).toBe(1)
+  })
+
+  test('DEselection works even with selection disabled', () => {
+    /*
+    Gating selection preserves the invariant; gating deselection would strand rows that were
+    selected before the mode changed, with no way to clear them. Deselection can only ever
+    reduce a selection.
+    */
+    const t = make({ select: true, multiple: true })
+    t.selectRows(t.array, true)
+    t.select = false
+    t.multiple = false
+    t.deSelect()
+    expect(t.array.filter((r: any) => r[t.selectedKey]).length).toBe(0)
+  })
+
+  test('selectionChanged fires — programmatic and user selection look the same', () => {
+    const t = make({ select: true, multiple: true })
+    let calls = 0
+    t.selectionChanged = () => {
+      calls += 1
+    }
+    t.selectRow(t.array[0], true)
+    expect(calls).toBe(1)
+    t.selectRows([t.array[1]], true)
+    expect(calls).toBe(2)
+    t.deSelect()
+    expect(calls).toBe(3)
+  })
+
+  test('the raw stamp does NOT notify — what the once-per-click guarantee rests on', () => {
+    /*
+    A plain click deselects everything then selects one; a shift-range walks a span. If those
+    went through the public API they would notify several times per interaction, so the click
+    path uses `stampSelection` and notifies once at the end.
+
+    Asserted on the primitive rather than by clicking: the virtual list renders no rows under
+    happy-dom (it needs real layout), so a click test here would dispatch into an empty table
+    and pass while checking nothing. End-to-end click behaviour lives in the Playwright table
+    specs.
+    */
+    const t = make({ select: true, multiple: true })
+    let calls = 0
+    t.selectionChanged = () => {
+      calls += 1
+    }
+    t.stampSelection(t.array, true)
+    expect(calls).toBe(0)
+    expect(t.array.filter((r: any) => r[t.selectedKey]).length).toBe(3)
+  })
+})
