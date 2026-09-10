@@ -134,6 +134,28 @@ security prose. What is left:
 
 **Post-1.9.0:**
 
+- [ ] **An icon PICKER that emits `icon-data.ts` on demand** (owner, 2026-09-10 — "for another
+      day"). Icomoon's benefit without the messing around: choose the icons you want, get a
+      generated data file, and the composition language covers the variants. It inverts who
+      decides — we stop curating a set on everyone's behalf, and nobody ships 2,081 icons to
+      get twelve. Sits naturally beside #40, which is already about generating icon modules
+      from canonical data rather than a frozen snapshot.
+
+      **Measured while sizing the alternative (rebuilding on lucide), so it is not re-derived:**
+      lucide has **2,081** icons; **125** are directional siblings by name; **55 of those
+      (44%) are exact rotations or flips** of another member, so our `r`/flip suffixes could
+      delete ~55 files — **2.6%** of the set. The other 56% of name-siblings are separately
+      drawn, so **a name match is not a rotation** and any derivation must verify geometry
+      per pair. Composites (`$` stacking against badged/slashed variants) is the larger
+      untapped family and was NOT measured.
+
+      ⚠️ **Methodology trap, recorded because it produced a confidently wrong answer:** lucide
+      uses RELATIVE path commands, so a naive coordinate regex reads `m5 12 7-7 7 7`'s deltas
+      as absolute points. The first measurement reported 0 of 125 derivable — the idea looked
+      dead — and it was the extractor, not the icons. Resolve the path commands, or check a
+      small pair by hand first. Same shape as `checkExamples` parsing TJS as JavaScript and
+      blaming the document (#154).
+
 - [ ] **[#40](https://github.com/tonioloewald/tosijs-ui/issues/40) — generate the per-icon
       modules from canonical data.** `src/icons/data/*` (313 modules) is the fine-grained
       tree-shakeable surface, which is a real feature — but it's a frozen 2024 snapshot no
