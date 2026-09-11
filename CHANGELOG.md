@@ -2,6 +2,24 @@
 
 ## 1.15.0 (unreleased)
 
+### ePub NCX `playOrder` was duplicated and non-monotonic
+
+`playOrder` is the NCX's **linear reading position**, and the spec requires it unique and
+increasing — readers use it for "next chapter" and progress. It was read inside a template
+literal *after* the recursive child call had already advanced the shared counter, so every
+parent inherited its deepest descendant's number.
+
+Our own ePub shipped **4 duplicate values across 72 navPoints**, with a sequence that went
+backwards. A four-level section collapsed all four onto one value.
+
+`id` was always correct, because it captured `++counter.n` into a const. `playOrder` now does
+the same, which is the whole fix.
+
+Found by checking whether the nav system supports a parent with a parent — it does, at every
+level (model, static HTML, hydrated nav, EPUB3 `nav.xhtml`, NCX, and the CSS indentation),
+and refreshing a deeply nested page discloses every ancestor correctly. A flat corpus cannot
+reproduce this defect, which is why it shipped.
+
 ### `<tosi-table>`'s selection API agrees with clicking, and notifies (#157)
 
 `selectRow`/`selectRows` stamped the selection key with no reference to the table's mode,

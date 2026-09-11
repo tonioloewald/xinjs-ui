@@ -456,11 +456,25 @@ function renderNavPoints(
 ): string {
   return nodes
     .map((node) => {
-      const id = `np-${++counter.n}`
+      /*
+      Capture the order BEFORE recursing.
+
+      This read `counter.n` inside the template literal, which the template evaluates AFTER
+      `kids` has already run — so every parent inherited its deepest descendant's number. In
+      a two-level corpus that produced 4 duplicate `playOrder` values across 72 navPoints; at
+      four levels a single branch collapsed all four onto one. NCX `playOrder` is the LINEAR
+      reading position and the spec requires it unique and increasing, so a reader's "next
+      chapter" and progress indicator were working from a sequence that went backwards.
+
+      `id` was always correct because it captured `++counter.n` into a const. `playOrder`
+      needs the same treatment, which is all this is.
+      */
+      const order = ++counter.n
+      const id = `np-${order}`
       const kids = node.children.length
         ? '\n' + renderNavPoints(node.children, hrefFor, counter)
         : ''
-      return `<navPoint id="${id}" playOrder="${counter.n}">
+      return `<navPoint id="${id}" playOrder="${order}">
   <navLabel><text>${escapeXml(node.doc.title)}</text></navLabel>
   <content src="${hrefFor(node.doc)}"/>${kids}
 </navPoint>`

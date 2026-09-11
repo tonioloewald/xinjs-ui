@@ -236,3 +236,94 @@ test('buildEpub normalises and defaults dcterms:modified for EVERY caller', asyn
 
   fs.rmSync(dir, { recursive: true, force: true })
 }, 60000)
+
+test('NCX playOrder is unique and increasing through NESTED sections', async () => {
+  /*
+  `playOrder` is the NCX's LINEAR reading position, and the spec requires it unique and
+  increasing. It was read inside a template literal AFTER the recursive `kids` call had
+  already advanced the shared counter, so every parent inherited its deepest descendant's
+  number. Our own two-level corpus shipped 4 duplicates across 72 navPoints and a sequence
+  that went backwards; a four-level branch collapsed all four onto one value.
+
+  `id` was always right because it captured `++counter.n` into a const — the bug was that
+  `playOrder` did not.
+
+  Nesting is the point of this test: a flat corpus cannot reproduce it, which is why it
+  shipped.
+  */
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'epub-ncx-'))
+  try {
+    const corpus = path.join(dir, 'docs.json')
+    fs.writeFileSync(
+      corpus,
+      JSON.stringify([
+        {
+          filename: 'README.md',
+          title: 'Home',
+          text: '# Home\n\nhi',
+          path: 'README.md',
+        },
+        { filename: 'l1.md', title: 'L1', text: '# L1\n\none', path: 'l1.md' },
+        {
+          filename: 'l2.md',
+          title: 'L2',
+          text: '# L2\n\ntwo',
+          path: 'l2.md',
+          parent: 'L1',
+        },
+        {
+          filename: 'l3.md',
+          title: 'L3',
+          text: '# L3\n\nthree',
+          path: 'l3.md',
+          parent: 'L2',
+        },
+        {
+          filename: 'l4.md',
+          title: 'L4',
+          text: '# L4\n\nfour',
+          path: 'l4.md',
+          parent: 'L3',
+        },
+        {
+          filename: 'sib.md',
+          title: 'Sib',
+          text: '# Sib\n\nsib',
+          path: 'sib.md',
+          parent: 'L1',
+        },
+      ])
+    )
+    const out = path.join(dir, 'book.epub')
+    await buildEpub(
+      {
+        name: 'Nest Book',
+        outputDir: dir,
+        docsJson: corpus,
+        baseUrl: 'https://example.test',
+      } as any,
+      { output: out, author: 'Tester' }
+    )
+    Bun.spawnSync(['unzip', '-o', '-q', out, '-d', dir])
+    const ncx = fs.readFileSync(path.join(dir, 'OEBPS/toc.ncx'), 'utf8')
+    const order = [...ncx.matchAll(/playOrder="(\d+)"/g)].map((m) =>
+      Number(m[1])
+    )
+
+    expect(order.length).toBeGreaterThan(4) // the nesting actually rendered
+    expect(
+      new Set(order).size,
+      `duplicate playOrder values: ${order.join(',')}`
+    ).toBe(order.length)
+    expect(order, 'playOrder must increase in reading order').toEqual(
+      [...order].sort((a, b) => a - b)
+    )
+
+    // And the nesting itself survived — a flat NCX would pass the checks above trivially.
+    expect(ncx).toMatch(
+      /<navPoint[^>]*>[\s\S]*<navPoint[^>]*>[\s\S]*<navPoint[^>]*>/
+    )
+  } finally {
+    fs.rmSync(dir, { recursive: true, force: true })
+  }
+})
