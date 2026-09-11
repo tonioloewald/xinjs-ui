@@ -143,3 +143,58 @@ test('docs with no order share the 500 default and fall back to title', () => {
       .map((d) => d.title)
   ).toEqual(['Apple', 'Zebra'])
 })
+
+/*
+Multi-level nesting: a parent with a parent (owner question, 2026-09-11).
+
+The module's header has always claimed "nested arbitrarily deep" and every renderer is
+written recursively — but nothing exercised more than TWO levels, because this project's own
+corpus never goes deeper. An untested capability with a comment asserting it is exactly the
+combination that lets a defect ship, and one did: checking this surfaced an NCX `playOrder`
+bug that only a nested corpus reproduces (see epub.test.ts).
+
+So these pin the depth itself rather than the bug it found.
+*/
+const deep = [
+  mk('guide.md', 'Guide'),
+  mk('api.md', 'API', { parent: 'Guide' }),
+  mk('verbs.md', 'Verbs', { parent: 'API' }),
+  mk('read.md', 'read', { parent: 'Verbs' }),
+  mk('write.md', 'write', { parent: 'Verbs' }),
+  mk('other.md', 'Other'),
+]
+
+test('a parent with a parent with a parent nests four levels deep', () => {
+  const roots = buildNavTree(deep, buildSlugMap(deep))
+  const guide = roots.find((n) => n.doc.title === 'Guide')!
+  const api = guide.children[0]
+  const verbs = api.children[0]
+
+  expect(guide.depth).toBe(0)
+  expect(api.doc.title).toBe('API')
+  expect(api.depth).toBe(1)
+  expect(verbs.doc.title).toBe('Verbs')
+  expect(verbs.depth).toBe(2)
+  expect(verbs.children.map((c) => c.doc.title)).toEqual(['read', 'write'])
+  expect(verbs.children.every((c) => c.depth === 3)).toBe(true)
+
+  // A doc with no parent stays at the root rather than being swept into the tree.
+  expect(roots.some((n) => n.doc.title === 'Other')).toBe(true)
+})
+
+test('refreshing a DEEPLY nested page opens every ancestor, not just its parent', () => {
+  /*
+  This is what makes a deep link usable: land on `read` and the whole spine — Guide, API,
+  Verbs — must be disclosed, or the reader sees a collapsed nav with no indication of where
+  they are. Verified end-to-end on a temporary four-level corpus (every ancestor rendered
+  `<details open>`, the leaf `aria-current="page"`); this pins the function that decides it.
+  */
+  const roots = buildNavTree(deep, buildSlugMap(deep))
+  const open = navOpenPath(roots, 'read.md')
+
+  expect([...open].sort()).toEqual(['api.md', 'guide.md', 'verbs.md'])
+  // The current page is a leaf — it has nothing to disclose.
+  expect(open.has('read.md')).toBe(false)
+  // A sibling branch stays shut.
+  expect(open.has('other.md')).toBe(false)
+})
